@@ -6,8 +6,7 @@ DEV_STAMP = $(VENV)/.dev_env_installed.stamp
 INSTALL_STAMP = $(VENV)/.install.stamp
 TEMPDIR := $(shell mktemp -d)
 
-.IGNORE: clean distclean maintainer-clean
-.PHONY: all install virtualenv tests
+.PHONY: all install virtualenv 
 
 OBJECTS = .venv .coverage
 
@@ -22,8 +21,11 @@ virtualenv: $(PYTHON)
 $(PYTHON):
 	virtualenv $(VENV)
 
+migrate:
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
+
 $(SERVER_CONFIG):
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
 
-serve: install-dev $(SERVER_CONFIG) migrate
+serve: install $(SERVER_CONFIG) migrate
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start
