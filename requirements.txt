@@ -1,2 +1,3 @@
 kinto==1.11.2
 kinto-attachment==0.3.0
+kinto-changes==0.1.0
