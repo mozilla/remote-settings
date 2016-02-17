@@ -1,0 +1,2 @@
+include *.rst LICENSE Makefile
+recursive-include kinto_admin static/*

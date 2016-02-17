@@ -1,0 +1,416 @@
+{
+  "addons": {
+    "name": "addons",
+    "synced": true,
+    "config": {
+      "displayFields": ["enabled", "addonId"],
+      "schema": {
+        "title": "Addon",
+        "description": "Addon",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "addonId"
+        ],
+        "default": {
+          "addonId": "",
+          "prefs": [],
+          "versionRange": []
+        },
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "blocking rule is enabled.",
+            "default": false
+          },
+          "addonId": {
+            "type": "string",
+            "title": "Addon id",
+            "description": "The addon unique identifier.",
+            "minLength": 1,
+            "default": ""
+          },
+          "prefs": {
+            "type": "array",
+            "title": "Preferences",
+            "description": "The list of impacted preferences.",
+            "uniqueItems": true,
+            "default": [],
+            "items": {
+              "title": "Preference name",
+              "description": "The browser preference name, eg. browser.startup.homepage",
+              "type": "string",
+              "minLength": 1,
+              "default": ""
+            }
+          },
+          "versionRange": {
+            "type": "array",
+            "title": "Versions",
+            "description": "The list of impacted versions.",
+            "default": [],
+            "items": {
+              "type": "object",
+              "title": "Version range",
+              "description": "Version range",
+              "additionalProperties": false,
+              "required": [
+                "minVersion",
+                "maxVersion",
+                "severity"
+              ],
+              "default": {
+                "minVersion": "",
+                "maxVersion": "",
+                "severity": "0",
+                "vulnerabilityStatus": "",
+                "targetApplication": {
+                  "id": "",
+                  "minVersion": "",
+                  "maxVersion": ""
+                }
+              },
+              "properties": {
+                "minVersion": {
+                  "type": "string",
+                  "title": "Min version",
+                  "description": "The mininum version."
+                },
+                "maxVersion": {
+                  "type": "string",
+                  "title": "Max version",
+                  "description": "The maximum version.",
+                  "default": ""
+                },
+                "severity": {
+                  "type": "string",
+                  "title": "Severity",
+                  "description": "The severity code number.",
+                  "enum": [
+                    "0",
+                    "1",
+                    "2",
+                    "3"
+                  ],
+                  "default": "0"
+                },
+                "vulnerabilityStatus": {
+                  "type": "string",
+                  "title": "Vulnerability status",
+                  "description": "The vulnerability status code number.",
+                  "enum": [
+                    "",
+                    "1",
+                    "2"
+                  ],
+                  "default": ""
+                },
+                "targetApplication": {
+                  "type": "object",
+                  "title": "Target application",
+                  "description": "The target application information.",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "minVersion",
+                    "maxVersion"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "title": "Application id",
+                      "description": "The application unique identifier."
+                    },
+                    "minVersion": {
+                      "type": "string",
+                      "title": "Min version",
+                      "description": "The mininum version."
+                    },
+                    "maxVersion": {
+                      "type": "string",
+                      "title": "Max version",
+                      "description": "The maximum version."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "certificates": {
+    "name": "certificates",
+    "synced": true,
+    "config": {
+      "displayFields": ["enabled", "issuerName"],
+      "schema": {
+        "title": "Certificate",
+        "description": "A blocked certificate entry.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "issuerName",
+          "serialNumber"
+        ],
+        "default": {
+          "issuerName": "",
+          "serialNumber": ""
+        },
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "blocking rule is enabled.",
+            "default": false
+          },
+          "issuerName": {
+            "type": "string",
+            "title": "Issuer name",
+            "description": "The certificate issuer name."
+          },
+          "serialNumber": {
+            "type": "string",
+            "title": "Serial number",
+            "description": "The certificate serial number."
+          }
+        }
+      }
+    }
+  },
+  "gfx": {
+    "name": "gfx",
+    "synced": true,
+    "config": {
+      "displayFields": ["enabled", "os", "vendor", "feature"],
+      "schema": {
+        "title": "Gfx",
+        "description": "A graphic driver blocklist entry.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "os",
+          "vendor",
+          "feature",
+          "featureStatus"
+        ],
+        "default": {
+          "os": "",
+          "vendor": "",
+          "devices": [],
+          "feature": "",
+          "featureStatus": "",
+          "driverVersion": "",
+          "driverVersionComparator": ""
+        },
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "blocking rule is enabled.",
+            "default": false
+          },
+          "os": {
+            "type": "string",
+            "title": "OS",
+            "description": "The operating system identifier."
+          },
+          "vendor": {
+            "type": "string",
+            "title": "Vendor",
+            "description": "A vendor identifier, eg. 0x1002"
+          },
+          "devices": {
+            "type": "array",
+            "title": "Devices",
+            "description": "The list of impacted devices.",
+            "items": {
+              "type": "string",
+              "title": "Device",
+              "description": "A device identifier, eg. 0x9803",
+              "minLength": 1
+            }
+          },
+          "feature": {
+            "type": "string",
+            "title": "Feature",
+            "description": "The type of feature impacted."
+          },
+          "featureStatus": {
+            "type": "string",
+            "title": "Feature status",
+            "description": "The feature status.",
+            "enum": [
+              "",
+              "BLOCKED_DRIVER_VERSION",
+              "BLOCKED_DEVICE"
+            ]
+          },
+          "driverVersion": {
+            "type": "string",
+            "title": "Driver version",
+            "description": "The driver version."
+          },
+          "driverVersionComparator": {
+            "type": "string",
+            "title": "Driver version comparator",
+            "description": "The driver version comparator",
+            "enum": [
+              "",
+              "EQUAL",
+              "LESS_THAN",
+              "LESS_THAN_OR_EQUAL",
+              "GREATER_THAN",
+              "GREATER_THAN_OR_EQUAL"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "plugins": {
+    "name": "plugins",
+    "synced": true,
+    "config": {
+      "displayFields": ["enabled", "matchName", "matchFilename", "matchDescription"],
+      "schema": {
+        "title": "Plugin",
+        "description": "A blocked plugin entry.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "versionRange"
+        ],
+        "default": {
+          "matchName": "",
+          "matchFilename": "",
+          "matchDescription": "",
+          "infoURL": "",
+          "versionRange": []
+        },
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "blocking rule is enabled.",
+            "default": false
+          },
+          "matchName": {
+            "type": "string",
+            "title": "Name match",
+            "description": "A plugin name pattern to match."
+          },
+          "matchFilename": {
+            "type": "string",
+            "title": "Filename match",
+            "description": "A plugin filename pattern to match."
+          },
+          "matchDescription": {
+            "type": "string",
+            "title": "Description match",
+            "description": "A plugin description pattern to match."
+          },
+          "infoURL": {
+            "type": "string",
+            "title": "Info URL",
+            "description": "A HTTP URL providing related information."
+          },
+          "versionRange": {
+            "type": "array",
+            "title": "Versions",
+            "description": "The list of impacted versions.",
+            "default": [],
+            "items": {
+              "type": "object",
+              "title": "Version range",
+              "description": "Version range",
+              "additionalProperties": false,
+              "required": [
+                "minVersion",
+                "maxVersion",
+                "severity"
+              ],
+              "default": {
+                "minVersion": "",
+                "maxVersion": "",
+                "severity": "0",
+                "vulnerabilityStatus": "",
+                "targetApplication": {
+                  "id": "",
+                  "minVersion": "",
+                  "maxVersion": ""
+                }
+              },
+              "properties": {
+                "minVersion": {
+                  "type": "string",
+                  "title": "Min version",
+                  "description": "The mininum version."
+                },
+                "maxVersion": {
+                  "type": "string",
+                  "title": "Max version",
+                  "description": "The maximum version.",
+                  "default": ""
+                },
+                "severity": {
+                  "type": "string",
+                  "title": "Severity",
+                  "description": "The severity code number.",
+                  "enum": [
+                    "0",
+                    "1",
+                    "2",
+                    "3"
+                  ],
+                  "default": "0"
+                },
+                "vulnerabilityStatus": {
+                  "type": "string",
+                  "title": "Vulnerability status",
+                  "description": "The vulnerability status code number.",
+                  "enum": [
+                    "",
+                    "1",
+                    "2"
+                  ],
+                  "default": ""
+                },
+                "targetApplication": {
+                  "type": "object",
+                  "title": "Target application",
+                  "description": "The target application information.",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "minVersion",
+                    "maxVersion"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "title": "Application id",
+                      "description": "The application unique identifier."
+                    },
+                    "minVersion": {
+                      "type": "string",
+                      "title": "Min version",
+                      "description": "The mininum version."
+                    },
+                    "maxVersion": {
+                      "type": "string",
+                      "title": "Max version",
+                      "description": "The maximum version."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
