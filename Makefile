@@ -19,7 +19,7 @@ $(INSTALL_STAMP): $(PYTHON) setup.py
 
 virtualenv: $(PYTHON)
 $(PYTHON):
-	virtualenv $(VENV)
+	$(VIRTUALENV) $(VENV)
 
 migrate:
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
