@@ -1,0 +1,2 @@
+# kinto-dist
+Kinto Distribution
