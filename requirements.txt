@@ -1,9 +1,6 @@
 boto==2.39.0
-cliquet==2.15.0
+cliquet[monitoring,postgresql]==2.15.0
 cliquet-fxa==1.4.0
 kinto==1.11.2
 kinto-attachment==0.3.0
 kinto-changes==0.1.0
-psycopg2==2.6.1
-raven==5.10.2
-statsd==3.2.1
