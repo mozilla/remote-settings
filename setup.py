@@ -12,7 +12,14 @@ def read_file(filename):
     return content
 
 README = read_file('README.rst')
-REQUIREMENTS = ["kinto", "kinto-attachment", "kinto-changes"]
+REQUIREMENTS = [
+    "cliquet[monitoring,postgresql]",
+    "kinto",
+    "kinto-attachment",
+    "kinto-changes",
+    "cliquet-fxa",
+    "boto",
+]
 ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
 
