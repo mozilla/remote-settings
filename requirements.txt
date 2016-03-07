@@ -4,3 +4,4 @@ cliquet-fxa==1.4.0
 kinto==1.11.2
 kinto-attachment==0.3.0
 kinto-changes==0.1.0
+kinto-signer==0.1.0
