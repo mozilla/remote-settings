@@ -17,6 +17,7 @@ REQUIREMENTS = [
     "kinto",
     "kinto-attachment",
     "kinto-changes",
+    "kinto-signer",
     "cliquet-fxa",
     "boto",
 ]
