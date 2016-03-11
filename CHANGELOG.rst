@@ -3,7 +3,7 @@ CHANGELOG
 
 This document describes changes between each past release.
 
-2.0.0 (2016-03-11)
+0.1.0 (2016-03-11)
 ==================
 
 **Configuration changes**
