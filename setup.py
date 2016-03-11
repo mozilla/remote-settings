@@ -12,22 +12,24 @@ def read_file(filename):
     return content
 
 README = read_file('README.rst')
+CHANGELOG = read_file('CHANGELOG.rst')
+
 REQUIREMENTS = [
-    "cliquet[monitoring,postgresql]",
-    "kinto",
-    "kinto-attachment",
-    "kinto-changes",
-    "kinto-signer",
-    "cliquet-fxa",
-    "boto",
+    "cliquet[monitoring,postgresql]>=3.1,<3.2",
+    "kinto>=2.0,<2.1",
+    "kinto-attachment>=0.4,<0.5",
+    "kinto-changes>=0.1,<0.2",
+    "kinto-signer>=0.1,<0.2",
+    "cliquet-fxa>=1.4,<1.5",
+    "boto>=2.39,<2.40",
 ]
 ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
 
 setup(name='kinto-dist',
-      version='0.1.0',
+      version='2.0.0',
       description='Kinto Distribution',
-      long_description=README,
+      long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
       classifiers=[
           "Programming Language :: Python",
