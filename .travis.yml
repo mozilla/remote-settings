@@ -1,0 +1,13 @@
+language: python
+python: 2.7
+addons:
+  postgresql: "9.4"
+install:
+    - psql -c "CREATE DATABASE dbname ENCODING 'UTF8' TEMPLATE template0;" -U postgres
+    - psql -c "CREATE USER user WITH PASSWORD 'pass';" -U postgres
+    - psql -c "GRANT ALL PRIVILEGES ON DATABASE dbname TO user;" -U postgres
+    - make install
+before_script:
+    - make serve &
+script:
+    - curl -I "http://localhost:8888/v1/__heartbeat__"
