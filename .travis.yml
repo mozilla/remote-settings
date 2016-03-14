@@ -3,11 +3,13 @@ python: 2.7
 addons:
   postgresql: "9.4"
 install:
+    - pip install uwsgi
     - psql -c "CREATE DATABASE dbname ENCODING 'UTF8' TEMPLATE template0;" -U postgres
     - psql -c "CREATE USER admin WITH PASSWORD 'pass';" -U postgres
     - psql -c "GRANT ALL PRIVILEGES ON DATABASE dbname TO admin;" -U postgres
     - make install
+    - make migrate
 before_script:
-    - make serve &
+    - UWSGI_VIRTUALENV=$VIRTUAL_ENV uwsgi --http :8888 config/kinto.ini &
 script:
     - curl -I "http://localhost:8888/v1/__heartbeat__"
