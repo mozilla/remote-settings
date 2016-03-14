@@ -6,7 +6,7 @@ DEV_STAMP = $(VENV)/.dev_env_installed.stamp
 INSTALL_STAMP = $(VENV)/.install.stamp
 TEMPDIR := $(shell mktemp -d)
 
-.PHONY: all install virtualenv 
+.PHONY: all install migrate serve virtualenv
 
 OBJECTS = .venv .coverage
 
