@@ -6,7 +6,11 @@ This document describes changes between each past release.
 0.2.0 (2016-03-22)
 ==================
 
-- Update kinto-signer to 0.2.0
+**Version control**
+
+Dependencies version where updated to:
+
+- **kinto-signer 0.2.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.2.0
 
 
 0.1.0 (2016-03-11)
@@ -26,6 +30,6 @@ Dependencies version where updated to:
 - **kinto 2.0.0**: https://github.com/Kinto/kinto/releases/tag/2.0.0
 - **kinto-attachment 0.4.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.4.0
 - **kinto-changes 0.1.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.1.0
-- **kinto-signer 0.2.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.2.0
+- **kinto-signer 0.1.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.1.0
 - **cliquet-fxa 1.4.0**: https://github.com/mozilla-services/cliquet-fxa/releases/tag/1.4.0
 - **boto 2.39**: https://github.com/boto/boto/releases/tag/2.39.0
