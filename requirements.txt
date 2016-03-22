@@ -19,7 +19,7 @@ kinto==2.0.0
 kinto-attachment==0.4.0
 kinto-changes==0.1.0
 kinto-client==4.0.0
-kinto-signer==0.1.0
+kinto-signer==0.2.0
 mohawk==0.3.2.1
 ndg-httpsclient==0.4.0
 newrelic==2.60.0.46
