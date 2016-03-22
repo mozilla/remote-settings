@@ -3,10 +3,14 @@ CHANGELOG
 
 This document describes changes between each past release.
 
-0.2.0 (unreleased)
+0.2.0 (2016-03-22)
 ==================
 
-- Nothing changed yet.
+**Version control**
+
+Dependencies version where updated to:
+
+- **kinto-signer 0.2.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.2.0
 
 
 0.1.0 (2016-03-11)
