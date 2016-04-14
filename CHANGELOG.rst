@@ -10,7 +10,7 @@ This document describes changes between each past release.
 
 Dependencies version were updated to:
 
-- **kinto-attachment 0.5.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.5.0
+- **kinto-attachment 0.5.1**: https://github.com/Kinto/kinto-attachment/releases/tag/0.5.1
 
 
 0.2.0 (2016-03-22)
