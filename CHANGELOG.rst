@@ -3,7 +3,7 @@ CHANGELOG
 
 This document describes changes between each past release.
 
-0.3.0 (unreleased)
+0.3.0 (2016-04-18)
 ==================
 
 - Fix kinto-attachment bucket setting in configuration example
