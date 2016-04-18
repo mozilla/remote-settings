@@ -6,6 +6,8 @@ This document describes changes between each past release.
 0.3.0 (unreleased)
 ==================
 
+- Fix kinto-attachment bucket setting in configuration example
+
 **Version control**
 
 Dependencies version were updated to:
