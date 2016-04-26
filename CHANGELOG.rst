@@ -6,7 +6,11 @@ This document describes changes between each past release.
 0.4.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Version control**
+
+- **kinto 2.1.0**: https://github.com/Kinto/kinto/releases/tag/2.10
+- **kinto-changes 0.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.2.0
+- **kinto-signer 0.3.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.3.0
 
 
 0.3.0 (2016-04-18)
