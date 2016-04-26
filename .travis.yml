@@ -1,15 +1,18 @@
-language: python
-python: 2.7
+go: 1.5
+language: go
 addons:
   postgresql: "9.4"
 install:
-    - pip install uwsgi
+    - sudo apt-get install python-dev python-virtualenv
+    - go get github.com/mozilla-services/autograph
     - psql -c "CREATE DATABASE dbname ENCODING 'UTF8' TEMPLATE template0;" -U postgres
     - psql -c "CREATE USER admin WITH PASSWORD 'pass';" -U postgres
     - psql -c "GRANT ALL PRIVILEGES ON DATABASE dbname TO admin;" -U postgres
     - make install
     - make migrate
+    - .venv/bin/pip install uwsgi
 before_script:
-    - UWSGI_VIRTUALENV=$VIRTUAL_ENV uwsgi --http :8888 config/kinto.ini &
+    - UWSGI_VIRTUALENV=.venv .venv/bin/uwsgi --http :8888 config/kinto.ini &
+    - autograph -c $TRAVIS_BUILD_DIR/.autograph.yml &
 script:
     - curl --fail "http://localhost:8888/v1/__heartbeat__"
