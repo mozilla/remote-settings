@@ -12,4 +12,4 @@ install:
 before_script:
     - UWSGI_VIRTUALENV=$VIRTUAL_ENV uwsgi --http :8888 config/kinto.ini &
 script:
-    - curl -I "http://localhost:8888/v1/__heartbeat__"
+    - curl --fail "http://localhost:8888/v1/__heartbeat__"
