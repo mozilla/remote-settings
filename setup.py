@@ -19,7 +19,7 @@ REQUIREMENTS = [
     "kinto>=2.1,<2.2",
     "kinto-attachment>=0.5.1,<0.6",
     "kinto-changes>=0.2,<0.3",
-    "kinto-signer>=0.3,<0.4",
+    "kinto-signer>=0.4,<0.5",
     "cliquet-fxa>=1.4,<1.5",
     "boto>=2.39,<2.40",
 ]
