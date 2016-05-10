@@ -8,6 +8,7 @@ This document describes changes between each past release.
 
 **Version control**
 
+- **kinto-amo 0.1.1**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.1.1
 - **kinto-signer 0.4.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.4.0
 
 0.4.0 (2016-04-27)
