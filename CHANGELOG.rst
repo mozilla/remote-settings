@@ -6,8 +6,9 @@ This document describes changes between each past release.
 0.5.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Version control**
 
+- **kinto-signer 0.4.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.4.0
 
 0.4.0 (2016-04-27)
 ==================
