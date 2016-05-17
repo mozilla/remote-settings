@@ -16,7 +16,7 @@ the version control of each dependency.
 - **kinto-changes 0.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.2.0
 - **kinto-signer 0.5.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.5.0
 - **cliquet-fxa 1.4.0**: https://github.com/mozilla-services/cliquet-fxa/releases/tag/1.4.0
-- **boto 2.40**: https://github.com/boto/boto/releases/tag/2.40.0
+- **boto 2.40**: http://docs.pythonboto.org/en/latest/releasenotes/v2.40.0.html
 
 
 0.4.0 (2016-04-27)
