@@ -1,15 +1,23 @@
 CHANGELOG
 #########
 
-This document describes changes between each past release.
+This document describes changes between each past release as well as
+the version control of each dependency.
 
-0.5.0 (unreleased)
+0.5.0 (2016-05-17)
 ==================
 
 **Version control**
 
+- **Cliquet 3.1.4**: https://github.com/mozilla-services/cliquet/releases/tag/3.1.4
+- **kinto 2.1.1**: https://github.com/Kinto/kinto/releases/tag/2.1.1
+- **kinto-attachment 0.5.1**: https://github.com/Kinto/kinto-attachment/releases/tag/0.5.1
 - **kinto-amo 0.1.1**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.1.1
-- **kinto-signer 0.4.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.4.0
+- **kinto-changes 0.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.2.0
+- **kinto-signer 0.5.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.5.0
+- **cliquet-fxa 1.4.0**: https://github.com/mozilla-services/cliquet-fxa/releases/tag/1.4.0
+- **boto 2.40**: https://github.com/boto/boto/releases/tag/2.40.0
+
 
 0.4.0 (2016-04-27)
 ==================
