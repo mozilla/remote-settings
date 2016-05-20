@@ -4,10 +4,13 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-0.6.0 (unreleased)
+0.5.1 (2016-05-20)
 ==================
 
-- Nothing changed yet.
+**Version control**
+
+- **Cliquet 3.1.5**: https://github.com/mozilla-services/cliquet/releases/tag/3.1.5
+- **kinto 2.1.2**: https://github.com/Kinto/kinto/releases/tag/2.1.2
 
 
 0.5.0 (2016-05-17)
