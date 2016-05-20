@@ -9,7 +9,15 @@ the version control of each dependency.
 
 **Version control**
 
+- **kinto 3.1.0**: https://github.com/Kinto/kinto/releases/tag/3.1.0
+- **kinto-attachment 0.6.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.6.0
+- **kinto-amo 0.2.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.2.0
+- **kinto-changes 0.3.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.3.0
+- **kinto-signer 0.6.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.6.0
+- **kinto-fxa 2.0.0**: https://github.com/mozilla-services/kinto-fxa/releases/tag/2.0.0
 - **kinto-ldap 0.1.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.1.0
+- **boto 2.40**: http://docs.pythonboto.org/en/latest/releasenotes/v2.40.0.html
+
 
 
 0.5.1 (2016-05-20)
