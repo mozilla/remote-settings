@@ -9,15 +9,112 @@ the version control of each dependency.
 
 **Version control**
 
-- **kinto 3.1.0**: https://github.com/Kinto/kinto/releases/tag/3.1.0
-- **kinto-attachment 0.6.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.6.0
-- **kinto-amo 0.2.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.2.0
-- **kinto-changes 0.3.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.3.0
-- **kinto-signer 0.6.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.6.0
-- **kinto-fxa 2.0.0**: https://github.com/mozilla-services/kinto-fxa/releases/tag/2.0.0
-- **kinto-ldap 0.1.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.1.0
-- **boto 2.40**: http://docs.pythonboto.org/en/latest/releasenotes/v2.40.0.html
+**kinto 2.1.2 → 3.1.0**: https://github.com/Kinto/kinto/releases/tag/3.1.0
 
+**Protocol**
+
+- Added the ``GET /contribute.json`` endpoint for open-source information (fixes #607)
+
+Protocol is now at version **1.6**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+
+**New features**
+
+- Major version update. Merged cliquet into kinto.core. This is
+  intended to simplify the experience of people who are new to Kinto.
+  Addresses #687.
+- Removed ``initialize_cliquet()``, which has been deprecated for a while.
+- Removed ``cliquet_protocol_version``. Kinto already defines
+  incompatible API variations as part of its URL format (e.g. ``/v0``,
+  ``/v1``). Services based on kinto.core are free to use
+  ``http_api_version`` to indicate any additional changes to their
+  APIs.
+- Simplify settings code. Previously, ``public_settings`` could be
+  prefixed with a project name, which would be reflected in the output
+  of the ``hello`` view. However, this was never part of the API
+  specification, and was meant to be solely a backwards-compatibility
+  hack for first-generation Kinto clients. Kinto public settings
+  should always be exposed unprefixed. Applications developed against
+  kinto.core can continue using these names even after they transition
+  clients to the new implementation of their service.
+
+**Bug fixes**
+
+- Fix internal storage filtering when an empty list of values is provided.
+- Authenticated users are now allowed to obtain an empty list of buckets on
+  ``GET /buckets`` even if no bucket is readable (#454)
+- Fix enabling flush enpoint with ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable (fixes #588)
+- Fix reading settings for events listeners from environment variables (fixes #515)
+- Fix principal added to ``write`` permission when a publicly writable object
+  is created/edited (fixes #645)
+- Prevent client to cache and validate authenticated requests (fixes #635)
+- Fix bug that prevented startup if old Cliquet configuration values
+  were still around (#633)
+- Fix crash when a cache expires setting is set for a specific bucket or collection. (#597)
+- Mark old cliquet backend settings as deprecated (but continue to support them). (#596)
+
+- Add an explicit message when the server is configured as read-only and the
+  collection timestamp fails to be saved (ref Kinto/kinto#558)
+- Prevent the browser to cache server responses between two sessions. (#593)
+- Redirects version prefix to hello page when trailing_slash_redirect is enabled. (#700)
+- Fix crash when setting empty permission list with PostgreSQL permission backend (fixes Kinto/kinto#575)
+- Fix crash when type of values in querystring for exclude/include is wrong (fixes Kinto/kinto#587)
+- Fix crash when providing duplicated principals in permissions with PostgreSQL permission backend (fixes #702)
+- Add ``app.wsgi`` to the manifest file. This helps address #543.
+
+
+**Documentation**
+
+- Improved documentation about running in production with uWSGI (#543, #545)
+
+
+**kinto-attachment 0.5.0 → 0.6.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.6.0
+
+**New features**
+
+- Add a ``kinto.attachment.extra.base_url`` settings to be exposed publicly. (#73)
+- Kinto 3.0 compatibility update
+
+**kinto-amo 0.1.0 → 0.2.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.2.0
+
+- Kinto 3.0 compatibility update
+
+**kinto-changes 0.2.0 → 0.3.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.3.0
+
+- Kinto 3.0 compatibility update
+
+ **kinto-signer 0.4.0 → 0.6.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.6.0
+
+**Bug fixes**
+
+- Update to ``kinto.core`` for compatibility with Kinto 3.0. This
+  release is no longer compatible with Kinto < 3.0, please upgrade!
+- Do not crash on record deletion if destination was never synced (#82)
+
+**Internal changes**
+
+- Rename ``get_local_records`` to ``get_source_records`` (#83)
+- Rename ``sign_and_update_remote`` to ``sign_and_update_destination`` (#85)
+
+
+**cliquet-fxa 1.4.0 → kinto-fxa  2.0.0**: https://github.com/mozilla-services/kinto-fxa/releases/tag/2.0.0
+
+**Breaking changes**
+
+- Project renamed to *Kinto-fxa* to match the rename of ``cliquet`` to
+  ``kinto.core``.
+- The setting ``multiauth.policy.fxa.use`` must now
+  be explicitly set to ``kinto_fxa.authentication.FxAOAuthAuthenticationPolicy``
+- Kinto 3.0 compatibility update
+
+**Bug fixes**
+
+- Fix checking of ``Authorization`` header when python is ran with ``-O``
+  (ref mozilla-services/cliquet#592)
+
+
+**kinto-ldap 0.1.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.1.0
+
+**boto 2.40**: http://docs.pythonboto.org/en/latest/releasenotes/v2.40.0.html
 
 
 0.5.1 (2016-05-20)
