@@ -7,6 +7,22 @@ the version control of each dependency.
 0.6.0 (2016-05-25)
 ==================
 
+This release moves to the Kinto 3 series. This version merges Cliquet
+into kinto.core and all plugins have been updated to work with this
+change. This is a change to code structure, but there is a
+user-visible change, which is that settings referring to Cliquet
+module paths should now be updated to refer to kinto.core module
+paths. For example,
+
+::
+    kinto.cache_backend = cliquet.cache.postgresql
+
+Should be changed to:
+
+::
+    kinto.cache_backend = kinto.core.cache.postgresql
+
+
 **Version control**
 
 **kinto 2.1.2 → 3.1.0**: https://github.com/Kinto/kinto/releases/tag/3.1.0
