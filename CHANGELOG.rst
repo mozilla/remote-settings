@@ -90,12 +90,19 @@ Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs
   returning false.
 
 
-**kinto-attachment 0.5.0 → 0.6.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.6.0
+**kinto-attachment 0.5.0 → 0.7.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.7.0
+
+**Breaking changes**
+
+- When the gzip option is used during upload, the ``original`` attribute  is now within
+  the ``attachment`` information.
 
 **New features**
 
 - Add a ``kinto.attachment.extra.base_url`` settings to be exposed publicly. (#73)
 - Kinto 3.0 compatibility update
+- Add the gzip option to automatically gzip files on upload (#85)
+
 
 **kinto-amo 0.1.0 → 0.2.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.2.0
 
@@ -105,7 +112,7 @@ Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs
 
 - Kinto 3.0 compatibility update
 
-**kinto-signer 0.4.0 → 0.7.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.6.0
+**kinto-signer 0.4.0 → 0.7.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.0
 
 **Breaking changes**
 
@@ -114,8 +121,6 @@ Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs
 
 **Bug fixes**
 
-- Update to ``kinto.core`` for compatibility with Kinto 3.0. This
-  release is no longer compatible with Kinto < 3.0, please upgrade!
 - Do not crash on record deletion if destination was never synced (Kinto/kinto-signer#82)
 
 **New features**
