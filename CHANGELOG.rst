@@ -105,18 +105,22 @@ Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs
 
 - Kinto 3.0 compatibility update
 
- **kinto-signer 0.4.0 → 0.6.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.6.0
+**kinto-signer 0.4.0 → 0.7.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.6.0
+
+**Breaking changes**
+
+- The collection timestamp is now included in the payload prior to signing.
+  Old clients won't be able to verify the signature made by this version.
 
 **Bug fixes**
 
 - Update to ``kinto.core`` for compatibility with Kinto 3.0. This
   release is no longer compatible with Kinto < 3.0, please upgrade!
-- Do not crash on record deletion if destination was never synced (#82)
+- Do not crash on record deletion if destination was never synced (Kinto/kinto-signer#82)
 
-**Internal changes**
+**New features**
 
-- Rename ``get_local_records`` to ``get_source_records`` (#83)
-- Rename ``sign_and_update_remote`` to ``sign_and_update_destination`` (#85)
+- Raise configuration errors if resources are not configured correctly (Kinto/kinto-signer#88)
 
 
 **cliquet-fxa 1.4.0 → kinto-fxa  2.0.0**: https://github.com/mozilla-services/kinto-fxa/releases/tag/2.0.0
