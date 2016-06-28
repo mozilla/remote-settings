@@ -11,19 +11,18 @@ This release moves to the Kinto 3 series. This version merges Cliquet
 into ``kinto.core`` and all plugins have been updated to work with this
 change. This is a change to code structure, but there is a
 user-visible change, which is that settings referring to Cliquet
-module paths should now be updated to refer to kinto.core module
-paths. For example,
+module paths should now be updated to refer to ``kinto.core.`` module
+paths. For example::
 
-::
     kinto.cache_backend = cliquet.cache.postgresql
 
-Should be changed to:
+Should be changed to::
 
-::
     kinto.cache_backend = kinto.core.cache.postgresql
 
 
-**Version control**
+Kinto
+'''''
 
 **kinto 2.1.2 → 3.2.0**: https://github.com/Kinto/kinto/releases/tag/3.2.0
 
@@ -90,6 +89,9 @@ Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs
   returning false.
 
 
+Kinto-attachment
+''''''''''''''''
+
 **kinto-attachment 0.5.0 → 0.7.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.7.0
 
 **Breaking changes**
@@ -99,18 +101,29 @@ Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs
 
 **New features**
 
-- Add a ``kinto.attachment.extra.base_url`` settings to be exposed publicly. (#73)
 - Kinto 3.0 compatibility update
+- Add a ``kinto.attachment.extra.base_url`` settings to be exposed publicly. (#73)
 - Add the gzip option to automatically gzip files on upload (#85)
 
+
+kinto-amo
+'''''''''
 
 **kinto-amo 0.1.0 → 0.2.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.2.0
 
 - Kinto 3.0 compatibility update
 
+
+kinto-changes
+'''''''''''''
+
 **kinto-changes 0.2.0 → 0.3.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.3.0
 
 - Kinto 3.0 compatibility update
+
+
+kinto-signer
+''''''''''''
 
 **kinto-signer 0.4.0 → 0.7.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.0
 
@@ -128,6 +141,9 @@ Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs
 - Raise configuration errors if resources are not configured correctly (Kinto/kinto-signer#88)
 
 
+kinto-fxa
+'''''''''
+
 **cliquet-fxa 1.4.0 → kinto-fxa  2.0.0**: https://github.com/mozilla-services/kinto-fxa/releases/tag/2.0.0
 
 **Breaking changes**
@@ -143,9 +159,12 @@ Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs
 - Fix checking of ``Authorization`` header when python is ran with ``-O``
   (ref mozilla-services/cliquet#592)
 
+
+kinto-ldap
+''''''''''
+
 **kinto-ldap 0.1.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.1.0
 
-**boto 2.40**: http://docs.pythonboto.org/en/latest/releasenotes/v2.40.0.html
 
 
 0.5.1 (2016-05-20)
