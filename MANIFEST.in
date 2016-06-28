@@ -1,2 +1,3 @@
 include *.rst LICENSE Makefile
+include app.wsgi
 recursive-include kinto_admin static/*
