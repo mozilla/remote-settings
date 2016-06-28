@@ -15,14 +15,15 @@ README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 
 REQUIREMENTS = [
-    "cliquet[monitoring,postgresql]>=3.1.4,<3.2",
-    "kinto>=2.1.2,<2.2",
-    "kinto-attachment>=0.5.1,<0.6",
-    "kinto-amo>=0.1.1,<0.2",
-    "kinto-changes>=0.2,<0.3",
-    "kinto-signer>=0.5,<0.6",
-    "cliquet-fxa>=1.4,<1.5",
     "boto>=2.40,<2.41",
+    "cliquet-fxa>=1.4,<1.5",
+    "cliquet[monitoring,postgresql]>=3.1.4,<3.2",
+    "kinto-amo>=0.1.1,<0.2",
+    "kinto-attachment>=0.5.1,<0.6",
+    "kinto-changes>=0.2,<0.3",
+    "kinto-ldap>=0.1,<0.2",
+    "kinto-signer>=0.5,<0.6",
+    "kinto>=2.1.2,<2.2",
 ]
 ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []

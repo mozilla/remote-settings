@@ -7,7 +7,9 @@ the version control of each dependency.
 0.6.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Version control**
+
+- **kinto-ldap 0.1.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.1.0
 
 
 0.5.1 (2016-05-20)
