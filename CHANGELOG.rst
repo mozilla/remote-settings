@@ -8,7 +8,7 @@ the version control of each dependency.
 ==================
 
 This release moves to the Kinto 3 series. This version merges Cliquet
-into kinto.core and all plugins have been updated to work with this
+into ``kinto.core`` and all plugins have been updated to work with this
 change. This is a change to code structure, but there is a
 user-visible change, which is that settings referring to Cliquet
 module paths should now be updated to refer to kinto.core module
@@ -25,13 +25,14 @@ Should be changed to:
 
 **Version control**
 
-**kinto 2.1.2 → 3.1.0**: https://github.com/Kinto/kinto/releases/tag/3.1.0
+**kinto 2.1.2 → 3.2.0**: https://github.com/Kinto/kinto/releases/tag/3.2.0
 
 **Protocol**
 
 - Added the ``GET /contribute.json`` endpoint for open-source information (fixes #607)
+- Allow record IDs to be any string instead of just UUIDs (fixes #655).
 
-Protocol is now at version **1.6**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
 
 **New features**
 
@@ -52,6 +53,13 @@ Protocol is now at version **1.6**. See `API changelog <http://kinto.readthedocs
   should always be exposed unprefixed. Applications developed against
   kinto.core can continue using these names even after they transition
   clients to the new implementation of their service.
+- ``kinto start`` now accepts a ``--port`` option to specify which port to listen to.
+  **Important**: Because of a limitation in [Pyramid tooling](http://stackoverflow.com/a/21228232/147077),
+  it won't work if the port is hard-coded in your existing ``.ini`` file. Replace
+  it by ``%(http_port)s`` or regenerate a new configuration file with ``kinto init``.
+- Add support for ``pool_timeout`` option in Redis backend (fixes #620)
+- Add new setting ``kinto.heartbeat_timeout_seconds`` to control the maximum duration
+  of the heartbeat endpoint (fixes #601)
 
 **Bug fixes**
 
@@ -75,12 +83,11 @@ Protocol is now at version **1.6**. See `API changelog <http://kinto.readthedocs
 - Fix crash when setting empty permission list with PostgreSQL permission backend (fixes Kinto/kinto#575)
 - Fix crash when type of values in querystring for exclude/include is wrong (fixes Kinto/kinto#587)
 - Fix crash when providing duplicated principals in permissions with PostgreSQL permission backend (fixes #702)
-- Add ``app.wsgi`` to the manifest file. This helps address #543.
-
-
-**Documentation**
-
-- Improved documentation about running in production with uWSGI (#543, #545)
+- Add ``app.wsgi`` to the manifest file. This helps address Kinto/kinto#543.
+- Fix loss of data attributes when permissions are replaced with ``PUT`` (fixes Kinto/kinto#601)
+- Fix 400 response when posting data with ``id: "default"`` in default bucket.
+- Fix 500 on heartbeat endpoint when a check does not follow the specs and raises instead of
+  returning false.
 
 
 **kinto-attachment 0.5.0 → 0.6.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.6.0
@@ -126,7 +133,6 @@ Protocol is now at version **1.6**. See `API changelog <http://kinto.readthedocs
 
 - Fix checking of ``Authorization`` header when python is ran with ``-O``
   (ref mozilla-services/cliquet#592)
-
 
 **kinto-ldap 0.1.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.1.0
 
