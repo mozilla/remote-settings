@@ -4,10 +4,20 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-0.7.0 (unreleased)
+0.6.1 (2016-07-13)
 ==================
 
-- Nothing changed yet.
+Kinto
+'''''
+
+**kinto 3.2.1 → 3.2.2**: https://github.com/Kinto/kinto/releases/tag/3.2.2
+
+**Bug fixes**
+
+- Fix bug in object permissions with memory backend (#708)
+- Make sure the tombstone is deleted when the record is created with PUT. (#715)
+- Bump ``last_modified`` on record when provided value is equal to previous
+  in storage ``update()`` method (#713)
 
 
 0.6.0 (2016-05-25)
