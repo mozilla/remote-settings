@@ -10,6 +10,25 @@ the version control of each dependency.
 
 **kinto-admin 1.2.0**: https://github.com/Kinto/kinto-admin/releases/tag/1.2.0
 
+Kinto
+'''''
+
+**kinto 3.2.2 → 3.3.0**: https://github.com/Kinto/kinto/releases/tag/3.3.0
+
+
+**Protocol**
+
+- Add new *experimental* endpoint ``GET /v1/permissions`` to retrieve the list of permissions
+  granted on every kind of object (#600).
+  Requires setting ``kinto.experimental_permissions_endpoint`` to be set to ``true``.
+
+Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+
+**Bug fixes**
+
+- Allow filtering and sorting by any attribute on buckets, collections and groups list endpoints
+- Fix crash in memory backend with Python3 when filtering on unknown field
+
 
 0.6.1 (2016-07-13)
 ==================

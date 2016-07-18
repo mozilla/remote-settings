@@ -15,7 +15,7 @@ idna==2.1
 ipaddress==1.0.16
 iso8601==0.1.11
 jsonschema==2.5.1
-kinto==3.2.2
+kinto==3.3.0
 kinto-amo==0.2.0
 kinto-attachment==0.7.0
 kinto-changes==0.3.0
