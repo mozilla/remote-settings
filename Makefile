@@ -35,3 +35,8 @@ build-requirements:
 	$(TEMPDIR)/bin/pip install -U pip
 	$(TEMPDIR)/bin/pip install -Ue .
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
+
+update-kinto-admin:
+	rm -fr kinto_admin/static/*
+	npm install -g kinto-admin
+	kinto-admin build -d kinto_admin/static/
