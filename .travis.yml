@@ -15,4 +15,4 @@ before_script:
     - UWSGI_VIRTUALENV=.venv .venv/bin/uwsgi --http :8888 config/kinto.ini &
     - autograph -c $TRAVIS_BUILD_DIR/.autograph.yml &
 script:
-    - curl --fail "http://localhost:8888/v1/__heartbeat__"
+    - bash smoke-test.sh
