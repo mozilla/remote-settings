@@ -4,10 +4,11 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+
 0.7.0 (unreleased)
 ==================
 
-- No changes yet.
+**kinto-admin 1.1.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.1.1
 
 
 0.6.1 (2016-07-13)
