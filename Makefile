@@ -40,3 +40,11 @@ update-kinto-admin:
 	rm -fr kinto_admin/static/*
 	npm install -g kinto-admin
 	kinto-admin build -d kinto_admin/static/
+
+need-kinto-running:
+	@curl http://localhost:8888/v1/ 2>/dev/null 1>&2 || (echo "Run 'make run-kinto' before starting tests." && exit 1)
+
+tests: need-kinto-running
+	autograph -c .autograph.yml & PID=$$!; \
+	  sleep 1 && bash smoke-test.sh; \
+      EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE

@@ -23,3 +23,9 @@ http --check-status http://localhost:8888/v1/buckets/destination/collections/des
 
 # kinto-changes
 http --check-status http://localhost:8888/v1/buckets/monitor/collections/changes/records | grep '"source"'
+
+
+# kinto-admin
+http --check-status -h http://localhost:8888/v1/admin/
+http --check-status -h http://localhost:8888/v1/admin/bundle.js
+http --check-status -h http://localhost:8888/v1/admin/styles.css
