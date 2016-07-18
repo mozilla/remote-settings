@@ -30,6 +30,25 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
 - Fix crash in memory backend with Python3 when filtering on unknown field
 
 
+Kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 0.7.0 → 0.8.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.8.0
+
+**New features**
+
+- Prevent ``attachment`` attributes to be modified manually (fixes Kinto/kinto-attachment#83)
+
+**Bug fixes**
+
+- Fix crash when the file is not uploaded using ``attachment`` field name (fixes Kinto/kinto-attachment#57)
+- Fix crash when the multipart content-type is invalid.
+- Prevent crash when filename is not provided (fixes Kinto/kinto-attachment#81)
+- Update the call to the Record resource to use named attributes. (Kinto/kinto-attachment#97)
+- Show detailed error when data is not posted with multipart content-type.
+- Fix crash when submitted data is not valid JSON (fixes Kinto/kinto-attachment#104)
+
+
 0.6.1 (2016-07-13)
 ==================
 
