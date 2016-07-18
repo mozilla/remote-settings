@@ -15,7 +15,7 @@ http --check-status $SERVER/__heartbeat__
 # kinto-attachment test
 curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.png"
 
-http --check-status --form POST $SERVER/buckets/source/collections/source/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment --auth user:pass attachment@kinto-logo.png
+http --check-status --form POST $SERVER/buckets/source/collections/source/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.png --auth user:pass
 
 # kinto-signer test
 http --check-status PUT $SERVER/buckets/source/collections/source/records/xxyz --auth user:pass
