@@ -21,3 +21,7 @@ To install it, make sure you have Python 2.x or 3.x with virtualenv, and run::
 To run the server::
 
     $ make serve
+
+To update kinto-admin::
+
+    $ make update-kinto-admin
