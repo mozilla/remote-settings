@@ -7,9 +7,12 @@ set -x
 curl --fail -X PUT -H "Authorization: Basic dXNlcjpwYXNz" "http://localhost:8888/v1/buckets/source"
 curl --fail -X PUT -H "Authorization: Basic dXNlcjpwYXNz" "http://localhost:8888/v1/buckets/source/collections/source"
 
-# kinto-attachment test
+
 curl --fail "http://localhost:8888/v1/__heartbeat__"
-curl --fail -X POST -H "Content-Type: multipart/form-data" -H "Authorization: Basic dXNlcjpwYXNz" -F "attachment=@/etc/hostname" "http://localhost:8888/v1/buckets/source/collections/source/records/abcde/attachment"
+
+# kinto-attachment test
+curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.png"
+curl --fail -X POST -H "Content-Type: multipart/form-data" -H "Authorization: Basic dXNlcjpwYXNz" -F "attachment=@kinto-logo.png" "http://localhost:8888/v1/buckets/source/collections/source/records/abcde/attachment"
 # kinto-signer test
 curl --fail -X PUT -H "Authorization: Basic dXNlcjpwYXNz" "http://localhost:8888/v1/buckets/source/collections/source/records/xxyz"
 curl --fail -X PATCH -H "Authorization: Basic dXNlcjpwYXNz"  --header "Content-Type:application/json"  --data '{"data": {"status":"to-sign"}}' "http://localhost:8888/v1/buckets/source/collections/source"
