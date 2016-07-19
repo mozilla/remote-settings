@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-0.7.0 (unreleased)
+0.7.0 (2016-07-19)
 ==================
 
 **kinto-admin 1.2.0**: https://github.com/Kinto/kinto-admin/releases/tag/1.2.0
