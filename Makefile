@@ -48,3 +48,8 @@ tests: need-kinto-running
 	autograph -c .autograph.yml & PID=$$!; \
 	  sleep 1 && bash smoke-test.sh; \
       EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
+
+clean:
+	rm -fr build/ dist/ .tox .venv
+	find . -name '*.pyc' -delete
+	find . -name '__pycache__' -type d | xargs rm -fr
