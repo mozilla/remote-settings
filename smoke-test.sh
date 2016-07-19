@@ -36,4 +36,6 @@ http --check-status $SERVER/blocklist/3/$APPID/46.0/
 # .. Fill with production blocklist entries and compare XML output:
 curl -O https://raw.githubusercontent.com/mozilla-services/amo-blocklist-ui/master/amo-blocklist.json
 json2kinto --server $SERVER --addons-server https://addons.mozilla.org/ -S amo-blocklist.json
-xml-verifier https://blocklist.addons.mozilla.org/blocklist/3/$APPID/46.0/ $SERVER/blocklist/3/$APPID/46.0/
+http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube@downloader.yt'
+# Wait for https://github.com/mozilla/addons-server/pull/3053 to be deployed
+# xml-verifier https://blocklist.addons.mozilla.org/blocklist/3/$APPID/46.0/ $SERVER/blocklist/3/$APPID/46.0/
