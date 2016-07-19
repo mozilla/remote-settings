@@ -41,7 +41,7 @@ pyramid-multiauth==0.8.0
 pyramid-storage==0.1.2
 pyramid-tm==0.12.1
 python-dateutil==2.5.3
-raven==5.22.0
+raven==5.23.0
 redis==2.10.5
 repoze.lru==0.6
 requests==2.10.0
