@@ -1,4 +1,4 @@
-amo2kinto==1.3.1
+amo2kinto==1.4.0
 boto==2.40.0
 cffi==1.7.0
 colander==1.3.1
