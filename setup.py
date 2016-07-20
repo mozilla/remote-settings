@@ -15,7 +15,7 @@ README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 
 REQUIREMENTS = [
-    "kinto[postgresql,monitoring]>=3.3.0,<4.0",
+    "kinto[postgresql,monitoring]>=3.3.1,<4.0",
     "kinto-attachment>=0.8.0,<0.9",
     "kinto-amo>=0.2.0,<0.3",
     "kinto-changes>=0.3,<0.4",
