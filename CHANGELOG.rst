@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-0.6.2 (unreleased)
+0.6.2 (2016-07-21)
 ==================
 
 - Nothing changed yet.
