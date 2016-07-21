@@ -4,6 +4,42 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+0.6.2 (2016-07-21)
+==================
+
+* Add integration test for every enabled plugins
+
+Kinto
+'''''
+
+**kinto 3.2.2 → 3.2.4**: https://github.com/Kinto/kinto/releases/tag/3.2.4
+
+**Bug fixes**
+
+- Fix bug where the resource events of a request targetting two groups/collection
+  from different buckets would be grouped together (#728).
+- Allow filtering and sorting by any attribute on buckets, collections and groups list endpoints
+- Fix crash in memory backend with Python3 when filtering on unknown field
+- Fix bug in object permissions with memory backend (#708)
+- Make sure the tombstone is deleted when the record is created with PUT. (#715)
+- Bump ``last_modified`` on record when provided value is equal to previous
+  in storage ``update()`` method (#713)
+
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 0.7.0 → 0.7.1**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.1
+
+**Bug fix**
+
+- Update the `last_modified` value when updating the collection status and signature
+  (kinto/kinto-signer#97)
+- Trigger ``ResourceChanged`` events when the destination collection and records are updated
+  during signing. This allows plugins like ``kinto-changes`` and ``kinto.plugins.history``
+  to catch the changes (kinto/kinto-signer#101)
+
+
 0.6.1 (2016-07-13)
 ==================
 
