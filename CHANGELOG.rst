@@ -7,6 +7,8 @@ the version control of each dependency.
 0.6.2 (2016-07-21)
 ==================
 
+* Add integration test for every enabled plugins
+
 Kinto
 '''''
 
@@ -22,6 +24,19 @@ Kinto
 - Make sure the tombstone is deleted when the record is created with PUT. (#715)
 - Bump ``last_modified`` on record when provided value is equal to previous
   in storage ``update()`` method (#713)
+
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 0.7.0 → 0.7.1**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.1
+
+**Bug fix**
+
+- Update the `last_modified` value when updating the collection status and signature (#97)
+- Trigger ``ResourceChanged`` events when the destination collection and records are updated
+  during signing. This allows plugins like ``kinto-changes`` and ``kinto.plugins.history``
+  to catch the changes.
 
 
 0.6.1 (2016-07-13)
