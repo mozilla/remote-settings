@@ -4,10 +4,10 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-0.6.3 (unreleased)
+0.6.3 (2016-07-21)
 ==================
 
-- Nothing changed yet.
+- Take the correct Kinto 3.2.4 version.
 
 
 0.6.2 (2016-07-21)
