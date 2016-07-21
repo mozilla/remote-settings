@@ -7,7 +7,21 @@ the version control of each dependency.
 0.6.2 (2016-07-21)
 ==================
 
-- Nothing changed yet.
+Kinto
+'''''
+
+**kinto 3.2.2 → 3.2.4**: https://github.com/Kinto/kinto/releases/tag/3.2.4
+
+**Bug fixes**
+
+- Fix bug where the resource events of a request targetting two groups/collection
+  from different buckets would be grouped together.
+- Allow filtering and sorting by any attribute on buckets, collections and groups list endpoints
+- Fix crash in memory backend with Python3 when filtering on unknown field
+- Fix bug in object permissions with memory backend (#708)
+- Make sure the tombstone is deleted when the record is created with PUT. (#715)
+- Bump ``last_modified`` on record when provided value is equal to previous
+  in storage ``update()`` method (#713)
 
 
 0.6.1 (2016-07-13)
