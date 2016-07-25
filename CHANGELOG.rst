@@ -4,11 +4,32 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-
 0.8.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+Kinto
+'''''
+
+**kinto 3.3.0 → 3.3.2**: https://github.com/Kinto/kinto/releases/tag/3.3.2
+
+**Bug fixes**
+
+- Fix Redis get_accessible_object implementation (kinto/kinto#725)
+- Fix bug where the resource events of a request targetting two groups/collection
+  from different buckets would be grouped together (kinto/kinto#728)
+
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 0.7.1 → 0.7.2**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.2
+
+**Bug fixes**
+
+- Provide the ``old`` value on destination records updates (kinto/kinto-signer#104)
+- Send ``create`` event when destination record does not exist yet.
+- Events sent by kinto-signer for created/updated/deleted objects in destination now show
+  user_id as ``plugin:kinto-signer``
 
 
 0.7.0 (2016-07-19)
@@ -21,14 +42,13 @@ Kinto
 
 **kinto 3.2.2 → 3.3.0**: https://github.com/Kinto/kinto/releases/tag/3.3.0
 
-
-**Protocol**
+**API**
 
 - Add new *experimental* endpoint ``GET /v1/permissions`` to retrieve the list of permissions
   granted on every kind of object (#600).
   Requires setting ``kinto.experimental_permissions_endpoint`` to be set to ``true``.
 
-Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+API is now at version **1.8**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
 
 **Bug fixes**
 
@@ -53,6 +73,48 @@ Kinto-attachment
 - Update the call to the Record resource to use named attributes. (Kinto/kinto-attachment#97)
 - Show detailed error when data is not posted with multipart content-type.
 - Fix crash when submitted data is not valid JSON (fixes Kinto/kinto-attachment#104)
+
+
+0.6.3 (2016-07-21)
+==================
+
+- Take the correct Kinto 3.2.4 version.
+
+
+0.6.2 (2016-07-21)
+==================
+
+* Add integration test for every enabled plugins
+
+Kinto
+'''''
+
+**kinto 3.2.2 → 3.2.4**: https://github.com/Kinto/kinto/releases/tag/3.2.4
+
+**Bug fixes**
+
+- Fix bug where the resource events of a request targetting two groups/collection
+  from different buckets would be grouped together (#728).
+- Allow filtering and sorting by any attribute on buckets, collections and groups list endpoints
+- Fix crash in memory backend with Python3 when filtering on unknown field
+- Fix bug in object permissions with memory backend (#708)
+- Make sure the tombstone is deleted when the record is created with PUT. (#715)
+- Bump ``last_modified`` on record when provided value is equal to previous
+  in storage ``update()`` method (#713)
+
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 0.7.0 → 0.7.1**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.1
+
+**Bug fix**
+
+- Update the `last_modified` value when updating the collection status and signature
+  (kinto/kinto-signer#97)
+- Trigger ``ResourceChanged`` events when the destination collection and records are updated
+  during signing. This allows plugins like ``kinto-changes`` and ``kinto.plugins.history``
+  to catch the changes (kinto/kinto-signer#101)
 
 
 0.6.1 (2016-07-13)
@@ -93,12 +155,12 @@ Kinto
 
 **kinto 2.1.2 → 3.2.0**: https://github.com/Kinto/kinto/releases/tag/3.2.0
 
-**Protocol**
+**API**
 
 - Added the ``GET /contribute.json`` endpoint for open-source information (fixes #607)
 - Allow record IDs to be any string instead of just UUIDs (fixes #655).
 
-Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+API is now at version **1.7**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
 
 **New features**
 

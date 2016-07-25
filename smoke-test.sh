@@ -23,7 +23,7 @@ http --check-status $SERVER/buckets/destination/collections/destination | grep '
 http --check-status $SERVER/buckets/destination/collections/destination/records | grep '"xxyz"'
 
 # kinto-changes
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"source"'
+http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"destination"'
 
 # kinto-admin
 http --check-status -h $SERVER/admin/
@@ -34,8 +34,13 @@ http --check-status -h $SERVER/admin/styles.css
 APPID="\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}"
 http --check-status $SERVER/blocklist/3/$APPID/46.0/
 # .. Fill with production blocklist entries and compare XML output:
-curl -O https://raw.githubusercontent.com/mozilla-services/amo-blocklist-ui/master/amo-blocklist.json
+# curl -O https://raw.githubusercontent.com/mozilla-services/amo-blocklist-ui/master/amo-blocklist.json
+curl -O https://raw.githubusercontent.com/mozilla-services/amo-blocklist-ui/add-version-range/amo-blocklist.json
 json2kinto --server $SERVER --addons-server https://addons.mozilla.org/ -S amo-blocklist.json
 http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube@downloader.yt'
 # Wait for https://github.com/mozilla/addons-server/pull/3053 to be deployed
 # xml-verifier https://blocklist.addons.mozilla.org/blocklist/3/$APPID/46.0/ $SERVER/blocklist/3/$APPID/46.0/
+http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"addons"'
+http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"certificates"'
+http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"plugins"'
+http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"gfx"'

@@ -15,14 +15,14 @@ idna==2.1
 ipaddress==1.0.16
 iso8601==0.1.11
 jsonschema==2.5.1
-kinto==3.3.0
+kinto==3.3.2
 kinto-amo==0.2.0
 kinto-attachment==0.8.0
 kinto-changes==0.3.0
 kinto-client==5.0.0
 kinto-fxa==2.0.0
 kinto-ldap==0.1.0
-kinto-signer==0.7.0
+kinto-signer==0.7.2
 ldappool==2.0.0
 lxml==3.6.0
 mohawk==0.3.3
