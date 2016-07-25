@@ -24,10 +24,10 @@ kinto-fxa==2.0.0
 kinto-ldap==0.1.0
 kinto-signer==0.7.2
 ldappool==2.0.0
-lxml==3.6.0
+lxml==3.6.1
 mohawk==0.3.3
-ndg-httpsclient==0.4.1
-newrelic==2.66.0.49
+ndg-httpsclient==0.4.2
+newrelic==2.68.0.50
 PasteDeploy==1.5.2
 psycopg2==2.6.2
 pyasn1==0.1.9
