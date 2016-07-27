@@ -1,4 +1,3 @@
-from kinto_admin import __version__ as dist_version
 from . import BaseWebTest
 from kinto.tests.support import unittest
 
@@ -15,6 +14,5 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         expected = {
             "description": "Serves the admin console.",
             "url": ("https://github.com/Kinto/kinto-admin/"),
-            "dist_version": dist_version
         }
         self.assertEqual(expected, capabilities['admin'])

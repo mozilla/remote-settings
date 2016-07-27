@@ -1,8 +1,4 @@
-import pkg_resources
 from pyramid.static import static_view
-
-#: Module version, as defined in PEP-0396.
-__version__ = pkg_resources.get_distribution("kinto-dist").version
 
 
 def includeme(config):
@@ -14,7 +10,6 @@ def includeme(config):
         version="1.2.0",
         description="Serves the admin console.",
         url="https://github.com/Kinto/kinto-admin/",
-        dist_version=__version__
     )
 
     static = static_view('kinto_admin:static', use_subpath=True)
