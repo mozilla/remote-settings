@@ -17,6 +17,11 @@ $(INSTALL_STAMP): $(PYTHON) setup.py
 	$(VENV)/bin/pip install -Ue .
 	touch $(INSTALL_STAMP)
 
+install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
+$(DEV_STAMP): $(PYTHON) dev-requirements.txt
+	$(VENV)/bin/pip install -r dev-requirements.txt
+	touch $(DEV_STAMP)
+
 virtualenv: $(PYTHON)
 $(PYTHON):
 	$(VIRTUALENV) $(VENV)
@@ -53,3 +58,6 @@ clean:
 	rm -fr build/ dist/ .tox .venv
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d | xargs rm -fr
+
+tests-once: install-dev
+	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto_admin
