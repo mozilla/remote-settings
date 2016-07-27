@@ -4,13 +4,8 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-0.6.5 (unreleased)
-==================
 
-- Nothing changed yet.
-
-
-0.6.4 (unreleased)
+0.6.4 (2016-07-27)
 ==================
 
 kinto-signer
