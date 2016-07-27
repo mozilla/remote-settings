@@ -22,7 +22,7 @@ kinto-changes==0.3.0
 kinto-client==5.0.0
 kinto-fxa==2.0.0
 kinto-ldap==0.1.0
-kinto-signer==0.7.2
+kinto-signer==0.7.3
 ldappool==2.0.0
 lxml==3.6.1
 mohawk==0.3.3

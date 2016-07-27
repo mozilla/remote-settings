@@ -9,6 +9,18 @@ the version control of each dependency.
 
 - Add the kinto-dist version in the plugin capability. (#40)
 
+**kinto-signer 0.7.2 → 0.7.3**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.3
+
+**Bug fixes**
+
+- Fix signature inconsistency (timestamp) when several changes are sent from
+  the *source* to the *destination* collection.
+  Fixed ``e2e.py`` and ``validate_signature.py`` scripts (Kinto/kinto-signer#110)
+
+**Minor change**
+
+- Add the plugin version in the capability. (Kinto/kinto-signer#108)
+
 
 0.8.0 (2016-07-25)
 ==================
