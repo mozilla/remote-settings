@@ -3,7 +3,7 @@
 set -e -x
 
 source .venv/bin/activate
-pip install httpie
+pip install httpie kinto-http
 
 SERVER=http://localhost:8888/v1
 
@@ -17,10 +17,8 @@ curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.png"
 http --check-status --form POST $SERVER/buckets/source/collections/source/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.png --auth user:pass
 
 # kinto-signer test
-http --check-status PUT $SERVER/buckets/source/collections/source/records/xxyz --auth user:pass
-echo '{"data": {"status":"to-sign"}}' | http --check-status PATCH $SERVER/buckets/source/collections/source --auth user:pass
-http --check-status $SERVER/buckets/destination/collections/destination | grep '"signature"'
-http --check-status $SERVER/buckets/destination/collections/destination/records | grep '"xxyz"'
+curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/master/scripts/e2e.py
+python e2e.py --server="http://localhost:8888/v1" --source-bucket=source --source-col=source --dest-bucket=destination --dest-col=destination
 
 # kinto-changes
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"destination"'
@@ -44,3 +42,9 @@ http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"certificates"'
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"plugins"'
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"gfx"'
+
+curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/master/scripts/validate_signature.py
+python validate_signature.py --server="http://localhost:8888/v1" --bucket=blocklists --collection=addons
+python validate_signature.py --server="http://localhost:8888/v1" --bucket=blocklists --collection=certificates
+python validate_signature.py --server="http://localhost:8888/v1" --bucket=blocklists --collection=plugins
+python validate_signature.py --server="http://localhost:8888/v1" --bucket=blocklists --collection=gfx
