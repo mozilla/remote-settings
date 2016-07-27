@@ -1,0 +1,10 @@
+mock
+pytest
+pytest-watch
+pytest-cache
+pytest-capturelog
+pytest-cover
+pytest-sugar
+tox
+unittest2
+webtest

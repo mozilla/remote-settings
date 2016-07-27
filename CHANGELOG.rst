@@ -7,7 +7,7 @@ the version control of each dependency.
 0.9.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add the kinto-dist version in the plugin capability. (#40)
 
 
 0.8.0 (2016-07-25)
