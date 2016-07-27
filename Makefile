@@ -45,6 +45,7 @@ update-kinto-admin:
 	rm -fr kinto_admin/static/*
 	npm install -g kinto-admin
 	kinto-admin build -d kinto_admin/static/
+	sed -i "s/ version=\".*\"/ version=\"$(shell kinto-admin --version)\"/g" kinto_admin/__init__.py
 
 need-kinto-running:
 	@curl http://localhost:8888/v1/ 2>/dev/null 1>&2 || (echo "Run 'make run-kinto' before starting tests." && exit 1)

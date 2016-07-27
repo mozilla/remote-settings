@@ -9,10 +9,13 @@ def includeme(config):
     # Process settings to remove storage wording.
 
     # Expose capability.
-    config.add_api_capability("admin",
-                              version=__version__,
-                              description="Serve the admin console.",
-                              url="https://github.com/Kinto/kinto-admin/")
+    config.add_api_capability(
+        "admin",
+        version="1.2.0",
+        description="Serves the admin console.",
+        url="https://github.com/Kinto/kinto-admin/",
+        dist_version=__version__
+    )
 
     static = static_view('kinto_admin:static', use_subpath=True)
     config.add_route('catchall_static', '/admin/*subpath')
