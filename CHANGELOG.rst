@@ -7,7 +7,24 @@ the version control of each dependency.
 0.6.4 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 0.7.1 → 0.7.3**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.3
+
+**Bug fixes**
+
+- Fix signature inconsistency (timestamp) when several changes are sent from
+  the *source* to the *destination* collection.
+  Fixed ``e2e.py`` and ``validate_signature.py`` scripts (Kinto/kinto-signer#110)
+- Provide the ``old`` value on destination records updates (Kinto/kinto-signer#104)
+- Send ``create`` event when destination record does not exist yet (Kinto/kinto-signer#104).
+- Events sent by kinto-signer for created/updated/deleted objects in destination now show
+  user_id as ``plugin:kinto-signer`` (Kinto/kinto-signer#106)
+
+**Minor change**
+
+- Add the plugin version in the capability. (Kinto/kinto-signer#108)
 
 
 0.6.3 (2016-07-21)
