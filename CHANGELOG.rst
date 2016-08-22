@@ -4,10 +4,14 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-0.9.0 (unreleased)
+0.8.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+**kinto-admin 1.2.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.2.1
+
+**Bug fixes**
+
+- Fixes the static path prefix in kinto-admin (#48)
 
 
 0.8.1 (2016-07-27)
