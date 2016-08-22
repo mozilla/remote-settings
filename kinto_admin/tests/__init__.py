@@ -2,7 +2,11 @@ import os
 
 import webtest
 from kinto.core import utils as core_utils
-from kinto.tests.core import support as core_support
+try:
+    from kinto.core import testing as core_support
+except ImportError:
+    # Kinto < 4.0
+    from kinto.tests.core import support as core_support
 
 
 def get_user_headers(user):

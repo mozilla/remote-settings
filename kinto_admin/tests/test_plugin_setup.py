@@ -1,5 +1,5 @@
+import unittest
 from . import BaseWebTest
-from kinto.tests.support import unittest
 
 
 class HelloViewTest(BaseWebTest, unittest.TestCase):
