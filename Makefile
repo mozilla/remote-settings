@@ -43,10 +43,9 @@ build-requirements:
 
 update-kinto-admin:
 	rm -fr kinto_admin/static/*
-	npm install -g kinto-admin
 	rm -fr tmp
 	git clone https://github.com/Kinto/kinto-admin.git tmp
-	cd tmp; git checkout v$$(kinto-admin --version); npm install
+	cd tmp; git checkout $$(git tag | tail -n 1); npm install
 	cd tmp; KINTO_ADMIN_PUBLIC_PATH=/v1/admin/ npm run dist
 	cp -fr tmp/dist/* kinto_admin/static/
 	rm -fr tmp
