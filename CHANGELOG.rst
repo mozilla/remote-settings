@@ -4,10 +4,14 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-0.8.2 (unreleased)
+0.9.0 (unreleased)
 ==================
 
+**kinto 3.3.2 → 4.1.1**: https://github.com/Kinto/kinto/releases/tag/4.1.1
+
 **kinto-admin 1.2.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.2.1
+
+**kinto-signer 0.7.3 → 0.8.1**: https://github.com/Kinto/kinto-signer/releases/tag/0.8.0
 
 **Bug fixes**
 
