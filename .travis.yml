@@ -13,7 +13,7 @@ install:
     - .venv/bin/pip install uwsgi
 before_script:
     - cp $TRAVIS_BUILD_DIR/app.wsgi $HOME/
-    - cd $HOME && KINTO_INI=$TRAVIS_BUILD_DIR/config/kinto.ini UWSGI_VIRTUALENV=$TRAVIS_BUILD_DIR/.venv $TRAVIS_BUILD_DIR/.venv/bin/uwsgi --http :8888 $TRAVIS_BUILD_DIR/config/kinto.ini &
+    - cd $HOME && KINTO_INI=$TRAVIS_BUILD_DIR/config/kinto.ini $TRAVIS_BUILD_DIR/.venv/bin/pserve $TRAVIS_BUILD_DIR/config/kinto.ini &
     - autograph -c $TRAVIS_BUILD_DIR/.autograph.yml &
 script:
     - bash $TRAVIS_BUILD_DIR/smoke-test.sh
