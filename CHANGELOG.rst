@@ -18,6 +18,16 @@ the version control of each dependency.
 - Fixes the static path prefix in kinto-admin (#48)
 
 
+0.8.2 (2016-09-12)
+==================
+
+**Upgrade to kinto 3.3.3**
+
+**Bug fixes**
+
+- Fix heartbeat transaction locks with PostgreSQL backends (fixes Kinto/kinto#804)
+
+
 0.8.1 (2016-07-27)
 ==================
 
