@@ -22,6 +22,51 @@ the version control of each dependency.
 - Fixes the static path prefix in kinto-admin (#48)
 
 
+kinto-signer
+''''''''''''
+
+**kinto-signer 0.7.3 → 0.9.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.9.0
+
+The API can now **optionally** rely on a workflow and can check that users changing collection status
+belong to some groups (e.g. ``editors``, ``reviewers``). With that feature enabled,
+the signature of the collection will have to follow this workflow:
+
+- an *editor* will request a review by setting the collection status to ``to-review``;
+- a preview collection will be updated and signed so that QA can validate the changes
+  on the client side;
+- a *reviewer* — different from the last editor — will trigger the signature by setting
+  the status to ``to-sign`` as before.
+
+In order to enable this feature, the following procedure must be followed:
+
+- Change the resources settings to add a *preview* collection URL (``{source};{preview};{destination}``)
+
+..code-block:: ini
+
+    kinto.signer.resources =
+      /buckets/staging/collections/certificates;/buckets/preview/collections/certificates;/buckets/blocklists/collections/certificates
+
+- Enable the review and group check features:
+
+..code-block:: ini
+
+    kinto.signer.to_review_enabled = true
+    kinto.signer.group_check_enabled = true
+
+- Last, create ``editors`` and ``reviewers`` groups in the *staging* bucket, and
+  add appropriate usernames to it. The groups can now be managed from the
+  Kinto Admin UI. Otherwise, or via the command-line:
+
+..code-block:: bash
+
+    $ echo '{"data": {"members": ["ldap:some@one.com"]}}' | \
+        http PUT $SERVER_URL/buckets/staging/groups/editors --auth="admin:token"
+
+
+    $ echo '{"data": {"members": ["ldap:some@one.com"]}}' | \
+        http PUT $SERVER_URL/buckets/staging/groups/editors --auth="admin:token"
+
+
 0.8.2 (2016-09-12)
 ==================
 
