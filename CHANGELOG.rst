@@ -7,7 +7,25 @@ the version control of each dependency.
 0.9.0 (unreleased)
 ==================
 
+Kinto
+'''''
+
 **kinto 3.3.2 → 4.1.1**: https://github.com/Kinto/kinto/releases/tag/4.1.1
+
+**Highlights**
+
+- Redis backends were dropped from core, and are now packaged separately in
+  `kinto-redis <https://github.com/Kinto/kinto-redis/>`_
+- New ``/__version__`` endpoint which reads a ``version.json`` file to expose what version
+  has been deployed
+- New built-in plugin ``kinto.plugins.history```to track history of changes per bucket
+  from the Kinto Admin UI (*must be added explicity in the ``kinto.includes`` setting)
+- ``kinto migrate`` now accepts a ``--dry-run`` option which details the operations
+  to be made without executing them.
+- New ``kinto delete-collection`` command to delete a collection from the command-line.
+- New built-in plugin ``kinto.plugins.quotas```to set storage quotas per bucket/collection
+  (c.f. *Web Extensions* storage)
+
 
 **kinto-admin 1.3.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.3.0
 
@@ -15,7 +33,10 @@ the version control of each dependency.
 - Updated kinto-http to v2.3.0.
 - Activate the signoff plugin to allow triggering a signature from the Admin.
 
-**kinto-signer 0.7.3 → 0.8.1**: https://github.com/Kinto/kinto-signer/releases/tag/0.8.0
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.2.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.2.1
 
 **Bug fixes**
 
