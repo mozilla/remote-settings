@@ -10,8 +10,8 @@ AUTH="${AUTH:-user:pass}"
 EDITOR_AUTH="${EDITOR_AUTH:-editor:pass}"
 REVIEWER_AUTH="${REVIEWER_AUTH:-reviewer:pass}"
 
-http --check-status PUT $SERVER/buckets/source --auth $AUTH
-http --check-status PUT $SERVER/buckets/source/collections/source --auth $AUTH
+http --check-status PUT $SERVER/buckets/blog --auth $AUTH
+http --check-status PUT $SERVER/buckets/blog/collections/articles --auth $AUTH
 
 http --check-status $SERVER/__heartbeat__
 
@@ -21,7 +21,7 @@ http --check-status $SERVER/__heartbeat__
 
 # kinto-attachment test
 curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.png"
-http --check-status --form POST $SERVER/buckets/source/collections/source/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.png --auth $AUTH
+http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.png --auth $AUTH
 
 # kinto-signer test
 curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/0.9.1/scripts/e2e.py
