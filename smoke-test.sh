@@ -17,7 +17,7 @@ curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.png"
 http --check-status --form POST $SERVER/buckets/source/collections/source/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.png --auth user:pass
 
 # kinto-signer test
-curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/master/scripts/e2e.py
+curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/0.8.1/scripts/e2e.py
 python e2e.py --server="http://localhost:8888/v1" --source-bucket=source --source-col=source --dest-bucket=destination --dest-col=destination
 
 # kinto-changes
