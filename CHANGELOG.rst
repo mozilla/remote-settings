@@ -10,7 +10,7 @@ the version control of each dependency.
 Kinto
 '''''
 
-**kinto 3.3.2 → 4.1.1**: https://github.com/Kinto/kinto/releases/tag/4.1.1
+**kinto 3.3.2 → 4.3.0**: https://github.com/Kinto/kinto/releases/tag/4.3.0
 
 **Highlights**
 
@@ -25,7 +25,12 @@ Kinto
 - New ``kinto delete-collection`` command to delete a collection from the command-line.
 - New built-in plugin ``kinto.plugins.quotas```to set storage quotas per bucket/collection
   (c.f. *Web Extensions* storage)
-
+- The permissions attribute is now empty in the response if the user has not
+  the permission to write on the object (Kinto/kinto#123)
+- Parent attributes are now readable if children creation is allowed (Kinto/kinto#803)
+- The history and quotas plugins execution time is now monitored on StatsD
+  (``kinto.plugins.quotas`` and ``kinto.plugins.history``) (#832)
+- Add new ``kinto.version_json_path`` setting (fixes #830)
 
 kinto-admin
 '''''''''''
