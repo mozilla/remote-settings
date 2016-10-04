@@ -17,20 +17,20 @@ Kinto
 - Redis backends were dropped from core, and are now packaged separately in
   `kinto-redis <https://github.com/Kinto/kinto-redis/>`_
 - New ``/__version__`` endpoint which reads a ``version.json`` file to expose what version
-  has been deployed
-- New built-in plugin ``kinto.plugins.history```to track history of changes per bucket
+  has been deployed. Its location can be specified in the ``kinto.version_json_path``
+  setting (fixes #830)
+- New built-in plugin ``kinto.plugins.history`` to track history of changes per bucket
   from the Kinto Admin UI (*must be added explicity in the ``kinto.includes`` setting)
 - ``kinto migrate`` now accepts a ``--dry-run`` option which details the operations
   to be made without executing them.
-- New ``kinto delete-collection`` command to delete a collection from the command-line.
 - New built-in plugin ``kinto.plugins.quotas```to set storage quotas per bucket/collection
   (c.f. *Web Extensions* storage)
+- The history and quotas plugins execution time is now monitored on StatsD
+  (``kinto.plugins.quotas`` and ``kinto.plugins.history``) (#832)
 - The permissions attribute is now empty in the response if the user has not
   the permission to write on the object (Kinto/kinto#123)
 - Parent attributes are now readable if children creation is allowed (Kinto/kinto#803)
-- The history and quotas plugins execution time is now monitored on StatsD
-  (``kinto.plugins.quotas`` and ``kinto.plugins.history``) (#832)
-- Add new ``kinto.version_json_path`` setting (fixes #830)
+- New ``kinto delete-collection`` command to delete a collection from the command-line.
 
 kinto-admin
 '''''''''''
@@ -41,11 +41,10 @@ kinto-admin
 - Updated kinto-http to v2.3.0.
 - Activate the signoff plugin to allow triggering a signature from the Admin.
 
-
 kinto-signer
 ''''''''''''
 
-**kinto-signer 0.7.3 → 0.9.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.9.0
+**kinto-signer 0.7.3 → 0.9.1**: https://github.com/Kinto/kinto-signer/releases/tag/0.9.0
 
 The API can now **optionally** rely on a workflow and can check that users changing collection status
 belong to some groups (e.g. ``editors``, ``reviewers``). With that feature enabled,
@@ -75,7 +74,7 @@ In order to enable this feature, the following procedure must be followed:
 
 - Last, create ``editors`` and ``reviewers`` groups in the *staging* bucket, and
   add appropriate usernames to it. The groups can now be managed from the
-  Kinto Admin UI. Otherwise, or via the command-line:
+  Kinto Admin UI. Otherwise via the command-line:
 
 ..code-block:: bash
 
