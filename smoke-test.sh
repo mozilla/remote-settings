@@ -16,8 +16,7 @@ http --check-status PUT $SERVER/buckets/blog/collections/articles --auth $AUTH
 http --check-status $SERVER/__heartbeat__
 
 # kinto.plugins.history
-# Disabled until https://github.com/Kinto/kinto/issues/842 is fixed.
-# http --check-status GET $SERVER/buckets/source/history --auth $AUTH | grep '"source"'
+http --check-status GET $SERVER/buckets/source/history --auth $AUTH | grep '"source"'
 
 # kinto-attachment test
 curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.png"
