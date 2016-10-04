@@ -37,9 +37,11 @@ http --check-status -h $SERVER/admin/styles.css
 # kinto-amo
 APPID="\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}"
 http --check-status $SERVER/blocklist/3/$APPID/46.0/
+# Create workflow groups
+echo '{"data": {"members":["system.Authenticated"]}}' | http PUT $SERVER/v1/buckets/staging/groups/editors
+echo '{"data": {"members":["system.Authenticated"]}}' | http PUT $SERVER/v1/buckets/staging/groups/reviewers
 # .. Fill with production blocklist entries and compare XML output:
 curl -O https://raw.githubusercontent.com/mozilla-services/amo-blocklist-ui/master/amo-blocklist.json
-python create_groups.py --auth="$AUTH"--editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 json2kinto --server $SERVER --addons-server https://addons.mozilla.org/ -S amo-blocklist.json --auth="$AUTH"--editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 
 http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube'
