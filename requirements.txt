@@ -30,7 +30,6 @@ MarkupSafe==0.23
 mohawk==0.3.3
 newrelic==2.70.0.51
 PasteDeploy==1.5.2
-pkg-resources==0.0.0
 psycopg2==2.6.2
 pyasn1==0.1.9
 PyBrowserID==0.11.0
