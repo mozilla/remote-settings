@@ -40,7 +40,8 @@ APPID="\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}"
 http --check-status $SERVER/blocklist/3/$APPID/46.0/
 # .. Fill with production blocklist entries and compare XML output:
 curl -O https://raw.githubusercontent.com/mozilla-services/amo-blocklist-ui/master/amo-blocklist.json
-json2kinto --server $SERVER --addons-server https://addons.mozilla.org/ -S amo-blocklist.json
+python create_groups.py --auth="$AUTH"--editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
+json2kinto --server $SERVER --addons-server https://addons.mozilla.org/ -S amo-blocklist.json --auth="$AUTH"--editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 
 http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube'
 xml-verifier https://blocklist.addons.mozilla.org/blocklist/3/$APPID/46.0/ $SERVER/blocklist/3/$APPID/46.0/

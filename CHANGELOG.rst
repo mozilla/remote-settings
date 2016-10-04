@@ -27,20 +27,14 @@ Kinto
   (c.f. *Web Extensions* storage)
 
 
+kinto-admin
+'''''''''''
+
 **kinto-admin 1.3.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.3.0
 
 - Add views for browsing a collection history (#196)
 - Updated kinto-http to v2.3.0.
 - Activate the signoff plugin to allow triggering a signature from the Admin.
-
-kinto-admin
-'''''''''''
-
-**kinto-admin 1.2.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.2.1
-
-**Bug fixes**
-
-- Fixes the static path prefix in kinto-admin (#48)
 
 
 kinto-signer
