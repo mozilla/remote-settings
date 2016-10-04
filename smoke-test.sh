@@ -16,7 +16,7 @@ http --check-status PUT $SERVER/buckets/blog/collections/articles --auth $AUTH
 http --check-status $SERVER/__heartbeat__
 
 # kinto.plugins.history
-http --check-status GET $SERVER/buckets/source/history --auth $AUTH | grep '"source"'
+http --check-status GET $SERVER/buckets/blog/history --auth $AUTH | grep '"articles"'
 
 # kinto-attachment test
 curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.png"
