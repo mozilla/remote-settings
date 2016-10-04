@@ -1,5 +1,4 @@
 import argparse
-from functools import partial
 
 from kinto_http import Client
 
@@ -12,7 +11,7 @@ DEFAULT_BUCKET = 'staging'
 
 
 def _get_args():
-    parser = argparse.ArgumentParser(description='End-to-end signing test')
+    parser = argparse.ArgumentParser(description='Create workflow groups')
 
     parser.add_argument('--server', help='Kinto Server',
                         type=str, default=DEFAULT_SERVER)
@@ -35,43 +34,30 @@ def _get_args():
 def main():
     args = _get_args()
 
-    # why do I have to do all of this just to set up auth...
-    def _auth(req, user='', password=''):
-        req.prepare_auth((user, password))
-        return req
-
-    if args.auth is not None:
-        user, password = args.auth.split(':')
-        args.auth = partial(_auth, user=user, password=password)
-
-    if args.editor_auth is not None:
-        user, password = args.editor_auth.split(':')
-        args.editor_auth = partial(_auth, user=user, password=password)
-
-    if args.reviewer_auth is not None:
-        user, password = args.reviewer_auth.split(':')
-        args.reviewer_auth = partial(_auth, user=user, password=password)
-
-    admin_client = Client(server_url=args.server, auth=args.auth,
-                          bucket=args.bucket)
-    editor_client = Client(server_url=args.server, auth=args.editor_auth)
-    reviewer_client = Client(server_url=args.server, auth=args.reviewer_auth)
-
-    # 0. initialize source bucket/collection (if necessary)
-    print("Create bucket: %s" % args.bucket)
-    admin_client.create_bucket(if_not_exists=True)
-
     print("Get editor's user id")
+    editor_client = Client(server_url=args.server,
+                           auth=tuple(args.editor_auth.split(':')))
     editor_id = editor_client.server_info()['user']['id']
 
     print("Get reviewer's user id")
+    reviewer_client = Client(server_url=args.server,
+                             auth=tuple(args.reviewer_auth.split(':')))
     reviewer_id = reviewer_client.server_info()['user']['id']
 
-    print("Create editors group")
-    admin_client.create_group('editors', data={'members': [editor_id]}, if_not_exists=True)
+    print("Create signoff workflow groups")
+    admin_client = Client(server_url=args.server,
+                          auth=tuple(args.auth.split(':')),
+                          bucket=args.bucket)
 
-    print("Create reviewers group")
-    admin_client.create_group('reviewers', data={'members': [reviewer_id]}, if_not_exists=True)
+    print("Create/update editors group")
+    editors_group = admin_client.create_group('editors', data={'members': []}, if_not_exists=True)
+    editors_group['data']['members'] = editors_group['data']['members'] + [editor_id]
+    admin_client.update_group('editors', editors_group['data'], safe=True)
+
+    print("Create/update reviewers group")
+    reviewers_group = admin_client.create_group('reviewers', data={'members': []}, if_not_exists=True)
+    reviewers_group['data']['members'] = reviewers_group['data']['members'] + [reviewer_id]
+    admin_client.update_group('reviewers', data=reviewers_group['data'], safe=True)
 
 
 if __name__ == '__main__':
