@@ -9,7 +9,11 @@ the version control of each dependency.
 
 **kinto 3.3.2 → 4.1.1**: https://github.com/Kinto/kinto/releases/tag/4.1.1
 
-**kinto-admin 1.2.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.2.1
+**kinto-admin 1.3.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.3.0
+
+- Add views for browsing a collection history (#196)
+- Updated kinto-http to v2.3.0.
+- Activate the signoff plugin to allow triggering a signature from the Admin.
 
 **kinto-signer 0.7.3 → 0.8.1**: https://github.com/Kinto/kinto-signer/releases/tag/0.8.0
 
