@@ -7,7 +7,23 @@ the version control of each dependency.
 0.10.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 0.9.2 → 1.0.0**: https://github.com/Kinto/kinto-signer/releases/tag/1.0.0
+
+- Review and group check features can be set/overriden by collection in settings:
+
+.. code-block:: ini
+
+    kinto.signer.staging_certificates_group_check_enabled = true
+    kinto.signer.staging_certificates_to_review_enabled = true
+    kinto.signer.staging_certificates_editors_group = certificates-editors
+    kinto.signer.staging_certificates_reviewers_group = certificates-reviewers
+
+See `changelog for kinto-dist 0.9.0 <https://github.com/mozilla-services/kinto-dist/releases/tag/0.9.0>`_
+or `kinto-signer documentation <https://github.com/Kinto/kinto-signer/>`_
+for more details about workflows.
 
 
 0.9.1 (2016-10-06)
