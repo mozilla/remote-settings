@@ -43,7 +43,9 @@ curl -O https://raw.githubusercontent.com/mozilla-services/amo-blocklist-ui/mast
 echo '{"permissions": {"write": ["system.Authenticated"]}}' | http PUT $SERVER/buckets/staging --auth="$AUTH"
 python create_groups.py --bucket=staging --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 json2kinto --server $SERVER --addons-server https://addons.mozilla.org/ -S amo-blocklist.json --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
-
+# Preview XML was published during review
+http --check-status $SERVER/preview/3/$APPID/46.0/ | grep 'youtube'
+# Final XML is identical to production
 http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube'
 xml-verifier https://blocklist.addons.mozilla.org/blocklist/3/$APPID/46.0/ $SERVER/blocklist/3/$APPID/46.0/
 
