@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 .venv/
 kinto-logo.png
-tmp/
+kinto_admin/node_modules
 
 # C extensions
 *.so
@@ -12,7 +12,6 @@ tmp/
 # Distribution / packaging
 .Python
 env/
-build/
 develop-eggs/
 dist/
 downloads/
