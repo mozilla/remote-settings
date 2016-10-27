@@ -29,6 +29,10 @@ kinto-amo
     kinto.amo.preview.gfx = /buckets/blocklists-preview/collections/gfx
     kinto.amo.preview.certificates = /buckets/blocklists-preview/collections/certificates
 
+Then you can access kinto-amo endpoints:
+
+- ``/v1/preview/3/{3550f703-e582-4d05-9a08-453d09bdfdc6}/47.0/``
+
 
 kinto-signer
 ''''''''''''
@@ -44,7 +48,18 @@ kinto-signer
     kinto.signer.staging_certificates_editors_group = certificates-editors
     kinto.signer.staging_certificates_reviewers_group = certificates-reviewers
 
-See `changelog for kinto-dist 0.10.0 <https://github.com/mozilla-services/kinto-dist/releases/tag/0.10.0>`_
+You can also update the signer to configure preview there:
+
+.. code-block:: ini
+
+    kinto.signer.resources =
+      /buckets/staging/collections/addons;/buckets/blocklists-preview/collections/addons;/buckets/blocklists/collections/addons
+      /buckets/staging/collections/plugins;/buckets/blocklists-preview/collections/plugins;/buckets/blocklists/collections/plugins
+      /buckets/staging/collections/gfx;/buckets/blocklists-preview/collections/gfx;/buckets/blocklists/collections/gfx
+      /buckets/staging/collections/certificates;/buckets/blocklists-preview/collections/certificates;/buckets/blocklists/collections/certificates
+
+
+See `changelog for kinto-dist 0.9.0 <https://github.com/mozilla-services/kinto-dist/releases/tag/0.9.0>`_
 or `kinto-signer documentation <https://github.com/Kinto/kinto-signer/>`_
 for more details about workflows.
 
