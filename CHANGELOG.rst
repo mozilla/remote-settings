@@ -7,6 +7,14 @@ the version control of each dependency.
 0.10.0 (unreleased)
 ===================
 
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.4.1**: https://github.com/Kinto/kinto-admin/releases/tag/v1.4.1
+
+See `changelog for kinto-admin 1.4.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.4.0>`_
+
+
 kinto-signer
 ''''''''''''
 
