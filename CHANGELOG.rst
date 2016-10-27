@@ -15,6 +15,21 @@ kinto-admin
 See `changelog for kinto-admin 1.4.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.4.0>`_
 
 
+kinto-amo
+'''''''''
+
+**kinto-amo 0.2.0 → 0.3.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.3.0
+
+- Enable preview XML endpoint:
+
+.. code-block:: ini
+
+    kinto.amo.preview.addons = /buckets/blocklists-preview/collections/addons
+    kinto.amo.preview.plugins = /buckets/blocklists-preview/collections/plugins
+    kinto.amo.preview.gfx = /buckets/blocklists-preview/collections/gfx
+    kinto.amo.preview.certificates = /buckets/blocklists-preview/collections/certificates
+
+
 kinto-signer
 ''''''''''''
 
@@ -29,7 +44,7 @@ kinto-signer
     kinto.signer.staging_certificates_editors_group = certificates-editors
     kinto.signer.staging_certificates_reviewers_group = certificates-reviewers
 
-See `changelog for kinto-dist 0.9.0 <https://github.com/mozilla-services/kinto-dist/releases/tag/0.9.0>`_
+See `changelog for kinto-dist 0.10.0 <https://github.com/mozilla-services/kinto-dist/releases/tag/0.10.0>`_
 or `kinto-signer documentation <https://github.com/Kinto/kinto-signer/>`_
 for more details about workflows.
 
