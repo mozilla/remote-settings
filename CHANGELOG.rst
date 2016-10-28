@@ -4,8 +4,8 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-0.10.0 (unreleased)
-===================
+1.0 (2016-10-28)
+================
 
 kinto-admin
 '''''''''''
@@ -58,10 +58,15 @@ You can also update the signer to configure preview there:
       /buckets/staging/collections/gfx;/buckets/blocklists-preview/collections/gfx;/buckets/blocklists/collections/gfx
       /buckets/staging/collections/certificates;/buckets/blocklists-preview/collections/certificates;/buckets/blocklists/collections/certificates
 
-
 See `changelog for kinto-dist 0.9.0 <https://github.com/mozilla-services/kinto-dist/releases/tag/0.9.0>`_
 or `kinto-signer documentation <https://github.com/Kinto/kinto-signer/>`_
 for more details about workflows.
+
+
+kinto-fxa
+'''''''''
+
+**kinto-fxa 2.1.0 → 2.2.0**: https://github.com/mozilla-services/kinto-fxa/releases/2.2.0
 
 
 0.9.1 (2016-10-06)
