@@ -17,10 +17,10 @@ iso8601==0.1.11
 Jinja2==2.8
 jsonschema==2.5.1
 kinto==4.3.2
-kinto-amo==0.2.0
+kinto-amo==0.3.0
 kinto-attachment==1.0.0
 kinto-changes==0.3.0
-kinto-fxa==2.1.0
+kinto-fxa==2.2.0
 kinto-http==7.0.0
 kinto-ldap==0.1.0
 kinto-signer==1.0.0
@@ -45,9 +45,9 @@ raven==5.31.0
 repoze.lru==0.6
 requests==2.11.1
 requests-hawk==1.0.0
-simplejson==3.9.0
+simplejson==3.10.0
 six==1.10.0
-SQLAlchemy==1.1.2
+SQLAlchemy==1.1.3
 statsd==3.2.1
 structlog==16.1.0
 transaction==1.6.1
