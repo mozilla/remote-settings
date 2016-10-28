@@ -4,8 +4,8 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-0.10.0 (2016-10-28)
-===================
+1.0 (2016-10-28)
+================
 
 kinto-admin
 '''''''''''
