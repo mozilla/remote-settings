@@ -14,7 +14,7 @@ all: install
 install: $(INSTALL_STAMP)
 $(INSTALL_STAMP): $(PYTHON) setup.py
 	$(VENV)/bin/pip install -U pip
-	$(VENV)/bin/pip install -Ue .
+	$(VENV)/bin/pip install -Ue . -c requirements.txt
 	touch $(INSTALL_STAMP)
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
