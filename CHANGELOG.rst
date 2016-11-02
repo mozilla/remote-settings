@@ -7,7 +7,21 @@ the version control of each dependency.
 2.0 (unreleased)
 ================
 
-- Nothing changed yet.
+kinto-ldap
+'''''''''
+
+**kinto-ldap 0.2.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.2.0
+
+**New features**
+
+- Set default value for ``multiauth.policy.ldap.use`` (fixes #3)
+- Add the plugin version in the hello view capabilities.
+- Add connection pool settings (fixes #10)
+
+**Bug fixes**
+
+- Fix heartbeat when server is unreachable (fixes #8)
+- Do not crash and log exception if LDAP when server is unreachable (fixes #9)
 
 
 1.0 (2016-10-28)
