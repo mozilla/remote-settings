@@ -10,7 +10,7 @@ the version control of each dependency.
 kinto-ldap
 '''''''''
 
-**kinto-ldap 0.2.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.2.0
+**kinto-ldap 0.1.0 → 0.2.1**: https://github.com/Kinto/kinto-ldap/releases/tag/0.2.1
 
 **New features**
 
@@ -21,6 +21,7 @@ kinto-ldap
 **Bug fixes**
 
 - Fix heartbeat when server is unreachable (fixes #8)
+- Fix heartbeat that would always return False (#14)
 - Do not crash and log exception if LDAP when server is unreachable (fixes #9)
 
 
