@@ -4,7 +4,6 @@ addons:
   postgresql: "9.4"
   apt:
     packages:
-    - ldap-utils
     - slapd
 install:
     - sudo apt-get install python-dev python-virtualenv
