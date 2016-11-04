@@ -22,7 +22,7 @@ kinto-attachment==1.0.0
 kinto-changes==0.3.0
 kinto-fxa==2.2.0
 kinto-http==7.0.0
-kinto-ldap==0.1.0
+kinto-ldap==0.2.1
 kinto-signer==1.0.0
 ldappool==2.0.0
 lxml==3.6.4

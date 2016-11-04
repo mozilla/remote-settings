@@ -2,6 +2,9 @@ go: 1.6
 language: go
 addons:
   postgresql: "9.4"
+  apt:
+    packages:
+    - slapd
 install:
     - sudo apt-get install python-dev python-virtualenv
     - go get github.com/mozilla-services/autograph
