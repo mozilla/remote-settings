@@ -8,7 +8,7 @@ the version control of each dependency.
 ================
 
 kinto-ldap
-'''''''''
+''''''''''
 
 **kinto-ldap 0.1.0 → 0.2.1**: https://github.com/Kinto/kinto-ldap/releases/tag/0.2.1
 
@@ -23,6 +23,21 @@ kinto-ldap
 - Fix heartbeat when server is unreachable (fixes #8)
 - Fix heartbeat that would always return False (#14)
 - Do not crash and log exception if LDAP when server is unreachable (fixes #9)
+
+kinto-changes
+'''''''''''''
+
+**kinto-changes 0.3.0 → 0.4.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.4.0
+
+**New features**
+
+- Add the plugin version in the capability (Kinto/kinto-changes#20)
+- Add collections in the capability (Kinto/kinto-changes#18)
+- Add a specific setting to override global ``http_host`` value (Kinto/kinto-changes#24)
+
+.. code-block:: ini
+
+    kinto.event_listeners.changes.http_host = firefox.settings.services.mozilla.com
 
 
 1.0 (2016-10-28)
