@@ -18,6 +18,13 @@ kinto-ldap
 - Add the plugin version in the hello view capabilities.
 - Add connection pool settings (fixes #10)
 
+.. code-block:: ini
+
+    # kinto.ldap.pool_size = 10
+    # kinto.ldap.pool_retry_max = 3
+    # kinto.ldap.pool_retry_delay = .1
+    # kinto.ldap.pool_timeout = 30
+
 **Bug fixes**
 
 - Fix heartbeat when server is unreachable (fixes #8)
