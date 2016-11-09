@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-2.0 (unreleased)
+1.1 (2016-11-09)
 ================
 
 kinto-ldap
@@ -17,6 +17,13 @@ kinto-ldap
 - Set default value for ``multiauth.policy.ldap.use`` (fixes #3)
 - Add the plugin version in the hello view capabilities.
 - Add connection pool settings (fixes #10)
+
+.. code-block:: ini
+
+    # kinto.ldap.pool_size = 10
+    # kinto.ldap.pool_retry_max = 3
+    # kinto.ldap.pool_retry_delay = .1
+    # kinto.ldap.pool_timeout = 30
 
 **Bug fixes**
 
