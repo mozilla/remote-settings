@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-2.0 (unreleased)
+1.1 (2016-11-09)
 ================
 
 kinto-ldap
