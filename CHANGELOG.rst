@@ -40,6 +40,18 @@ kinto-changes
     kinto.event_listeners.changes.http_host = firefox.settings.services.mozilla.com
 
 
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.4.1 → 1.4.2**: https://github.com/Kinto/kinto-admin/releases/tag/1.4.2
+
+**Bug fixes**
+
+- Fix #299: Fix broken attachment creation. (#305)
+- Fix #303: Fix attachment link in records list. (#306)
+- Fix #307: Always show hooks on collection records page (#308)
+
+
 1.0 (2016-10-28)
 ================
 
