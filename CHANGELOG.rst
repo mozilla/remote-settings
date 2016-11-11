@@ -7,7 +7,15 @@ the version control of each dependency.
 1.2 (unreleased)
 ================
 
-- Nothing changed yet.
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.4.2 → 1.4.3**: https://github.com/Kinto/kinto-admin/releases/tag/1.4.3
+
+**Bug fixes**
+
+- Fix #311: check object permissions via parents objects too (#312)
+- Fix #309: hide server URL from authentication form (#310)
 
 
 1.1 (2016-11-09)
