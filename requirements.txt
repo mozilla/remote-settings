@@ -16,7 +16,7 @@ ipaddress==1.0.17
 iso8601==0.1.11
 Jinja2==2.8
 jsonschema==2.5.1
-kinto==4.3.2
+kinto==4.3.3
 kinto-amo==0.3.0
 kinto-attachment==1.0.1
 kinto-changes==0.4.0

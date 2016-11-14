@@ -7,6 +7,19 @@ the version control of each dependency.
 1.2 (unreleased)
 ================
 
+Kinto
+'''''
+
+**kinto 4.3.2 → 4.3.3**: https://github.com/Kinto/kinto-admin/releases/tag/4.3.3
+
+**Bug fixes**
+
+- Fix crash when querystring parameter contains null string (fixes #882)
+- Permissions endpoint now exposes the user permissions defined in settings (fixes #909)
+- Fix crash when redirection path contains CRLF character (fixes #887)
+
+
+
 kinto-admin
 '''''''''''
 
