@@ -7,7 +7,14 @@ the version control of each dependency.
 1.3 (unreleased)
 ================
 
-- Nothing changed yet.
+Kinto
+'''''
+
+**kinto 4.3.3 → 4.3.4**: https://github.com/Kinto/kinto-admin/releases/tag/4.3.4
+
+**Bug fixes**
+
+- Fix bug when two subfields are selected in partial responses (fixes Kinto/kinto#920)
 
 
 1.2 (2016-11-15)
