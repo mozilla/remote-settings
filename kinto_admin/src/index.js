@@ -6,9 +6,9 @@ import * as signoffPlugin from "kinto-admin/lib/plugins/signoff";
 
 const settings = {
   maxPerPage: 50,
-  singleServer: document.location.toString().split('/admin/')[0]
+  singleServer: document.location.toString().split('/admin/')[0],
+  authMethods: ["ldap", "basicauth"]
 };
-
 
 ReactDOM.render(
   <KintoAdmin settings={settings} plugins={[signoffPlugin]}/>,

@@ -17,6 +17,24 @@ Kinto
 - Fix bug when two subfields are selected in partial responses (fixes Kinto/kinto#920)
 
 
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.4.3 → 1.5.0**: https://github.com/Kinto/kinto-admin/releases/tag/1.5.0
+
+**New features**
+
+- Auth form improvements (Kinto/kinto-admin#327, Kinto/kinto-admin#327#328)
+- Review workflow UI improvements. (Kinto/kinto-admin#319, Kinto/kinto-admin#322)
+
+**Bug fixes**
+
+- Hide details on review step link when history capability is unavailable. (Kinto/kinto-admin#325)
+- Relative time fixes (Kinto/kinto-admin#324)
+- Workflow history of changes now only shows records (Kinto/kinto-admin#320)
+- Fix lost list of groups when using signoff plugin. (Kinto/kinto-admin#321)
+
+
 1.2 (2016-11-15)
 ================
 
