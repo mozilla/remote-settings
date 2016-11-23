@@ -7,7 +7,21 @@ the version control of each dependency.
 1.4 (unreleased)
 ================
 
-- Nothing changed yet.
+Kinto
+'''''
+
+**kinto 4.3.4 → 4.3.5**: https://github.com/Kinto/kinto-admin/releases/tag/4.3.5
+
+**Bug fixes**
+
+- Fix crash in permission endpoint when merging permissions from settings and from
+  permissions backend (fixes #926)
+- Fix crash in PostgreSQL backend when specified bound permissions is empty (fixes #906)
+- Fix response status for OPTION request on version redirection (fixes #852)
+- Fix crash in authorization policy when object ids contain unicode (fixes #931)
+- Permissions are now correctly removed from permission backend when a parent
+  object is deleted (fixes #898)
+- Add deletion of multiple groups in API docs (#928)
 
 
 1.3 (2016-11-18)
