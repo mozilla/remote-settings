@@ -21,7 +21,7 @@ REQUIREMENTS = [
     "kinto-changes>=0.4,<0.5",
     "kinto-signer>=1.0.0,<1.1.0",
     "kinto-fxa>=2.2,<3.0",
-    "kinto-ldap>=0.2.1,<0.3",
+    "kinto-ldap>=0.3.0,<0.4",
     "amo2kinto>=1.6,<1.7",
     "boto>=2.40,<2.41",
 ]

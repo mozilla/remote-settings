@@ -23,6 +23,14 @@ Kinto
   object is deleted (fixes #898)
 - Add deletion of multiple groups in API docs (#928)
 
+kinto-ldap
+''''''''''
+
+**kinto-ldap 0.2.1 → 0.3.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.3.0
+
+**New features**
+
+- Support login from multiple DN from the same LDAP server (Kinto/kinto-ldap#16)
 
 1.3 (2016-11-18)
 ================
