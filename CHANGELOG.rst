@@ -10,7 +10,7 @@ the version control of each dependency.
 Kinto
 '''''
 
-**kinto 4.3.4 → 4.3.5**: https://github.com/Kinto/kinto-admin/releases/tag/4.3.5
+**kinto 4.3.4 → 4.3.6**: https://github.com/Kinto/kinto-admin/releases/tag/4.3.6
 
 **Bug fixes**
 
@@ -22,6 +22,9 @@ Kinto
 - Permissions are now correctly removed from permission backend when a parent
   object is deleted (fixes #898)
 - Add deletion of multiple groups in API docs (#928)
+- Fix ``record_id`` attribute in history entries when several records are
+  modified via a batch request (fixes #942)
+
 
 kinto-ldap
 ''''''''''
