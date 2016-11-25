@@ -23,6 +23,20 @@ Kinto
   object is deleted (fixes #898)
 - Add deletion of multiple groups in API docs (#928)
 
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.5.0 → 1.5.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.5.1
+
+**Bug fixes**
+
+- Fix #339: Fix server history not saved. (#342)
+- Fix #340: Fix broken saved session restore. (#341)
+- Fix #332: Display app version number in the footer. (#338)
+- Fix broken timeago helper. (#335)
+- Fix #336: Fix cannot save bucket attributes upon creation. (#337)
+
+
 kinto-ldap
 ''''''''''
 
