@@ -23,6 +23,17 @@ dependencies:
     # day to keep the cache size down.
     - I="image-$(date +%j).gz"; if [[ -e ~/docker/$I ]]; then echo "Loading $I"; pigz -d -c ~/docker/$I | docker load; fi
 
+    # create a version.json
+    - >
+        printf '{"name":"%s","commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n'
+        "kinto-dist",
+        "$CIRCLE_SHA1"
+        "$CIRCLE_TAG"
+        "mozilla-services"
+        "$CIRCLE_PROJECT_REPONAME"
+        "$CIRCLE_BUILD_URL"
+        > version.json
+
     # build the actual deployment container
     - docker build --pull -t app .
 

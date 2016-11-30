@@ -24,12 +24,6 @@ RUN buildDeps=' \
     pip install -e . -c requirements.txt && \
     pip install uwsgi && uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd && \
 
-    # construct version.json
-    GITREF=$(git rev-parse HEAD) \
-    GITTAG=$(git name-rev --tags --name-only $GITREF) \
-    SOURCE='https://github.com/mozilla-services/kinto-dist' && \
-    echo "{\"source\": \"$SOURCE\", \"name\": \"kinto-dist\", \"version\": \"$GITTAG\", \"commit\": \"$GITREF\"}" > version.json && \
-
     # cleanup
     apt-get purge -y $buildDeps && \
     rm -rf /var/lib/apt/lists/* && \
