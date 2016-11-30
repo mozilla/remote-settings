@@ -3,10 +3,10 @@ FROM python:3.5-slim
 # add a non-privileged user for installing and running
 # the application
 RUN groupadd -g 9000 kinto && \
-    useradd -M -u 9000 -g 9000 -G kinto -d /kinto-dist -s /sbin/nologin kinto
+    useradd -M -u 9000 -g 9000 -G kinto -d /app -s /sbin/nologin kinto
 
-COPY . /kinto-dist
-WORKDIR /kinto-dist
+COPY . /app
+WORKDIR /app
 
 RUN buildDeps=' \
     git \
@@ -39,4 +39,4 @@ RUN buildDeps=' \
 USER kinto
 
 # Run uwsgi by default
-CMD ["uwsgi", "--ini", "/etc/kinto-dist/kinto.ini"]
+CMD ["uwsgi", "--ini", "/etc/kinto.ini"]
