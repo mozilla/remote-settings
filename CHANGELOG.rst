@@ -4,10 +4,10 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-1.5 (unreleased)
+1.5 (2016-12-01)
 ================
 
-- Nothing changed yet.
+- Create a Dockerfile that matches Dockerflow. (#84)
 
 
 1.4 (2016-11-28)
