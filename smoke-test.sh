@@ -32,8 +32,6 @@ http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '
 # kinto-admin
 http --check-status -h "$SERVER/admin/"
 http --check-status -h "$SERVER/admin/index.html"
-http --check-status -h "$SERVER/admin/static/js/$(basename kinto_admin/build/static/js/main*.js)"
-http --check-status -h "$SERVER/admin/static/css/$(basename kinto_admin/build/static/css/main*.css)"
 
 # kinto-amo
 APPID="\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}"

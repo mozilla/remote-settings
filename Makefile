@@ -41,13 +41,6 @@ build-requirements:
 	$(TEMPDIR)/bin/pip install -Ue .
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
-update-kinto-admin:
-	rm -fr kinto_admin/build
-	rm -fr kinto_admin/node_modules
-	cd kinto_admin/; npm install && npm run build
-	cd kinto_admin/; sed -i "s/ version=\".*\"/ version=\"$$(npm list | egrep kinto-admin | cut -d @ -f 2)\"/g" __init__.py
-	git add kinto_admin/build/static/js/
-
 need-kinto-running:
 	@curl http://localhost:8888/v1/ 2>/dev/null 1>&2 || (echo "Run 'make run-kinto' before starting tests." && exit 1)
 

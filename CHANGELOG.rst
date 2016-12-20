@@ -7,7 +7,31 @@ the version control of each dependency.
 1.6 (unreleased)
 ================
 
-- Nothing changed yet.
+**Upgrade notes**
+
+- Replace ``kinto_admin`` by ``kinto.plugins.admin`` for ``kinto.includes``
+  setting in the INI file.
+
+Kinto
+'''''
+
+**kinto 4.3.6 → 5.1.0**: https://github.com/Kinto/kinto/releases/tag/5.1.0
+
+**Protocol**
+
+- Add support for `JSON-Patch (RFC 6902) <https://tools.ietf.org/html/rfc6902>`_.
+- Add support for `JSON-Merge (RFC 7396) <https://tools.ietf.org/html/rfc7396>`_.
+- Added a principals list to ``hello`` view when authenticated.
+- Added details attribute to 404 errors. (#818)
+- Add a ``basicauth`` capability when activated on the server. (#937)
+- Add ability to delete history entries using ``DELETE`` (#958)
+
+**New features**
+
+- Added a new built-in plugin ``kinto.plugins.admin`` to serve the kinto admin.
+- Added a new ``parse_resource`` utility to ``kinto.core.utils``
+- Add a setting to limit the maximum number of bytes cached in the memory backend. (#610)
+- Add a setting to exclude certain resources from being tracked by history (fixes #964)
 
 
 1.5 (2016-12-01)
