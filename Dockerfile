@@ -17,6 +17,7 @@ RUN buildDeps=' \
     libsasl2-dev \
     libssl-dev \
     libxml2-dev \
+    libxslt1-dev \
     ' && \
     # install deps
     apt-get update -y && \
