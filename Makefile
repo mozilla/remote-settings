@@ -53,6 +53,3 @@ clean:
 	rm -fr build/ dist/ .tox .venv
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d | xargs rm -fr
-
-tests-once: install-dev
-	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto_admin
