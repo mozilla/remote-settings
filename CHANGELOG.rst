@@ -12,6 +12,17 @@ the version control of each dependency.
 - Replace ``kinto_admin`` by ``kinto.plugins.admin`` for ``kinto.includes``
   setting in the INI file.
 
+.. code-block:: ini
+
+    kinto.includes = kinto.plugins.admin
+
+- We can skip the history on the preview and production buckets:
+
+.. code-block:: ini
+
+    kinto.history.exclude_resources = /buckets/blocklists
+                                      /buckets/blocklists-preview
+
 Kinto
 '''''
 
