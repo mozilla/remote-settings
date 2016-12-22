@@ -20,7 +20,3 @@ before_script:
     - autograph -c $TRAVIS_BUILD_DIR/.autograph.yml &
 script:
     - bash $TRAVIS_BUILD_DIR/smoke-test.sh
-matrix:
-  include:
-    - python: 3.5
-      script: make tests-once
