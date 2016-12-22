@@ -33,16 +33,43 @@ Kinto
 - Add support for `JSON-Patch (RFC 6902) <https://tools.ietf.org/html/rfc6902>`_.
 - Add support for `JSON-Merge (RFC 7396) <https://tools.ietf.org/html/rfc7396>`_.
 - Added a principals list to ``hello`` view when authenticated.
-- Added details attribute to 404 errors. (#818)
-- Add a ``basicauth`` capability when activated on the server. (#937)
-- Add ability to delete history entries using ``DELETE`` (#958)
+- Added details attribute to 404 errors. (Kinto/kinto#818)
+- Add a ``basicauth`` capability when activated on the server. (Kinto/kinto#937)
+- Add ability to delete history entries using ``DELETE`` (Kinto/kinto#958)
 
 **New features**
 
 - Added a new built-in plugin ``kinto.plugins.admin`` to serve the kinto admin.
 - Added a new ``parse_resource`` utility to ``kinto.core.utils``
-- Add a setting to limit the maximum number of bytes cached in the memory backend. (#610)
-- Add a setting to exclude certain resources from being tracked by history (fixes #964)
+- Add a setting to limit the maximum number of bytes cached in the memory backend. (Kinto/kinto#610)
+- Add a setting to exclude certain resources from being tracked by history (Kinto/kinto#964)
+
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.5.1 → 1.6.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.6.0
+
+**New features**
+
+* Fix Kinto/kinto-admin#208: Generalized pagination. (Kinto/kinto-admin#352)
+* Fix Kinto/kinto-admin#208: Paginate history. (Kinto/kinto-admin#351)
+* Add support for gzipped option on attachments (Kinto/kinto-admin#358)
+
+**Bug fixes**
+
+* Fix Kinto/kinto-admin#349: [signoff] Update the lastSigned timestamp. (Kinto/kinto-admin#362)
+* Fix Kinto/kinto-admin#350: work-in-progress infos (Kinto/kinto-admin#363)
+* Fix Kinto/kinto-admin#273: Prevent overriding members list in group edition form. (Kinto/kinto-admin#346)
+* Typo in capabilities property name (Kinto/kinto-admin#357)
+
+
+kinto-fxa
+'''''''''
+
+**kinto-fxa 2.2.0 → 2.3.0**: https://github.com/mozilla-services/kinto-fxa/releases/2.3.0
+
+- Compatibility with Kinto 5
 
 
 1.5 (2016-12-01)
