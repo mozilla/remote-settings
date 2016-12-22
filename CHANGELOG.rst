@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-1.6 (unreleased)
+1.6 (2016-12-22)
 ================
 
 **Upgrade notes**
@@ -43,6 +43,14 @@ Kinto
 - Added a new ``parse_resource`` utility to ``kinto.core.utils``
 - Add a setting to limit the maximum number of bytes cached in the memory backend. (#610)
 - Add a setting to exclude certain resources from being tracked by history (fixes #964)
+
+
+kinto-fxa
+'''''''''
+
+**kinto-fxa 2.2.0 → 2.3.0**: https://github.com/mozilla-services/kinto-fxa/releases/2.3.0
+
+- Compatibility with Kinto 5
 
 
 1.5 (2016-12-01)
