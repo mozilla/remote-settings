@@ -15,6 +15,7 @@ README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 
 REQUIREMENTS = [
+    "pyramid>1.7,<1.8",
     "kinto[postgresql,monitoring]>=5.1,<5.2",
     "kinto-attachment>=1.0,<1.1",
     "kinto-amo>=0.3.0,<0.4",
