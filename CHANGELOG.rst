@@ -7,7 +7,32 @@ the version control of each dependency.
 1.7 (unreleased)
 ================
 
-- Nothing changed yet.
+
+Kinto
+'''''
+
+**kinto 5.1.0 → 5.2.0**: https://github.com/Kinto/kinto/releases/tag/5.2.0
+
+**Protocol**
+
+- Add an `OpenAPI specification <https://kinto.readthedocs.io/en/latest/api/1.x/openapi.html>`_ for the HTTP API on ``/__api__`` (Kinto/kinto#997)
+
+**New features**
+
+- When admin is enabled, ``/v1/admin`` does not return ``404`` anymore, but now redirects to
+  ``/v1/admin/`` (with trailing slash).
+
+**Bug fixes**
+
+- Add missing ``Total-Records`` field on ``DELETE`` header with plural endpoints (fixes Kinto/kinto#1000)
+
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.6.1 → 1.7.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.7.0
+
+* Added a TagsField form component (eg. devices list) (Kinto/kinto-admin#367)
 
 
 1.6 (unreleased)
