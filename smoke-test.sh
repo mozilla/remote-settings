@@ -17,6 +17,7 @@ http --check-status PUT $SERVER/buckets/blocklists --auth $AUTH
 http --check-status PUT $SERVER/buckets/blocklists-preview --auth $AUTH
 
 http --check-status $SERVER/__heartbeat__
+http --check-status $SERVER/__api__
 
 # kinto.plugins.history
 http --check-status GET $SERVER/buckets/blog/history --auth $AUTH | grep '"articles"'
