@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-1.8 (unreleased)
+1.8 (2017-01-16)
 ================
 
 kinto-changes
