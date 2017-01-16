@@ -7,7 +7,14 @@ the version control of each dependency.
 1.8 (unreleased)
 ================
 
-- Nothing changed yet.
+kinto-changes
+'''''''''''''
+
+**kinto-changes 0.4.0 → 0.5.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.5.0
+
+**Bug fixes**
+
+- Do not force the timestamp of monitored entries, to avoid possible integrity errors (#27)
 
 
 1.7 (2017-01-12)
