@@ -14,7 +14,18 @@ kinto-changes
 
 **Bug fixes**
 
-- Do not force the timestamp of monitored entries, to avoid possible integrity errors (#27)
+- Do not force the timestamp of monitored entries, to avoid possible integrity errors (Kinto/kinto-changes#27)
+
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 1.0.0 → 1.1.1**: https://github.com/Kinto/kinto-signer/releases/tag/1.1.1
+
+**Bug fixes**
+
+- Fix consistency of setting names for per-collection workflows configuration (Kinto/kinto-signer#149)
+- Remove recursivity of events when requesting review (Kinto/kinto-signer#158)
 
 
 1.7 (2017-01-12)
