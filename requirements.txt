@@ -15,7 +15,7 @@ idna==2.2
 ipaddress==1.0.18
 iso8601==0.1.11
 Jinja2==2.9.4
-jsonpatch==1.14
+jsonpatch==1.15
 jsonpointer==1.10
 jsonschema==2.5.1
 kinto==5.2.0
@@ -25,7 +25,7 @@ kinto-changes==0.5.0
 kinto-fxa==2.3.0
 kinto-http==7.0.0
 kinto-ldap==0.3.0
-kinto-signer==1.0.0
+kinto-signer==1.1.1
 ldappool==2.0.0
 lxml==3.7.2
 MarkupSafe==0.23
@@ -61,7 +61,7 @@ ujson==1.35
 Unidecode==0.4.20
 venusian==1.0
 waitress==1.0.1
-WebOb==1.7.0
+WebOb==1.7.1
 Werkzeug==0.11.15
 xmltodict==0.10.2
 zope.deprecation==4.2.0
