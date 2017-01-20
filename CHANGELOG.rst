@@ -7,7 +7,21 @@ the version control of each dependency.
 1.9 (unreleased)
 ================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-changes 1.1.1 → 1.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.2.0
+
+**Bug fixes**
+
+- Do not always reset destination permissions
+
+**New features**
+
+- Pyramid events are sent for each review step of the validation workflow (fixes #157)
+- Kinto Admin UI fields like ``displayFields`` ``attachment`` and ``sort`` are copied
+  from the source to the preview and destination collections (if not set) (fixes #161)
+
 
 
 1.8 (2017-01-16)
