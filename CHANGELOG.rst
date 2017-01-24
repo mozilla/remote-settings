@@ -4,11 +4,28 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-1.9 (unreleased)
+1.9 (2017-01-24)
 ================
 
 kinto-signer
 ''''''''''''
+
+**kinto 5.2.0 → 5.3.0**: https://github.com/Kinto/kinto/releases/tag/5.3.0
+
+
+**Bug fixes**
+
+- Fix crash with batch endpoint when list of requests contains trailing comma (Kinto/kinto#1024)
+
+**Internal changes**
+
+- Cache backend transactions are not bound to the request/response cycle anymore (Kinto/kinto#879)
+- Quick mention of PostgreSQL commands to run tests locally in contributing docs.
+- Use YAML ``safe_load`` for the swagger file. (Kinto/kinto#1022)
+- Request headers and querystrings are now validated using cornice schemas (Kinto/kinto#873).
+- JSON Patch format is now validated using cornice (Kinto/kinto#880).
+- Upgraded to Kinto-Admin 1.8.0
+
 
 **kinto-changes 1.1.1 → 1.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.2.0
 
