@@ -16,15 +16,7 @@ kinto-signer
 **Bug fixes**
 
 - Fix crash with batch endpoint when list of requests contains trailing comma (Kinto/kinto#1024)
-
-**Internal changes**
-
 - Cache backend transactions are not bound to the request/response cycle anymore (Kinto/kinto#879)
-- Quick mention of PostgreSQL commands to run tests locally in contributing docs.
-- Use YAML ``safe_load`` for the swagger file. (Kinto/kinto#1022)
-- Request headers and querystrings are now validated using cornice schemas (Kinto/kinto#873).
-- JSON Patch format is now validated using cornice (Kinto/kinto#880).
-- Upgraded to Kinto-Admin 1.8.0
 
 
 **kinto-changes 1.1.1 → 1.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.2.0
@@ -39,6 +31,19 @@ kinto-signer
 - Kinto Admin UI fields like ``displayFields`` ``attachment`` and ``sort`` are copied
   from the source to the preview and destination collections (if not set) (fixes #161)
 
+**kinto-admin 1.7.0 → 1.8.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.8.0
+
+**Bug fixes**
+
+- Fix Kinto/kinto-admin#353: Show changes in review step even if no permission to approve
+- Fix Kinto/kinto-admin#248: Prevent crash on *uiSchema* validation when the entered JSON schema is invalid
+- Fix Kinto/kinto-admin#302: Make whole menu entry area clickable for collections
+
+**New features**
+
+- Add a JSON editor for raw collection attributes. (Kinto/kinto-admin#116, Kinto/kinto-admin#371)
+- Don't fail when fetching the list of buckets returns a HTTP 403. (Kinto/kinto-admin#370)
+- Retry requests once (Kinto/kinto-admin#368)
 
 
 1.8 (2017-01-16)
