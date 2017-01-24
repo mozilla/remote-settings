@@ -4,11 +4,20 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-1.9 (unreleased)
+1.9 (2017-01-24)
 ================
 
 kinto-signer
 ''''''''''''
+
+**kinto 5.2.0 → 5.3.0**: https://github.com/Kinto/kinto/releases/tag/5.3.0
+
+
+**Bug fixes**
+
+- Fix crash with batch endpoint when list of requests contains trailing comma (Kinto/kinto#1024)
+- Cache backend transactions are not bound to the request/response cycle anymore (Kinto/kinto#879)
+
 
 **kinto-changes 1.1.1 → 1.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.2.0
 
@@ -22,6 +31,19 @@ kinto-signer
 - Kinto Admin UI fields like ``displayFields`` ``attachment`` and ``sort`` are copied
   from the source to the preview and destination collections (if not set) (fixes #161)
 
+**kinto-admin 1.7.0 → 1.8.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.8.0
+
+**Bug fixes**
+
+- Fix Kinto/kinto-admin#353: Show changes in review step even if no permission to approve
+- Fix Kinto/kinto-admin#248: Prevent crash on *uiSchema* validation when the entered JSON schema is invalid
+- Fix Kinto/kinto-admin#302: Make whole menu entry area clickable for collections
+
+**New features**
+
+- Add a JSON editor for raw collection attributes. (Kinto/kinto-admin#116, Kinto/kinto-admin#371)
+- Don't fail when fetching the list of buckets returns a HTTP 403. (Kinto/kinto-admin#370)
+- Retry requests once (Kinto/kinto-admin#368)
 
 
 1.8 (2017-01-16)
