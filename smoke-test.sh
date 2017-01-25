@@ -84,5 +84,5 @@ echo '{"data": {
 
 rm -rf $TRAVIS_BUILD_DIR/mail/*.eml
 echo '{"data": {"status": "to-review"}}' | http PATCH $SERVER/buckets/source/collections/source --auth="$EDITOR_AUTH"
-cat $TRAVIS_BUILD_DIR/mail/*.eml | grep "Subject: basicauth"
-cat $TRAVIS_BUILD_DIR/mail/*.eml | grep "To: me@you.com"
+cat $HOME/mail/*.eml | grep "Subject: basicauth"
+cat $HOME/mail/*.eml | grep "To: me@you.com"
