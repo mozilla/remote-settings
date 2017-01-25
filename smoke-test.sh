@@ -22,13 +22,14 @@ http --check-status $SERVER/__api__
 # kinto.plugins.history
 http --check-status GET $SERVER/buckets/blog/history --auth $AUTH | grep '"articles"'
 
-# kinto-attachment test
+kinto-attachment test
 curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.png"
 http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.png --auth $AUTH
 
 # kinto-signer test
 curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/0.9.1/scripts/e2e.py
 python e2e.py --server=$SERVER --auth=$AUTH --editor-auth=$EDITOR_AUTH --reviewer-auth=$REVIEWER_AUTH --source-bucket=source --source-col=source
+python create_groups.py --bucket=source --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 
 # kinto-changes
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"destination"'
@@ -66,3 +67,22 @@ python validate_signature.py --server="http://localhost:8888/v1" --bucket=blockl
 python validate_signature.py --server="http://localhost:8888/v1" --bucket=blocklists --collection=certificates
 python validate_signature.py --server="http://localhost:8888/v1" --bucket=blocklists --collection=plugins
 python validate_signature.py --server="http://localhost:8888/v1" --bucket=blocklists --collection=gfx
+
+#
+# Emailer
+#
+echo '{"data": {
+  "kinto-emailer": {
+    "hooks": [{
+      "event": "kinto_signer.events.ReviewRequested",
+      "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
+      "template": "Review changes at https://localhost:8888/v1/admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
+      "recipients": ["me@you.com"]
+    }]
+  }
+}}' | http PATCH $SERVER/buckets/source/collections/source --auth="$AUTH"
+
+rm -rf mail/*.eml
+echo '{"data": {"status": "to-review"}}' | http PATCH $SERVER/buckets/source/collections/source --auth="$EDITOR_AUTH"
+cat mail/*.eml | grep "Subject: basicauth"
+cat mail/*.eml | grep "To: me@you.com"
