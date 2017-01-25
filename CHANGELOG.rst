@@ -7,7 +7,24 @@ the version control of each dependency.
 1.10 (unreleased)
 =================
 
-- Nothing changed yet.
+kinto-emailer
+'''''''''''''
+
+**kinto-emailer 0.1.0**: https://github.com/Kinto/kinto-emailer/releases/tag/0.1.0
+
+This package allows to send email notifications when something happens on a collection.
+
+.. code-block:: ini
+
+    kinto.includes = kinto_emailer
+
+    mail.default_sender = firefox-settings-notifs@mozilla.com
+    # mail.host = localhost
+    # mail.port = 25
+    # mail.username = None
+    # mail.password = None
+
+See more details in `Pyramid Mailer documentation <http://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#configuration>`_.
 
 
 1.9 (2017-01-24)

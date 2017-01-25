@@ -20,6 +20,7 @@ REQUIREMENTS = [
     "kinto-attachment>=1.0,<1.1",
     "kinto-amo>=0.3.0,<0.4",
     "kinto-changes>=0.5,<0.6",
+    "kinto-emailer>=0.1.0,<0.2",
     "kinto-signer>=1.2.0,<1.3.0",
     "kinto-fxa>=2.3,<3.0",
     "kinto-ldap>=0.3.0,<0.4",
