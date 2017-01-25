@@ -22,7 +22,7 @@ http --check-status $SERVER/__api__
 # kinto.plugins.history
 http --check-status GET $SERVER/buckets/blog/history --auth $AUTH | grep '"articles"'
 
-kinto-attachment test
+# kinto-attachment test
 curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.png"
 http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.png --auth $AUTH
 
