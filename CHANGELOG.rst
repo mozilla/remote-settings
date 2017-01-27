@@ -10,7 +10,7 @@ the version control of each dependency.
 kinto-emailer
 '''''''''''''
 
-**kinto-emailer 0.1.0**: https://github.com/Kinto/kinto-emailer/releases/tag/0.1.0
+**kinto-emailer 0.2.0**: https://github.com/Kinto/kinto-emailer/releases/tag/0.2.0
 
 This package allows to send email notifications when something happens on a collection.
 
