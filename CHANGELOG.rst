@@ -10,9 +10,13 @@ the version control of each dependency.
 kinto-emailer
 '''''''''''''
 
-**kinto-emailer 0.2.0**: https://github.com/Kinto/kinto-emailer/releases/tag/0.2.0
+**kinto-emailer 0.3.0**: https://github.com/Kinto/kinto-emailer/releases/tag/0.3.0
 
-This package allows to send email notifications when something happens on a collection.
+This package allows to send email notifications when something happens in a bucket
+or on a collection.
+
+Emailing configuration is done in ``.ini`` whereas notifications configuration is done
+via the HTTP API within bucket or collection metadata.
 
 .. code-block:: ini
 
