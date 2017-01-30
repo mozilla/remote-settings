@@ -76,8 +76,8 @@ echo '{"data": {
     "hooks": [{
       "event": "kinto_signer.events.ReviewRequested",
       "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
-      "template": "Review changes at https://localhost:8888/v1/admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
-      "recipients": ["me@you.com"]
+      "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
+      "recipients": ["me@you.com", "/buckets/source/groups/reviewers"]
     }]
   }
 }}' | http PATCH $SERVER/buckets/source/collections/source --auth="$AUTH"

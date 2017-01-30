@@ -23,7 +23,7 @@ kinto==5.3.0
 kinto-amo==0.3.0
 kinto-attachment==1.0.1
 kinto-changes==0.5.0
-kinto-emailer==0.1.0
+kinto-emailer==0.2.0
 kinto-fxa==2.3.0
 kinto-http==7.0.0
 kinto-ldap==0.3.0
@@ -42,14 +42,16 @@ pycparser==2.17
 PyFxA==0.3.0
 pyldap==2.4.28
 pyparsing==2.1.10
-pyramid==1.7.3
+pyramid==1.7.4
+pyramid-mailer==0.15.1
 pyramid-multiauth==0.9.0
 pyramid-storage==0.1.2
 pyramid-tm==1.1.1
 python-dateutil==2.6.0
 raven==5.32.0
 repoze.lru==0.6
-requests==2.12.5
+repoze.sendmail==4.3
+requests==2.13.0
 requests-hawk==1.0.0
 ruamel.ordereddict==0.4.9
 ruamel.yaml==0.13.11
