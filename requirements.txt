@@ -19,7 +19,7 @@ Jinja2==2.9.5
 jsonpatch==1.15
 jsonpointer==1.10
 jsonschema==2.5.1
-kinto==5.3.0
+kinto==5.3.1
 kinto-amo==0.3.0
 kinto-attachment==1.0.1
 kinto-changes==0.5.0
@@ -51,7 +51,7 @@ python-dateutil==2.6.0
 raven==5.32.0
 repoze.lru==0.6
 repoze.sendmail==4.3
-requests==2.13.0
+requests==2.12.5
 requests-hawk==1.0.0
 ruamel.ordereddict==0.4.9
 ruamel.yaml==0.13.13
