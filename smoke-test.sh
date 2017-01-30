@@ -80,7 +80,7 @@ echo '{"data": {
       "recipients": ["me@you.com", "/buckets/source/groups/reviewers"]
     }]
   }
-}}' | http PATCH $SERVER/buckets/source/collections/source --auth="$AUTH"
+}}' | http PATCH $SERVER/buckets/source --auth="$AUTH"
 
 rm -rf $TRAVIS_BUILD_DIR/mail/*.eml
 echo '{"data": {"status": "to-review"}}' | http PATCH $SERVER/buckets/source/collections/source --auth="$EDITOR_AUTH"
