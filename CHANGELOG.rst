@@ -4,8 +4,21 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-1.10 (unreleased)
+1.10 (2017-01-30)
 =================
+
+kinto
+'''''
+
+**kinto 5.3.0 → 5.3.1**: https://github.com/Kinto/kinto/releases/tag/5.3.1
+
+
+**Bug fixes**
+
+- Retries to set value in PostgreSQL cache backend in case of IntegrityError (Kinto/kinto#1035)
+- Display Kinto-Admin version number in the footer. (Kinto/kinto#1040)
+- Configure the Kinto Admin auth methods from the server configuration (Kinto/kinto#1042)
+
 
 kinto-emailer
 '''''''''''''
