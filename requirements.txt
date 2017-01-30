@@ -24,7 +24,7 @@ kinto-amo==0.3.0
 kinto-attachment==1.0.1
 kinto-changes==0.5.0
 kinto-emailer==0.3.0
-kinto-fxa==2.3.0
+kinto-fxa==2.3.1
 kinto-http==7.0.0
 kinto-ldap==0.3.0
 kinto-signer==1.2.0

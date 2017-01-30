@@ -31,6 +31,17 @@ via the HTTP API within bucket or collection metadata.
 See more details in `Pyramid Mailer documentation <http://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#configuration>`_.
 
 
+kinto-fxa
+'''''''''
+
+**kinto-fxa 2.3.0 → 2.3.1**: https://github.com/Kinto/kinto-fxa/releases/tag/2.3.0
+
+**Bug fixes**
+
+- Make sure that caching of token verification nevers prevents from authenticating
+  requests (see Mozilla/PyFxA#48)
+
+
 1.9 (2017-01-24)
 ================
 
