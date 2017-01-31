@@ -7,7 +7,14 @@ the version control of each dependency.
 2.0 (unreleased)
 ================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 5.3.1 → 5.3.2**: https://github.com/Kinto/kinto/releases/tag/5.3.2
+
+**Bug fixes**
+
+- Retries to set value in PostgreSQL cache backend in case of BackendError (Kinto/kinto#1052)
 
 
 1.10 (2017-01-30)
