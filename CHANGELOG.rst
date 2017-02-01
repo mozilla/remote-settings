@@ -4,8 +4,17 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-2.0 (unreleased)
-================
+1.12.0 (2017-02-02)
+===================
+
+kinto
+'''''
+
+**kinto 5.3.2 → 5.3.4**: https://github.com/Kinto/kinto/releases/tag/5.3.4
+
+**Bug fixes**
+
+- Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (Kinto/kinto#1055)
 
 kinto-attachment
 ''''''''''''''''
