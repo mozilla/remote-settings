@@ -10,7 +10,11 @@ the version control of each dependency.
 kinto-attachment
 ''''''''''''''''
 
-**kinto-attachment 1.1.1**: https://github.com/Kinto/kinto-attachment/releases/tag/1.1.1
+**kinto-attachment 1.0.1 → 1.1.1**: https://github.com/Kinto/kinto-attachment/releases/tag/1.1.1
+
+**New features**
+
+- Expose the gzipped settings value in the capability (Kinto/kinto-attachment#117)
 
 **Bug fixes**
 
