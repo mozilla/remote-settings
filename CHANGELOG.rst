@@ -7,7 +7,14 @@ the version control of each dependency.
 2.0 (unreleased)
 ================
 
-- Nothing changed yet.
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 1.1.1**: https://github.com/Kinto/kinto-attachment/releases/tag/1.1.1
+
+**Bug fixes**
+
+- Fixes crash when adding attachment to existing record with Kinto 5.3 (Kinto/kinto-attachment#120)
 
 
 1.10 (2017-01-30)
