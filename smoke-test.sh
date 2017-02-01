@@ -23,8 +23,12 @@ http --check-status $SERVER/__api__
 http --check-status GET $SERVER/buckets/blog/history --auth $AUTH | grep '"articles"'
 
 # kinto-attachment test
-curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.png"
-http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.png --auth $AUTH
+curl -O "http://kinto.readthedocs.io/en/stable/_images/kinto-logo.svg"
+# New record.
+http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.svg --auth $AUTH
+# Existing record.
+echo '{"data": {"type": "logo"}}' | http --check-status PUT $SERVER/buckets/blog/collections/articles/records/logo --auth $AUTH
+http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/logo/attachment attachment@kinto-logo.svg --auth $AUTH
 
 # kinto-signer test
 curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/0.9.1/scripts/e2e.py
