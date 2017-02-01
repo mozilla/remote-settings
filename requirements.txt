@@ -21,7 +21,7 @@ jsonpointer==1.10
 jsonschema==2.5.1
 kinto==5.3.2
 kinto-amo==0.3.0
-kinto-attachment==1.1.1
+kinto-attachment==1.1.2
 kinto-changes==0.5.0
 kinto-emailer==0.3.0
 kinto-fxa==2.3.1

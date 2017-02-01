@@ -10,7 +10,7 @@ the version control of each dependency.
 kinto-attachment
 ''''''''''''''''
 
-**kinto-attachment 1.0.1 → 1.1.1**: https://github.com/Kinto/kinto-attachment/releases/tag/1.1.1
+**kinto-attachment 1.0.1 → 1.1.2**: https://github.com/Kinto/kinto-attachment/releases/tag/1.1.2
 
 **New features**
 
@@ -19,6 +19,7 @@ kinto-attachment
 **Bug fixes**
 
 - Fixes crash when adding attachment to existing record with Kinto 5.3 (Kinto/kinto-attachment#120)
+- Fix invalid request when attaching a file on non UUID record id (Kinto/kinto-attachment#122)
 
 
 1.10 (2017-01-30)
