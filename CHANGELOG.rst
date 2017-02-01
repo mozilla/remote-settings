@@ -7,7 +7,19 @@ the version control of each dependency.
 2.0 (unreleased)
 ================
 
-- Nothing changed yet.
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 1.0.1 → 1.1.2**: https://github.com/Kinto/kinto-attachment/releases/tag/1.1.2
+
+**New features**
+
+- Expose the gzipped settings value in the capability (Kinto/kinto-attachment#117)
+
+**Bug fixes**
+
+- Fixes crash when adding attachment to existing record with Kinto 5.3 (Kinto/kinto-attachment#120)
+- Fix invalid request when attaching a file on non UUID record id (Kinto/kinto-attachment#122)
 
 
 1.11 (2017-01-31)
