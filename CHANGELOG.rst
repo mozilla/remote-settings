@@ -7,7 +7,14 @@ the version control of each dependency.
 1.13.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 5.3.4 → 5.3.5**: https://github.com/Kinto/kinto/releases/tag/5.3.5
+
+**Bug fixes**
+
+- Prevent injections in the PostgreSQL permission backend (#1061)
 
 
 1.12.0 (2017-02-02)
