@@ -4,10 +4,48 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-1.13.0 (unreleased)
-===================
+2.0.0 (unreleased)
+==================
 
-- Nothing changed yet.
+Configuration Breaking Changes
+''''''''''''''''''''''''''''''
+
+Before:
+
+.. code-block :: ini
+
+    kinto.event_listeners = changes
+    kinto.event_listeners.changes.use = kinto_changes.listener
+    kinto.event_listeners.changes.http_host = website.domain.tld
+    kinto.event_listeners.changes.collections = /buckets/settings
+                                                /buckets/blocklists/collections/certificates
+
+Now:
+
+.. code-block :: ini
+
+    kinto.changes.http_host = website.domain.tld
+    kinto.changes.resources = /buckets/settings
+                              /buckets/blocklists/collections/certificates
+
+
+kinto-changes
+'''''''''''''
+
+**kinto 0.5.0 → 1.0.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.0
+
+**Breaking changes**
+
+* The change endpoint **location is now hard-coded** (``/buckets/monitor/collections/changes/records``)
+  and cannot be configured.
+* The permissions principals cannot be specified anymore.
+  The change endpoint is now **always public**.
+* The ``monitor`` bucket and ``changes`` collection are not required anymore and
+  are not created anymore.
+* ``POST`` and ``DELETE`` are not supported on the changes endpoint anymore.
+* Individual entries (eg. ``/buckets/monitor/collections/changes/records/{id}``)
+  cannot be accessed anymore.
+* The listener was dropped. Configuration must be changed (see above)
 
 
 1.12.1 (2017-02-08)
