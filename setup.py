@@ -19,7 +19,7 @@ REQUIREMENTS = [
     "kinto[postgresql,monitoring]>=5.3,<5.4",
     "kinto-attachment>=1.1,<1.2",
     "kinto-amo>=0.3.0,<0.4",
-    "kinto-changes>=0.5,<0.6",
+    "kinto-changes>=1.0.0,<1.1.0",
     "kinto-emailer>=0.3.0,<0.4",
     "kinto-signer>=1.2.0,<1.3.0",
     "kinto-fxa>=2.3,<3.0",
@@ -31,7 +31,7 @@ ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
 
 setup(name='kinto-dist',
-      version='1.13.0.dev0',
+      version='2.0.0.dev0',
       description='Kinto Distribution',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
