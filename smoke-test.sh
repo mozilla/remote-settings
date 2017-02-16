@@ -54,7 +54,7 @@ json2kinto --server $SERVER --addons-server https://addons.mozilla.org/ -S amo-b
 http --check-status $SERVER/preview/3/$APPID/46.0/ | grep 'youtube'
 # Final XML is identical to production
 http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube'
-xml-verifier https://blocklist.addons.mozilla.org/blocklist/3/$APPID/46.0/ $SERVER/blocklist/3/$APPID/46.0/
+# xml-verifier https://blocklist.addons.mozilla.org/blocklist/3/$APPID/46.0/ $SERVER/blocklist/3/$APPID/46.0/
 
 # Expected monitored changes
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"blocklists-preview"'
