@@ -1,4 +1,4 @@
-amo2kinto==1.6.0
+amo2kinto==1.7.2
 appdirs==1.4.0
 boto==2.40.0
 cffi==1.9.1
