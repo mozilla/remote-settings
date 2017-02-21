@@ -4,10 +4,18 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-1.13.0 (unreleased)
+1.12.2 (2017-02-20)
 ===================
 
-- Nothing changed yet.
+amo2kinto
+'''''''''
+
+**amo2kinto 1.6.0 → 1.7.2**: https://github.com/mozilla-services/kinto-amo/releases/tag/1.7.2
+
+**Bug fixes**
+
+- Fix XML exporter on missing blockID. (mozilla-services/amo2kinto#63)
+
 
 
 1.12.1 (2017-02-08)
@@ -20,7 +28,7 @@ kinto
 
 **Bug fixes**
 
-- Prevent injections in the PostgreSQL permission backend (#1061)
+- Prevent injections in the PostgreSQL permission backend (Kinto/kinto#1061)
 
 
 1.12.0 (2017-02-02)
