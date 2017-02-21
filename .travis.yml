@@ -14,9 +14,9 @@ install:
     - make install
     - make migrate
 before_script:
+    - python -m SimpleHTTPServer 8080 &
     - cp $TRAVIS_BUILD_DIR/app.wsgi $HOME/
     - cd $HOME && KINTO_INI=$TRAVIS_BUILD_DIR/config/kinto.ini $TRAVIS_BUILD_DIR/.venv/bin/pserve $TRAVIS_BUILD_DIR/config/kinto.ini &
-    - cd $HOME && python -m SimpleHTTPServer 8080 &
     - autograph -c $TRAVIS_BUILD_DIR/.autograph.yml &
 script:
     - bash $TRAVIS_BUILD_DIR/smoke-test.sh
