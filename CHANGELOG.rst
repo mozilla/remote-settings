@@ -11,6 +11,10 @@ the version control of each dependency.
 Configuration Breaking Changes
 ''''''''''''''''''''''''''''''
 
+* ``kinto_changes`` must now be present in ``kinto.includes`` (eg. on read-only stacks)
+  otherwise the monitoring endpoint won't be accessible.
+* The configuration of *kinto-changes* has to be changed:
+
 Before:
 
 .. code-block :: ini
