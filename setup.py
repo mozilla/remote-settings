@@ -16,7 +16,7 @@ CHANGELOG = read_file('CHANGELOG.rst')
 
 REQUIREMENTS = [
     "pyramid>1.7,<1.8",
-    "kinto[postgresql,monitoring]>=5.3,<5.4",
+    "kinto[postgresql,monitoring]>=5.4,<5.5",
     "kinto-attachment>=1.1,<1.2",
     "kinto-amo>=0.3.0,<0.4",
     "kinto-changes>=1.0.0,<1.1.0",
@@ -24,7 +24,7 @@ REQUIREMENTS = [
     "kinto-signer>=1.2.0,<1.3.0",
     "kinto-fxa>=2.3,<3.0",
     "kinto-ldap>=0.3.0,<0.4",
-    "amo2kinto>=1.6,<1.7",
+    "amo2kinto>=1.7,<1.8",
     "boto>=2.40,<2.41",
 ]
 ENTRY_POINTS = {}

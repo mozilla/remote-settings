@@ -4,6 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+
 2.0.0 (unreleased)
 ==================
 
@@ -48,6 +49,59 @@ kinto-changes
 * The listener was dropped. Configuration must be changed (see above)
 
 
+1.13.1 (2017-02-24)
+===================
+
+kinto
+'''''
+
+**kinto 5.4.0 → 5.4.1**: https://github.com/Kinto/kinto/releases/tag/5.4.1
+
+**Bug fixes**
+
+- Fix unexpected references on the swagger spec that failed validation. (Kinto/kinto#1108)
+
+
+1.13.0 (2017-02-21)
+===================
+
+amo2kinto
+'''''''''
+
+**amo2kinto 1.6.0 → 1.7.2**: https://github.com/mozilla-services/kinto-amo/releases/tag/1.7.2
+
+**Bug fixes**
+
+- Fix XML exporter on missing blockID. (mozilla-services/amo2kinto#63)
+
+kinto
+'''''
+
+**kinto 5.3.5 → 5.3.6**: https://github.com/Kinto/kinto/releases/tag/5.3.6
+
+**Bug fixes**
+
+- Fix crash on ``If-Match: *`` (Kinto/kinto#1064)
+- Handle Integer overflow in querystring parameters. (Kinto/kinto#1076)
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.8.1 → 1.9.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.9.0
+
+**New Feature**
+
+- Fix Kinto/kinto-admin#377, Kinto/kinto-admin#378: Allow dropping edited resource properties. (Kinto/kinto-admin#379)
+- Fix Kinto/kinto-admin#365: Render a JSON diff for history entries. (Kinto/kinto-admin#380)
+- Fix Kinto/kinto-admin#376: Denote readonly buckets & collections in the sidebar. (Kinto/kinto-admin#382)
+- Fix Kinto/kinto-admin#384: Live-searchable/filterable sidebar entries. (Kinto/kinto-admin#385)
+- Hide auth method selector when a single one is configured.
+
+**Bug fixes**
+
+- Do not store passwords. Fixes #364 (#386)
+
+
 1.12.1 (2017-02-08)
 ===================
 
@@ -58,7 +112,7 @@ kinto
 
 **Bug fixes**
 
-- Prevent injections in the PostgreSQL permission backend (#1061)
+- Prevent injections in the PostgreSQL permission backend (Kinto/kinto#1061)
 
 
 1.12.0 (2017-02-02)
