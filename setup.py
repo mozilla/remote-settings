@@ -15,8 +15,8 @@ README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 
 REQUIREMENTS = [
-    "pyramid>1.7,<1.8",
-    "kinto[postgresql,monitoring]>=5.4,<5.5",
+    "pyramid>=1.8,<1.9",
+    "kinto[postgresql,monitoring]>=6.0,<6.1",
     "kinto-attachment>=1.1,<1.2",
     "kinto-amo>=0.3.0,<0.4",
     "kinto-changes>=1.0.0,<1.1.0",
@@ -25,7 +25,7 @@ REQUIREMENTS = [
     "kinto-fxa>=2.3,<3.0",
     "kinto-ldap>=0.3.0,<0.4",
     "amo2kinto>=1.7,<1.8",
-    "boto>=2.40,<2.41",
+    "boto>=2.46,<2.47",
 ]
 ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
