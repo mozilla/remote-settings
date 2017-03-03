@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-2.0.0 (unreleased)
+2.0.0 (2017-03-03)
 ==================
 
 Configuration Breaking Changes
