@@ -2,7 +2,6 @@
 # Show executed commands
 set -e -x
 
-source .venv/bin/activate
 pip install httpie kinto-http
 
 SERVER="${SERVER:-http://localhost:8888/v1}"
