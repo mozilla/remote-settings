@@ -1,5 +1,5 @@
 SERVER_CONFIG = config/kinto.ini
-VIRTUALENV = virtualenv
+VIRTUALENV = virtualenv --python python3.5
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON = $(VENV)/bin/python
 DEV_STAMP = $(VENV)/.dev_env_installed.stamp

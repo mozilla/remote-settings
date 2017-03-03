@@ -1,12 +1,15 @@
-go: 1.6
-language: go
+dist: trusty
+language: python
+python: 3.5
 addons:
-  postgresql: "9.4"
+  postgresql: "9.5"
   apt:
     packages:
     - slapd
 install:
-    - sudo apt-get install python-dev python-virtualenv
+    - curl -O https://storage.googleapis.com/golang/go1.6.linux-amd64.tar.gz
+    - tar zxvf go1.6.linux-amd64.tar.gz
+    - sudo mv go /usr/local/
     - go get github.com/mozilla-services/autograph
     - psql -c "CREATE DATABASE dbname ENCODING 'UTF8' TEMPLATE template0;" -U postgres
     - psql -c "CREATE USER admin WITH PASSWORD 'pass';" -U postgres
