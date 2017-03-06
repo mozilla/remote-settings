@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-2.0.0 (2017-03-03)
+2.0.0 (2017-03-06)
 ==================
 
 Configuration Breaking Changes
@@ -67,19 +67,26 @@ Protocol is now at version **1.15**. See `API changelog`_.
 
 **Internal changes**
 
-- Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (fixes #1055)
+- Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (Kinto/kinto#1055)
 - Permission schema children fields are now set during initialization instead of on
-  deserialization (#1046).
+  deserialization (Kinto/kinto#1046).
 - Request schemas (including validation and deserialization) are now isolated by method
-  and endpoint type (#1047).
+  and endpoint type (Kinto/kinto#1047).
 - Move generic API schemas (e.g TimeStamps and HeaderFields) from `kinto.core.resource.schema`
-  to a sepate file on `kinto.core.schema`. (#1054)
-- Upgraded the kinto-admin to version 1.10.0 (#1086, #1128)
-- Upgrade to Pyramid 1.8 (#1087)
+  to a sepate file on `kinto.core.schema`. (Kinto/kinto#1054)
+- Upgraded the kinto-admin to version 1.10.0 (Kinto/kinto#1086, Kinto/kinto#1128)
+- Upgrade to Pyramid 1.8 (Kinto/kinto#1087)
 - Use `Cornice Swagger <https://github.com/Cornices/cornice.ext.swagger>`_ rather than
   merging YAML files to generate the OpenAPI spec.
 - Gracefully handle ``UnicityError`` with the ``default_bucket`` plugin and
-  the PostgreSQL backend using PostgreSQL 9.5+ ``ON CONFLICT`` clause. (#1122)
+  the PostgreSQL backend using PostgreSQL 9.5+ ``ON CONFLICT`` clause. (Kinto/kinto#1122)
+
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 1.1.2 → 2.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/2.0.0
+
+- Remove Python 2.7 support and upgrade to Python 3.5. (Kinto/kinto-attachment#125)
 
 kinto-changes
 '''''''''''''
@@ -98,6 +105,13 @@ kinto-changes
 * Individual entries (eg. ``/buckets/monitor/collections/changes/records/{id}``)
   cannot be accessed anymore.
 * The listener was dropped. Configuration must be changed (see above)
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 1.2.0 → 1.3.0**: https://github.com/Kinto/kinto-signer/releases/tag/1.3.0
+
+- Update e2e.py script to be compatible with Python 3.5 (Kinto/kinto-signer#165)
 
 
 1.13.1 (2017-02-24)
