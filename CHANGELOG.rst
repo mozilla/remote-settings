@@ -4,6 +4,116 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+
+2.0.0 (2017-03-06)
+==================
+
+Configuration Breaking Changes
+''''''''''''''''''''''''''''''
+
+* ``kinto_changes`` must now be present in ``kinto.includes`` (eg. on read-only stacks)
+  otherwise the monitoring endpoint won't be accessible.
+* The configuration of *kinto-changes* has to be changed:
+
+Before:
+
+.. code-block :: ini
+
+    kinto.event_listeners = changes
+    kinto.event_listeners.changes.use = kinto_changes.listener
+    kinto.event_listeners.changes.http_host = website.domain.tld
+    kinto.event_listeners.changes.collections = /buckets/settings
+                                                /buckets/blocklists/collections/certificates
+
+Now:
+
+.. code-block :: ini
+
+    kinto.changes.http_host = website.domain.tld
+    kinto.changes.resources = /buckets/settings
+                              /buckets/blocklists/collections/certificates
+
+
+kinto
+'''''
+
+**kinto 5.4.1 → 6.0.0**: https://github.com/Kinto/kinto/releases/tag/6.0.0
+
+**Breaking changes**
+
+- Remove Python 2.7 support and upgrade to Python 3.5. (Kinto/kinto#1050)
+- Upgraded minimal PostgreSQL support to PostgreSQL 9.5 (Kinto/kinto#1056)
+- The ``--ini`` parameter is now after the subcommand name (Kinto/kinto#1095)
+
+**Protocol**
+
+- Fixed ``If-Match`` behavior to match the RFC 2616 specification (Kinto/kinto#1102).
+- A ``409 Conflict`` error response is now returned when some backend integrity
+  constraint is violated (instead of ``503``) (Kinto/kinto#602)
+
+Protocol is now at version **1.15**. See `API changelog`_.
+
+**Bug fixes**
+
+- Prevent injections in the PostgreSQL permission backend (Kinto/kinto#1061)
+- Fix crash on ``If-Match: *`` (Kinto/kinto#1064)
+- Handle Integer overflow in querystring parameters. (Kinto/kinto#1076)
+- Flush endpoint now returns an empty JSON object instad of an HTML page (Kinto/kinto#1098)
+- Fix nested sorting key breaks pagination token. (Kinto/kinto#1116)
+- Remove ``deleted`` field from ``PUT`` requests over tombstones. (Kinto/kinto#1115)
+- Fix crash when preconditions are used on the permission endpoint (Kinto/kinto#1066)
+- Fixed resource timestamp upsert in PostgreSQL backend (Kinto/kinto#1125)
+- Fix pserve argument ordering with Pyramid 1.8 (Kinto/kinto#1095)
+
+**Internal changes**
+
+- Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (Kinto/kinto#1055)
+- Permission schema children fields are now set during initialization instead of on
+  deserialization (Kinto/kinto#1046).
+- Request schemas (including validation and deserialization) are now isolated by method
+  and endpoint type (Kinto/kinto#1047).
+- Move generic API schemas (e.g TimeStamps and HeaderFields) from `kinto.core.resource.schema`
+  to a sepate file on `kinto.core.schema`. (Kinto/kinto#1054)
+- Upgraded the kinto-admin to version 1.10.0 (Kinto/kinto#1086, Kinto/kinto#1128)
+- Upgrade to Pyramid 1.8 (Kinto/kinto#1087)
+- Use `Cornice Swagger <https://github.com/Cornices/cornice.ext.swagger>`_ rather than
+  merging YAML files to generate the OpenAPI spec.
+- Gracefully handle ``UnicityError`` with the ``default_bucket`` plugin and
+  the PostgreSQL backend using PostgreSQL 9.5+ ``ON CONFLICT`` clause. (Kinto/kinto#1122)
+
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 1.1.2 → 2.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/2.0.0
+
+- Remove Python 2.7 support and upgrade to Python 3.5. (Kinto/kinto-attachment#125)
+
+kinto-changes
+'''''''''''''
+
+**kinto-changes 0.5.0 → 1.0.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.0
+
+**Breaking changes**
+
+* The change endpoint **location is now hard-coded** (``/buckets/monitor/collections/changes/records``)
+  and cannot be configured.
+* The permissions principals cannot be specified anymore.
+  The change endpoint is now **always public**.
+* The ``monitor`` bucket and ``changes`` collection are not required anymore and
+  are not created anymore.
+* ``POST`` and ``DELETE`` are not supported on the changes endpoint anymore.
+* Individual entries (eg. ``/buckets/monitor/collections/changes/records/{id}``)
+  cannot be accessed anymore.
+* The listener was dropped. Configuration must be changed (see above)
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 1.2.0 → 1.3.0**: https://github.com/Kinto/kinto-signer/releases/tag/1.3.0
+
+- Update e2e.py script to be compatible with Python 3.5 (Kinto/kinto-signer#165)
+
+
 1.13.1 (2017-02-24)
 ===================
 

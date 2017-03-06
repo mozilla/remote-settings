@@ -2,7 +2,6 @@
 # Show executed commands
 set -e -x
 
-source .venv/bin/activate
 pip install httpie kinto-http
 
 SERVER="${SERVER:-http://localhost:8888/v1}"
@@ -31,7 +30,7 @@ echo '{"data": {"type": "logo"}}' | http --check-status PUT $SERVER/buckets/blog
 http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/logo/attachment attachment@kinto-logo.svg --auth $AUTH
 
 # kinto-signer test
-curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/0.9.1/scripts/e2e.py
+curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/1.3.0/scripts/e2e.py
 python e2e.py --server=$SERVER --auth=$AUTH --editor-auth=$EDITOR_AUTH --reviewer-auth=$REVIEWER_AUTH --source-bucket=source --source-col=source
 python create_groups.py --bucket=source --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 
@@ -55,6 +54,7 @@ http --check-status $SERVER/preview/3/$APPID/46.0/ | grep 'youtube'
 # Final XML is identical to production
 http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube'
 # xml-verifier blocked/blocklists.xml $SERVER/blocklist/3/$APPID/46.0/
+
 
 # Expected monitored changes
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"blocklists-preview"'

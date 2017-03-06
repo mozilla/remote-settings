@@ -1,5 +1,5 @@
 SERVER_CONFIG = config/kinto.ini
-VIRTUALENV = virtualenv
+VIRTUALENV = virtualenv --python python3.5
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON = $(VENV)/bin/python
 DEV_STAMP = $(VENV)/.dev_env_installed.stamp
@@ -27,13 +27,13 @@ $(PYTHON):
 	$(VIRTUALENV) $(VENV)
 
 migrate:
-	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
+	$(VENV)/bin/kinto migrate --ini $(SERVER_CONFIG)
 
 $(SERVER_CONFIG):
-	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
+	$(VENV)/bin/kinto init --ini $(SERVER_CONFIG)
 
 serve: install $(SERVER_CONFIG) migrate
-	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start
+	$(VENV)/bin/kinto start --ini $(SERVER_CONFIG)
 
 build-requirements:
 	$(VIRTUALENV) $(TEMPDIR)
