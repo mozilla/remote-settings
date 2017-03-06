@@ -40,7 +40,7 @@ PyBrowserID==0.11.0
 pycparser==2.17
 PyFxA==0.3.0
 pyldap==2.4.28
-pyparsing==2.1.10
+pyparsing==2.2.0
 pyramid==1.8.2
 pyramid-mailer==0.15.1
 pyramid-multiauth==0.9.0
