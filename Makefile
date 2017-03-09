@@ -1,4 +1,4 @@
-SERVER_CONFIG = config/kinto.ini
+SERVER_CONFIG = config/example.ini
 VIRTUALENV = virtualenv --python python3.5
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON = $(VENV)/bin/python
