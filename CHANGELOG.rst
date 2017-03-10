@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-2.1.0 (unreleased)
+2.0.1 (2017-03-10)
 ==================
 
-- Nothing changed yet.
+kinto-ldap
+''''''''''
+
+**kinto-ldap 0.3.0 → 0.3.1**: https://github.com/Kinto/kinto-ldap/releases/tag/0.3.1
+
+**Bug fixes**
+
+- Fix support with Kinto 6 and Python 3. (Kinto/kinto-ldap#18)
 
 
 2.0.0 (2017-03-06)
