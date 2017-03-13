@@ -1,4 +1,5 @@
-SERVER_CONFIG = config/example.ini
+SERVER_CONFIG_SAMPLE = config/example.ini
+SERVER_CONFIG_LOCAL = config/development.ini
 VIRTUALENV = virtualenv --python python3.5
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON = $(VENV)/bin/python
@@ -26,14 +27,14 @@ virtualenv: $(PYTHON)
 $(PYTHON):
 	$(VIRTUALENV) $(VENV)
 
-migrate:
-	$(VENV)/bin/kinto migrate --ini $(SERVER_CONFIG)
+$(SERVER_CONFIG_LOCAL): $(SERVER_CONFIG_SAMPLE)
+	cp $(SERVER_CONFIG_SAMPLE) $(SERVER_CONFIG_LOCAL)
 
-$(SERVER_CONFIG):
-	$(VENV)/bin/kinto init --ini $(SERVER_CONFIG)
+migrate: $(SERVER_CONFIG_LOCAL)
+	$(VENV)/bin/kinto migrate --ini $(SERVER_CONFIG_LOCAL)
 
-serve: install $(SERVER_CONFIG) migrate
-	$(VENV)/bin/kinto start --ini $(SERVER_CONFIG)
+serve: install $(SERVER_CONFIG_LOCAL) migrate
+	$(VENV)/bin/kinto start --ini $(SERVER_CONFIG_LOCAL)
 
 build-requirements:
 	$(VIRTUALENV) $(TEMPDIR)
