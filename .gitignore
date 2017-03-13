@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 .venv/
 kinto-logo.png
+config/kinto.ini
 
 # C extensions
 *.so
