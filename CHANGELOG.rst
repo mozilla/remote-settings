@@ -8,7 +8,16 @@ the version control of each dependency.
 2.1.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 1.3.0 → 1.3.1**: https://github.com/Kinto/kinto-signer/releases/tag/1.3.1
+
+**Bug fixes**
+
+- Allow ``canonical_json`` to work with iterators. (Kinto/kinto-signer#167)
+- Fixed inconsistencies in ``ResourceChanged`` produced by Kinto signer (Kinto/kinto-signer#169)
+- Update e2e.py to be robust against kinto_client returning an iterator in Python 3. (Kinto/kinto-signer#165)
 
 
 2.0.1 (2017-03-10)
