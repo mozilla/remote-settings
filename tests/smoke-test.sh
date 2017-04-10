@@ -1,3 +1,5 @@
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # Fail if any command returns non-zero
 # Show executed commands
 set -e -x
@@ -32,7 +34,7 @@ http --check-status --form POST $SERVER/buckets/blog/collections/articles/record
 # kinto-signer test
 curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/1.3.0/scripts/e2e.py
 python e2e.py --server=$SERVER --auth=$AUTH --editor-auth=$EDITOR_AUTH --reviewer-auth=$REVIEWER_AUTH --source-bucket=source --source-col=source
-python create_groups.py --bucket=source --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
+python $DIR/create_groups.py --bucket=source --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 
 # kinto-changes
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"destination"'
@@ -47,7 +49,7 @@ http --check-status $SERVER/blocklist/3/$APPID/46.0/
 # .. Fill with production blocklist entries and compare XML output:
 curl -O https://raw.githubusercontent.com/mozilla-services/amo-blocklist-ui/master/amo-blocklist.json
 echo '{"permissions": {"write": ["system.Authenticated"]}}' | http PUT $SERVER/buckets/staging --auth="$AUTH"
-python create_groups.py --bucket=staging --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
+python $DIR/create_groups.py --bucket=staging --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 json2kinto --server $SERVER --addons-server http://localhost:8080/ -S amo-blocklist.json --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 # Preview XML was published during review
 http --check-status $SERVER/preview/3/$APPID/46.0/ | grep 'youtube'

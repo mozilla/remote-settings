@@ -1,3 +1,8 @@
+e2e.py
+amo-blocklist.json
+kinto-logo.svg
+validate_signature.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
