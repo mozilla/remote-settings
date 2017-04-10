@@ -20,7 +20,7 @@ install:
     - make install
     - make migrate
 before_script:
-    - python -m http.server 8080 &
+    - cd tests && python -m http.server 8080 &
     - cp $TRAVIS_BUILD_DIR/app.wsgi $HOME/
     - cd $HOME && KINTO_INI=$TRAVIS_BUILD_DIR/config/development.ini pserve $TRAVIS_BUILD_DIR/config/development.ini &
     - autograph -c $TRAVIS_BUILD_DIR/.autograph.yml &
