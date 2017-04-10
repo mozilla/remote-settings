@@ -25,4 +25,4 @@ before_script:
     - cd $HOME && KINTO_INI=$TRAVIS_BUILD_DIR/config/development.ini pserve $TRAVIS_BUILD_DIR/config/development.ini &
     - autograph -c $TRAVIS_BUILD_DIR/.autograph.yml &
 script:
-    - bash $TRAVIS_BUILD_DIR/smoke-test.sh
+    - bash $TRAVIS_BUILD_DIR/tests/smoke-test.sh
