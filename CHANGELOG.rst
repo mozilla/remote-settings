@@ -8,6 +8,16 @@ the version control of each dependency.
 2.1.0 (unreleased)
 ==================
 
+kinto
+'''''
+
+**kinto 6.0.1 → 6.0.4**: https://github.com/Kinto/kinto/releases/tag/6.0.4
+
+**Bug fixes**
+
+- Fixed Swagger when routes contain subpath/regexp (Kinto/kinto#1180)
+
+
 kinto-signer
 ''''''''''''
 
@@ -20,6 +30,38 @@ kinto-signer
 - Update e2e.py to be robust against kinto_client returning an iterator in Python 3. (Kinto/kinto-signer#165)
 - Send kinto-signer before committing since some database may have to be performed
   in the subscribers (Kinto/kinto-signer#172)
+
+
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 2.0.0 → 2.0.1**: https://github.com/Kinto/kinto-attachment/releases/tag/2.0.1
+
+**Bug fixes**
+
+- Set request parameters before instantiating a record resource. (Kinto/kinto-attachment#127)
+
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.10.0 → 1.13.1**: https://github.com/Kinto/kinto-admin/releases/tag/v1.13.1
+
+**New features**
+
+* Add review/decline comments (Kinto/kinto-admin#417)
+* Limit number of collections listed in the sidebar. (Kinto/kinto-admin#410)
+* Collection full diff view improvements. (Kinto/kinto-admin#409)
+* Add support for Portier authentication. (Kinto/kinto-admin#395)
+
+**Bug fixes**
+
+* Preload all collections to populate state. (Kinto/kinto-admin#418)
+* Order history entry target permissions consistently. (Kinto/kinto-admin#413)
+* Fix Portier broken redirect URL handling after successful auth when coming from the homepage (Kinto/kinto-admin#414)
+* Restore auth form contextual help. (Kinto/kinto-admin#396)
+* Fix broken post-auth redirections. (Kinto/kinto-admin#397)
+* Retrieve all paginated permissions. (Kinto/kinto-admin#400)
 
 
 2.0.1 (2017-03-10)
