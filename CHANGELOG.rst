@@ -32,6 +32,16 @@ kinto-signer
   in the subscribers (Kinto/kinto-signer#172)
 
 
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 2.0.0 → 2.0.1**: https://github.com/Kinto/kinto-attachment/releases/tag/2.0.1
+
+**Bug fixes**
+
+- Set request parameters before instantiating a record resource. (Kinto/kinto-attachment#127)
+
+
 kinto-admin
 '''''''''''
 
