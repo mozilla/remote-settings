@@ -18,20 +18,6 @@ kinto
 - Fixed Swagger when routes contain subpath/regexp (Kinto/kinto#1180)
 
 
-kinto-signer
-''''''''''''
-
-**kinto-signer 1.3.0 → 1.3.2**: https://github.com/Kinto/kinto-signer/releases/tag/1.3.2
-
-**Bug fixes**
-
-- Allow ``canonical_json`` to work with iterators. (Kinto/kinto-signer#167)
-- Fixed inconsistencies in ``ResourceChanged`` produced by Kinto signer (Kinto/kinto-signer#169)
-- Update e2e.py to be robust against kinto_client returning an iterator in Python 3. (Kinto/kinto-signer#165)
-- Send kinto-signer before committing since some database may have to be performed
-  in the subscribers (Kinto/kinto-signer#172)
-
-
 kinto-attachment
 ''''''''''''''''
 
@@ -45,7 +31,7 @@ kinto-attachment
 kinto-admin
 '''''''''''
 
-**kinto-admin 1.10.0 → 1.13.1**: https://github.com/Kinto/kinto-admin/releases/tag/v1.13.1
+**kinto-admin 1.10.0 → 1.13.2**: https://github.com/Kinto/kinto-admin/releases/tag/v1.13.2
 
 **New features**
 
@@ -62,6 +48,35 @@ kinto-admin
 * Restore auth form contextual help. (Kinto/kinto-admin#396)
 * Fix broken post-auth redirections. (Kinto/kinto-admin#397)
 * Retrieve all paginated permissions. (Kinto/kinto-admin#400)
+
+
+kinto-emailer
+'''''''''''''
+
+**kinto-emailer 0.3.0 → 0.4.0**: https://github.com/Kinto/kinto-emailer/releases/tag/0.4.0
+
+**New features**
+
+- Add a ``validate_setup.py`` script to check that server can actually send emails
+- Add a ``kinto-send-email`` command to test the configuration (kinto/kinto-emailer#35)
+
+**Bug fixes**
+
+- Fix sending notifications by decoupling it from transactions (kinto/kinto-emailer#38)
+
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 1.3.0 → 1.3.2**: https://github.com/Kinto/kinto-signer/releases/tag/1.3.2
+
+**Bug fixes**
+
+- Allow ``canonical_json`` to work with iterators. (Kinto/kinto-signer#167)
+- Fixed inconsistencies in ``ResourceChanged`` produced by Kinto signer (Kinto/kinto-signer#169)
+- Update e2e.py to be robust against kinto_client returning an iterator in Python 3. (Kinto/kinto-signer#165)
+- Send kinto-signer before committing since some database may have to be performed
+  in the subscribers (Kinto/kinto-signer#172)
 
 
 2.0.1 (2017-03-10)
