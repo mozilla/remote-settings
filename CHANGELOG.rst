@@ -31,7 +31,7 @@ kinto-attachment
 kinto-admin
 '''''''''''
 
-**kinto-admin 1.10.0 → 1.13.1**: https://github.com/Kinto/kinto-admin/releases/tag/v1.13.1
+**kinto-admin 1.10.0 → 1.13.2**: https://github.com/Kinto/kinto-admin/releases/tag/v1.13.2
 
 **New features**
 
