@@ -8,7 +8,12 @@ the version control of each dependency.
 2.2.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**kinto-signer 1.3.2 → 1.3.3**: https://github.com/Kinto/kinto-signer/releases/tag/1.3.3
+
+**Bug fixes**
+
+- Do not send ``ReviewApproved`` event when signing a collection that is already signed (Kinto/kinto-signer#174)
+
 
 
 2.1.0 (2017-04-14)
