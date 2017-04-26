@@ -5,8 +5,33 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-2.2.0 (unreleased)
+2.1.1 (2017-04-26)
 ==================
+
+kinto
+'''''
+
+**kinto 6.0.4 → 6.0.6**: https://github.com/Kinto/kinto/releases/tag/6.0.6
+
+**Bug fixes**
+
+- Return a 400 Bad Request instead of crashing when the querystring contains bad characters. (Kinto/kinto#1195)
+- Fixed Postgresql errors when specifying empty values in querystring numeric filters. (Kinto/kinto#1194)
+- Upgrade the kinto-admin to v1.13.3
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.13.2 → 1.13.3**: https://github.com/Kinto/kinto-admin/releases/tag/v1.13.3
+
+**Bug fixes**
+
+- Fix signoff plugin membership checks. (Kinto/kinto-admin#429).
+  This was preventing using and navigating within signoff plugin views.
+
+
+kinto-signer
+''''''''''''
 
 **kinto-signer 1.3.2 → 1.3.3**: https://github.com/Kinto/kinto-signer/releases/tag/1.3.3
 
