@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-3.0.0 (unreleased)
+2.1.2 (2017-04-27)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 6.0.6 → 6.0.7**: https://github.com/Kinto/kinto/releases/tag/6.0.7
+
+**Bug fixes**
+
+- Fix the kinto-admin to use PATCH instead of PUT when asking for a review.
 
 
 2.1.1 (2017-04-26)
