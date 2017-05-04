@@ -8,7 +8,14 @@ the version control of each dependency.
 3.0.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 6.0.7 → 6.0.8**: https://github.com/Kinto/kinto/releases/tag/6.0.8
+
+**Bug fixes**
+
+- Prevent PostgreSQL backend from deleting records of the same name in other buckets and collections when deleting a bucket. (fixes Kinto/kinto#1209)
 
 
 2.1.2 (2017-04-27)
