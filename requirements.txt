@@ -19,7 +19,7 @@ Jinja2==2.9.6
 jsonpatch==1.15
 jsonpointer==1.10
 jsonschema==2.6.0
-kinto==6.0.8
+kinto==6.1.0
 kinto-amo==0.3.0
 kinto-attachment==2.0.1
 kinto-changes==1.0.0
