@@ -50,14 +50,16 @@ def main():
                           bucket=args.bucket)
 
     print("Create/update editors group")
-    editors_group = admin_client.create_group('editors', data={'members': []}, if_not_exists=True)
+    editors_group = admin_client.create_group(id='editors',
+                                              data={'members': []}, if_not_exists=True)
     editors_group['data']['members'] = editors_group['data']['members'] + [editor_id]
-    admin_client.update_group('editors', editors_group['data'], safe=True)
+    admin_client.update_group(id='editors', data=editors_group['data'], safe=True)
 
     print("Create/update reviewers group")
-    reviewers_group = admin_client.create_group('reviewers', data={'members': []}, if_not_exists=True)
+    reviewers_group = admin_client.create_group(id='reviewers',
+                                                data={'members': []}, if_not_exists=True)
     reviewers_group['data']['members'] = reviewers_group['data']['members'] + [reviewer_id]
-    admin_client.update_group('reviewers', data=reviewers_group['data'], safe=True)
+    admin_client.update_group(id='reviewers', data=reviewers_group['data'], safe=True)
 
 
 if __name__ == '__main__':
