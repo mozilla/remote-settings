@@ -24,7 +24,7 @@ REQUIREMENTS = [
     "kinto-signer>=1.3.3,<1.4.0",
     "kinto-fxa>=2.3,<3.0",
     "kinto-ldap>=0.3.0,<0.4",
-    "amo2kinto>=1.7,<1.8",
+    "amo2kinto>=2.0,<2.1",
     "boto>=2.46,<2.47",
 ]
 ENTRY_POINTS = {}
