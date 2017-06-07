@@ -8,6 +8,10 @@ the version control of each dependency.
 3.0.0 (unreleased)
 ==================
 
+kinto
+'''''
+
+**kinto 6.1.0 → 7.1.0**: https://github.com/Kinto/kinto/releases/tag/7.1.0
 
 **Breaking changes**
 
@@ -105,6 +109,15 @@ Protocol is now at version **1.16**. See `API changelog`_.
 - Fix tests with Pyramid 1.9a
 - Removed useless deletions in quota plugin
 - Upgraded the kinto-admin to version 1.13.2
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 1.3.3 → 1.4.0**: https://github.com/Kinto/kinto-signer/releases/tag/1.4.0
+
+**Internal changes**
+
+- Upgrade to kinto 7.1
 
 
 2.2.0 (2017-05-25)
