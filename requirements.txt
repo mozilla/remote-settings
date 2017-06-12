@@ -35,6 +35,7 @@ logging-color-formatter==1.0.2
 lxml==3.8.0
 MarkupSafe==1.0
 mohawk==0.3.4
+mozilla-cloud-services-logger==1.0.1
 newrelic==2.86.3.70
 PasteDeploy==1.5.2
 psycopg2==2.7.1
