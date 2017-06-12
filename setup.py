@@ -26,6 +26,7 @@ REQUIREMENTS = [
     "kinto-ldap>=0.3.0,<0.4",
     "amo2kinto>=2.0,<2.1",
     "boto>=2.46,<2.47",
+    "mozilla-cloud-services-logger>=1.0,<1.1",
 ]
 ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
