@@ -5,10 +5,10 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-3.1.0 (unreleased)
+3.0.1 (2017-06-12)
 ==================
 
-- Nothing changed yet.
+- Install mozilla-cloud-services-logger. (#134)
 
 
 3.0.0 (2017-06-12)
