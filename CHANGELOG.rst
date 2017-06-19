@@ -5,10 +5,22 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-3.0.2 (unreleased)
+3.1.0 (2017-06-19)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 1.4.0 → 1.5.0**: https://github.com/Kinto/kinto-signer/releases/tag/1.5.0
+
+**New features**
+
+- Add support for CloudFront path cache invalidation. (Kinto/kinto-signer#178)
+
+.. code-block:: ini
+
+    # Configure the cloudfront distribution related to the server cache.
+    kinto.signer.distribution_id = E2XLCI5EUWMRON
 
 
 3.0.1 (2017-06-12)
