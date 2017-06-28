@@ -5,18 +5,36 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-3.2.0 (unreleased)
+3.1.2 (2017-06-28)
 ==================
 
-- Nothing changed yet.
+kinto-emailer
+'''''''''''''
+
+**kinto-emailer 0.4.0 → 1.0.0**: https://github.com/Kinto/kinto-emailer/releases/tag/1.0.0
+
+**Bug fixes**
+
+- Fix crash when creating bucket with ``POST /buckets`` (fixes Kinto/kinto-emailer#43)
+
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 1.5.1 → 1.5.2**: https://github.com/Kinto/kinto-signer/releases/tag/1.5.2
+
+- Catch cache invalidation errors and log the error. (Kinto/kinto-signer#186)
 
 
 3.1.1 (2017-06-28)
 ==================
 
+kinto-signer
+''''''''''''
+
 **kinto-signer 1.5.0 → 1.5.1**: https://github.com/Kinto/kinto-signer/releases/tag/1.5.1
 
-- Fix kinto-signer heartbeat.
+- Fix kinto-signer heartbeat. (Kinto/kinto-signer#182)
 
 
 3.1.0 (2017-06-19)
