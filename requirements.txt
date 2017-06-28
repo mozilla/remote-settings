@@ -29,11 +29,11 @@ kinto==7.1.0
 kinto-amo==0.3.0
 kinto-attachment==2.0.1
 kinto-changes==1.0.0
-kinto-emailer==0.4.0
+kinto-emailer==1.0.0
 kinto-fxa==2.3.1
 kinto-http==9.0.1
 kinto-ldap==0.3.1
-kinto-signer==1.5.1
+kinto-signer==1.5.2
 ldappool==2.1.0
 logging-color-formatter==1.0.2
 lxml==3.8.0
