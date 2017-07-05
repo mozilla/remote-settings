@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-3.2.0 (unreleased)
+3.2.0 (2017-07-05)
 ==================
 
 kinto
