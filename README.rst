@@ -1,5 +1,5 @@
 Kinto Distribution
-==================
+##################
 
 |travis|
 

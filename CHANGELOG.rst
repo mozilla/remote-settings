@@ -5,10 +5,71 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-3.2.0 (unreleased)
+3.2.0 (2017-07-05)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 7.1.0 → 7.3.1**: https://github.com/Kinto/kinto/releases/tag/7.3.1
+
+**API**
+
+- Filtering with like can now contain wild chars (eg. ``?like_nobody=*you*``).
+  It is thus now impossible to search for the ``*`` character with this operator.
+- Handle querystring parameters as JSON encoded values
+  to avoid treating number as number where they should be strings. (Kinto/kinto#1217)
+- Introduce ``has_`` filter operator (Kinto/kinto#344).
+
+API is now at version **1.17**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+
+**New features**
+
+- Account plugin now allows account IDs to be email addresses (Kinto/kinto#1283).
+
+**Bug fixes**
+
+- Make it illegal for a principal to be present in
+  ``account_create_principals`` without also being in
+  ``account_write_principals``. Restricting creation of accounts to
+  specified users only makes sense if those users are "admins", which
+  means they're in ``account_write_principals``. (Kinto/kinto#1281)
+- Fix a 500 when accounts without an ID are created (Kinto/kinto#1280).
+- Fix StatsD unparseable metric packets for the unique user counter (Kinto/kinto#1282)
+- Fix permissions endpoint when using account plugin (Kinto/kinto#1276)
+- Fix missing ``collection_count`` field in the rebuild-quotas script.
+- Fix bug causing validation to always succeed if no required fields are present.
+- Several changes to the handling of NULLs and how the full range of
+  JSON values is compared in a storage backend (Kinto/kinto#1258, Kinto/kinto#1252,
+  Kinto/kinto#1215, Kinto/kinto#1216, Kinto/kinto#1217 and Kinto/kinto#1257).
+- Fix requests output when running with make serve (Kinto/kinto#1242)
+- Fix pagination on permissions endpoint (Kinto/kinto#1157)
+- Fix pagination when max fetch storage is reached (Kinto/kinto#1266)
+- Fix schema validation when internal fields like ``id`` or ``last_modified`` are
+  marked as required (Kinto/kinto#1244)
+- Restore error format for JSON schema validation errors (which was
+  changed in Kinto/kinto#1245).
+- Fix bug in Postgres backend regarding the handling of combining
+  filters and NULL values (Kinto/kinto#1291)
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.13.3 → 1.14.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.14.0
+
+**New features**
+
+- Update kinto-http.js 4.3.3 (Kinto/kinto-admin#431)
+- Add support for the Kinto Account plugin. (Kinto/kinto-admin#439)
+
+kinto-amo
+'''''''''
+
+**kinto-amo 0.3.0 → 0.4.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.4.0
+
+**New features**
+
+- Add support for cache control headers (``If-None-Match`` and ``If-Modified-Since``) (mozilla-services/kinto-amo#21)
 
 
 3.1.2 (2017-06-28)
@@ -124,8 +185,8 @@ Protocol is now at version **1.16**. See `API changelog`_.
 
 - Enforce the permission endpoint when the admin plugin is included (fixes #1059)
 - Access control failures are logged with WARN level (fixes #1074)
-- Added an experimental :ref:`Accounts API <api-accounts>` which allow users to sign-up
-  modify their password or delete their account (fixes #795)
+- Added an experimental `Accounts API <http://kinto.readthedocs.io/en/latest/api/1.x/accounts.html>`_
+  which allow users to sign-up modify their password or delete their account (fixes #795)
 - ``delete()`` method from cache backend now returns the deleted value (fixes #1231)
 - ``kinto rebuild-quotas`` script was written that can be run to
   repair the damage caused by #1226 (fixes #1230).
@@ -1061,10 +1122,10 @@ Kinto
   has been deployed. Its location can be specified in the ``kinto.version_json_path``
   setting (fixes #830)
 - New built-in plugin ``kinto.plugins.history`` to track history of changes per bucket
-  from the Kinto Admin UI (*must be added explicity in the ``kinto.includes`` setting)
+  from the Kinto Admin UI (*must be added explicity in the ``kinto.includes`` setting*)
 - ``kinto migrate`` now accepts a ``--dry-run`` option which details the operations
   to be made without executing them.
-- New built-in plugin ``kinto.plugins.quotas```to set storage quotas per bucket/collection
+- New built-in plugin ``kinto.plugins.quotas`` to set storage quotas per bucket/collection
   (c.f. *Web Extensions* storage)
 - The history and quotas plugins execution time is now monitored on StatsD
   (``kinto.plugins.quotas`` and ``kinto.plugins.history``) (#832)
