@@ -185,8 +185,8 @@ Protocol is now at version **1.16**. See `API changelog`_.
 
 - Enforce the permission endpoint when the admin plugin is included (fixes #1059)
 - Access control failures are logged with WARN level (fixes #1074)
-- Added an experimental :ref:`Accounts API <api-accounts>` which allow users to sign-up
-  modify their password or delete their account (fixes #795)
+- Added an experimental `Accounts API <http://kinto.readthedocs.io/en/latest/api/1.x/accounts.html>`_
+  which allow users to sign-up modify their password or delete their account (fixes #795)
 - ``delete()`` method from cache backend now returns the deleted value (fixes #1231)
 - ``kinto rebuild-quotas`` script was written that can be run to
   repair the damage caused by #1226 (fixes #1230).
@@ -1122,10 +1122,10 @@ Kinto
   has been deployed. Its location can be specified in the ``kinto.version_json_path``
   setting (fixes #830)
 - New built-in plugin ``kinto.plugins.history`` to track history of changes per bucket
-  from the Kinto Admin UI (*must be added explicity in the ``kinto.includes`` setting)
+  from the Kinto Admin UI (*must be added explicity in the ``kinto.includes`` setting*)
 - ``kinto migrate`` now accepts a ``--dry-run`` option which details the operations
   to be made without executing them.
-- New built-in plugin ``kinto.plugins.quotas```to set storage quotas per bucket/collection
+- New built-in plugin ``kinto.plugins.quotas`` to set storage quotas per bucket/collection
   (c.f. *Web Extensions* storage)
 - The history and quotas plugins execution time is now monitored on StatsD
   (``kinto.plugins.quotas`` and ``kinto.plugins.history``) (#832)
