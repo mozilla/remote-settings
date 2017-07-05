@@ -26,7 +26,7 @@ dependencies:
     # create a version.json
     - >
         printf '{"name":"%s","commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n'
-        "kinto-dist",
+        "kinto-dist"
         "$CIRCLE_SHA1"
         "$CIRCLE_TAG"
         "mozilla-services"
