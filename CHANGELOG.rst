@@ -62,6 +62,15 @@ kinto-admin
 - Update kinto-http.js 4.3.3 (Kinto/kinto-admin#431)
 - Add support for the Kinto Account plugin. (Kinto/kinto-admin#439)
 
+kinto-amo
+'''''''''
+
+**kinto-amo 0.3.0 → 0.4.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.4.0
+
+**New features**
+
+- Add support for cache control headers (``If-None-Match`` and ``If-Modified-Since``) (mozilla-services/kinto-amo#21)
+
 
 3.1.2 (2017-06-28)
 ==================
