@@ -10,9 +10,12 @@ Kinto Distribution
 This repository contains:
 
 1. a Pip requirements file that combines all packages needed
-   to run a Kinto server will a known good set of deps
-2. a configuration file to run it
+   to run a Kinto server with a known good set of dependencies and plugins
+2. an example configuration file to run it
 
+
+Install
+=======
 
 To install it on a debian-based linux installation, make sure you have Python 2.x or 3.x with virtualenv, and run::
 
@@ -34,6 +37,15 @@ To run the server::
 
     $ make serve
 
-To update kinto-admin::
 
-    $ make update-kinto-admin
+About versioning
+================
+
+We respect `SemVer <http://semver.org>`_ here. Since *kinto-dist* is a distribution, its versioning
+depends on the underlying packages.
+
+* **MAJOR** must be incremented if a change on configuration, system, or third-party service is required, or if any of the dependencies has a major increment
+* **MINOR** must be incremented if any of the dependencies has a minor increment
+* **PATCH** must be incremented if no major nor minor increment is necessary.
+
+In other words, minor and patch versions are uncomplicated and can be deployed automatically, and major releases are very likely to require specific actions somewhere in the architecture.
