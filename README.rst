@@ -10,8 +10,8 @@ Kinto Distribution
 This repository contains:
 
 1. a Pip requirements file that combines all packages needed
-   to run a Kinto server will a known good set of dependencies and plugins
-2. a configuration example file to run it
+   to run a Kinto server with a known good set of dependencies and plugins
+2. an example configuration file to run it
 
 
 Install
