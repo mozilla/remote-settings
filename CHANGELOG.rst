@@ -5,10 +5,10 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-3.3.0 (unreleased)
+3.2.2 (2017-07-20)
 ==================
 
-- Nothing changed yet.
+- Update requirements.txt with kinto-signer version bump in 3.2.1 release
 
 
 3.2.1 (2017-07-20)
