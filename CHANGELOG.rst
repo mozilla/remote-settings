@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-3.3.0 (unreleased)
+3.2.3 (2017-07-21)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 1.5.3 → 1.5.4**: https://github.com/Kinto/kinto-signer/releases/tag/1.5.4
+
+**Bug fixes**
+
+- Allow kinto-attachment collections reviews on subrequests too. (Kinto/kinto-signer#192)
 
 
 3.2.2 (2017-07-20)
