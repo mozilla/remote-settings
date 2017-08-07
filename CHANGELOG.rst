@@ -5,10 +5,27 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-3.3.1 (unreleased)
+4.0.0 (2017-08-07)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 1.5.4 → 2.1.0**: https://github.com/Kinto/kinto-signer/releases/tag/2.1.0
+
+**Breaking changes**
+
+- Upgrade to Autograph 2.0
+
+**New features**
+
+- Invalidate the monitor changes collection on updates (#187)
+
+**Bug fixes**
+
+- Allow kinto-attachment collections reviews. (#190)
+- Remove additional / in invalidation collection path (#194)
+
 
 
 3.3.0 (2017-07-13)
