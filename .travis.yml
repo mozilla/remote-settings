@@ -13,9 +13,6 @@ install:
     - curl -O https://storage.googleapis.com/golang/go1.6.linux-amd64.tar.gz
     - tar zxvf go1.6.linux-amd64.tar.gz
     - sudo mv go /usr/local/
-    - go get -d github.com/mozilla-services/autograph
-    - cd $GOPATH/src/github.com/mozilla-services/autograph
-    - git checkout 1.3.2
     - go get github.com/mozilla-services/autograph
     - psql -c "CREATE DATABASE dbname ENCODING 'UTF8' TEMPLATE template0;" -U postgres
     - psql -c "CREATE USER admin WITH PASSWORD 'pass';" -U postgres
