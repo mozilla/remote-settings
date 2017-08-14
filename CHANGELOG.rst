@@ -5,10 +5,28 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.1.0 (unreleased)
+4.0.1 (2017-08-14)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 7.3.1 → 7.3.2**: https://github.com/Kinto/kinto/releases/tag/7.3.2
+
+**Bug fixes**
+
+- The PostgreSQL cache backend now orders deletes according to keys,
+  which are a well-defined order that never changes. (Fixes #1308.)
+
+**Internal changes**
+
+- Now all configuration options appear as commented lines on the configuration
+  template (#895)
+- Added task on PR template about updating the configuration template
+  if a new configuration setting is added.
+- Use json instead of ujson in storage in tests (#1255)
+- Improve Docker container to follow Dockerflow recommendations (fixes #998)
+
 
 
 4.0.0 (2017-08-09)
