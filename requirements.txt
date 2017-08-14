@@ -26,7 +26,7 @@ jmespath==0.9.3
 jsonpatch==1.16
 jsonpointer==1.10
 jsonschema==2.6.0
-kinto==7.3.1
+kinto==7.3.2
 kinto-amo==0.4.0
 kinto-attachment==2.0.1
 kinto-changes==1.0.0
