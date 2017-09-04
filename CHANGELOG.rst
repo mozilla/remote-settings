@@ -5,6 +5,12 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+4.2.0 (unreleased)
+==================
+
+- Nothing changed yet.
+
+
 4.1.0 (2017-09-01)
 ==================
 
