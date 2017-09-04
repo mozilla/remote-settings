@@ -5,10 +5,22 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.0.2 (unreleased)
+4.1.0 (2017-09-01)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 7.3.2 → 7.4.1**: https://github.com/Kinto/kinto/releases/tag/7.4.1
+
+**New features**
+
+- Add a `create-user` kinto command (Kinto/kinto#1315)
+
+**Bug fixes**
+
+- Fix pagination token generation on optional fields (Kinto/kinto#1253)
+
 
 
 4.0.1 (2017-08-14)
