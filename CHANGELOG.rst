@@ -11,6 +11,8 @@ the version control of each dependency.
 kinto-elasticsearch
 '''''''''''''''''''
 
+**kinto 0.2.1 → 0.3.0**: https://github.com/Kinto/kinto-elasticsearch/releases/tag/0.3.0
+
 **New features**
 
 - Add StatsD timer to measure E/S indexation (Kinto/kinto-elasticsearch#54)
