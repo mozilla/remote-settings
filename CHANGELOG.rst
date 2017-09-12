@@ -8,7 +8,15 @@ the version control of each dependency.
 4.2.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-elasticsearch
+'''''''''''''''''''
+
+**kinto 0.2.1 → 0.3.0**: https://github.com/Kinto/kinto-elasticsearch/releases/tag/0.3.0
+
+**New features**
+
+- Add StatsD timer to measure E/S indexation (Kinto/kinto-elasticsearch#54)
+- Add a ``kinto-reindex`` command to reindex existing collections of records (Kinto/kinto-elasticsearch#56)
 
 
 4.1.0 (2017-09-01)
