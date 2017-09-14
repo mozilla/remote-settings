@@ -46,24 +46,24 @@ http --check-status -h "$SERVER/admin/index.html"
 # kinto-amo
 APPID="\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}"
 http --check-status $SERVER/blocklist/3/$APPID/46.0/
-# .. Fill with production blocklist entries and compare XML output:
-curl -O https://raw.githubusercontent.com/mozilla-services/amo-blocklist-ui/master/amo-blocklist.json
 echo '{"permissions": {"write": ["system.Authenticated"]}}' | http PUT $SERVER/buckets/staging --auth="$AUTH"
 python $DIR/create_groups.py --bucket=staging --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
-json2kinto --server $SERVER --addons-server http://localhost:8080/ -S amo-blocklist.json --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
+# 1. Add a few records
+# 2. Ask for a review
+# 3. Validate the review
 # Preview XML was published during review
-http --check-status $SERVER/preview/3/$APPID/46.0/ | grep 'youtube'
+# http --check-status $SERVER/preview/3/$APPID/46.0/ | grep 'youtube'
 # Final XML is identical to production
-http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube'
+# http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube'
 # xml-verifier blocked/blocklists.xml $SERVER/blocklist/3/$APPID/46.0/
 
 
 # Expected monitored changes
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"blocklists-preview"'
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"addons"'
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"certificates"'
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"plugins"'
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"gfx"'
+# http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"blocklists-preview"'
+# http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"addons"'
+# http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"certificates"'
+# http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"plugins"'
+# http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"gfx"'
 # Empty history for preview and signed.
 http --check-status GET $SERVER/buckets/blocklists/history --auth $AUTH | grep '\[\]'
 http --check-status GET $SERVER/buckets/blocklists-preview/history --auth $AUTH | grep '\[\]'
