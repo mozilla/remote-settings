@@ -8,7 +8,15 @@ the version control of each dependency.
 4.3.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+amo2kinto
+'''''''''
+
+**amo2kinto 1.7.2 → 3.0.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/3.0.0
+
+**Bug fixes**
+
+- Remove json2kinto importer
+- Remove xml verifier
 
 
 4.2.0 (2017-09-14)
