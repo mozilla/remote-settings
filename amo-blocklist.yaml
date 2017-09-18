@@ -166,7 +166,6 @@ staging:
           title: Add-on
           type: object
         sort: -last_modified
-        status: signed
         uiSchema:
           blockID:
             ui:readonly: true
@@ -11860,7 +11859,6 @@ staging:
           title: Certificate
           type: object
         sort: -last_modified
-        status: signed
         uiSchema:
           blockID:
             ui:readonly: true
@@ -19179,7 +19177,6 @@ staging:
           - featureStatus
           title: Gfx
           type: object
-        status: signed
         uiSchema:
           blockID:
             ui:readonly: true
@@ -20286,7 +20283,6 @@ staging:
           title: Plugin
           type: object
         sort: -last_modified
-        status: signed
         uiSchema:
           blockID:
             ui:readonly: true
