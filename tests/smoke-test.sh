@@ -49,21 +49,34 @@ http --check-status $SERVER/blocklist/3/$APPID/46.0/
 echo '{"permissions": {"write": ["system.Authenticated"]}}' | http PUT $SERVER/buckets/staging --auth="$AUTH"
 python $DIR/create_groups.py --bucket=staging --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 # 1. Add a few records
+kinto-wizard load amo-blocklist.yaml --auth="$AUTH" --bucket staging
+
 # 2. Ask for a review
+echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/certificates --auth "$EDITOR_AUTH"
+echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/gfx --auth "$EDITOR_AUTH"
+echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/plugins --auth "$EDITOR_AUTH"
+echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/addons --auth "$EDITOR_AUTH"
+
 # 3. Validate the review
+echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/certificates --auth "$REVIEWER_AUTH"
+echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/gfx --auth "$REVIEWER_AUTH"
+echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/plugins --auth "$REVIEWER_AUTH"
+echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/addons --auth "$REVIEWER_AUTH"
+
+
 # Preview XML was published during review
-# http --check-status $SERVER/preview/3/$APPID/46.0/ | grep 'youtube'
+http --check-status $SERVER/preview/3/$APPID/46.0/ | grep 'youtube'
 # Final XML is identical to production
-# http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube'
+http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube'
 # xml-verifier blocked/blocklists.xml $SERVER/blocklist/3/$APPID/46.0/
 
 
 # Expected monitored changes
-# http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"blocklists-preview"'
-# http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"addons"'
-# http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"certificates"'
-# http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"plugins"'
-# http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"gfx"'
+http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"blocklists-preview"'
+http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"addons"'
+http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"certificates"'
+http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"plugins"'
+http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"gfx"'
 # Empty history for preview and signed.
 http --check-status GET $SERVER/buckets/blocklists/history --auth $AUTH | grep '\[\]'
 http --check-status GET $SERVER/buckets/blocklists-preview/history --auth $AUTH | grep '\[\]'
