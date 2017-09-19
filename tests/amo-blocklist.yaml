@@ -1,0 +1,989 @@
+staging:
+  collections:
+    addons:
+      data:
+        attachment:
+          enabled: false
+          gzipped: false
+          required: false
+        cache_expires: 0
+        displayFields:
+        - enabled
+        - blockID
+        - guid
+        - os
+        schema:
+          additionalProperties: false
+          default:
+            guid: ''
+            prefs: []
+            versionRange:
+            - maxVersion: '*'
+              minVersion: '0'
+              severity: 1
+          definitions:
+            maxVersion:
+              description: The maximum version.
+              title: Max version
+              type: string
+            minVersion:
+              description: The mininum version.
+              title: Min version
+              type: string
+          description: Add-on
+          properties:
+            blockID:
+              description: Original block id, eg. i152
+              pattern: ^i[0-9]+$
+              title: Internal blocklist id
+              type: string
+            details:
+              properties:
+                bug:
+                  title: Bug
+                  type: string
+                created:
+                  format: date-time
+                  type: string
+                name:
+                  title: Name
+                  type: string
+                who:
+                  title: Who
+                  type: string
+                why:
+                  title: Why
+                  type: string
+              required:
+              - name
+              - why
+              title: Details
+              type: object
+            enabled:
+              default: true
+              description: blocking rule is enabled.
+              title: Enabled
+              type: boolean
+            guid:
+              default: ''
+              description: The add-on unique identifier or a regular expression.
+              minLength: 1
+              title: Add-on id
+              type: string
+            id:
+              description: Record id.
+              title: Id
+              type: string
+            os:
+              description: The comma-separated operating system identifiers, eg. Darwin,Linux
+              pattern: ^[^,]*(,[^,]+)*$
+              title: OS
+              type: string
+            prefs:
+              default: []
+              description: The list of impacted preferences.
+              items:
+                default: ''
+                description: The browser preference name, eg. browser.startup.homepage
+                minLength: 1
+                title: Preference name
+                type: string
+              title: Preferences
+              type: array
+              uniqueItems: true
+            schema:
+              description: Schema version.
+              title: Schema version
+              type: integer
+            versionRange:
+              description: The list of impacted versions.
+              items:
+                additionalProperties: false
+                default:
+                  maxVersion: ''
+                  minVersion: ''
+                  severity: 1
+                description: Version range
+                properties:
+                  maxVersion:
+                    $ref: '#/definitions/maxVersion'
+                  minVersion:
+                    $ref: '#/definitions/minVersion'
+                  severity:
+                    default: 1
+                    description: The severity code number.
+                    enum:
+                    - 1
+                    - 3
+                    enumNames:
+                    - 1 - Soft block
+                    - 3 - Hard block
+                    title: Severity
+                    type: integer
+                  targetApplication:
+                    default: []
+                    description: The list of target application information.
+                    items:
+                      additionalProperties: false
+                      description: Target application
+                      properties:
+                        guid:
+                          description: The application unique identifier.
+                          enum:
+                          - '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}'
+                          - '{3550f703-e582-4d05-9a08-453d09bdfdc6}'
+                          - '{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}'
+                          - '{aa3c5121-dab2-40e2-81ca-7ea25febc110}'
+                          enumNames:
+                          - Firefox
+                          - Thunderbird
+                          - Seamonkey
+                          - Android
+                          title: Application id
+                          type: string
+                        maxVersion:
+                          $ref: '#/definitions/maxVersion'
+                        minVersion:
+                          $ref: '#/definitions/minVersion'
+                      required:
+                      - guid
+                      - minVersion
+                      - maxVersion
+                      title: Target application
+                      type: object
+                    title: Target applications
+                    type: array
+                required:
+                - minVersion
+                - maxVersion
+                - severity
+                title: Version range
+                type: object
+              title: Versions
+              type: array
+          required:
+          - guid
+          title: Add-on
+          type: object
+        sort: -last_modified
+        uiSchema:
+          blockID:
+            ui:readonly: true
+          details:
+            created:
+              ui:readonly: true
+            ui:order:
+            - name
+            - why
+            - who
+            - bug
+            - created
+            who:
+              ui:widget: textarea
+            why:
+              ui:widget: textarea
+          enabled:
+            ui:help: When checked this blocklist rule will apply to Firefox users.
+          guid:
+            ui:help: In case of a RegExp, the value must conform to the JavaScript
+              syntax, enclosed within slashes (/).
+          id:
+            ui:widget: hidden
+          schema:
+            ui:widget: hidden
+          ui:order:
+          - id
+          - schema
+          - enabled
+          - guid
+          - os
+          - versionRange
+          - prefs
+          - details
+          - blockID
+          versionRange:
+            items:
+              targetApplication:
+                items:
+                  ui:order:
+                  - guid
+                  - minVersion
+                  - maxVersion
+              ui:order:
+              - minVersion
+              - maxVersion
+              - severity
+              - targetApplication
+      permissions: {}
+      records:
+        8514eaee-850c-e27a-a058-8badeeafc26e:
+          data:
+            blockID: i1231
+            details:
+              bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1278932
+              created: '2016-06-09T14:50:27Z'
+              name: YouTube downloader
+              who: All users who have this add-on installed.
+              why: "The add-on has a mechanism that updates certain configuration\
+                \ files from the developer\u2019s website. This mechanism has a vulnerability\
+                \ that can being exploited through this website (downloader.yt) to\
+                \ change security settings in Firefox and/or install malicious add-ons.\
+                \ \r\n"
+            enabled: true
+            guid: youtube@downloader.yt
+            id: 8514eaee-850c-e27a-a058-8badeeafc26e
+            last_modified: 1480349199528
+            prefs: []
+            schema: 1480349193877
+            versionRange:
+            - maxVersion: '*'
+              minVersion: '0'
+              severity: 3
+              targetApplication: []
+          permissions: {}
+        002cd4fa-4c2b-e28b-9220-4a520f4d9ec6:
+          data:
+            blockID: i545
+            details:
+              bug: https://bugzilla.mozilla.org/show_bug.cgi?id=949596
+              created: '2014-01-30T11:52:42Z'
+              name: SuperLyrics
+              who: All Firefox users who have this add-on installed. If you wish to
+                continue using this add-on, you can enable it in the Add-ons Manager.
+              why: This add-on is in violation of the <a href="https://developer.mozilla.org/en-US/Add-ons/Add-on_guidelines">Add-on
+                Guidelines</a>, using multiple add-on IDs and potentially doing other
+                unwanted activities.
+            enabled: true
+            guid: superlrcs@svenyor.net
+            id: 002cd4fa-4c2b-e28b-9220-4a520f4d9ec6
+            last_modified: 1480349215672
+            prefs: []
+            schema: 1480349193877
+            versionRange:
+            - maxVersion: '*'
+              minVersion: '0'
+              severity: 1
+              targetApplication: []
+          permissions: {}
+        04b25e3d-a725-493e-be07-cbd74fb37ea7:
+          data:
+            details:
+              bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1338690
+              name: youtube adblock (malware)
+              who: All users who have this add-on installed.
+              why: This is a malicious add-on that is silently installed in users'
+                systems.
+            enabled: true
+            guid: '{95E84BD3-3604-4AAC-B2CA-D9AC3E55B64B}'
+            id: 04b25e3d-a725-493e-be07-cbd74fb37ea7
+            last_modified: 1487288975999
+            prefs: []
+            schema: 1487179851382
+            versionRange:
+            - maxVersion: '*'
+              minVersion: '0'
+              severity: 3
+              targetApplication: []
+          permissions: {}
+    certificates:
+      data:
+        attachment:
+          enabled: false
+          required: false
+        displayFields:
+        - enabled
+        - blockID
+        - issuerName
+        name: certificates
+        schema:
+          additionalProperties: false
+          default:
+            issuerName: ''
+            serialNumber: ''
+          description: A blocked certificate entry.
+          properties:
+            blockID:
+              description: Original block id, eg. c111
+              pattern: ^c[0-9]+$
+              title: Internal blocklist id
+              type: string
+            details:
+              properties:
+                bug:
+                  title: Bug
+                  type: string
+                created:
+                  format: date-time
+                  type: string
+                name:
+                  title: Name
+                  type: string
+                who:
+                  title: Who
+                  type: string
+                why:
+                  title: Why
+                  type: string
+              required:
+              - name
+              - why
+              title: Details
+              type: object
+            enabled:
+              default: true
+              description: blocking rule is enabled.
+              title: Enabled
+              type: boolean
+            id:
+              description: Record id.
+              title: Id
+              type: string
+            issuerName:
+              description: The certificate issuer name.
+              title: Issuer name
+              type: string
+            schema:
+              description: Schema version.
+              title: Schema version
+              type: integer
+            serialNumber:
+              description: The certificate serial number.
+              title: Serial number
+              type: string
+          required:
+          - issuerName
+          - serialNumber
+          title: Certificate
+          type: object
+        sort: -last_modified
+        uiSchema:
+          blockID:
+            ui:readonly: true
+          details:
+            created:
+              ui:readonly: true
+            ui:order:
+            - name
+            - why
+            - who
+            - bug
+            - created
+            who:
+              ui:widget: textarea
+            why:
+              ui:widget: textarea
+          enabled:
+            ui:help: When checked this blocklist rule will apply to Firefox users.
+          id:
+            ui:widget: hidden
+          schema:
+            ui:widget: hidden
+          ui:order:
+          - id
+          - schema
+          - enabled
+          - issuerName
+          - serialNumber
+          - details
+          - blockID
+      permissions: {}
+      records:
+        003234b2-f425-eae6-9596-040747dab2b9:
+          data:
+            details:
+              bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1329981
+              created: '2017-01-18T01:12:57Z'
+              name: Revoked intermediates
+              who: .
+              why: .
+            enabled: true
+            id: 003234b2-f425-eae6-9596-040747dab2b9
+            issuerName: MCgxCzAJBgNVBAYTAkJFMRkwFwYDVQQDExBCZWxnaXVtIFJvb3QgQ0Ey
+            last_modified: 1484704580277
+            schema: 1483471396473
+            serialNumber: RH7WhshwXRK6f0VfOfjXgQ==
+          permissions: {}
+        00ac492e-04f7-ee6d-5fd2-bb12b97a4b7f:
+          data:
+            details:
+              bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1315199
+              created: '2017-01-03T18:41:53Z'
+              name: Revoked intermediates
+              who: .
+              why: .
+            enabled: true
+            id: 00ac492e-04f7-ee6d-5fd2-bb12b97a4b7f
+            issuerName: MEwxIDAeBgNVBAsTF0dsb2JhbFNpZ24gUm9vdCBDQSAtIFIyMRMwEQYDVQQKEwpHbG9iYWxTaWduMRMwEQYDVQQDEwpHbG9iYWxTaWdu
+            last_modified: 1483471393177
+            schema: 1480617578654
+            serialNumber: BAAAAAABElatX7I=
+          permissions: {}
+    gfx:
+      data:
+        displayFields:
+        - enabled
+        - blockID
+        - os
+        - vendor
+        - feature
+        schema:
+          additionalProperties: false
+          default:
+            devices: []
+            driverVersion: ''
+            driverVersionComparator: ''
+            driverVersionMax: ''
+            feature: ''
+            featureStatus: ''
+            hardware: ''
+            os: ''
+            vendor: ''
+          definitions:
+            maxVersion:
+              description: The maximum version.
+              title: Max version
+              type: string
+            minVersion:
+              description: The mininum version.
+              title: Min version
+              type: string
+          description: A graphic driver blocklist entry.
+          properties:
+            blockID:
+              description: Original block id, eg. g28
+              pattern: ^g[0-9]+$
+              title: Internal blocklist id
+              type: string
+            details:
+              properties:
+                bug:
+                  title: Bug
+                  type: string
+                created:
+                  format: date-time
+                  type: string
+                name:
+                  title: Name
+                  type: string
+                who:
+                  title: Who
+                  type: string
+                why:
+                  title: Why
+                  type: string
+              required:
+              - name
+              title: Details
+              type: object
+            devices:
+              description: The list of impacted devices.
+              items:
+                description: A device identifier, eg. 0x9803
+                minLength: 1
+                title: Device
+                type: string
+              title: Devices
+              type: array
+            driverVersion:
+              description: The driver version.
+              title: Driver version
+              type: string
+            driverVersionComparator:
+              description: The driver version comparator
+              enum:
+              - ''
+              - EQUAL
+              - NOT_EQUAL
+              - BETWEEN_EXCLUSIVE
+              - BETWEEN_INCLUSIVE
+              - BETWEEN_INCLUSIVE_START
+              - LESS_THAN
+              - LESS_THAN_OR_EQUAL
+              - GREATER_THAN
+              - GREATER_THAN_OR_EQUAL
+              title: Driver version comparator
+              type: string
+            driverVersionMax:
+              description: The driver version.
+              title: Driver version max
+              type: string
+            enabled:
+              default: true
+              description: blocking rule is enabled.
+              title: Enabled
+              type: boolean
+            feature:
+              description: The type of feature impacted.
+              enum:
+              - ''
+              - CANVAS2D_ACCELERATION
+              - DIRECT2D
+              - DIRECT3D_9_LAYERS
+              - DIRECT3D_10_LAYERS
+              - DIRECT3D_10_1_LAYERS
+              - DIRECT3D_11_LAYERS
+              - DIRECT3D_11_ANGLE
+              - HARDWARE_VIDEO_DECODING
+              - OPENGL_LAYERS
+              - STAGEFRIGHT
+              - WEBGL_OPENGL
+              - WEBGL_ANGLE
+              - WEBGL_MSAA
+              - WEBRTC_HW_ACCELERATION_ENCODE
+              - WEBRTC_HW_ACCELERATION_DECODE
+              - WEBRTC_HW_ACCELERATION
+              title: Feature
+              type: string
+            featureStatus:
+              description: The feature status.
+              enum:
+              - ''
+              - BLOCKED_DEVICE
+              - BLOCKED_DRIVER_VERSION
+              - BLOCKED_OS_VERSION
+              - DISCOURAGED
+              - STATUS_OK
+              title: Feature status
+              type: string
+            hardware:
+              description: The graphic hardware name, eg. antares
+              title: Hardware
+              type: string
+            id:
+              description: Record id.
+              title: Id
+              type: string
+            os:
+              description: The operating system identifier.
+              enum:
+              - ''
+              - All
+              - Android
+              - Darwin 9
+              - Darwin 10
+              - Darwin 11
+              - Darwin 12
+              - Darwin 13
+              - Darwin 14
+              - Darwin 15
+              - Linux
+              - WINNT 5.1
+              - WINNT 5.2
+              - WINNT 6.0
+              - WINNT 6.1
+              - WINNT 6.2
+              - WINNT 6.3
+              - WINNT 8.1
+              - WINNT 10.0
+              - Other
+              title: OS
+              type: string
+            schema:
+              description: Schema version.
+              title: Schema version
+              type: integer
+            vendor:
+              description: A vendor identifier, eg. 0x1002
+              title: Vendor
+              type: string
+            versionRange:
+              additionalProperties: false
+              default:
+                maxVersion: ''
+                minVersion: ''
+              description: Version range
+              properties:
+                maxVersion:
+                  $ref: '#/definitions/maxVersion'
+                minVersion:
+                  $ref: '#/definitions/minVersion'
+              title: Version range
+              type: object
+          required:
+          - os
+          - vendor
+          - featureStatus
+          title: Gfx
+          type: object
+        uiSchema:
+          blockID:
+            ui:readonly: true
+          details:
+            created:
+              ui:readonly: true
+            ui:order:
+            - name
+            - why
+            - who
+            - bug
+            - created
+            who:
+              ui:widget: hidden
+            why:
+              ui:widget: hidden
+          devices:
+            ui:field: tags
+          enabled:
+            ui:help: When checked this blocklist rule will apply to Firefox users.
+          id:
+            ui:widget: hidden
+          schema:
+            ui:widget: hidden
+          ui:order:
+          - enabled
+          - vendor
+          - devices
+          - os
+          - driverVersion
+          - driverVersionMax
+          - driverVersionComparator
+          - feature
+          - featureStatus
+          - hardware
+          - versionRange
+          - details
+          - id
+          - schema
+          - blockID
+          versionRange:
+            ui:order:
+            - minVersion
+            - maxVersion
+      permissions: {}
+      records:
+        00a6b9d2-285f-83f0-0a1f-ef0205a60067:
+          data:
+            blockID: g35
+            details:
+              bug: ''
+              created: '2011-03-01T12:13:40Z'
+              name: '<BlocklistGfx: None: WINNT 6.1 : 0x10de : 0x0a6c>'
+              who: ''
+              why: ''
+            devices:
+            - '0x0a6c'
+            driverVersion: 8.17.12.5896
+            driverVersionComparator: LESS_THAN_OR_EQUAL
+            enabled: true
+            feature: DIRECT2D
+            featureStatus: BLOCKED_DRIVER_VERSION
+            id: 00a6b9d2-285f-83f0-0a1f-ef0205a60067
+            last_modified: 1480349134459
+            os: WINNT 6.1
+            schema: 1480343737148
+            vendor: '0x10de'
+          permissions: {}
+        0afc5fe9-1f81-7fde-2424-0cb4d933c173:
+          data:
+            blockID: g194
+            details:
+              bug: https://bugzilla.mozilla.org/show_bug.cgi?id=806991
+              created: '2012-11-02T16:35:37Z'
+              name: AMD DIRECT2D on Windows 8, [0x1022]
+              who: All Firefox users.
+              why: Crashes.
+            devices: []
+            driverVersion: 9.10.8.0
+            driverVersionComparator: LESS_THAN_OR_EQUAL
+            enabled: true
+            feature: DIRECT2D
+            featureStatus: BLOCKED_DRIVER_VERSION
+            id: 0afc5fe9-1f81-7fde-2424-0cb4d933c173
+            last_modified: 1480349134090
+            os: WINNT 6.2
+            schema: 1480343737148
+            vendor: '0x1022'
+          permissions: {}
+    plugins:
+      data:
+        attachment:
+          enabled: false
+          gzipped: false
+          required: false
+        cache_expires: 0
+        displayFields:
+        - enabled
+        - blockID
+        - os
+        - matchFilename
+        - matchDescription
+        schema:
+          additionalProperties: false
+          default:
+            versionRange:
+            - maxVersion: '*'
+              minVersion: '0'
+              severity: 0
+              vulnerabilityStatus: 0
+          definitions:
+            maxVersion:
+              description: The maximum version.
+              title: Max version
+              type: string
+            minVersion:
+              description: The mininum version.
+              title: Min version
+              type: string
+          description: A blocked plugin entry.
+          properties:
+            blockID:
+              description: Original block id, eg. p165
+              pattern: ^p[0-9]+$
+              title: Internal blocklist id
+              type: string
+            details:
+              properties:
+                bug:
+                  title: Bug
+                  type: string
+                created:
+                  format: date-time
+                  type: string
+                name:
+                  title: Name
+                  type: string
+                who:
+                  title: Who
+                  type: string
+                why:
+                  title: Why
+                  type: string
+              required:
+              - name
+              - why
+              title: Details
+              type: object
+            enabled:
+              default: true
+              description: blocking rule is enabled.
+              title: Enabled
+              type: boolean
+            id:
+              description: Record id.
+              title: Id
+              type: string
+            infoURL:
+              description: A HTTP URL providing related information.
+              title: Info URL
+              type: string
+            matchDescription:
+              description: A plugin description pattern to match.
+              title: Description match
+              type: string
+            matchFilename:
+              description: A plugin filename pattern to match.
+              title: Filename match
+              type: string
+            matchName:
+              description: A plugin name pattern to match.
+              title: Name match
+              type: string
+            os:
+              description: The comma-separated operating system identifiers, eg. Darwin,Linux
+              pattern: ^[^,]*(,[^,]+)*$
+              title: OS
+              type: string
+            schema:
+              description: Schema version.
+              title: Schema version
+              type: integer
+            versionRange:
+              description: The list of impacted versions.
+              items:
+                additionalProperties: false
+                default:
+                  maxVersion: ''
+                  minVersion: ''
+                  severity: 0
+                  vulnerabilityStatus: 0
+                description: Version range
+                properties:
+                  maxVersion:
+                    $ref: '#/definitions/maxVersion'
+                  minVersion:
+                    $ref: '#/definitions/minVersion'
+                  severity:
+                    default: 0
+                    description: The severity code number.
+                    enum:
+                    - 0
+                    - 1
+                    - 2
+                    - 3
+                    title: Severity
+                    type: integer
+                  targetApplication:
+                    default: []
+                    description: The list of target application information.
+                    items:
+                      additionalProperties: false
+                      description: Target application
+                      properties:
+                        guid:
+                          description: The application unique identifier.
+                          enum:
+                          - '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}'
+                          - '{3550f703-e582-4d05-9a08-453d09bdfdc6}'
+                          - '{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}'
+                          - '{aa3c5121-dab2-40e2-81ca-7ea25febc110}'
+                          enumNames:
+                          - Firefox
+                          - Thunderbird
+                          - Seamonkey
+                          - Android
+                          title: Application id
+                          type: string
+                        maxVersion:
+                          $ref: '#/definitions/maxVersion'
+                        minVersion:
+                          $ref: '#/definitions/minVersion'
+                      required:
+                      - guid
+                      - minVersion
+                      - maxVersion
+                      title: Target application
+                      type: object
+                    title: Target applications
+                    type: array
+                  vulnerabilityStatus:
+                    default: 0
+                    description: The vulnerability status code number.
+                    enum:
+                    - 0
+                    - 1
+                    - 2
+                    enumNames:
+                    - ''
+                    - Update available
+                    - Update unavailable
+                    title: Vulnerability status
+                    type: integer
+                title: Version range
+                type: object
+              title: Versions
+              type: array
+          required:
+          - versionRange
+          title: Plugin
+          type: object
+        sort: -last_modified
+        uiSchema:
+          blockID:
+            ui:readonly: true
+          details:
+            created:
+              ui:readonly: true
+            ui:order:
+            - name
+            - why
+            - who
+            - bug
+            - created
+            who:
+              ui:widget: textarea
+            why:
+              ui:widget: textarea
+          enabled:
+            ui:help: When checked this blocklist rule will apply to Firefox users.
+          id:
+            ui:widget: hidden
+          matchDescription:
+            ui:help: The value must conform to the RegExp JavaScript syntax, without
+              expression delimiters (no /).
+          matchFilename:
+            ui:help: The value must conform to the RegExp JavaScript syntax, without
+              expression delimiters (no /).
+          matchName:
+            ui:help: The value must conform to the RegExp JavaScript syntax, without
+              expression delimiters (no /).
+          schema:
+            ui:widget: hidden
+          ui:order:
+          - enabled
+          - os
+          - matchName
+          - matchFilename
+          - matchDescription
+          - infoURL
+          - versionRange
+          - details
+          - id
+          - schema
+          - blockID
+          versionRange:
+            items:
+              targetApplication:
+                items:
+                  ui:order:
+                  - guid
+                  - minVersion
+                  - maxVersion
+              ui:order:
+              - minVersion
+              - maxVersion
+              - severity
+              - vulnerabilityStatus
+              - targetApplication
+      permissions: {}
+      records:
+        02a5865d-f6ea-a330-674e-7dea7390680f:
+          data:
+            blockID: p416
+            details:
+              bug: https://bugzilla.mozilla.org/show_bug.cgi?id=885362
+              created: '2013-06-28T12:44:58Z'
+              name: Java Plugin 6 updates 42 to 45 (click-to-play), Mac OS X
+              who: All users who have these versions of the plugin installed in Firefox.
+              why: Old versions of the Java plugin are potentially insecure and unstable.
+                All users are strongly recommended to update on our <a href="http://www.mozilla.com/plugincheck/">plugin
+                check page</a>.
+            enabled: true
+            id: 02a5865d-f6ea-a330-674e-7dea7390680f
+            last_modified: 1480349144187
+            matchFilename: JavaAppletPlugin\.plugin
+            schema: 1480343754054
+            versionRange:
+            - maxVersion: Java 6 Update 45
+              minVersion: Java 6 Update 42
+              severity: 0
+              targetApplication:
+              - guid: '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}'
+                maxVersion: '*'
+                minVersion: '17.0'
+              - guid: '{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}'
+                maxVersion: '*'
+                minVersion: '2.14'
+              vulnerabilityStatus: 1
+          permissions: {}
+        06621403-39a8-3867-ba6e-406dc20c88af:
+          data:
+            blockID: p184
+            details:
+              bug: https://bugzilla.mozilla.org/show_bug.cgi?id=829111
+              created: '2012-10-30T14:39:15Z'
+              name: Java Plugin 7 update 11 and lower (click-to-play), Linux
+              who: All users who have these versions of the plugin installed in Firefox
+                17 and above.
+              why: The Java plugin is causing significant security problems. All users
+                are strongly recommended to keep the plugin disabled unless necessary.
+            enabled: true
+            id: 06621403-39a8-3867-ba6e-406dc20c88af
+            last_modified: 1480349145223
+            matchFilename: libnpjp2\.so
+            matchName: Java\(TM\) Plug-in 1\.7\.0(_0?([0-9]|(1[0-1]))?)?([^\d\._]|$)
+            schema: 1480349144394
+            versionRange:
+            - severity: 0
+              targetApplication:
+              - guid: '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}'
+                maxVersion: '*'
+                minVersion: '17.0'
+              - guid: '{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}'
+                maxVersion: '*'
+                minVersion: '2.14'
+              vulnerabilityStatus: 1
+          permissions: {}
+  data:
+    id: staging
+    last_modified: 1494010161921
+  permissions: {}

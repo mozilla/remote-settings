@@ -49,7 +49,7 @@ http --check-status $SERVER/blocklist/3/$APPID/46.0/
 echo '{"permissions": {"write": ["system.Authenticated"]}}' | http PUT $SERVER/buckets/staging --auth="$AUTH"
 python $DIR/create_groups.py --bucket=staging --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 # 1. Add a few records
-kinto-wizard load amo-blocklist.yaml --server "$SERVER" --auth="$AUTH" --bucket staging
+kinto-wizard load tests/amo-blocklist.yaml --server "$SERVER" --auth="$AUTH" --bucket staging
 
 # 2. Ask for a review
 echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/certificates --auth "$EDITOR_AUTH"
