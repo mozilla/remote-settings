@@ -25,7 +25,7 @@ REQUIREMENTS = [
     "kinto-signer>=2.1,<2.2",
     "kinto-fxa>=2.3,<3.0",
     "kinto-ldap>=0.3.0,<0.4",
-    "amo2kinto>=2.0,<2.1",
+    "amo2kinto>=3.0,<3.1",
     "boto>=2.46,<2.47",
     "mozilla-cloud-services-logger>=1.0,<1.1",
 ]

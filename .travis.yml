@@ -10,8 +10,8 @@ cache:
 - pip
 - curl
 install:
-    - curl -O https://storage.googleapis.com/golang/go1.6.linux-amd64.tar.gz
-    - tar zxvf go1.6.linux-amd64.tar.gz
+    - curl -O https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz
+    - tar zxvf go1.9.linux-amd64.tar.gz
     - sudo mv go /usr/local/
     - go get github.com/mozilla-services/autograph
     - psql -c "CREATE DATABASE dbname ENCODING 'UTF8' TEMPLATE template0;" -U postgres

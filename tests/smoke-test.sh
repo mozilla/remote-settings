@@ -46,11 +46,24 @@ http --check-status -h "$SERVER/admin/index.html"
 # kinto-amo
 APPID="\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}"
 http --check-status $SERVER/blocklist/3/$APPID/46.0/
-# .. Fill with production blocklist entries and compare XML output:
-curl -O https://raw.githubusercontent.com/mozilla-services/amo-blocklist-ui/master/amo-blocklist.json
 echo '{"permissions": {"write": ["system.Authenticated"]}}' | http PUT $SERVER/buckets/staging --auth="$AUTH"
 python $DIR/create_groups.py --bucket=staging --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
-json2kinto --server $SERVER --addons-server http://localhost:8080/ -S amo-blocklist.json --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
+# 1. Add a few records
+kinto-wizard load tests/amo-blocklist.yaml --server "$SERVER" --auth="$AUTH" --bucket staging
+
+# 2. Ask for a review
+echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/certificates --auth "$EDITOR_AUTH"
+echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/gfx --auth "$EDITOR_AUTH"
+echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/plugins --auth "$EDITOR_AUTH"
+echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/addons --auth "$EDITOR_AUTH"
+
+# 3. Validate the review
+echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/certificates --auth "$REVIEWER_AUTH"
+echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/gfx --auth "$REVIEWER_AUTH"
+echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/plugins --auth "$REVIEWER_AUTH"
+echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/addons --auth "$REVIEWER_AUTH"
+
+
 # Preview XML was published during review
 http --check-status $SERVER/preview/3/$APPID/46.0/ | grep 'youtube'
 # Final XML is identical to production
