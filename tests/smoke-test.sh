@@ -32,7 +32,7 @@ echo '{"data": {"type": "logo"}}' | http --check-status PUT $SERVER/buckets/blog
 http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/logo/attachment attachment@kinto-logo.svg --auth $AUTH
 
 # kinto-signer test
-curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/1.4.0/scripts/e2e.py
+curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/2.1.0/scripts/e2e.py
 python e2e.py --server=$SERVER --auth=$AUTH --editor-auth=$EDITOR_AUTH --reviewer-auth=$REVIEWER_AUTH --source-bucket=source --source-col=source
 python $DIR/create_groups.py --bucket=source --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 
@@ -81,7 +81,7 @@ http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '
 http --check-status GET $SERVER/buckets/blocklists/history --auth $AUTH | grep '\[\]'
 http --check-status GET $SERVER/buckets/blocklists-preview/history --auth $AUTH | grep '\[\]'
 
-curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/master/scripts/validate_signature.py
+curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/2.1.0/scripts/validate_signature.py
 python validate_signature.py --server="http://localhost:8888/v1" --bucket=blocklists --collection=addons
 python validate_signature.py --server="http://localhost:8888/v1" --bucket=blocklists --collection=certificates
 python validate_signature.py --server="http://localhost:8888/v1" --bucket=blocklists --collection=plugins
