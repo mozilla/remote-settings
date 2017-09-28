@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.3.0 (unreleased)
+4.3.0 (2017-09-28)
 ==================
 
 amo2kinto
@@ -17,6 +17,16 @@ amo2kinto
 
 - Remove json2kinto importer
 - Remove xml verifier
+
+
+kinto
+'''''
+
+**kinto 7.4.1 → 7.5.0**: https://github.com/Kinto/kinto/releases/tag/7.5.0
+
+**New features**
+
+- Add a `Memcached` kinto cache backend (Kinto/kinto#1332)
 
 
 4.2.0 (2017-09-14)
