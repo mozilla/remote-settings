@@ -26,7 +26,7 @@ kinto
 
 **New features**
 
-- Add a `Memcached` kinto cache backend (Kinto/kinto#1332)
+- Add a `Memcached` cache backend (Kinto/kinto#1332)
 
 
 4.2.0 (2017-09-14)
