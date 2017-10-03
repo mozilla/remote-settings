@@ -25,7 +25,7 @@ REQUIREMENTS = [
     "kinto-signer>=2.1,<2.2",
     "kinto-fxa>=2.3,<3.0",
     "kinto-ldap>=0.3.0,<0.4",
-    "amo2kinto>=3.0,<3.1",
+    "amo2kinto>=3.1,<3.2",
     "boto>=2.46,<2.47",
     "mozilla-cloud-services-logger>=1.0,<1.1",
 ]
@@ -33,7 +33,7 @@ ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
 
 setup(name='kinto-dist',
-      version='4.4.0.dev0',
+      version='4.4.0',
       description='Kinto Distribution',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',

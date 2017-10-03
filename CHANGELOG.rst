@@ -5,10 +5,22 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.4.0 (unreleased)
+4.4.0 (2017-10-03)
 ==================
 
-- Nothing changed yet.
+**amo2kinto 3.0.0 → 3.1.0**: https://github.com/mozilla-services/amo2kinto/releases/tag/3.1.0
+
+**New features**
+
+- Add support for cert items subject and pubKeyHash attributes. (mozilla-services/amo2kinto#70)
+
+**kinto 7.5.0 → 7.5.1**: https://github.com/Kinto/kinto/releases/tag/7.5.1
+
+**Bug fixes**
+
+- Use the ``KINTO_INI`` env variable to findout the configuration file. (Kinto/kinto#1339)
+- Fix ``create-user`` command for PostgreSQL backend (Kinto/kinto#1340)
+- Make sure ``create-user`` command updates password (Kinto/kinto#1336)
 
 
 4.3.0 (2017-09-28)
