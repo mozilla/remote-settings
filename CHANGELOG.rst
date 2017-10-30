@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.5.0 (unreleased)
+4.4.1 (2017-10-30)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 2.1.0 → 2.1.1**: https://github.com/Kinto/kinto-signer/releases/tag/2.1.1
+
+**Bug fixes**
+
+- Invalidate the CloudFront CDN cache. (Kinto/kinto-signer#199)
 
 
 4.4.0 (2017-10-03)
