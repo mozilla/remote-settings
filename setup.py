@@ -33,7 +33,7 @@ ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
 
 setup(name='kinto-dist',
-      version='4.5.0.dev0',
+      version='4.4.1',
       description='Kinto Distribution',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
