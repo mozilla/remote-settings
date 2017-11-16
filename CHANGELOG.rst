@@ -5,10 +5,51 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.5.0 (unreleased)
+4.5.0 (2017-11-16)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 7.5.1 → 7.6.0**: https://github.com/Kinto/kinto/releases/tag/7.6.0
+
+**Protocol**
+
+- When a record is pushed with an older timestamp, the collection
+  timestamps is not bumped anymore. (Kinto/kinto#1361)
+
+**New features**
+
+- A new custom logging formatter is available in ``kinto.core``. It fixes the issues of
+  `mozilla-cloud-services-logger <https://github.com/mozilla/mozilla-cloud-services-logger>`_.
+  Consider migrating your logging settings to :
+
+::
+
+    [formatter_json]
+    class = kinto.core.JsonLogFormatter
+
+**Bug fixes**
+
+- Do not log empty context values (Kinto/kinto#1363)
+- Fixed some attributes in logging of errors (Kinto/kinto#1363)
+- Fixed logging of method/path of batch subrequests (Kinto/kinto#1363)
+- Fix removing permissions with Json Merge (Kinto/kinto#1322).
+
+
+**Internal changes**
+
+- Moved PostgreSQL helper function to Python code (Kinto/kinto#1358)
+
+
+kinto-changes
+'''''''''''''
+
+**kinto-changes 1.0.0 → 1.1.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.1.0
+
+**Bug fixes**
+
+- Disable reify to always get the most accurate timestamp. (#36)
 
 
 4.4.1 (2017-10-30)

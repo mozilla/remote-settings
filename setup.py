@@ -15,11 +15,11 @@ README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 
 REQUIREMENTS = [
-    "pyramid>=1.8,<1.9",
-    "kinto[postgresql,memcached,monitoring]>=7.5,<7.6",
+    "pyramid>=1.9.1,<2.0",
+    "kinto[postgresql,memcached,monitoring]>=7.6,<7.7",
     "kinto-attachment>=2.0,<3.0",
     "kinto-amo>=0.4.0,<0.5",
-    "kinto-changes>=1.0.0,<1.1.0",
+    "kinto-changes>=1.1.0,<1.2.0",
     "kinto-elasticsearch>=0.3.0,<0.4",
     "kinto-emailer>=1.0,<1.1",
     "kinto-signer>=2.1,<2.2",
@@ -33,7 +33,7 @@ ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
 
 setup(name='kinto-dist',
-      version='4.5.0.dev0',
+      version='4.5.0',
       description='Kinto Distribution',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
