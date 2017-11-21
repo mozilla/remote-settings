@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.5.1 (unreleased)
+4.5.1 (2017-11-21)
 ==================
 
 **kinto-emailer 1.0.0 → 1.0.1**: https://github.com/Kinto/kinto-emailer/releases/tag/1.0.1
