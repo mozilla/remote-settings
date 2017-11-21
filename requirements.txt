@@ -3,7 +3,7 @@ asn1crypto==0.23.0
 bcrypt==3.1.4
 boto==2.46.1
 boto3==1.4.7
-botocore==1.7.46
+botocore==1.7.48
 certifi==2017.11.5
 cffi==1.11.2
 chardet==3.0.4
@@ -31,7 +31,7 @@ kinto-amo==0.4.0
 kinto-attachment==2.0.1
 kinto-changes==1.1.0
 kinto-elasticsearch==0.3.0
-kinto-emailer==1.0.0
+kinto-emailer==1.0.1
 kinto-fxa==2.3.1
 kinto-http==9.0.1
 kinto-ldap==0.3.1
@@ -44,12 +44,12 @@ mohawk==0.3.4
 newrelic==2.96.0.80
 PasteDeploy==1.5.2
 plaster==1.0
-plaster-pastedeploy==0.4.1
+plaster-pastedeploy==0.4.2
 psycopg2==2.7.3.2
 PyBrowserID==0.12.0
 pycparser==2.18
 PyFxA==0.4.0
-pyldap==2.4.37
+pyldap==2.4.45
 pyramid==1.9.1
 pyramid-mailer==0.15.1
 pyramid-multiauth==0.9.0
@@ -74,7 +74,7 @@ Unidecode==0.4.21
 urllib3==1.22
 venusian==1.1.0
 waitress==1.1.0
-WebOb==1.7.3
+WebOb==1.7.4
 Werkzeug==0.12.2
 zope.deprecation==4.3.0
 zope.interface==4.4.3
