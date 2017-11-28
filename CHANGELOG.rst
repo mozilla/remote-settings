@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.6.0 (unreleased)
+4.6.0 (2017-11-27)
 ==================
 
-- Nothing changed yet.
+kinto-fxa
+'''''''''
+
+**kinto-fxa 2.3.0 → 2.4.0**: https://github.com/Kinto/kinto-fxa/releases/tag/2.4.0
+
+**New Feature**
+
+- Add support for multiple FxA Clients (mozilla-services/kinto-fxa#52)
 
 
 4.5.1 (2017-11-21)
