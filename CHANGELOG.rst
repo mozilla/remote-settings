@@ -5,13 +5,13 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.7.0 (unreleased)
+5.0.0 (unreleased)
 ==================
 
 kinto
 '''''
 
-**kinto 7.6.1 → 7.6.2**: https://github.com/Kinto/kinto/releases/tag/7.6.2
+**kinto 7.6.1 → 8.0.0**: https://github.com/Kinto/kinto/releases/tag/8.0.0
 
 **Operational concerns**
 
@@ -19,10 +19,24 @@ kinto
   lets us prevent a race condition where deleting and creating a thing
   at the same time can leave it in an inconsistent state (#1386). You
   will have to run the ``kinto migrate`` command in order to migrate
-  the schema.
+  the schema. The safest way to do this is to disable Kinto traffic
+  (perhaps using nginx), bring down the old Kinto service, run the
+  migration, and then bring up the new Kinto service.
+
+**Breaking changes**
+
+- Storage backends no longer support the ``ignore_conflict``
+  argument (#1401). Instead of using this argument, consider catching the
+  ``UnicityError`` and handling it. ``ignore_conflict`` was only ever
+  used in one place, in the ``default_bucket`` plugin, and was
+  eventually backed out in favor of catching and handling a
+  ``UnicityError``.
 
 **Bug fixes**
 
+- Fix a TOCTOU bug in the Postgres storage backend where a transaction
+  doing a `create()` would fail because a row had been inserted after
+  the transaction had checked for it (#1376).
 - Document how to create an account using the ``POST /accounts`` endpoint (#1385).
 
 **Internal changes**
