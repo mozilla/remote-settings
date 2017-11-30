@@ -41,8 +41,7 @@ To run the server::
 About versioning
 ================
 
-We respect `SemVer <http://semver.org>`_ here. Since *kinto-dist* is a distribution, its versioning
-depends on the underlying packages.
+We respect `SemVer <http://semver.org>`_ here. However, the "public API" of this package is not the user-facing API of the service itself, but is considered to be the set of configuration and services that this package and its dependencies use. Accordingly, follow these rules:
 
 * **MAJOR** must be incremented if a change on configuration, system, or third-party service is required, or if any of the dependencies has a major increment
 * **MINOR** must be incremented if any of the dependencies has a minor increment
