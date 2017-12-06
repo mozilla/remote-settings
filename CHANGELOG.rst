@@ -8,7 +8,25 @@ the version control of each dependency.
 5.1.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 2.1.1 → 2.2.0**: https://github.com/Kinto/kinto-signer/releases/tag/2.2.0
+
+**New features**
+
+- Use generic config keys as a fallback for missing specific signer config keys. (Kinto/kinto-signer#151)
+- Fix bad signature on empty collections. (Kinto/kinto-signer#164)
+
+
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 2.0.1 → 2.1.0**: https://github.com/Kinto/kinto-attachment/releases/tag/2.1.0
+
+**New features**
+
+- Add support for the ``Content-Encoding`` header with the S3 backend (Kinto/kinto-attachment#132)
 
 
 5.0.0 (2017-11-29)
