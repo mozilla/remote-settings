@@ -28,11 +28,11 @@ jsonpointer==1.14
 jsonschema==2.6.0
 kinto==7.6.2
 kinto-amo==0.4.0
-kinto-attachment==2.1.0
+kinto-attachment==2.0.1
 kinto-changes==1.1.0
 kinto-elasticsearch==0.3.0
 kinto-emailer==1.0.1
-kinto-fxa==2.4.0
+kinto-fxa==2.3.1
 kinto-http==9.0.1
 kinto-ldap==0.3.1
 kinto-signer==2.1.1
