@@ -5,10 +5,18 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.5.3 (unreleased)
+4.5.3 (2017-12-06)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 7.6.2 → 7.6.3**: https://github.com/Kinto/kinto/releases/tag/7.6.2
+
+**Internal changes**
+
+- Optimize the Postgres collection_timestamp method by one query. It
+  now only makes two queries instead of three.
 
 
 4.5.2 (2017-12-06)
