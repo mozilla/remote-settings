@@ -5,10 +5,19 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-4.5.4 (unreleased)
+4.5.4 (2017-12-07)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 7.6.3 → 7.6.4**: https://github.com/Kinto/kinto/releases/tag/7.6.4
+
+**Internal changes**
+
+- Remove the ``FOR UPDATE`` locking from the delete_all query, on the
+  off chance that it's somehow related to the increased CPU
+  utilization we're seeing.
 
 
 4.5.3 (2017-12-06)
