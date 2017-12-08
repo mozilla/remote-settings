@@ -3,7 +3,7 @@ asn1crypto==0.23.0
 bcrypt==3.1.4
 boto==2.46.1
 boto3==1.4.8
-botocore==1.8.9
+botocore==1.8.10
 certifi==2017.11.5
 cffi==1.11.2
 chardet==3.0.4
@@ -26,7 +26,7 @@ jmespath==0.9.3
 jsonpatch==1.20
 jsonpointer==1.14
 jsonschema==2.6.0
-kinto==7.6.4
+kinto==7.6.5
 kinto-amo==0.4.0
 kinto-attachment==2.0.1
 kinto-changes==1.1.0
