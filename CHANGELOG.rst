@@ -8,7 +8,16 @@ the version control of each dependency.
 4.5.5 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 7.6.4 → 7.6.5**: https://github.com/Kinto/kinto/releases/tag/7.6.5
+
+**Internal changes**
+
+- Introduce an experimental setting,
+  ``experimental_disable_purge_deleted``, which can be used to try to
+  diagnose excessive CPU usage in production.
 
 
 4.5.4 (2017-12-07)
