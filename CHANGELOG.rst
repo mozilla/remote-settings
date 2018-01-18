@@ -8,7 +8,16 @@ the version control of each dependency.
 5.1.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 8.1.0 → 8.1.1**: https://github.com/Kinto/kinto/releases/tag/8.1.1
+
+**Operational concerns**
+
+- *The schema for the Postgres storage backend has changed.* This
+  changes some more ID columns to use the "C" collation, which fixes a
+  bug where the ``bump_timestamps`` trigger was very slow.
 
 
 5.1.0 (2018-01-04)
