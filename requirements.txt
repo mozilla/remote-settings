@@ -2,9 +2,9 @@ amo2kinto==3.1.0
 asn1crypto==0.24.0
 bcrypt==3.1.4
 boto==2.46.1
-boto3==1.5.18
-botocore==1.8.32
-certifi==2017.11.5
+boto3==1.5.20
+botocore==1.8.34
+certifi==2018.1.18
 cffi==1.11.4
 chardet==3.0.4
 colander==1.4
@@ -26,7 +26,7 @@ jmespath==0.9.3
 jsonpatch==1.21
 jsonpointer==2.0
 jsonschema==2.6.0
-kinto==8.1.1
+kinto==8.1.2
 kinto-amo==0.4.0
 kinto-attachment==2.1.0
 kinto-changes==1.1.0
@@ -57,7 +57,7 @@ pyramid-storage==0.1.2
 pyramid-tm==2.2
 python-dateutil==2.6.1
 python-memcached==1.59
-raven==6.4.0
+raven==6.5.0
 repoze.lru==0.7
 repoze.sendmail==4.4.1
 requests==2.18.4
