@@ -8,7 +8,16 @@ the version control of each dependency.
 5.1.3 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 8.1.2 → 8.1.3**: https://github.com/Kinto/kinto/releases/tag/8.1.3
+
+**Bug fixes**
+
+- Optimize the PostgreSQL permission backend's
+  ``delete_object_permissions`` function in the case where we are only
+  matching one object_id (or object_id prefix).
 
 
 5.1.2 (2018-01-24)
