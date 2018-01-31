@@ -8,7 +8,13 @@ the version control of each dependency.
 5.1.4 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**Bug fixes**
+
+- Allow inherited resources to set a custom model instance before instantiating (fixes #1472)
+- Fix collection timestamp retrieval when the stack is configured as readonly (fixes #1474)
 
 
 5.1.3 (2018-01-26)
