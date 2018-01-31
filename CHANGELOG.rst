@@ -5,11 +5,13 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-5.1.4 (unreleased)
+5.1.4 (2018-01-31)
 ==================
 
 kinto
 '''''
+
+**kinto 8.1.3 → 8.1.4**: https://github.com/Kinto/kinto/releases/tag/8.1.4
 
 **Bug fixes**
 
