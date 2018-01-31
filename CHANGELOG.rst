@@ -5,10 +5,18 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-5.1.4 (unreleased)
+5.1.4 (2018-01-31)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 8.1.3 → 8.1.4**: https://github.com/Kinto/kinto/releases/tag/8.1.4
+
+**Bug fixes**
+
+- Allow inherited resources to set a custom model instance before instantiating (fixes #1472)
+- Fix collection timestamp retrieval when the stack is configured as readonly (fixes #1474)
 
 
 5.1.3 (2018-01-26)
