@@ -16,6 +16,8 @@ kinto-amo
 **New features**
 
 - Pass application ID and version to amo2kinto code when generating blocklist.xml (mozilla-services/kinto-amo#23)
+- Filter add-ons and plugins in v3 based on the requesting application and version. (mozilla-services/amo2kinto#74)
+- Stop exporting cert items to Firefox 58 and above, where they aren't used. (mozilla-services/amo2kinto#75)
 
 
 5.1.4 (2018-01-31)
