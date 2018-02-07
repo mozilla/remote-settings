@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-5.2.0 (unreleased)
+5.2.0 (2018-02-07)
 ==================
 
 kinto-amo

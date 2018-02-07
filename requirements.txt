@@ -2,8 +2,8 @@ amo2kinto==3.2.0
 asn1crypto==0.24.0
 bcrypt==3.1.4
 boto==2.46.1
-boto3==1.5.22
-botocore==1.8.36
+boto3==1.5.24
+botocore==1.8.38
 certifi==2018.1.18
 cffi==1.11.4
 chardet==3.0.4
@@ -33,7 +33,7 @@ kinto-changes==1.1.0
 kinto-elasticsearch==0.3.0
 kinto-emailer==1.0.1
 kinto-fxa==2.4.0
-kinto-http==9.0.1
+kinto-http==9.1.0
 kinto-ldap==0.3.1
 kinto-signer==2.2.0
 ldappool==2.2.0
@@ -41,7 +41,7 @@ logging-color-formatter==1.0.2
 lxml==4.1.1
 MarkupSafe==1.0
 mohawk==0.3.4
-newrelic==2.100.0.84
+newrelic==2.102.0.85
 PasteDeploy==1.5.2
 plaster==1.0
 plaster-pastedeploy==0.4.2
@@ -74,7 +74,7 @@ Unidecode==1.0.22
 urllib3==1.22
 venusian==1.1.0
 waitress==1.1.0
-WebOb==1.7.4
+WebOb==1.8.0rc1
 Werkzeug==0.14.1
 zope.deprecation==4.3.0
 zope.interface==4.4.3
