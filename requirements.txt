@@ -33,7 +33,7 @@ kinto-changes==1.1.0
 kinto-elasticsearch==0.3.0
 kinto-emailer==1.0.1
 kinto-fxa==2.4.0
-kinto-http==9.1.0
+kinto-http==9.1.1
 kinto-ldap==0.3.1
 kinto-signer==2.2.0
 ldappool==2.2.0
