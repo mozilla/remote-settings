@@ -1,4 +1,4 @@
-FROM python:3.5-slim
+FROM python:3.6-slim
 
 # add a non-privileged user for installing and running
 # the application
