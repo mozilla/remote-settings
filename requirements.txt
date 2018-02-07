@@ -1,4 +1,4 @@
-amo2kinto==3.1.0
+amo2kinto==3.2.0
 asn1crypto==0.24.0
 bcrypt==3.1.4
 boto==2.46.1
@@ -27,7 +27,7 @@ jsonpatch==1.21
 jsonpointer==2.0
 jsonschema==2.6.0
 kinto==8.1.4
-kinto-amo==0.4.0
+kinto-amo==1.0.0
 kinto-attachment==2.1.0
 kinto-changes==1.1.0
 kinto-elasticsearch==0.3.0

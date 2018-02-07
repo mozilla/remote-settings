@@ -5,10 +5,19 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-5.1.5 (unreleased)
+5.2.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-amo
+'''''''''
+
+**kinto-amo 0.4.0 → 1.0.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/1.0.0
+
+**New features**
+
+- Pass application ID and version to amo2kinto code when generating blocklist.xml (mozilla-services/kinto-amo#23)
+- Filter add-ons and plugins in v3 based on the requesting application and version. (mozilla-services/amo2kinto#74)
+- Stop exporting cert items to Firefox 58 and above, where they aren't used. (mozilla-services/amo2kinto#75)
 
 
 5.1.4 (2018-01-31)

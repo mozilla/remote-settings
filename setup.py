@@ -18,21 +18,21 @@ REQUIREMENTS = [
     "pyramid>=1.9.1,<2.0",
     "kinto[postgresql,memcached,monitoring]>=8.0,<9.0",
     "kinto-attachment>=2.1,<2.2",
-    "kinto-amo>=0.4.0,<0.5",
+    "kinto-amo>=1.0.0,<1.1.0",
     "kinto-changes>=1.1.0,<1.2.0",
     "kinto-elasticsearch>=0.3.0,<0.4",
     "kinto-emailer>=1.0,<1.1",
     "kinto-signer>=2.2,<2.3",
     "kinto-fxa>=2.4,<2.5",
     "kinto-ldap>=0.3.0,<0.4",
-    "amo2kinto>=3.1,<3.2",
+    "amo2kinto>=3.2,<3.3",
     "boto>=2.46,<2.47",
 ]
 ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
 
 setup(name='kinto-dist',
-      version='5.1.5.dev0',
+      version='5.2.0.dev0',
       description='Kinto Distribution',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
