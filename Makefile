@@ -1,6 +1,6 @@
 SERVER_CONFIG_SAMPLE = config/example.ini
 SERVER_CONFIG_LOCAL = config/development.ini
-VIRTUALENV = virtualenv --python python3.5
+VIRTUALENV = virtualenv --python python3.6
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON = $(VENV)/bin/python
 DEV_STAMP = $(VENV)/.dev_env_installed.stamp

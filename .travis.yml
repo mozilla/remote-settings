@@ -8,8 +8,8 @@ addons:
     - deadsnakes # source required so it finds the package definition below
     packages:
     - slapd
-    - python3.5
-    - python3.5-dev
+    - python3.6
+    - python3.6-dev
 cache:
 - pip
 - curl
@@ -25,7 +25,7 @@ install:
     - make install
     - make migrate
 before_script:
-    - cd tests && python3.5 -m http.server 8080 &
+    - cd tests && python3.6 -m http.server 8080 &
     - cp $TRAVIS_BUILD_DIR/app.wsgi $HOME/
     - export PATH=$PWD/.venv/bin:$PATH
     - cd $HOME && KINTO_INI=$TRAVIS_BUILD_DIR/config/development.ini pserve $TRAVIS_BUILD_DIR/config/development.ini &

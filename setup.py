@@ -18,7 +18,7 @@ REQUIREMENTS = [
     "pyramid>=1.9.1,<2.0",
     "kinto[postgresql,memcached,monitoring]>=8.0,<9.0",
     "kinto-attachment>=2.1,<2.2",
-    "kinto-amo>=1.0.0,<1.1.0",
+    "kinto-amo>=1.0.1,<1.1.0",
     "kinto-changes>=1.1.0,<1.2.0",
     "kinto-elasticsearch>=0.3.0,<0.4",
     "kinto-emailer>=1.0,<1.1",
@@ -32,17 +32,15 @@ ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
 
 setup(name='kinto-dist',
-      version='5.2.0.dev0',
+      version='5.2.0',
       description='Kinto Distribution',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
       classifiers=[
           "Programming Language :: Python",
-          "Programming Language :: Python :: 2",
-          "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.4",
           "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: 3.6",
           "Programming Language :: Python :: Implementation :: CPython",
           "Programming Language :: Python :: Implementation :: PyPy",
           "Topic :: Internet :: WWW/HTTP",

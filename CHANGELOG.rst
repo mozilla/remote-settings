@@ -5,13 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-5.2.0 (unreleased)
+5.2.0 (2018-02-07)
 ==================
 
 kinto-amo
 '''''''''
 
-**kinto-amo 0.4.0 → 1.0.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/1.0.0
+**kinto-amo 0.4.0 → 1.0.1**: https://github.com/mozilla-services/kinto-amo/releases/tag/1.0.1
+
+**Bug fixes**
+
+- Fix last update / last modified of blocklist XML endpoint (fixes mozilla-services/kinto-amo#25)
 
 **New features**
 
