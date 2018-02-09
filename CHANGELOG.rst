@@ -5,6 +5,12 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+5.2.2 (unreleased)
+==================
+
+- Nothing changed yet.
+
+
 5.2.1 (2018-02-09)
 ==================
 
