@@ -5,10 +5,22 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-5.3.0 (unreleased)
+5.2.1 (2018-02-09)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 8.1.4 → 8.1.5**: https://github.com/Kinto/kinto/releases/tag/8.1.5
+
+**Bug fixes**
+
+- Restore "look before you leap" behavior in the Postgres storage
+  backend create() method to check whether a record exists before
+  running the INSERT query (#1487). This check is "optimistic" in the sense
+  that we can still fail to INSERT after the check succeeded, but it
+  can reduce write load in configurations where there are a lot of
+  create()s (i.e. when using the default_bucket plugin).
 
 
 5.2.0 (2018-02-07)
