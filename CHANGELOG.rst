@@ -8,7 +8,34 @@ the version control of each dependency.
 5.2.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 8.1.5 → 8.2.0**: https://github.com/Kinto/kinto/releases/tag/8.2.0
+
+**New features**
+
+- Add Openid connect support (#939, #1425). See `demo <https://github.com/leplatrem/kinto-oidc-demo>`_
+- Account plugin now caches authentication verification (Kinto/kinto#1413)
+
+**Bug fixes**
+
+- Fix missing principals from user info in root URL when default bucket plugin is enabled (fixes #1495)
+- Fix crash in Postgresql when the value of url param is empty (Kinto/kinto#1305)
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.14.0 → 1.15.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.15.0
+
+**New features**
+
+- [signoff] Fixes #461: Support per-bucket configuration (Kinto/kinto-admin#466)
+
+**Bug fixes**
+
+- Fix list permissions if anonymous (Kinto/kinto-admin#463)
+- [signoff] Fix workflow info parameter types (Kinto/kinto-admin#470)
 
 
 5.2.1 (2018-02-09)
