@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-5.2.2 (unreleased)
+6.0.0 (unreleased)
 ==================
 
 kinto
@@ -36,6 +36,34 @@ kinto-admin
 
 - Fix list permissions if anonymous (Kinto/kinto-admin#463)
 - [signoff] Fix workflow info parameter types (Kinto/kinto-admin#470)
+
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 2.2.0 → 3.0.0**: https://github.com/Kinto/kinto/releases/tag/3.0.0
+
+**Breaking changes**
+
+- The settings ``reviewers_group``, ``editors_group``, ``to_review_enabled``, ``group_check_enabled``
+  prefixed with ``_`` are not supported anymore. (eg. use ``kinto.signer.staging_certificates.editors_group``
+  instead of ``kinto.signer.staging_certificates_editors_group``)
+
+**New features**
+
+- Allow spaces in resources configurations, and separate URIs with ``->`` for better readability (fixes Kinto/kinto-signer#148, fixes Kinto/kinto-signer#88)
+- Allow configuration of ``reviewers_group``, ``editors_group``, ``to_review_enabled``, ``group_check_enabled``
+  by bucket
+- Allow placeholders ``{bucket_id}`` and ``{collection_id}`` in ``reviewers_group``, ``editors_group``,
+  ``to_review_enabled``, and ``group_check_enabled`` settings
+  (e.g. ``group:/buckets/{bucket_id}/groups/{collection_id}-reviewers``) (fixes Kinto/kinto-signer#210)
+- Allow configuration by bucket. Every collections in the source bucket will be reviewed/signed (fixes Kinto/kinto-signer#144).
+- Editors and reviewers groups are created automatically when source collection is created (fixes Kinto/kinto-signer#213)
+- Preview and destination collections are automatically signed when source is created (fixes Kinto/kinto-signer#226)
+
+**Bug fixes**
+
+- Fix permissions of automatically created preview/destination bucket (fixes Kinto/kinto-signer#155)
 
 
 5.2.1 (2018-02-09)
