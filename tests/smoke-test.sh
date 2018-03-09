@@ -32,7 +32,7 @@ echo '{"data": {"type": "logo"}}' | http --check-status PUT $SERVER/buckets/blog
 http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/logo/attachment attachment@kinto-logo.svg --auth $AUTH
 
 # kinto-signer test
-curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/2.1.0/scripts/e2e.py
+curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/3.0.0/scripts/e2e.py
 python e2e.py --server=$SERVER --auth=$AUTH --editor-auth=$EDITOR_AUTH --reviewer-auth=$REVIEWER_AUTH --source-bucket=source --source-col=source
 python $DIR/create_groups.py --bucket=source --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 
