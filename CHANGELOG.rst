@@ -8,7 +8,15 @@ the version control of each dependency.
 6.1.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.0.0 → 3.1.0**: https://github.com/Kinto/kinto/releases/tag/3.1.0
+
+**New features**
+
+- Cloudfront invalidation paths can be configured
+- User does not have to be in the *reviewers* group to refresh a signature (kinto/kinto-signer#233)
 
 
 6.0.0 (2018-03-09)
