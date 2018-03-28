@@ -7,6 +7,17 @@ the version control of each dependency.
 6.0.1 (unreleased)
 ==================
 
+
+kinto
+'''''
+
+**kinto 8.2.0 → 8.2.2**: https://github.com/Kinto/kinto/releases/tag/8.2.2
+
+**Internal changes**
+
+- Upgrade to kinto-admin 1.15.1
+
+
 kinto-admin
 '''''''''''
 
