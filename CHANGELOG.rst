@@ -4,6 +4,29 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+6.0.1 (unreleased)
+==================
+
+
+kinto
+'''''
+
+**kinto 8.2.0 → 8.2.2**: https://github.com/Kinto/kinto/releases/tag/8.2.2
+
+**Internal changes**
+
+- Upgrade to kinto-admin 1.15.1
+
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.15.0 → 1.15.1**: https://github.com/Kinto/kinto-admin/releases/tag/v1.15.1
+
+**Bug fixes**
+
+- [signoff] Fix bug where users who are part of "editors" and "reviewers" groups do not get shown the "request review" or "approve" buttons (Kinto/kinto-admin#495)
+
 
 6.1.0 (unreleased)
 ==================
