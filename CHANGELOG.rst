@@ -4,7 +4,21 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-6.0.1 (unreleased)
+6.1.0 (unreleased)
+==================
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.0.0 → 3.1.0**: https://github.com/Kinto/kinto/releases/tag/3.1.0
+
+**New features**
+
+- Cloudfront invalidation paths can be configured
+- User does not have to be in the *reviewers* group to refresh a signature (kinto/kinto-signer#233)
+
+
+6.0.1 (2018-03-28)
 ==================
 
 
@@ -26,20 +40,6 @@ kinto-admin
 **Bug fixes**
 
 - [signoff] Fix bug where users who are part of "editors" and "reviewers" groups do not get shown the "request review" or "approve" buttons (Kinto/kinto-admin#495)
-
-
-6.1.0 (unreleased)
-==================
-
-kinto-signer
-''''''''''''
-
-**kinto-signer 3.0.0 → 3.1.0**: https://github.com/Kinto/kinto/releases/tag/3.1.0
-
-**New features**
-
-- Cloudfront invalidation paths can be configured
-- User does not have to be in the *reviewers* group to refresh a signature (kinto/kinto-signer#233)
 
 
 6.0.0 (2018-03-09)
