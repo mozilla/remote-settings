@@ -18,6 +18,21 @@ kinto-signer
 - User does not have to be in the *reviewers* group to refresh a signature (kinto/kinto-signer#233)
 
 
+6.0.2 (2018-04-06)
+==================
+
+kinto
+'''''
+
+**kinto 8.2.2 → 8.2.3**: https://github.com/Kinto/kinto/releases/tag/8.2.3
+
+**Security fix**
+
+- Since Kinto 8.2.0 the `account` plugin had a security flaw where the password wasn't verified during the session duration.
+  It now validates the account user password even when the session is cached (Kinto/kinto#1583).
+
+
+
 6.0.1 (2018-03-28)
 ==================
 
