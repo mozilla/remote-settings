@@ -38,9 +38,8 @@ const records = await RemoteSettings("my-key").get();
   ]
 */
 
-for(const entry of records) {
-  // Do something with entry, e.g:
-  // await InternalAPI.load(entry.id, entry.label, entry.weight);
+for(const record of records) {
+  // await InternalAPI.load(record.id, record.label, record.weight);
 });
 ```
 
