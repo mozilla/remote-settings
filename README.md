@@ -1,26 +1,27 @@
 # remote-settings
 
-This repo is for tracking issues / project management for the Remote Settings v2 Project. 
+This repo is for tracking issues / project management for the Remote Settings v2 Project.
 
-## What is Remote Settings V2? 
 
-These attributes differentiate V1 from V2: 
+## What is Remote Settings V2?
+
+These attributes differentiate V1 from V2:
 
 1. Simplier API in Firefox
 1. Self serve setting creation
 1. Targeting ability. Setting values can be different based on Firefox's criteria (platform, locale, version, etc)
 1. Reduced update latency. Support for broadcast API (server push) as well as polling
 
-## When will it be available? 
+## When will it be available?
 
 * We are targetting Firefox 62 (nightly) to have the new APIs available
 
-## What will the API Look like? 
+## What will the API Look like?
 
 There are two new APIs to work with settings:
 
-1. `get()` 
-2. `on()` 
+1. `get()`
+2. `on()`
 
 ### get()
 
@@ -43,19 +44,24 @@ for(const entry of records) {
 });
 ```
 
-### on() 
+### on("sync", (e) => { ... })
 
-The `on()` allows handlers to be triggered when records changes on the server side. 
+The `on()` function registers handlers to be triggered when records changes on the server side.
+Your handler is given an event object that contains a `.data` attribute.
 
 ```js
-RemoteSettings("my-key").on("create", (event) => { 
-   for (const record of event.created) { /* ... */ }
-});
-RemoteSettings("my-key").on("update", (event) => { 
-   for (const record of event.updated) { /* ... */ }
-});
-RemoteSettings("my-key").on("delete", (event) => { 
-   for (const record of event.deleted) { /* ... */ }
+on("sync", (e) => {
+   // e.data.current = [ ... ]
+   // e.data.updated = [ ... ]
+   // e.data.created = [ ... ]
+   // e.data.deleted = [ ... ]
 });
 ```
+
+The `.data` attribute includes:
+
+* `.data.current` - a list of the all records in your collection
+* `.data.updated` - a list of the records updated by the sync
+* `.data.created` - a list of the records that were added by the sync
+* `.data.deleted` - a list of the records that were deleted by the sync
 
