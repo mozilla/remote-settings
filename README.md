@@ -1,16 +1,9 @@
-# remote-settings
+## What is Remote Settings
 
-This repo is for tracking issues / project management for the Remote Settings v2 Project.
-
-
-## What is Remote Settings V2?
-
-These attributes differentiate V1 from V2:
-
-1. Simplier API in Firefox
-1. Self serve setting creation
-1. Targeting ability. Setting values can be different based on Firefox's criteria (platform, locale, version, etc)
-1. Reduced update latency. Support for broadcast API (server push) as well as polling
+Remote Settings is a Mozilla service that makes it easy to manage evergreen
+settings data in Firefox. [kinto](https://github.com/Kinto/kinto) is used
+for syncing of data.  A simple API is available in Firefox for accessing
+the synchronized data.
 
 ## When will it be available?
 
@@ -18,7 +11,7 @@ These attributes differentiate V1 from V2:
 
 ## What will the API Look like?
 
-There are two new APIs to work with settings:
+There are two main functions to work with settings ((official docs)[https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html]):
 
 1. `get()`
 2. `on()`
@@ -46,14 +39,17 @@ for(const record of records) {
 ### on("sync", (e) => { ... })
 
 The `on()` function registers handlers to be triggered when records changes on the server side.
-Your handler is given an event object that contains a `.data` attribute.
+Your handler is given an event object that contains a `.data` attribute that has information
+about the changes.
+
+Currently the only available event is `sync`.
 
 ```js
-on("sync", (e) => {
-   // e.data.current = [ ... ]
-   // e.data.updated = [ ... ]
-   // e.data.created = [ ... ]
-   // e.data.deleted = [ ... ]
+RemoteSettings("my-key").on("sync", (e) => {
+   // e.data.current = [ Record, Record, ... ]
+   // e.data.updated = [ Record, Record, ... ]
+   // e.data.created = [ Record, Record, ... ]
+   // e.data.deleted = [ Record, Record, ... ]
 });
 ```
 
@@ -63,4 +59,3 @@ The `.data` attribute includes:
 * `.data.updated` - a list of the records updated by the sync
 * `.data.created` - a list of the records that were added by the sync
 * `.data.deleted` - a list of the records that were deleted by the sync
-
