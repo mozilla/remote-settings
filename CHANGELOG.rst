@@ -17,6 +17,16 @@ kinto-signer
 - Cloudfront invalidation paths can be configured
 - User does not have to be in the *reviewers* group to refresh a signature (kinto/kinto-signer#233)
 
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 2.1.0 → 3.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/3.0.0
+
+**Breaking changes**
+
+- The collection specific ``use_content_encoding`` setting must now be separated with ``.`` instead of ``_``.
+  (eg. use ``kinto.attachment.resources.bid.cid.use_content_encoding`` instead of ``kinto.attachment.resources.bid_cid.use_content_encoding``) (fixes kinto/kinto-attachment#134)
+
 
 6.0.2 (2018-04-06)
 ==================
