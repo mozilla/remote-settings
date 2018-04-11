@@ -11,7 +11,7 @@ the synchronized data.
 
 ## What will the API Look like?
 
-There are two main functions to work with settings ((official docs)[https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html]):
+There are two main functions to work with settings ([official docs](https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html)):
 
 1. `get()`
 2. `on()`
