@@ -10,24 +10,24 @@ the version control of each dependency.
 kinto-signer
 ''''''''''''
 
-**kinto-signer 3.0.0 → 3.2.0**: https://github.com/Kinto/kinto/releases/tag/3.2.0
+**kinto-signer 3.0.0 → 3.2.1**: https://github.com/Kinto/kinto/releases/tag/3.2.1
 
 **New features**
 
-- Cloudfront invalidation paths can be configured
+- Cloudfront invalidation paths can be configured (kinto/kinto-signer#231)
 - User does not have to be in the *reviewers* group to refresh a signature (kinto/kinto-signer#233)
-- Give write permission to reviewers/editors groups on newly created collections (fixes #237)
-- The preview collection signature is now refreshed along the destination (fixes #236)
-- Tracking fields are now documented and new ones were added (``last_edit_date``, ``last_request_review_date``, ``last_review_date`` and ``last_signature_date``) (fixes #137)
+- Give write permission to reviewers/editors groups on newly created collections (kinto/kinto-signer#237)
+- The preview collection signature is now refreshed along the destination (kinto/kinto-signer#236)
+- Tracking fields are now documented and new ones were added (``last_edit_date``, ``last_request_review_date``, ``last_review_date`` and ``last_signature_date``) (kinto/kinto-signer#137)
 
 **Deprecations**
 
 - The collection specific settings must now be separated with ``.`` instead of ``_``.
-  (eg. use ``kinto.signer.staging.certificates.editors_group`` instead of ``kinto.signer.staging_certificates.editors_group``) (fixes #224)
+  (eg. use ``kinto.signer.staging.certificates.editors_group`` instead of ``kinto.signer.staging_certificates.editors_group``) (kinto/kinto-signer#224)
 
 **Internal changes**
 
-- Now log an INFO message when the CloudFront invalidation request is sent (fixes #238)
+- Now log an INFO message when the CloudFront invalidation request is sent (kinto/kinto-signer#238)
 
 
 kinto-attachment
