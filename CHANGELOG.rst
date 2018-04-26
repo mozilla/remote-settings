@@ -70,6 +70,16 @@ kinto-signer
 - Now log an INFO message when the CloudFront invalidation request is sent (kinto/kinto-signer#238)
 
 
+kinto-elasticsearch
+'''''''''''''''''''
+
+**kinto-elasticsearch 0.3.0 → 0.3.1**: https://github.com/Kinto/kinto-elasticsearch/releases/tag/0.3.1
+
+**Bug fixes**
+
+- Fix the reindex get_paginated_records function. (Kinto/kinto-elasticsearch#61)
+
+
 kinto-attachment
 ''''''''''''''''
 
