@@ -7,6 +7,46 @@ the version control of each dependency.
 6.1.0 (unreleased)
 ==================
 
+kinto
+'''''
+
+**kinto 8.2.3 → 9.0.0**: https://github.com/Kinto/kinto/releases/tag/9.0.0
+
+**API**
+
+- Introduce ``contains`` and ``contains_any`` filter operators (Kinto/kinto#343).
+
+API is now at version **1.19**. See `API changelog`_.
+
+**Breaking changes**
+
+- The storage class now exposes ``bump_timestamp()`` and ``bump_and_store_timestamp()`` methods
+  so that memory based storage backends can use them. (Kinto/kinto#1596)
+
+**Documentation**
+
+- Version number is taken from package in order to ease release process (Kinto/kinto#1594)
+- Copyright year is now dynamic (Kinto/kinto#1595)
+
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.15.0 → 1.17.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.17.0
+
+**New features**
+
+- Get the list of auth methods supported by the server when first rendering the auth form (Kinto/kinto-admin#331, Kinto/kinto-admin#497, Kinto/kinto-admin#516)
+- Date are now formatted as en-US (Kinto/kinto-admin#508)
+
+**Bug fixes**
+
+- Fix signoff workflow info when kinto-signer running on server is >= 3.2 (Kinto/kinto-admin#500)
+- Better detection of authentication failures (Kinto/kinto-admin#330)
+- Fix history table apparence (Kinto/kinto-admin#511)
+- Wrap signoff comment (Kinto/kinto-admin#490)
+
+
 kinto-signer
 ''''''''''''
 
