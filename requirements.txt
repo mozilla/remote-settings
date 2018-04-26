@@ -42,7 +42,6 @@ MarkupSafe==1.0
 mohawk==0.3.4
 newrelic==3.2.0.91
 PasteDeploy==1.5.2
-pkg-resources==0.0.0
 plaster==1.0
 plaster-pastedeploy==0.5
 psycopg2==2.7.4
