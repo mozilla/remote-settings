@@ -4,10 +4,17 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-7.1.0 (unreleased)
+7.0.1 (2018-05-02)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.2.1 → 3.2.2**: https://github.com/Kinto/kinto-signer/releases/tag/3.2.2
+
+**Bug fixes**
+
+- Cleanup preview and destination when source collection is deleted (kinto/kinto-signer#114)
 
 
 7.0.0 (2018-04-25)
@@ -56,7 +63,7 @@ kinto-admin
 kinto-signer
 ''''''''''''
 
-**kinto-signer 3.0.0 → 3.2.1**: https://github.com/Kinto/kinto/releases/tag/3.2.1
+**kinto-signer 3.0.0 → 3.2.1**: https://github.com/Kinto/kinto-signer/releases/tag/3.2.1
 
 **New features**
 
