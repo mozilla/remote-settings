@@ -4,10 +4,17 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-7.1.0 (unreleased)
+7.0.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.2.2 → 3.2.3**: https://github.com/Kinto/kinto-signer/releases/tag/3.2.3
+
+**Bug fixes**
+
+- Fix crash on collection delete (Kinto/kinto#248)
 
 
 7.0.1 (2018-05-02)
