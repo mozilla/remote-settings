@@ -4,10 +4,37 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-7.1.0 (unreleased)
+7.1.0 (2018-05-17)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 9.0.0 → 9.0.1**: https://github.com/Kinto/kinto/releases/tag/9.0.0
+
+- Update version of kinto-admin
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.17.0 → 1.17.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.17.1
+
+
+**Bug fixes**
+
+- Fetch capabilities from singleServer if set (Kinto/kinto-admin#532)
+
+kinto-fxa
+'''''''''
+
+**kinto-fxa 2.4.1 → 2.5.0**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.0
+
+**New features**
+
+- Introduce new kinto_fxa.scripts. Right now the only script available
+  is process-account-events, which listens to an SQS queue for user
+  delete events and deletes data from that user's default bucket, in
+  order to comply with GDPR. (Kinto/kinto-fxa#55)
 
 
 7.0.2 (2018-05-09)

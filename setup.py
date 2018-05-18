@@ -23,7 +23,7 @@ REQUIREMENTS = [
     "kinto-elasticsearch>=0.3.0,<0.4",
     "kinto-emailer>=1.0.2,<1.1",
     "kinto-signer>=3.2.3,<3.3",
-    "kinto-fxa>=2.4.1,<2.5",
+    "kinto-fxa[scripts]>=2.5.0,<2.6",
     "kinto-ldap>=0.3.0,<0.4",
     "amo2kinto>=3.2,<3.3",
     "boto>=2.46,<2.47",
@@ -32,7 +32,7 @@ ENTRY_POINTS = {}
 DEPENDENCY_LINKS = []
 
 setup(name='kinto-dist',
-      version='7.1.0.dev0',
+      version='7.1.0',
       description='Kinto Distribution',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
