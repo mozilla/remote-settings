@@ -7,7 +7,34 @@ the version control of each dependency.
 7.1.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 9.0.1 → 9.1.1**: https://github.com/Kinto/kinto/releases/tag/9.1.1
+
+**API**
+
+- Batch endpoint now checks for and aborts any parent request if subrequest encounters ``409 Conflict`` constraint violation (Kinto/kinto#1569)
+
+**Bug fixes**
+
+- Fix a bug where you could not reach the last records via ``Next-Header`` when deleting with pagination (Kinto/kinto#1170)
+- Slight optimizations on the ``get_all()`` query in the Postgres
+  storage backend which should make it faster for result sets that
+  have a lot of records (Kinto/kinto#1622). This is the first change meant to
+  address Kinto/kinto#1507, though more can still be done.
+- Fix a bug where the batch route accepted all content-types (Kinto/kinto#1529)
+
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.17.1 → 1.17.2**: https://github.com/Kinto/kinto-admin/releases/tag/1.17.2
+
+**Bug fixes**
+
+- Don't request records as part of the permissions (Kinto/kinto-admin#536)
+- Fix strange validation errors on collection forms (Kinto/kinto-admin#539)
 
 
 7.1.0 (2018-05-17)
