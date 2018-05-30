@@ -7,7 +7,14 @@ the version control of each dependency.
 7.3.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.2.3 → 3.2.4**: https://github.com/Kinto/kinto-signer/releases/tag/3.2.4
+
+**Bug fixes**
+
+- Fix CloudFront invalidation request with multiple paths (Kinto/kinto-signer#253)
 
 
 7.2.0 (2018-05-23)
