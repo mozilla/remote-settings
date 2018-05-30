@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-7.3.0 (unreleased)
+7.2.1 (2018-05-30)
 ==================
 
 kinto-signer
