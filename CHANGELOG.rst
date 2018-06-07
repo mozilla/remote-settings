@@ -7,7 +7,36 @@ the version control of each dependency.
 7.3.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 9.1.1 → 9.2.0**: https://github.com/Kinto/kinto/releases/tag/9.2.0
+
+**API**
+
+- JSON schemas can now be defined in the bucket metadata and will apply to every
+  underlying collection, group or record (Kinto/kinto#1555)
+
+**New features**
+
+- Kinto Admin plugin now supports OpenID Connect
+- Limit network requests to current domain in Kinto Admin using `Content-Security Policies <https://hacks.mozilla.org/2016/02/implementing-content-security-policy/>`_
+- Prompt for cache backend type in ``kinto init`` (Kinto/kinto#1653)
+- kinto.core.utils now has new features ``route_path_registry`` and
+  ``instance_uri_registry``, suitable for use when you don't
+  necessarily have a ``request`` object around. The existing functions
+  will remain in place.
+- openid plugin will carry ``prompt=none`` querystring parameter if appended
+  to authorize endpoint.
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.17.2 → 1.18.0**: https://github.com/Kinto/kinto-admin/releases/tag/1.18.0
+
+**New features**
+
+- Add support of OpenID Connect (#460)
 
 
 7.2.1 (2018-05-30)
