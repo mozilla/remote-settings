@@ -1,7 +1,7 @@
 ## What is Remote Settings
 
 Remote Settings is a Mozilla service that makes it easy to manage evergreen
-settings data in Firefox. [kinto](https://github.com/Kinto/kinto) is used
+settings data in Firefox. [Kinto](https://github.com/Kinto/kinto) is used
 for syncing of data.  A simple API is available in Firefox for accessing
 the synchronized data.
 
@@ -28,7 +28,7 @@ There are two main functions to work with settings:
 ### get()
 
 ```js
-const { RemoteSettings } = ChromeUtils.import("resource://services-common/remote-settings.js", {});
+const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js", {});
 
 const records = await RemoteSettings("my-collection").get();
 
@@ -77,5 +77,6 @@ The `.data` attribute includes:
 ## Awesome! How do I get started? 
 
 * The [mana page](https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=66655528) has the process for requesting a new settings collection
-* ([official developer docs](https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html)) 
+* [Developer docs](https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html)
+* [List of use-cases](https://wiki.mozilla.org/Firefox/RemoteSettings)
 
