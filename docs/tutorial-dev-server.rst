@@ -8,6 +8,14 @@ Goals
 * Pull them the server
 
 
+Prerequisites
+-------------
+
+This guide assumes you have already installed and set up the following:
+
+- cURL
+
+
 Introduction
 ------------
 
