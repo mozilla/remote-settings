@@ -47,7 +47,7 @@ kinto-admin
 kinto-fxa
 '''''''''
 
-**kinto-fxa 2.5.1 → 2.5.1**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.1
+**kinto-fxa 2.5.0 → 2.5.1**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.1
 
 **Bug fixes**
 
