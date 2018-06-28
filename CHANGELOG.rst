@@ -44,6 +44,16 @@ kinto-admin
 - Fix accounts capability detection (Kinto/kinto-admin#558)
 - Remember last used authentication method (Kinto/kinto-admin#525)
 
+kinto-fxa
+'''''''''
+
+**kinto-fxa 2.5.0 → 2.5.1**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.1
+
+**Bug fixes**
+
+- Set up metrics on the ``process-account-events`` script (#57).
+- Set up logging on the ``kinto_fxa.scripts`` programs (#58).
+
 
 7.2.1 (2018-05-30)
 ==================
