@@ -10,12 +10,16 @@ the version control of each dependency.
 kinto
 '''''
 
-**kinto 9.1.1 → 9.2.0**: https://github.com/Kinto/kinto/releases/tag/9.2.0
+**kinto 9.1.1 → 9.2.2**: https://github.com/Kinto/kinto/releases/tag/9.2.2
 
 **API**
 
 - JSON schemas can now be defined in the bucket metadata and will apply to every
   underlying collection, group or record (Kinto/kinto#1555)
+
+**Bug fixes**
+
+- Fixed bug where unresolved JSON pointers would crash server (Kinto/kinto#1685)
 
 **New features**
 
@@ -32,11 +36,13 @@ kinto
 kinto-admin
 '''''''''''
 
-**kinto-admin 1.17.2 → 1.18.0**: https://github.com/Kinto/kinto-admin/releases/tag/1.18.0
+**kinto-admin 1.17.2 → 1.19.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.19.1
 
 **New features**
 
-- Add support of OpenID Connect (#460)
+- Add support of OpenID Connect (Kinto/kinto-admin#460)
+- Fix accounts capability detection (Kinto/kinto-admin#558)
+- Remember last used authentication method (Kinto/kinto-admin#525)
 
 
 7.2.1 (2018-05-30)
