@@ -16,7 +16,7 @@ CHANGELOG = read_file('CHANGELOG.rst')
 
 REQUIREMENTS = [
     "pyramid>=1.9.1,<2.0",
-    "kinto[postgresql,memcached,monitoring]>=9.2.0,<10.0",
+    "kinto[postgresql,memcached,monitoring]>=9.2.2,<10.0",
     "kinto-attachment>=3.0,<3.1",
     "kinto-amo>=1.0.1,<1.1.0",
     "kinto-changes>=1.1.1,<1.2.0",
