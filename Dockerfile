@@ -1,37 +1,39 @@
-FROM python:3.6-slim
+FROM python:3.6-slim@sha256:6f39e7dfc5158b351cfea004541fc85898452c2e4cbeb2b36f00c286fc957a88
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/ \
+    PORT=8888
+
+EXPOSE $PORT
 
 # add a non-privileged user for installing and running
 # the application
-RUN groupadd -g 9000 kinto && \
-    useradd -M -u 9000 -g 9000 -G kinto -d /app -s /sbin/nologin kinto
+RUN mkdir /app && \
+    chown 10001:10001 /app && \
+    groupadd --gid 10001 app && \
+    useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
+
+COPY requirements/default.txt .
+COPY requirements/prod.txt .
+COPY requirements/constraints.txt .
+COPY bin/docker-install.sh .
+RUN ./docker-install.sh
 
 COPY . /app
+
+# Switch back to home directory
 WORKDIR /app
 
-RUN buildDeps=' \
-    git \
-    gcc \
-    libffi-dev \
-    libldap2-dev \
-    libpq-dev \
-    libsasl2-dev \
-    libssl-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    ' && \
-    # install deps
-    apt-get update -y && \
-    apt-get install -y --no-install-recommends $buildDeps && \
-    pip install -e . -c requirements.txt && \
-    pip install uwsgi && uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd && \
-
-    # cleanup
-    apt-get purge -y $buildDeps && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf uwsgi-dogstatsd
-
 # Drop down to unprivileged user
-USER kinto
+RUN chown -R 10001:10001 /app
+
+# Make sure the kinto user can write into the mail directory for
+# when it debugs email sending.
+#RUN chown kinto: /app/mail
+
+USER 10001
+
 
 # Run uwsgi by default
+ENTRYPOINT ["/bin/bash", "/app/bin/run.sh"]
 CMD ["uwsgi", "--ini", "/etc/kinto.ini"]

@@ -1,6 +1,4 @@
-e2e.py
 amo-blocklist.json
-kinto-logo.svg
 validate_signature.py
 
 # Byte-compiled / optimized / DLL files
@@ -68,3 +66,9 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+.bash_history
+.python_history
+
+# misc
+tests/pub
+mail/*.eml
