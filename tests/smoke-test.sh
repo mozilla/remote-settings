@@ -7,9 +7,15 @@ set -e -x
 pip install httpie kinto-http
 
 SERVER="${SERVER:-http://localhost:8888/v1}"
+
 AUTH="${AUTH:-user:pass}"
 EDITOR_AUTH="${EDITOR_AUTH:-editor:pass}"
 REVIEWER_AUTH="${REVIEWER_AUTH:-reviewer:pass}"
+
+# Create Kinto accounts
+echo '{"data": {"password": "pass"}}' | http --check-status PUT $SERVER/accounts/user
+echo '{"data": {"password": "pass"}}' | http --check-status PUT $SERVER/accounts/editor
+echo '{"data": {"password": "pass"}}' | http --check-status PUT $SERVER/accounts/reviewer
 
 http --check-status PUT $SERVER/buckets/blog --auth $AUTH
 http --check-status PUT $SERVER/buckets/blog/collections/articles --auth $AUTH
@@ -47,6 +53,7 @@ http --check-status -h "$SERVER/admin/index.html"
 APPID="\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}"
 http --check-status $SERVER/blocklist/3/$APPID/46.0/
 echo '{"permissions": {"write": ["system.Authenticated"]}}' | http PUT $SERVER/buckets/staging --auth="$AUTH"
+
 python $DIR/create_groups.py --bucket=staging --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 # 1. Add a few records
 kinto-wizard load tests/amo-blocklist.yaml --server "$SERVER" --auth="$AUTH" --bucket staging
@@ -103,5 +110,5 @@ echo '{"data": {
 
 rm -rf $TRAVIS_BUILD_DIR/mail/*.eml
 echo '{"data": {"status": "to-review"}}' | http PATCH $SERVER/buckets/source/collections/source --auth="$EDITOR_AUTH"
-cat $HOME/mail/*.eml | grep "Subject: basicauth"
+cat $HOME/mail/*.eml | grep "Subject: account"
 cat $HOME/mail/*.eml | grep "To: me@you.com"
