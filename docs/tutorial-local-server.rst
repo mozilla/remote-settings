@@ -71,6 +71,8 @@ Create a configuration file ``server.ini`` with the following content:
     kinto.signer.group_check_enabled = true
     kinto.signer.to_review_enabled = true
     kinto.signer.signer_backend = kinto_signer.signer.autograph
+    kinto.signer.stage.editors_group = {collection_id}-editors
+    kinto.signer.stage.reviewers_group = {collection_id}-reviewers
     kinto.signer.autograph.server_url = http://autograph-server:8000
     # Use credentials from https://github.com/mozilla-services/autograph/blob/2bc1af/autograph.yaml#L348-349
     kinto.signer.autograph.hawk_id = normandev
@@ -190,12 +192,22 @@ Both containers should be connected, and the heartbeat endpoint should only retu
 
 In the previous section we were using the ``main`` bucket directly, but in this setup, we will create the collections in the ``main-workspace`` bucket. Data will be automatically copied to the ``main-preview`` and ``main`` when requesting review and approving changes during the multi-signoff workflow.
 
+We'll use the same ``admin`` user:
+
+.. code-block:: bash
+
+    curl -X PUT ${SERVER}/accounts/admin \
+         -d '{"data": {"password": "s3cr3t"}}' \
+         -H 'Content-Type:application/json'
+
 The ``main-workspace`` bucket allows any authenticated user to create collections (like on STAGE):
 
 .. code-block:: bash
 
+    BASIC_AUTH=admin:s3cr3t
+
     curl -X PUT ${SERVER}/buckets/main-workspace \
-         -d '{"permissions": {"collection:create": ["system.Authenticated"]}}' \
+         -d '{"permissions": {"collection:create": ["system.Authenticated"], "group:create": ["system.Authenticated"]}}' \
          -H 'Content-Type:application/json' \
          -u $BASIC_AUTH
 
