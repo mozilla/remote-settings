@@ -1,5 +1,5 @@
-Using Remote Settings Dev server
-================================
+Using the Remote Settings Dev Server
+====================================
 
 Goals
 -----
@@ -23,7 +23,9 @@ We run a public instance of Kinto, the underlying software of Remote Settings, a
 
 Several authentication options are available. We will use local accounts and Basic Auth for the sake of simplicity.
 
-Also, since the server is publicly accessible, we flush its content every day. We thus **recommend you to keep the initialization commands in a small shell script**.
+.. warning::
+
+    Since the server is publicly accessible, we flush its content every day. We thus **recommend you to keep the initialization commands in a small shell script**.
 
 
 Create your account

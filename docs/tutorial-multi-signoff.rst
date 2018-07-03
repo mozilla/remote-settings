@@ -1,5 +1,5 @@
-Multi Signoff
-=============
+Multi Signoff Workflow
+======================
 
 Goals
 -----
@@ -31,10 +31,10 @@ Multi signoff basically consists in 3 steps:
 3. Reviewers can configure their browser to preview the changes, and will approve (or decline) the review request. The records are automatically published in the ``main`` bucket.
 
 
-Create basic objects
-''''''''''''''''''''
+Create some users
+'''''''''''''''''
 
-Let's create some ``reviewer`` and ``editor`` users, using the ``admin`` superuser seen in previous tutorials.
+If you're not using STAGE or PROD, we'll need some ``reviewer`` and ``editor`` users, using the ``admin`` superuser seen in previous tutorials.
 
 .. code-block:: bash
 
@@ -48,19 +48,25 @@ Let's create some ``reviewer`` and ``editor`` users, using the ``admin`` superus
 
 .. note::
 
-    This cannot be done in STAGE since authentication is done via LDAP/OpenID Connect.
+    In STAGE or PROD, humans authenticate via LDAP/OpenID Connect. But scripted/scheduled tasks can have their dedicated account like above. Ask us!
 
 
 Create a collection
-'''''''''''''''''''
+-------------------
 
-We can now create a new collection ``password-recipes`` in the ``main-workspace``:
+The ``main-workspace`` bucket is where every edit happens.
+
+We first have to create a new collection (eg. ``password-recipes``). We'll use the ``editor`` account:
 
 .. code-block:: bash
 
     curl -X PUT ${SERVER}/buckets/main-workspace/collections/password-recipes \
          -H 'Content-Type:application/json' \
          -u editor:3d1t0r
+
+.. note::
+
+    In PROD, only administrators are allowed to create collections. See `instructions on Mana <https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=66655528>`_.
 
 Now that we created this collection, two groups should have been created automatically. Check their presence and content with:
 
@@ -71,13 +77,13 @@ Now that we created this collection, two groups should have been created automat
 
 
 Manage reviewers
-''''''''''''''''
+----------------
 
-Only the members of the ``password-recipes-editors`` group are allowed to request review.
+Only the members of the ``password-recipes-editors`` group are allowed to request reviews for the records changes.
 
-Only the members of the ``password-recipes-reviewers`` group are allowed to approve/decline the changes of the collection records.
+Only the members of the ``password-recipes-reviewers`` group are allowed to approve/decline them.
 
-We will add our ``reviewer`` user to the ``password-recipes-reviewers`` group with this JSON PATCH request:
+We will add our ``reviewer`` user above to the ``password-recipes-reviewers`` group with this `JSON PATCH <https://tools.ietf.org/html/rfc6902>`_ request:
 
 .. code-block:: bash
 
@@ -88,11 +94,11 @@ We will add our ``reviewer`` user to the ``password-recipes-reviewers`` group wi
 
 .. note::
 
-    When using internal accounts the user IDs are prefixed with ``account:``. In STAGE/PROD, the user IDs look like this: ``ldap:jdoe@mozilla.com``.
+    When using internal accounts the, user IDs are prefixed with ``account:``. In STAGE/PROD, most user IDs look like this: ``ldap:jdoe@mozilla.com``.
 
 
 Change records and request review
-'''''''''''''''''''''''''''''''''
+---------------------------------
 
 Create (or update or delete) some records:
 
@@ -134,7 +140,7 @@ The monitor/changes endpoint mentions the new collection ``password-recipes``:
 
 
 Preview changes in the browser
-''''''''''''''''''''''''''''''
+------------------------------
 
 The following preferences must be changed to the following values in ``about:config``:
 
@@ -157,7 +163,7 @@ Then force a synchronization manually with:
 
 
 Approve/Decline changes
-'''''''''''''''''''''''
+-----------------------
 
 Using the ``reviewer`` authentication, change the collection status to either ``to-sign`` (approve) or ``work-in-progress`` (decline).
 

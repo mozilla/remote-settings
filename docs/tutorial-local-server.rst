@@ -1,4 +1,4 @@
-Using a Local Server
+Setup a Local Server
 ====================
 
 Goals
@@ -245,4 +245,4 @@ What's next?
 - Assign users to editors and reviewers groups
 - Create records, request review, preview changes in the browser, approve the changes
 
-We cover that in :ref:`the dedicated multi-signoff tutorial <tutorial-multi-signoff>`_.
+We cover that in :ref:`the dedicated multi-signoff tutorial <tutorial-multi-signoff>`.
