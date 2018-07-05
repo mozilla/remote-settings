@@ -31,7 +31,7 @@ kinto-attachment==3.0.0
 kinto-changes==1.1.1
 kinto-elasticsearch==0.3.1
 kinto-emailer==1.0.2
-kinto-fxa==2.5.1
+kinto-fxa==2.5.2
 kinto-http==9.1.2
 kinto-ldap==0.3.1
 kinto-signer==3.2.4
