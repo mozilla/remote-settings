@@ -1,3 +1,5 @@
+.. _tutorial-multi-signoff:
+
 Multi Signoff Workflow
 ======================
 

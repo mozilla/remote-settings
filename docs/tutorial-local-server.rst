@@ -1,3 +1,5 @@
+.. _tutorial-local-server:
+
 Setup a Local Server
 ====================
 
