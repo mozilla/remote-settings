@@ -7,6 +7,53 @@ the version control of each dependency.
 7.4.0 (unreleased)
 ==================
 
+kinto
+'''''
+
+**kinto 9.2.2 → 9.2.3**: https://github.com/Kinto/kinto/releases/tag/9.2.3
+
+**Bug fixes**
+
+- Upgrade to kinto-admin v1.19.2
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.19.1 → 1.19.2**: https://github.com/Kinto/kinto-admin/releases/tag/1.19.2
+
+**Bug fixes**
+
+- Better auth error message (kinto/kinto-admin#566)
+- Fix history diff viewing (kinto/kinto-admin#563)
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.2.4 → 3.2.5**: https://github.com/Kinto/kinto/releases/tag/3.2.5
+
+**Bug fixes**
+
+- Fix ``scripts/e2e.py`` script to work with per-bucket configuration (kinto/kinto-signer#255)
+- Prevent kinto-attachment to raise errors when attachments are updated (kinto/kinto-signer#256)
+
+kinto-fxa
+'''''''''
+
+**kinto-fxa 2.5.1 → 2.5.2**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.2
+
+**Bug fixes**
+
+- Fix the ``process-account-events`` script to take client user ID suffixes into account (kinto/kinto-fxa#61)
+
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 3.0.0 → 3.0.1**: https://github.com/Kinto/kinto-attachment/releases/tag/3.0.1
+
+**Bug fixes**
+
+- Do not delete attachment when record is deleted if ``keep_old_files`` setting is true (kinto/kinto-attachment#137)
+
 amo2kinto
 '''''''''
 
