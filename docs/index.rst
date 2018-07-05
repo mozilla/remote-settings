@@ -13,6 +13,7 @@ Welcome to Remote Settings's documentation!
    tutorial-dev-server
    tutorial-local-server
    tutorial-multi-signoff
+   tutorial-attachments
 
 Indices and tables
 ==================

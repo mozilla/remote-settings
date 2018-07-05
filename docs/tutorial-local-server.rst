@@ -1,3 +1,5 @@
+.. _tutorial-local-server:
+
 Setup a Local Server
 ====================
 
@@ -158,7 +160,7 @@ And a ``main`` bucket, that is publicly readable and where authenticated users c
          -H 'Content-Type:application/json' \
          -u $BASIC_AUTH
 
-Now your local server will roughly behave like the dev server, you can jump to :ref:`the other tutorial` in order to create remote records and synchronize locally.
+Now your local server will roughly behave like the dev server, you can jump to :ref:`the other tutorial <tutorial-dev-server>` in order to create remote records and synchronize locally.
 
 
 Configure multi-signoff
