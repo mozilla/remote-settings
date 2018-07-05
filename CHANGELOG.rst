@@ -7,7 +7,14 @@ the version control of each dependency.
 7.4.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 3.0.0 → 3.0.1**: https://github.com/Kinto/kinto-attachment/releases/tag/3.0.1
+
+**Bug fixes**
+
+- Do not delete attachment when record is deleted if ``keep_old_files`` setting is true (kinto/kinto-attachment#137)
 
 
 7.3.0 (2018-06-28)
