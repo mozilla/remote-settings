@@ -54,6 +54,20 @@ kinto-attachment
 
 - Do not delete attachment when record is deleted if ``keep_old_files`` setting is true (kinto/kinto-attachment#137)
 
+amo2kinto
+'''''''''
+
+**amo2kinto 3.2.1 → 4.0.1: https://github.com/mozilla-services/amo2kinto/releases/tag/4.0.1
+
+**Bug fix**
+
+- Fix the XML item ID when squashing entries by addon ID (#88)
+- Fix the affected users section (#87), thanks @rctgamer3!
+
+**Breaking changes**
+
+- Removed the AWS lambda code in charge of updating the collection schema (#85)
+
 
 7.3.0 (2018-06-28)
 ==================
