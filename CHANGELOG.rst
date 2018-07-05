@@ -45,6 +45,15 @@ kinto-fxa
 
 - Fix the ``process-account-events`` script to take client user ID suffixes into account (kinto/kinto-fxa#61)
 
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 3.0.0 → 3.0.1**: https://github.com/Kinto/kinto-attachment/releases/tag/3.0.1
+
+**Bug fixes**
+
+- Do not delete attachment when record is deleted if ``keep_old_files`` setting is true (kinto/kinto-attachment#137)
+
 
 7.3.0 (2018-06-28)
 ==================

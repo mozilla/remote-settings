@@ -27,7 +27,7 @@ jsonpointer==2.0
 jsonschema==2.6.0
 kinto==9.2.3
 kinto-amo==1.0.1
-kinto-attachment==3.0.0
+kinto-attachment==3.0.1
 kinto-changes==1.1.1
 kinto-elasticsearch==0.3.1
 kinto-emailer==1.0.2
