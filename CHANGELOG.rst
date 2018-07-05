@@ -7,7 +7,15 @@ the version control of each dependency.
 7.4.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.2.4 → 3.2.5**: https://github.com/Kinto/kinto/releases/tag/3.2.5
+
+**Bug fixes**
+
+- Fix ``scripts/e2e.py`` script to work with per-bucket configuration (kinto/kinto-signer#255)
+- Prevent kinto-attachment to raise errors when attachments are updated (kinto/kinto-signer#256)
 
 
 7.3.0 (2018-06-28)

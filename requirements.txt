@@ -34,7 +34,7 @@ kinto-emailer==1.0.2
 kinto-fxa==2.5.1
 kinto-http==9.1.2
 kinto-ldap==0.3.1
-kinto-signer==3.2.4
+kinto-signer==3.2.5
 ldappool==2.2.0
 logging-color-formatter==1.0.2
 lxml==4.2.1
