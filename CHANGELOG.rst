@@ -26,6 +26,15 @@ kinto-admin
 - Better auth error message (kinto/kinto-admin#566)
 - Fix history diff viewing (kinto/kinto-admin#563)
 
+kinto-fxa
+'''''''''
+
+**kinto-fxa 2.5.1 → 2.5.2**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.2
+
+**Bug fixes**
+
+- Fix the ``process-account-events`` script to take client user ID suffixes into account (kinto/kinto-fxa#61)
+
 
 7.3.0 (2018-06-28)
 ==================
