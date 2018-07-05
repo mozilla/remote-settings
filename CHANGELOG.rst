@@ -7,14 +7,24 @@ the version control of each dependency.
 7.4.0 (unreleased)
 ==================
 
-kinto-fxa
-'''''''''
+kinto
+'''''
 
-**kinto-fxa 2.5.1 → 2.5.2**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.2
+**kinto 9.2.2 → 9.2.3**: https://github.com/Kinto/kinto/releases/tag/9.2.3
 
 **Bug fixes**
 
-- Fix the ``process-account-events`` script to take client user ID suffixes into account (kinto/kinto-fxa#61)
+- Upgrade to kinto-admin v1.19.2
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.19.1 → 1.19.2**: https://github.com/Kinto/kinto-admin/releases/tag/1.19.2
+
+**Bug fixes**
+
+- Better auth error message (kinto/kinto-admin#566)
+- Fix history diff viewing (kinto/kinto-admin#563)
 
 
 7.3.0 (2018-06-28)
