@@ -7,7 +7,14 @@ the version control of each dependency.
 7.4.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-fxa
+'''''''''
+
+**kinto-fxa 2.5.1 → 2.5.2**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.2
+
+**Bug fixes**
+
+- Fix the ``process-account-events`` script to take client user ID suffixes into account (kinto/kinto-fxa#61)
 
 
 7.3.0 (2018-06-28)
