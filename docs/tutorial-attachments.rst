@@ -68,7 +68,7 @@ And in order to create a record with both attributes and attachment, you'll have
 
 .. note::
 
-    Since the dev server is open to anyone and runs on *.mozaws.net, certain types of files are not allowed (eg. .js, .html)
+    Since the dev server is open to anyone and runs on ``.mozaws.net``, certain types of files are not allowed (eg. ``.js``, ``.html``, ...)
 
 
 Synchronize attachments
