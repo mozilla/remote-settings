@@ -7,6 +7,25 @@ the version control of each dependency.
 7.4.0 (unreleased)
 ==================
 
+kinto
+'''''
+
+**kinto 9.2.2 → 9.2.3**: https://github.com/Kinto/kinto/releases/tag/9.2.3
+
+**Bug fixes**
+
+- Upgrade to kinto-admin v1.19.2
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.19.1 → 1.19.2**: https://github.com/Kinto/kinto-admin/releases/tag/1.19.2
+
+**Bug fixes**
+
+- Better auth error message (kinto/kinto-admin#566)
+- Fix history diff viewing (kinto/kinto-admin#563)
+
 kinto-signer
 ''''''''''''
 
