@@ -127,11 +127,11 @@ Create a configuration file ``server.ini`` with the following content:
     [formatter_color]
     class = logging_color_formatter.ColorFormatter
 
-Create a local folder to receive the potential records attachments:
+Create a local folder to receive the potential records attachments, Docker should have the permissions to write it:
 
 .. code-block:: bash
 
-    mkdir --mode=777 attachments
+    mkdir --mode=777 attachments  # world writable
 
 Now, we will run the container with the local configuration file and attachments folder mounted:
 
