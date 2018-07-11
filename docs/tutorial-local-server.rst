@@ -68,7 +68,10 @@ Create a configuration file ``server.ini`` with the following content:
     kinto.experimental_permissions_endpoint = true
     kinto.experimental_collection_schema_validation = true
     kinto.changes.resources = /buckets/main
-    kinto.attachment.base_path = /tmp
+    kinto.attachment.base_path = /tmp/attachments
+    kinto.attachment.base_url =
+    kinto.attachment.extra.base_url = http://localhost:8888/attachments
+    kinto.attachment.folder = {bucket_id}/{collection_id}
     kinto.signer.resources = /buckets/main-workspace -> /buckets/main-preview -> /buckets/main
     kinto.signer.group_check_enabled = true
     kinto.signer.to_review_enabled = true
@@ -95,6 +98,7 @@ Create a configuration file ``server.ini`` with the following content:
     single-interpreter = true
     buffer-size = 65535
     post-buffering = 65535
+    static-map = /attachments=/tmp/attachments
 
     [loggers]
     keys = root, kinto
@@ -123,12 +127,18 @@ Create a configuration file ``server.ini`` with the following content:
     [formatter_color]
     class = logging_color_formatter.ColorFormatter
 
+Create a local folder to receive the potential records attachments, Docker should have the permissions to write it:
 
-Now, we will run the container with the local configuration file mounted:
+.. code-block:: bash
+
+    mkdir --mode=777 attachments  # world writable
+
+Now, we will run the container with the local configuration file and attachments folder mounted:
 
 .. code-block:: bash
 
     docker run -v `pwd`/server.ini:/etc/kinto.ini \
+               -v `pwd`/attachments:/tmp/attachments \
                -e KINTO_INI=/etc/kinto.ini \
                -p 8888:8888 \
                mozilla/kinto-dist
