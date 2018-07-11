@@ -1,7 +1,7 @@
 .. _tutorial-dev-server:
 
-Using the Remote Settings Dev Server
-====================================
+Use the Dev Server
+==================
 
 Goals
 -----
