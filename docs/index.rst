@@ -14,6 +14,7 @@ Welcome to Remote Settings's documentation!
    tutorial-local-server
    tutorial-multi-signoff
    tutorial-attachments
+   frequently-asked-questions
 
 Indices and tables
 ==================

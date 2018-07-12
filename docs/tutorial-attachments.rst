@@ -1,7 +1,7 @@
 .. _tutorial-attachments:
 
-Working with Attachments
-========================
+Work with Attachments
+=====================
 
 Goals
 -----
