@@ -46,6 +46,7 @@ Create a configuration file ``server.ini`` with the following content:
     use = egg:kinto
     kinto.includes = kinto.plugins.admin
                      kinto.plugins.accounts
+                     kinto.plugins.history
                      kinto_changes
                      kinto_attachment
                      kinto_signer
@@ -76,8 +77,8 @@ Create a configuration file ``server.ini`` with the following content:
     kinto.signer.group_check_enabled = true
     kinto.signer.to_review_enabled = true
     kinto.signer.signer_backend = kinto_signer.signer.autograph
-    kinto.signer.stage.editors_group = {collection_id}-editors
-    kinto.signer.stage.reviewers_group = {collection_id}-reviewers
+    kinto.signer.main-workspace.editors_group = {collection_id}-editors
+    kinto.signer.main-workspace.reviewers_group = {collection_id}-reviewers
     kinto.signer.autograph.server_url = http://autograph-server:8000
     # Use credentials from https://github.com/mozilla-services/autograph/blob/2bc1af/autograph.yaml#L348-349
     kinto.signer.autograph.hawk_id = normandev
@@ -244,10 +245,11 @@ Prepare the client
 The following preferences must be changed to the following values in ``about:config``:
 
 * ``services.settings.server`` : ``http://localhost:8888/v1``
+* ``services.settings.verify_signature`` : ``false``
 
 .. note::
 
-    Since we now sign the data locally, the ``services.settings.verify_signature`` preference must be left to its default value (``true``).
+    We now sign the data locally, but with a custom signer so we still have to disable signature verification.
 
 
 What's next?

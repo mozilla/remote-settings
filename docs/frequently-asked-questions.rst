@@ -53,4 +53,4 @@ If it is a one time run, then you can run the script as if it was you:
 
 1. Authenticate on the Admin UI
 2. Using the DevTools, inspect the outgoing requests and copy the ``Authorization`` header (eg. ``Bearer r43yt0956u0yj1``)
-3. Use this header in your ``cURL` commands (or Python/JS/Rust clients etc.)
+3. Use this header in your ``cURL`` commands (or Python/JS/Rust clients etc.)

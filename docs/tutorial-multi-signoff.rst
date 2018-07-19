@@ -89,7 +89,7 @@ We will add our ``reviewer`` user above to the ``password-recipes-reviewers`` gr
 
 .. code-block:: bash
 
-    curl -X PATCH $SERVER/v1/buckets/main-workspace/groups/password-recipes-reviewers \
+    curl -X PATCH $SERVER/buckets/main-workspace/groups/password-recipes-reviewers \
          -H 'Content-Type:application/json-patch+json' \
          -d '[{ "op": "add", "path": "/data/members/0", "value": "account:reviewer" }]' \
          -u editor:3d1t0r

@@ -120,6 +120,8 @@ From your code, or the browser console, register the new collection by listening
 
 Then force a synchronization manually with:
 
+.. code-block:: javascript
+
     RemoteSettings.pollChanges();
 
 .. note::
