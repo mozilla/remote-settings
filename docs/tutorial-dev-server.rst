@@ -128,6 +128,10 @@ Then force a synchronization manually with:
 
     Since the developement server is flushed every day, if the client was previously synchronized with data that is not there anymore, the synchronization might fail. You can start from a new profile (``./mach run --temp-profile``) or clear the local state manually (cf. `development docs about local data <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#manipulate-local-data>`_).
 
+.. seealso::
+
+    Check out :ref:`the dedicated screencast <screencasts-fetch-local-settings>` for this operation!
+
 
 Going further
 -------------

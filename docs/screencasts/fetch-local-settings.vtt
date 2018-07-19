@@ -1,0 +1,37 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.000
+Go into about:config
+
+00:00:10.000 --> 00:00:15.000
+Put the URL of your server
+
+00:00:16.000 --> 00:00:21.000
+It can be the dev server or a local one
+
+00:00:22.000 --> 00:00:25.000
+Create the boolean preference
+
+00:00:25.000 --> 00:00:30.000
+To disable signature verification
+
+00:00:33.000 --> 00:00:38.000
+Now open the browser internal toolbox
+
+00:00:39.000 --> 00:00:45.000
+To execute Javascript in the browser context
+
+00:00:52.000 --> 00:00:57.000
+Import the RemoteSettings module
+
+00:01:00.000 --> 00:01:05.000
+Register a callback on the "sync" event
+
+00:01:06.000 --> 00:01:11.000
+And trigger a synchronization manually
+
+00:01:12.000 --> 00:01:18.000
+The records are logged as instructed!
+
+00:01:19.000 --> 00:01:26.000
+You can now play with the RemoteSettings API...

@@ -251,6 +251,9 @@ The following preferences must be changed to the following values in ``about:con
 
     We now sign the data locally, but with a custom signer so we still have to disable signature verification.
 
+.. seealso::
+
+    Check out :ref:`the dedicated screencast <screencasts-fetch-local-settings>` for this operation!
 
 What's next?
 ------------

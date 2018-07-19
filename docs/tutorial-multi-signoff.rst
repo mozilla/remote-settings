@@ -102,6 +102,10 @@ We will add our ``reviewer`` user above to the ``password-recipes-reviewers`` gr
 Change records and request review
 ---------------------------------
 
+.. seealso::
+
+    Check out :ref:`the dedicated screencast <screencasts-modify-request-review>` for the equivalent with the Admin UI!
+
 Create (or update or delete) some records:
 
 .. code-block:: bash
@@ -149,6 +153,10 @@ The following preferences must be changed to the following values in ``about:con
 * ``services.settings.server`` : ``http://localhost:8888/v1``
 * ``services.settings.default_bucket`` : ``main-preview``
 
+.. important::
+
+    Changing the ``default_bucket`` settings currently requires a browser restart. See `Bug 1475487<https://bugzilla.mozilla.org/show_bug.cgi?id=1475487>`_.
+
 From your code, or the browser console, register the new collection by listening to the ``sync`` event and trigger synchronization:
 
 .. code-block:: bash
@@ -161,11 +169,17 @@ From your code, or the browser console, register the new collection by listening
 
 Then force a synchronization manually with:
 
+.. code-block:: javascript
+
     RemoteSettings.pollChanges();
 
 
 Approve/Decline changes
 -----------------------
+
+.. seealso::
+
+    Check out :ref:`the dedicated screencast <screencasts-approve-review>` for the equivalent with the Admin UI!
 
 Using the ``reviewer`` authentication, change the collection status to either ``to-sign`` (approve) or ``work-in-progress`` (decline).
 
