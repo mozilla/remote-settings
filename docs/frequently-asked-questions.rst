@@ -54,3 +54,21 @@ If it is a one time run, then you can run the script as if it was you:
 1. Authenticate on the Admin UI
 2. Using the DevTools, inspect the outgoing requests and copy the ``Authorization`` header (eg. ``Bearer r43yt0956u0yj1``)
 3. Use this header in your ``cURL`` commands (or Python/JS/Rust clients etc.)
+
+
+How often the synchronization happens?
+--------------------------------------
+
+Right now, every 24H. But once integrated with the Megaphone project it will be a matter of seconds thanks to push notifications.
+
+
+Once ready with STAGE, how do we go live in PROD?
+-------------------------------------------------
+
+Stage and prod are aligned in terms of setup, features and versions.
+
+Hence, once done in STAGE there is nothing specific / additional to do: you should be able to redo the same in PROD!
+
+.. note::
+
+    If you have a lot of data that you want to duplicate from one instance to another, check out `kinto-wizard <https://github.com/Kinto/kinto-wizard/>`_ that can dump and load records!
