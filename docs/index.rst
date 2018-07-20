@@ -14,6 +14,7 @@ Welcome to Remote Settings documentation!
    tutorial-local-server
    tutorial-multi-signoff
    tutorial-attachments
+   target-filters
    screencasts
    frequently-asked-questions
 
