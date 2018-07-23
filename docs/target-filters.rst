@@ -21,7 +21,7 @@ In order to restrict a setting to a particular audience, just write the proper f
 
     {
         id: "68b19efa-1067-401b-b1c1-8d7b4263bb86",
-        last_modifed: 1531762863373,
+        last_modified: 1531762863373,
         title: "Only for users of 57",
         filter_expression: "environment.version == 57"
     }
