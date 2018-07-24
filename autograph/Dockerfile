@@ -1,2 +1,2 @@
-FROM mozilla/autograph:2.1.1
+FROM mozilla/autograph:2.2.0
 ADD autograph.yaml /app
