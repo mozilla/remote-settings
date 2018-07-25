@@ -22,7 +22,7 @@ function retry() {
 }
 
 # configure docker creds
-retry 3 docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
+retry 3  echo "$DOCKER_PASS" | docker login -u="$DOCKER_USER" --password-stdin
 
 docker images
 
