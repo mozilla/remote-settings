@@ -7,7 +7,24 @@ the version control of each dependency.
 7.4.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.2.5 → 3.3.0**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.0
+
+**New features**
+
+- Allow to refresh the signature when the collection has pending changes (Kinto/kinto-signer#245)
+
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 3.0.1 → 4.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/3.0.1
+
+**Breaking changes**
+
+- Gzip ``Content-Encoding`` is now always enabled when uploading on S3 (Kinto/kinto-attachment#139)
+- Overriding settings via the querystring (eg. ``?gzipped``, ``randomize``, ``use_content_encoding``) is not possible anymore
 
 
 7.3.1 (2018-07-05)
