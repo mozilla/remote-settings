@@ -19,7 +19,7 @@ kinto-signer
 kinto-attachment
 ''''''''''''''''
 
-**kinto-attachment 3.0.1 → 4.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/3.0.1
+**kinto-attachment 3.0.1 → 4.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/4.0.0
 
 **Breaking changes**
 
