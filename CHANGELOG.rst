@@ -7,6 +7,12 @@ the version control of each dependency.
 7.4.0 (unreleased)
 ==================
 
+- Nothing changed yet.
+
+
+7.3.1 (2018-07-05)
+==================
+
 kinto
 '''''
 
