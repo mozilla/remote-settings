@@ -28,7 +28,7 @@ docker images
 
 # docker tag and push git branch to dockerhub
 if [ -n "$1" ]; then
-    [ "$1" == master ] && TAG=latest || TAG="$1"
+    TAG="$1"
     echo "${DOCKERHUB_REPO}:${TAG}"
     docker tag kinto:build "$DOCKERHUB_REPO:$TAG" ||
         (echo "Couldn't tag kinto-dist as $DOCKERHUB_REPO:$TAG" && false)

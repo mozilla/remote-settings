@@ -86,6 +86,6 @@ jobs:
           name: Push tag to Dockerhub
           filters:
             tags:
-              only: /.*/
+              only: /.+/
           command: |
             ./bin/deploy-dockerhub.sh "$CIRCLE_TAG"
