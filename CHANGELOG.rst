@@ -4,6 +4,12 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+8.0.2 (2018-07-26)
+==================
+
+- Fix CircleCI job execution for tags (fixes #233)
+
+
 8.0.1 (2018-07-25)
 ==================
 
