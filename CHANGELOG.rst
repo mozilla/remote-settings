@@ -4,10 +4,10 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-7.4.0 (unreleased)
+7.3.2 (2018-07-27)
 ==================
 
-- Nothing changed yet.
+- Backport CircleCI and Docker configuration from 8.X version
 
 
 7.3.1 (2018-07-05)
