@@ -4,6 +4,23 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+9.0.0 (2018-07-31)
+==================
+
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 4.0.0 → 5.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/5.0.0
+
+**Breaking changes**
+
+- Gzip ``Content-Encoding`` is not used anymore when uploading on S3 (fixes #144)
+
+**Internal changes**
+
+- Heartbeat now uses ``utils.save_file()`` for better detection of configuration or deployment errors (fixes #146)
+
+
 8.0.2 (2018-07-26)
 ==================
 
