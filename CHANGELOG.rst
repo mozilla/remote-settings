@@ -10,7 +10,7 @@ the version control of each dependency.
 kinto-attachment
 ''''''''''''''''
 
-**kinto-attachment 4.0.0 → 5.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/4.0.0
+**kinto-attachment 4.0.0 → 5.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/5.0.0
 
 **Breaking changes**
 
