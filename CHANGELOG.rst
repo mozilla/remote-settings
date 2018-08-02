@@ -7,7 +7,7 @@ the version control of each dependency.
 9.0.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Change CircleCI container in an attempt to successfully build a release.
 
 
 9.0.0 (2018-07-31)
