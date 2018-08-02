@@ -4,6 +4,12 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+9.0.1 (2018-08-01)
+==================
+
+- Change CircleCI container in an attempt to successfully build a release.
+
+
 9.0.0 (2018-07-31)
 ==================
 
