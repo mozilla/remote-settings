@@ -8,7 +8,8 @@ version: 2
 jobs:
   build_test_publish:
     docker:
-      - image: ubuntu:16.04
+      # TEST -- DELETE THIS AFTER
+      - image: ubuntu:18.04
     working_directory: ~/kinto-dist
 
     steps:
