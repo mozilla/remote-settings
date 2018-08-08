@@ -1,11 +1,8 @@
 Kinto Distribution
 ==================
 
-|travis|
-
-.. |travis| image:: https://travis-ci.org/mozilla-services/kinto-dist.svg?branch=master
-    :target: https://travis-ci.org/mozilla-services/kinto-dist
-
+.. image:: https://circleci.com/gh/mozilla-services/kinto-dist/tree/master.svg?style=svg
+   :target: https://circleci.com/gh/mozilla-services/kinto-dist
 
 This repository contains:
 
@@ -164,29 +161,3 @@ We respect `SemVer <http://semver.org>`_ here. However, the "public API" of this
 * **PATCH** must be incremented if no major nor minor increment is necessary.
 
 In other words, minor and patch versions are uncomplicated and can be deployed automatically, and major releases are very likely to require specific actions somewhere in the architecture.
-
-
-About ``mailfileserver.py``
----------------------------
-
-By default, when you start the ``web`` container with ``docker-compose up web``
-it actually starts two servers. One ``kinto`` server on ``:8888`` and
-also one server on ``:9999``. It's a Python web server built on top of
-``http.server`` and its "raison d'être" is to be able to query the
-``.eml`` files in the ``/app/mail`` directory of the ``web`` container.
-
-The reason why it exists is because the ``web`` container will send emails
-that are redirected to disk because of ``mail.debug_mailer = true`` in
-``config/example.ini`` and, in CircleCI, two different containers can't
-reach the same file system. So this is a simple way for one container to
-ask another container about its ``.eml`` files over HTTP.
-
-
-About ``docker-compose.*.yml``
-------------------------------
-
-There are two ``docker-compose`` config files. The only difference is,
-and should remain so, is that ``docker-compose.yml`` mounts host file systems
-and the ``docker-compose.ci.yml`` does not. Just remember, if you make a
-change to one, replicate it in the other. It must always be possible to do what
-CircleCI does locally and vice versa.

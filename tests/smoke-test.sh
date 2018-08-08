@@ -110,12 +110,8 @@ echo '{"data": {
 
 echo '{"data": {"status": "to-review"}}' | http PATCH $SERVER/buckets/source/collections/source --auth="$EDITOR_AUTH"
 
-# Un-comment these to debug if the grep querys (below) don't work.
-# http --check-status "$MAILFILESERVER/"  # TEMPORARY
-# http  "$MAILFILESERVER/debug" # TEMPORARY
-
-http --check-status "$MAILFILESERVER/grep/Subject: account"
-http --check-status "$MAILFILESERVER/grep/To: me@you.com"
+cat mail/*.eml | grep "Subject: account"
+cat mail/*.eml | grep "To: me@you.com"
 
 
 # END OF THE TEST

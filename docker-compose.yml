@@ -10,10 +10,7 @@ services:
       retries: 30
   memcached:
     image: memcached:1.5.9
-  # ldap:
-  #   image: nickstenning/slapd
-  #   environment:
-  #     - LDAP_DOMAIN=nodomain.com
+
 
   autograph:
     build:
@@ -30,7 +27,6 @@ services:
       - db
       - memcached
       - autograph
-      # - ldap
     environment:
       - KINTO_STORAGE_URL=postgres://postgres@db/postgres
       - KINTO_PERMISSION_URL=postgres://postgres@db/postgres
@@ -38,7 +34,6 @@ services:
       - KINTO_ATTACHMENT_BASE_URL=http://autograph:8000
       - KINTO_CACHE_BACKEND=kinto.core.cache.memcached
       - KINTO_CACHE_HOSTS=memcached:11211
-      # - KINTO_LDAP_ENDPOINT=ldap://ldap:389
     ports:
       - "8888:8888"
       - "9999:9999"
@@ -58,4 +53,5 @@ services:
       - MAILFILESERVER=http://web:9999
     volumes:
       - $PWD/tests:/app
+      - $PWD/mail:/app/mail/
     command: start
