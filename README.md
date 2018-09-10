@@ -77,7 +77,7 @@ The `.data` attribute includes:
 ## Awesome! How do I get started? 
 
 * The [mana page](https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=66655528) has the process for requesting a new settings collection
-* [Gecko developer docs](https://firefox-source-docs.mozilla.org/main/latest/services/common/services/RemoteSettings.html)
+* [Gecko developer docs](https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html)
 * [Tutorials and FAQ](http://remote-settings.readthedocs.io/)
 * [List of use-cases](https://wiki.mozilla.org/Firefox/RemoteSettings)
 
