@@ -18,7 +18,7 @@ CHANGELOG = read_file('CHANGELOG.rst')
 
 setup(
     name='kinto-dist',
-    version='9.0.1',
+    version='10.0.0',
     description='Kinto Distribution',
     long_description=README + "\n\n" + CHANGELOG,
     license='Apache License (2.0)',
