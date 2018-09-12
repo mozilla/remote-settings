@@ -4,6 +4,61 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+10.0.0 (2018-09-12)
+===================
+
+kinto
+'''''
+
+**kinto 9.2.3 → 10.0.0**: https://github.com/Kinto/kinto/releases/tag/10.0.0
+
+**Breaking changes**
+
+- ``kinto.core.events.get_resource_events`` now returns a generator
+  rather than a list.
+
+
+**New features**
+
+- Include Python 3.7 support.
+- ``kinto.core.events.notify_resource_event`` now supports
+  ``resource_name`` and ``resource_data``. These are useful when
+  emitting events from one view "as though" they came from another
+  view.
+- Resource events can now trigger other resource events, which are
+  handled correctly. This might be handy if one resource wants to
+  simulate events on another "virtual" resource, as in ``kinto-changes``.
+
+**Bug fixes**
+
+- Raise a configuration error if the ``kinto.plugin.accounts`` is included without being enabled in policies.
+  Without this *kinto-admin* would present a confusing login experience (fixes #1734).
+
+**Internal changes**
+
+- Upgrade kinto-admin to v1.20.0
+
+kinto-changes
+'''''''''''''
+
+**kinto-changes 1.1.0 → 1.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.2.0
+
+**New feature**
+
+- Events are now generated on the monitor/changes collection (#41).
+
+**Internal changes**
+
+- Get rid of six
+
+kinto-megaphone
+'''''''''''''''
+
+**kinto-megaphone 0.1.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.2.0
+
+Initial implementation.
+
+
 9.0.1 (2018-08-01)
 ==================
 
