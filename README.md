@@ -12,11 +12,12 @@ Out of the box you get for free:
 * Syncing of data 
 * Content signing - your data is signed server side and verified on the client side transparently
 * File attachment support
-* !!! Real time, push based updates in Fx63/64 with no changes to your code !!!
+* Target filtering (JEXL a-la Normandy)
+* !!! Real time, push based updates in Fx64 with no changes to your code !!!
 
 ## When will it be available?
 
-* The new API will be available in Fx62 (nightly). 
+* The API was shipped with Fx62 
 
 ## What does the RemoteSettings client API Look like?
 
@@ -76,8 +77,7 @@ The `.data` attribute includes:
 
 ## Awesome! How do I get started? 
 
-* The [mana page](https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=66655528) has the process for requesting a new settings collection
+* Our [tutorials and FAQ](http://remote-settings.readthedocs.io/) will guide you through the process!
 * [Gecko developer docs](https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html)
-* [Tutorials and FAQ](http://remote-settings.readthedocs.io/)
+* [Operational docs for OPS](https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=66655528)
 * [List of use-cases](https://wiki.mozilla.org/Firefox/RemoteSettings)
-
