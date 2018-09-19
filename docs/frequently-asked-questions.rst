@@ -3,20 +3,31 @@
 Frequently Asked Questions
 ==========================
 
+Why is it better than building my own?
+--------------------------------------
+Out of the box you get for free:
+
+- Syncing of data
+- Content signing - your data is signed server side and verified on the client side transparently
+- File attachment support
+- Target filtering (JEXL a-la Normandy)
+- !!! Real time, push based updates in Fx63/64 with no changes to your code !!!
+
+
 How do I setup Firefox to pull data from STAGE?
 -----------------------------------------------
 
-The recommended way to setup Firefox to pull data from STAGE is to use the `about:remottings <https://github.com/leplatrem/aboutremotesettings>`_ extension: switch the environment in the configuration section and click the *Sync* button.
+The recommended way to setup Firefox to pull data from STAGE is to use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_ extension: switch the environment in the configuration section and click the *Sync* button.
 
-Alternatively, you can change the `appropriate preferences <https://github.com/leplatrem/remotesettings-pi/blob/0.4.0/data/script.js#L41-L42>`_, restart and trigger a synchronization manually.
+Alternatively, you can change the `appropriate preferences <https://github.com/mozilla/remote-settings-devtools/blob/1.0.0/extension/experiments/remotesettings/api.js#L96-L106>`_, restart and trigger a synchronization manually.
 
 
 How do I preview the changes before approving?
 ----------------------------------------------
 
-The recommended way to setup Firefox to pull data from the preview collection is to use the `about:remottings <https://github.com/leplatrem/aboutremotesettings>`_ extension: switch the environment in the configuration section and click the *Sync* button.
+The recommended way to setup Firefox to pull data from the preview collection is to use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_ extension: switch the environment to *Preview* and click the *Sync* button.
 
-Alternatively, you can change the ``services.settings.default_bucket`` preference to ``main-preview``, restart and trigger a synchronization manually.
+Alternatively, you can change the ``services.settings.default_bucket`` preference to ``main-preview``, and trigger a synchronization manually.
 
 
 How do I preview the changes before requesting review?
@@ -33,13 +44,13 @@ Possible workarounds:
 How do I trigger a synchronization manually?
 --------------------------------------------
 
-See `developer docs <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#trigger-a-synchronization-manually>`_.
+See `developer docs <https://firefox-source-docs.mozilla.org/main/latest/services/common/docs/services/RemoteSettings.html#trigger-a-synchronization-manually>`_.
 
 
 How do I define default data for new profiles?
 ----------------------------------------------
 
-See `developer docs about initial data <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#initial-data>`_.
+See `developer docs about initial data <https://firefox-source-docs.mozilla.org/main/latest/services/common/docs/services/RemoteSettings.html#initial-data>`_.
 
 
 How do I automate the publication of records?
@@ -59,7 +70,7 @@ If it is a one time run, then you can run the script as if it was you:
 How often the synchronization happens?
 --------------------------------------
 
-Right now, every 24H. But once integrated with the Megaphone project it will be a matter of seconds thanks to push notifications.
+Right now, every 24H. But once integrated with the Megaphone project it will be a matter of minutes thanks to push notifications.
 
 
 Once ready with STAGE, how do we go live in PROD?
@@ -72,3 +83,22 @@ Hence, once done in STAGE there is nothing specific / additional to do: you shou
 .. note::
 
     If you have a lot of data that you want to duplicate from one instance to another, check out `kinto-wizard <https://github.com/Kinto/kinto-wizard/>`_ that can dump and load records!
+
+
+
+.. _troubleshooting:
+
+Troubleshooting
+===============
+
+* Open a `Server Side ticket <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ (Admin, permissions etc.)
+* Open a `Client Side ticket <https://bugzilla.mozilla.org/enter_bug.cgi?product=Firefox&component=Remote%20Settings%20Client>`_ (Gecko API related)
+
+
+I cannot access my collection
+-----------------------------
+
+* Check that you can ping the server on the VPN
+  - If not, ping ``:wezhou`` on #storage
+* Check that you can login on the Kinto Admin UI
+* In the ``main-workspace`` bucket, check that you can create records in your collection (eg. main-workspace/tippytop)
