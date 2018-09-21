@@ -3,17 +3,6 @@
 Frequently Asked Questions
 ==========================
 
-Why is it better than building my own?
---------------------------------------
-Out of the box you get for free:
-
-- Syncing of data
-- Content signing - your data is signed server side and verified on the client side transparently
-- File attachment support
-- Target filtering (JEXL a-la Normandy)
-- !!! Real time, push based updates in Fx63/64 with no changes to your code !!!
-
-
 How do I setup Firefox to pull data from STAGE?
 -----------------------------------------------
 
@@ -70,7 +59,7 @@ If it is a one time run, then you can run the script as if it was you:
 How often the synchronization happens?
 --------------------------------------
 
-Right now, every 24H. But once integrated with the Megaphone project it will be a matter of minutes thanks to push notifications.
+Right now, every 24H. But once integrated with the Megaphone project in Firefox 64, it will be a matter of minutes thanks to push notifications.
 
 
 Once ready with STAGE, how do we go live in PROD?
@@ -84,6 +73,13 @@ Hence, once done in STAGE there is nothing specific / additional to do: you shou
 
     If you have a lot of data that you want to duplicate from one instance to another, check out `kinto-wizard <https://github.com/Kinto/kinto-wizard/>`_ that can dump and load records!
 
+
+How many entries does it support?
+---------------------------------
+
+We already have use-cases that contain several hundreds of records, and it's totally fine.
+
+Nevertheless, if you have thousands of records that change very often, we should talk! Mostly in order to investigate the impact in terms of payload, bandwidth, signature verification etc.
 
 
 .. _troubleshooting:
@@ -99,6 +95,6 @@ I cannot access my collection
 -----------------------------
 
 * Check that you can ping the server on the VPN
-  - If not, ping ``:wezhou`` on #storage
+  - If not, contact ``:wezhou`` on #storage
 * Check that you can login on the Kinto Admin UI
 * In the ``main-workspace`` bucket, check that you can create records in your collection (eg. main-workspace/tippytop)
