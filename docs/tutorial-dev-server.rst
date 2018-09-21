@@ -122,7 +122,7 @@ Then force a synchronization manually with:
 
 .. code-block:: javascript
 
-    RemoteSettings.pollChanges();
+    await RemoteSettings.pollChanges();
 
 .. note::
 
@@ -141,6 +141,5 @@ Now that your client can pull data from the server, you can proceed with more ad
 * `Login on the Admin UI <https://kinto.dev.mozaws.net/v1/admin/>`_ and browse your data
 * Create, modify, delete remote records on the server and check out the different ``sync`` event data attributes
 * Define a `JSON schema on your collection <http://docs.kinto-storage.org/en/stable/api/1.x/collections.html#collection-json-schema>`_ to validate records and have forms in the Admin UI
-* Commit your remote data in Mozilla-Central at ``services/settings/dumps/main/{CID}.json`` in order to have a default dataset for empty profiles
 * Attach files to your records (see :ref:`tutorial <tutorial-attachments>`)
-* If you feel ready, try out the STAGE environment with VPN access, multi signoff (see :ref:`tutorial <tutorial-multi-signoff>`), signature verification etc.
+* If you feel ready, try out the STAGE environment with VPN access, multi signoff (see :ref:`tutorial <tutorial-multi-signoff>`), running a :ref:`local server <tutorial-local-server>` etc.

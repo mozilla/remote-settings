@@ -21,7 +21,7 @@ This guide assumes you have already installed and set up the following:
 - :ref:`a local instance <tutorial-local-server>` with multi signoff enabled
   or access/contact with two users that have permissions on STAGE/PROD
 
-We'll refer the running instance as ``$SERVER`` (eg. ``http://localhost:8888/v1``).
+We'll refer the running instance as ``$SERVER`` (eg. ``http://localhost:8888/v1`` or ``https://settings-writer.stage.mozaws.net/v1`` via the VPN).
 
 Introduction
 ------------
@@ -36,7 +36,7 @@ Multi signoff basically consists in 3 steps:
 Create some users
 '''''''''''''''''
 
-If you're not using STAGE or PROD, we'll need some ``reviewer`` and ``editor`` users, using the ``admin`` superuser seen in previous tutorials.
+If you're not using STAGE or PROD, we'll need to create some ``reviewer`` and ``editor`` accounts on the server. We'll reuse the ``admin`` superuser seen in previous tutorials.
 
 .. code-block:: bash
 
@@ -50,7 +50,7 @@ If you're not using STAGE or PROD, we'll need some ``reviewer`` and ``editor`` u
 
 .. note::
 
-    In STAGE or PROD, humans authenticate via LDAP/OpenID Connect. But scripted/scheduled tasks can have their dedicated account like above. Ask us!
+    In STAGE or PROD, humans authenticate via LDAP/OpenID Connect. But scripted/scheduled tasks can also have their dedicated account like above. `Ask us <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_!
 
 
 Create a collection
@@ -68,7 +68,7 @@ We first have to create a new collection (eg. ``password-recipes``). We'll use t
 
 .. note::
 
-    In PROD, only administrators are allowed to create collections. See `instructions on Mana <https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=66655528>`_.
+    In PROD, only administrators are allowed to create collections, and the :ref:`request is made via Bugzilla <go-to-prod>`.
 
 Now that we created this collection, two groups should have been created automatically. Check their presence and content with:
 
