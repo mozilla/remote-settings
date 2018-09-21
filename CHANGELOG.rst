@@ -54,7 +54,7 @@ kinto-changes
 kinto-megaphone
 '''''''''''''''
 
-**kinto-megaphone 0.1.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.2.0
+**kinto-megaphone 0.1.0**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.1.0
 
 Initial implementation.
 
