@@ -18,6 +18,23 @@ services:
       dockerfile: Dockerfile
     image: kinto:autograph
 
+  megaphone:
+    image: mozilla/megaphone
+    depends_on:
+      - mysql
+    environment:
+      ROCKET_DATABASE_URL: mysql://megaphone-user:megaphone-pass@mysql/megaphone
+      ROCKET_BROADCASTER_AUTH: "{kinto-dist-test=[token1]}"
+      ROCKET_READER_AUTH: "{reader=[token2]}"
+
+  mysql:
+    image: mysql:5.7.23
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql-root-pass
+      MYSQL_DATABASE: megaphone
+      MYSQL_USER: megaphone-user
+      MYSQL_PASSWORD: megaphone-pass
+
   web:
     build:
       context: .
@@ -27,6 +44,7 @@ services:
       - db
       - memcached
       - autograph
+      - megaphone
     environment:
       - KINTO_STORAGE_URL=postgres://postgres@db/postgres
       - KINTO_PERMISSION_URL=postgres://postgres@db/postgres
