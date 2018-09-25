@@ -21,8 +21,8 @@ kinto-emailer==1.0.2 \
 kinto-megaphone==0.2.0 \
     --hash=sha256:0231ee8436670958bb1d0d043f18ffe21bcac2eb92d875912429055e0c46101c \
     --hash=sha256:ece0e9631ed2e3ea8ed76005d17d85689e44403385b5c4e67bdcaa2b62d9bf85
-kinto-signer==3.3.0 \
-    --hash=sha256:b794a646104461173d54e8fa819a4a4d8eff9613de428472a233f383cbd0d2a0
+kinto-signer==3.3.2 \
+    --hash=sha256:e67f9eea0f4433c2c861c2caf279c3d35c4e9a9aed2f0e64d6dad516b7c7baeb
 kinto-fxa==2.5.2 \
     --hash=sha256:3c16b053ba835d2190bdaabd2018f824f624849369b4dfe53097ed4a4e466cb6 \
     --hash=sha256:c49fa9904326a35477fb26058c746390459597574fb7b8b26c984771f4b8551a

@@ -71,6 +71,16 @@ kinto-megaphone
 
 Addition of this plugin.
 
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.3.0 → 3.3.2**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.2
+
+(Skipping 3.3.1 because of a mistake made during its release...)
+
+**Internal changes**
+
+- Support kinto 10.0.0, which allowed some simplifications (#264).
 
 
 
