@@ -31,12 +31,6 @@ migrate: $(SERVER_CONFIG_LOCAL)
 serve: install $(SERVER_CONFIG_LOCAL) migrate
 	$(VENV)/bin/kinto start --ini $(SERVER_CONFIG_LOCAL)
 
-build-requirements:
-	$(VIRTUALENV) $(TEMPDIR)
-	$(TEMPDIR)/bin/pip install -U pip
-	$(TEMPDIR)/bin/pip install -Ue .
-	$(TEMPDIR)/bin/pip freeze | grep -v -- '^-e' > requirements.txt
-
 need-kinto-running:
 	@curl http://localhost:8888/v1/ 2>/dev/null 1>&2 || (echo "Run 'make run-kinto' before starting tests." && exit 1)
 
