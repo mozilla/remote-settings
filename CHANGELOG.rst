@@ -4,6 +4,86 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+10.0.0 (2018-09-12)
+===================
+
+kinto
+'''''
+
+**kinto 9.2.3 → 10.1.1**: https://github.com/Kinto/kinto/releases/tag/10.1.1
+
+**Breaking changes**
+
+- ``kinto.core.events.get_resource_events`` now returns a generator
+  rather than a list.
+
+
+**New features**
+
+- Include Python 3.7 support.
+- ``kinto.core.events.notify_resource_event`` now supports
+  ``resource_name`` and ``resource_data``. These are useful when
+  emitting events from one view "as though" they came from another
+  view.
+- Resource events can now trigger other resource events, which are
+  handled correctly. This might be handy if one resource wants to
+  simulate events on another "virtual" resource, as in ``kinto-changes``.
+- The registry now has a "command" attribute during one-off commands
+  such as ``kinto migrate``. This can be useful for plugins that want
+  to behave differently during a migration, for instance. (#1762)
+
+**Bug fixes**
+
+- Raise a configuration error if the ``kinto.plugin.accounts`` is included without being enabled in policies.
+  Without this *kinto-admin* would present a confusing login experience (fixes #1734).
+- Deleting a collection doesn't delete access_control_entrries for its children (fixes #1647)
+- Fix for adding extra OpenId providers (fixes #1509)
+- Change the meaning of ``event.payload["timestamp"]``. Previously it
+  was ``@reify``\ 'd, which meant that it was calculated from before
+  whatever thing triggered the event. Now we use a "fresh"
+  timestamp. (Fixes #1469.)
+
+**Internal changes**
+
+- Upgrade kinto-admin to v1.20.0
+
+kinto-changes
+'''''''''''''
+
+**kinto-changes 1.1.0 → 1.2.1**: https://github.com/Kinto/kinto-changes/releases/tag/1.2.1
+
+**New feature**
+
+- Events are now generated on the monitor/changes collection (#41).
+
+**Bug fixes**
+
+- Don't do anything during a ``migrate`` command (fixes #43).
+
+**Internal changes**
+
+- Get rid of six
+
+kinto-megaphone
+'''''''''''''''
+
+**kinto-megaphone 0.2.0**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.2.0
+
+Addition of this plugin.
+
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.3.0 → 3.3.2**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.2
+
+(Skipping 3.3.1 because of a mistake made during its release...)
+
+**Internal changes**
+
+- Support kinto 10.0.0, which allowed some simplifications (#264).
+
+
+
 9.0.1 (2018-08-01)
 ==================
 
