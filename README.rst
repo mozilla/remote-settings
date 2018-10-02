@@ -203,3 +203,60 @@ again with the command::
     bors retry
 
 For more details, see `the bors reference docs <https://bors.tech/documentation/>`_
+
+Releasing
+---------
+
+We follow the usual ``zest.releaser`` approach for releases.
+
+First:
+
+- Make sure the CHANGELOG is up-to-date and includes details about all the components included in the release
+
+.. code-block:: bash
+
+  $ git checkout -b prepare-X.Y.Z
+  $ prerelease
+
+Then:
+
+- Open a PR
+- When the PR is approved, merge it using bors
+
+Then:
+
+.. code-block:: bash
+
+   $ git checkout master
+   $ git pull
+   $ release
+   $ postrelease
+
+The Mozilla remote-settings CI will immediately deploy the
+newly-tagged version to remote-settings stage and run the QA tests
+against it. Results are reported in the Mozilla ``#storage`` channel.
+
+Then:
+
+The "Back to development" commit cannot be pushed to master because we don't allow pushes to master.
+
+You can just throw away the commit (``git reset --hard HEAD^``) but
+the next person to touch the changelog will have to introduce a new
+heading for the next version. Another option is to push the commit and
+have it be reviewed:
+
+.. code-block:: bash
+
+   $ git checkout -b start-X.Y.Z
+   $ git push
+   $ git checkout master
+   $ git reset --hard origin/master
+
+Then:
+
+- Open another PR
+
+Then:
+
+- Create a release on the Github page using the contents of the CHANGELOG as the body
+- Open a Bugzilla bug telling ops to deploy the new release
