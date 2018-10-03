@@ -7,7 +7,18 @@ the version control of each dependency.
 10.0.1 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 10.1.1 → 10.1.2**: https://github.com/Kinto/kinto/releases/tag/10.1.2
+
+**Bug fixes**
+
+- Fix OpenID login in Kinto-Admin (Kinto/kinto-admin#641)
+
+**Internal changes**
+
+- Upgrade kinto-admin to v1.20.2
 
 
 10.0.0 (2018-09-12)
