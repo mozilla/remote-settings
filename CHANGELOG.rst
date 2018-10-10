@@ -4,10 +4,14 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-10.0.2 (unreleased)
+10.0.2 (2018-10-10)
 ===================
 
-- Nothing changed yet.
+**kinto-signer 3.3.2 → 3.3.3**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.3
+
+**Bug fixes**
+
+- Allow refresh of signature even if the collection was never signed (#267)
 
 
 10.0.1 (2018-10-04)
