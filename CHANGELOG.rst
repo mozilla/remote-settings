@@ -7,7 +7,75 @@ the version control of each dependency.
 10.0.3 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+'''''
+
+**kinto 10.1.2 → 11.0.0**: https://github.com/Kinto/kinto/releases/tag/11.0.0
+
+**Breaking changes**
+
+- The ``basicauth`` policy is not used by default anymore (#1736)
+
+If your application relies on this specific behaviour, you now have to add explicitly settings:
+
+.. code-block:: ini
+
+    multiauth.policies = basicauth
+
+But **it is recommended** to use other authentication policies like the *OpenID Connect* or the *accounts* plugin instead.
+
+.. code-block:: ini
+
+    # Enable plugin.
+    kinto.includes = kinto.plugins.accounts
+
+    # Enable authenticated policy.
+    multiauth.policies = account
+    multiauth.policy.account.use = kinto.plugins.accounts.AccountsPolicy
+
+    # Allow anyone to create their own account.
+    kinto.account_create_principals = system.Everyone
+
+You will find more details the `authentication settings section of the documentation <https://kinto.readthedocs.io/en/stable/configuration/settings.html#authentication>`_
+
+**Bug fixes**
+
+- Fix crash when querystring filter contains NUL (0x00) character (Kinto/kinto#1704)
+- Many bugs were fixed in the Kinto Admin UI (see `v1.21.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.21.0>`_)
+
+**Documentation**
+
+- Huge refactor of documentation about authentication (#1736)
+
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.19.2 → 1.21.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.21.0
+
+**New features**
+
+* Remove brownish theme (Kinto/kinto-admin#658)
+* Button labels consistency (Kinto/kinto-admin#659)
+* Fix #118: order buckets alphabetically (Kinto/kinto-admin#650)
+* Fix #170: show total number of records (Kinto/kinto-admin#657)
+* Fix #529, Fix #617, Fix #618: Better handling of Kinto internal fields (Kinto/kinto-admin#626)
+* Fix #66: Show record id in list by default (Kinto/kinto-admin#653)
+* Fix #401: Show create bucket only if allowed (Kinto/kinto-admin#639)
+* Fix #86: Show create collection only if allowed (Kinto/kinto-admin#651)
+* Fix #74: Add a refresh button for bucket collections list (Kinto/kinto-admin#640)
+
+**Bug fixes**
+
+* Fix #641: Fix OpenID auth flow (Kinto/kinto-admin#642)
+* Fix #648: Restore login failed detection (Kinto/kinto-admin#649)
+* Fix #643, Fixup #630: fix crash when listing default bucket collections (Kinto/kinto-admin#647)
+* Fix #609: Fix presence of ID value in record edit forms (Kinto/kinto-admin#611)
+* Fix #619: fix display of attachment info (Kinto/kinto-admin#623)
+* Fix #540, Fix #573: prevent root perm to become undefined bucket (Kinto/kinto-admin#631)
+* Fix #584: remote Portier note about server install (Kinto/kinto-admin#632)
+* Fix #629: always show default bucket (Kinto/kinto-admin#630)
+* Fixup #630: hide default bucket if anonymous
+* Fix #459: bucket readonly filter with writable collection (Kinto/kinto-admin#627)
 
 
 10.0.2 (2018-10-10)
