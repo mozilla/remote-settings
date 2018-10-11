@@ -236,6 +236,11 @@ The Mozilla remote-settings CI will immediately deploy the
 newly-tagged version to remote-settings stage and run the QA tests
 against it. Results are reported in the Mozilla ``#storage`` channel.
 
+Draft a release on Github:
+https://github.com/mozilla-services/kinto-dist/releases . For release
+notes, just use the CHANGELOG entry for the release, but change all
+the ReST-style section headings to Markdown-style ``##`` headings.
+
 Then:
 
 The "Back to development" commit cannot be pushed to master because we don't allow pushes to master.
@@ -248,7 +253,7 @@ have it be reviewed:
 .. code-block:: bash
 
    $ git checkout -b start-X.Y.Z
-   $ git push
+   $ git push origin start-X.Y.Z
    $ git checkout master
    $ git reset --hard origin/master
 
