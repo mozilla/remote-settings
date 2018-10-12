@@ -33,13 +33,13 @@ Possible workarounds:
 How do I trigger a synchronization manually?
 --------------------------------------------
 
-See `developer docs <https://firefox-source-docs.mozilla.org/main/latest/services/common/docs/services/RemoteSettings.html#trigger-a-synchronization-manually>`_.
+See `developer docs <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#trigger-a-synchronization-manually>`_.
 
 
 How do I define default data for new profiles?
 ----------------------------------------------
 
-See `developer docs about initial data <https://firefox-source-docs.mozilla.org/main/latest/services/common/docs/services/RemoteSettings.html#initial-data>`_.
+See `developer docs about initial data <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#initial-data>`_.
 
 
 How do I automate the publication of records?
