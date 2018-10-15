@@ -7,7 +7,14 @@ the version control of each dependency.
 10.0.3 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-changes
+'''''''''''''
+
+**kinto-changes 1.2.1 → 1.3.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.3.0
+
+**New feature**
+
+- Add ability to configure cache control headers (Kinto/kinto-changes#47)
 
 
 10.0.2 (2018-10-10)
