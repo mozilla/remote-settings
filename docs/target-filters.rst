@@ -3,11 +3,14 @@
 Target filters
 ==============
 
-By default, all records are sent to all users.
+By default, all records are made available to all users.
 
 When defined on a particular record, target filters describe which users should have it.
 
 Basically, filters are conditional expressions executed locally in the client's browser and, if they pass, the corresponding record is available. Filters have access to information about the user, such as their locale, addons, and Firefox version.
+
+.. important::
+   With target filters, the list of records is filtered but every records are synchronized everywhere.
 
 
 How?

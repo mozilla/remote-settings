@@ -127,4 +127,4 @@ And the record is now published:
 Awesome! How do I get started?
 ------------------------------
 
-You'll find out :ref:`in the next chapter <getting-started>`_!
+You'll find out :ref:`in the next chapter <getting-started>`!

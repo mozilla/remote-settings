@@ -82,6 +82,46 @@ We already have use-cases that contain several hundreds of records, and it's tot
 Nevertheless, if you have thousands of records that change very often, we should talk! Mostly in order to investigate the impact in terms of payload, bandwidth, signature verification etc.
 
 
+Are there any size restrictions for a single record, or all records in a collection?
+------------------------------------------------------------------------------------
+
+Quotas were not enabled on the server. Therefore, technically you can create records with any size, and have as many as you want in the collection.
+
+**However**, beyond some reasonable size for the whole collection serialized as JSON, it is recommended using our :ref:`attachments feature <tutorial-attachments>`.
+
+Using attachments on records, you can publish data of any size (as JSON, gzipped, etc.). It gets published on S3 and the records only contain metadata about the remote file (including hash, useful for signature verification).
+
+
+Also does remote settings do any sort of compression for the records?
+---------------------------------------------------------------------
+
+We are working on improving the handling of Gzip encoding for the attachments files (see `Bug 1339114 <https://bugzilla.mozilla.org/show_bug.cgi?id=1339114>`_).
+
+But by default, Remote Settings does not try to be smart regarding compression.
+
+
+Is it possible to deliver remote settings to some users only?
+-------------------------------------------------------------
+
+By default, settings are delivered to every user.
+
+You can add :ref:`JEXL filters on records <target-filters>` to define targets. Every record will be downloaded but the list obtained with ``.get()`` will only contain entries that match.
+
+In order to limit the users that will download the records, you can check out our :ref:`dedicated tutorial <tutorial-normandy-integration>`.
+
+
+How does the client choose the collections to synchronize?
+----------------------------------------------------------
+
+First, the client fetches the `list of published collections <https://firefox.settings.services.mozilla.com/v1/buckets/monitor/collections/changes/records>`_.
+
+Then, it synchronizes the collections that match one of the following:
+
+* it has an instantiated client — ie. a call to ``RemoteSettings("cid")`` was done earlier
+* some local data exists in the internal IndexedDB
+* a JSON dump was shipped in mozilla-central for this collection in ``services/settings/dumps/``
+
+
 .. _troubleshooting:
 
 Troubleshooting

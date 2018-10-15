@@ -20,6 +20,7 @@ Remote Settings is a Mozilla service that makes it easy to manage evergreen sett
    tutorial-multi-signoff
    tutorial-attachments
    target-filters
+   tutorial-normandy-integration
    screencasts
    frequently-asked-questions
 

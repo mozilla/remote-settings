@@ -141,6 +141,6 @@ Using JavaScript, a **naive** implementation to download records attachments can
 About compression
 -----------------
 
-Currently, the server explicitly compresses the files. It will be disabled with `Bug 1465506 <https://bugzilla.mozilla.org/show_bug.cgi?id=1465506>`_.
+The server does not compress the files.
 
-Compression should only happen at the HTTP level if clients fetch from the attachment URL with the ``Accept-Encoding: gzip`` request header.
+We plan to enable compression at the HTTP level (`Bug 1339114 <https://bugzilla.mozilla.org/show_bug.cgi?id=1339114>`_) for when clients fetch the attachment using the ``Accept-Encoding: gzip`` request header.

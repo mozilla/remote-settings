@@ -155,7 +155,7 @@ The following preferences must be changed to the following values in ``about:con
 
 .. important::
 
-    Changing the ``default_bucket`` settings currently requires a browser restart. See `Bug 1475487<https://bugzilla.mozilla.org/show_bug.cgi?id=1475487>`_.
+    Changing the ``default_bucket`` settings currently requires a browser restart. See `Bug 1475487 <https://bugzilla.mozilla.org/show_bug.cgi?id=1475487>`_.
 
 From your code, or the browser console, register the new collection by listening to the ``sync`` event and trigger synchronization:
 
