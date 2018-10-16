@@ -77,6 +77,15 @@ kinto-admin
 * Fixup #630: hide default bucket if anonymous
 * Fix #459: bucket readonly filter with writable collection (Kinto/kinto-admin#627)
 
+kinto-changes
+'''''''''''''
+
+**kinto-changes 1.2.1 → 1.3.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.3.0
+
+**New feature**
+
+- Add ability to configure cache control headers (Kinto/kinto-changes#47)
+
 
 10.0.2 (2018-10-10)
 ===================
