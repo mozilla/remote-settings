@@ -21,7 +21,7 @@ This guide assumes you have already installed and set up the following:
 - :ref:`a local instance <tutorial-local-server>` with multi signoff enabled
   or access/contact with two users that have permissions on STAGE/PROD
 
-We'll refer the running instance as ``$SERVER`` (eg. ``http://localhost:8888/v1`` or ``https://settings-writer.stage.mozaws.net/v1`` via the VPN).
+We'll refer the running instance as ``$SERVER`` (eg. ``http://localhost:8888/v1`` or ``https://settings-writer.prod.mozaws.net/v1`` via the VPN).
 
 Introduction
 ------------

@@ -74,7 +74,7 @@ Hence, once done in STAGE there is nothing specific / additional to do: you shou
     If you have a lot of data that you want to duplicate from one instance to another, check out `kinto-wizard <https://github.com/Kinto/kinto-wizard/>`_ that can dump and load records!
 
 
-How many entries does it support?
+How many records does it support?
 ---------------------------------
 
 We already have use-cases that contain several hundreds of records, and it's totally fine.

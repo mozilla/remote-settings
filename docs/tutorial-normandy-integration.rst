@@ -22,7 +22,7 @@ When a collection is published on the server, a client synchronizes it if and on
 * some local data exists in the internal IndexedDB
 * a JSON dump was shipped in mozilla-central for this collection in ``services/settings/dumps/``
 
-Basically, we will leverage the fact that if the client is never instantiated, then it will be never synchronized, and thus will never have any local data.
+Basically, in this tutorial, we will leverage the fact that if the client is never instantiated, then it will never get synchronized, and thus will never have any local data.
 
 
 Disabled by default
@@ -32,7 +32,7 @@ Instantiating a client conditionnaly using a preference whose default value is `
 
 .. code-block:: javascript
 
-    if (Services.prefs.getBoolPref("my-feature-pref")) {
+    if (Services.prefs.getBoolPref("my-feature-pref", false)) {
         const client = RemoteSettings("cid");
         const records = await client.get();
     }
