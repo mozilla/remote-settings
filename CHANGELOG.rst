@@ -4,6 +4,12 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+11.1.0 (unreleased)
+===================
+
+- Nothing changed yet.
+
+
 11.0.0 (2018-10-22)
 ===================
 
