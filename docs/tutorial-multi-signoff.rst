@@ -28,9 +28,13 @@ Introduction
 
 Multi signoff basically consists in 3 steps:
 
-1. Editors create/update/delete records on the ``main-workspace`` bucket
-2. Editors request review. The changes are automatically published in the ``main-preview`` bucket.
-3. Reviewers can configure their browser to preview the changes, and will approve (or decline) the review request. The records are automatically published in the ``main`` bucket.
+#. Editors create/update/delete records on the ``main-workspace`` bucket
+#. Editors request review. The changes are automatically published in the ``main-preview`` bucket.
+#. Reviewers can configure their browser to preview the changes, and will approve (or decline) the review request. If approved, the changes are published in the ``main`` bucket.
+
+.. seealso::
+
+    If you're interested by workflows in the Admin UI, check out :ref:`the screencasts <screencasts-modify-request-review>` instead!
 
 
 Create some users
@@ -147,6 +151,10 @@ The monitor/changes endpoint mentions the new collection ``password-recipes``:
 
 Preview changes in the browser
 ------------------------------
+
+.. important::
+
+    It is recommended to use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_ instead of changing preferences manually.
 
 The following preferences must be changed to the following values in ``about:config``:
 
