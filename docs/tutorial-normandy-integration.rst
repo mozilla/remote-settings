@@ -10,25 +10,25 @@ Goals
 * Settings available only temporarily
 
 .. note::
-   This differs from :ref:`JEXL filters <target-filters>`, with which all records are synchronized but the listing locally gives a filtered set.
+   This differs from :ref:`JEXL filters <target-filters>`, with which all records are synchronized but listing them locally returns a filtered set.
 
 
 Introduction
 ------------
 
-When a collection is published on the server, a client synchronizes it if and only if one the following conditions is met:
+When a collection is published on the server, it get pulled during synchronization if at least one the following conditions is met:
 
-* it has an instantiated client — ie. a call to ``RemoteSettings("cid")`` was done earlier
-* some local data exists in the internal IndexedDB
-* a JSON dump was shipped in mozilla-central for this collection in ``services/settings/dumps/``
+* There is an instantiated client — ie. a call to ``RemoteSettings("cid")`` was done earlier
+* Some local data exists in the internal IndexedDB — ie. it was pulled once already
+* A JSON dump was shipped in mozilla-central for this collection — in ``services/settings/dumps/``
 
-Basically, in this tutorial, we will leverage the fact that if the client is never instantiated, then it will never get synchronized, and thus will never have any local data.
+Basically, here we will leverage the fact that **if the client is never instantiated, then it will never get synchronized**, and thus will never have any local data.
 
 
 Disabled by default
 -------------------
 
-Instantiating a client conditionnaly using a preference whose default value is ``false`` does the trick! By default, users won't synchronize this collection.
+Instantiating a client conditionnaly using a preference whose default value is ``false`` does the trick! By default, users won't synchronize this collection data.
 
 .. code-block:: javascript
 
