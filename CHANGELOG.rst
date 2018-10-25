@@ -7,6 +7,27 @@ the version control of each dependency.
 11.1.0 (unreleased)
 ===================
 
+kinto
+'''''
+
+**kinto 11.0.0 → 11.1.0**: https://github.com/Kinto/kinto/releases/tag/11.1.0
+
+**New features**
+
+- Add ability to configure the ``project_name`` in settings, shown in the `root URL <https://kinto.readthedocs.io/en/stable/api/1.x/utilities.html#get>`_ (Kinto/kinto#1809)
+- Use ``.`` as bucket/collection separator in cache control settings (Kinto/kinto#1815)
+
+**Bug fixes**
+
+- Fix missing favicon and inline images in kinto-admin plugin
+
+**Internal changes**
+
+- Use mock from the standard library.
+- Blackify the whole code base (Kinto/kinto#1799, huge thanks to @Cnidarias for this!)
+- Upgrade kinto-admin to v1.22
+
+
 kinto-signer
 ''''''''''''
 
