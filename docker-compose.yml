@@ -28,7 +28,7 @@ services:
       ROCKET_READER_AUTH: "{reader=[token2]}"
 
   mysql:
-    image: mysql:5.7.23
+    image: mysql:5.7.24
     environment:
       MYSQL_ROOT_PASSWORD: mysql-root-pass
       MYSQL_DATABASE: megaphone
