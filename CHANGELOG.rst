@@ -4,6 +4,24 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+
+11.2.0 (2018-10-25)
+===================
+
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 5.0.0 → 6.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/6.0.0
+
+**Breaking changes**
+
+- Do not allow any file extension by default. Now allow documents+images+text+data (Kinto/kinto-attachment#130)
+
+**Bug fixes**
+
+- Fix heartbeat when allowed file types is not ``any`` (Kinto/kinto-attachment#148)
+
+
 11.1.0 (2018-10-25)
 ===================
 
