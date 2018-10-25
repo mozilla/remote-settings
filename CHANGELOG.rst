@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-11.1.0 (unreleased)
+11.1.0 (2018-10-25)
 ===================
 
 kinto
