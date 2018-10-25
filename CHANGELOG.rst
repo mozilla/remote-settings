@@ -7,7 +7,14 @@ the version control of each dependency.
 11.1.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.3.3 → 3.3.4**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.4
+
+**Bug fixes**
+
+- Prevent events to be sent if status is not changed (Kinto/kinto-signer#268)
 
 
 11.0.0 (2018-10-22)
