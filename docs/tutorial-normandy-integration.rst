@@ -10,6 +10,7 @@ Goals
 * Settings available only temporarily
 
 .. note::
+
    This differs from :ref:`JEXL filters <target-filters>`, with which all records are synchronized but listing them locally returns a filtered set.
 
 
@@ -49,11 +50,19 @@ When the experiment will be *enabled* on the targeted users, the client will be 
 Clean-up
 --------
 
-Once the experiment is switched back to *disabled*, the preference can be switched back to ``false`` and the local data should be deleted:
+Once the experiment is switched back to *disabled*, the local data should be deleted. We will use a preference observer to detect that the preference is switched back to ``false``:
 
 .. code-block:: javascript
 
-    const collection = await RemoteSetttings("cid").openCollection();
-    await collection.clear();
+    Services.prefs.addObserver("my-feature-pref", {
+      async observe(aSubject, aTopic, aData) {
+        if (!Services.prefs.getBoolPref(aData)) {
+          // Pref was switched to false, clean-up local IndexedDB data.
+          const collection = await RemoteSetttings("cid").openCollection();
+          await collection.clear();
+        }
+      }
+    });
+
 
 You can also open a ticket to request the deletion of the collection from the server.
