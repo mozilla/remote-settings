@@ -6,7 +6,7 @@ Work with Attachments
 Goals
 -----
 
-* Publish binary content
+* Publish large or binary content
 
 Prerequisites
 -------------
@@ -20,10 +20,6 @@ And that you are familiar with the Remote Settings API, at least on the dev serv
 
 We'll refer the running instance as ``$SERVER`` (eg. ``https://kinto.dev.mozaws.net/v1``).
 
-.. warning::
-
-    The current developer experience with attachments is not great. We are working on it, see `Bug 1473312 <https://bugzilla.mozilla.org/show_bug.cgi?id=1473312>`_.
-
 
 Introduction
 ------------
@@ -32,7 +28,11 @@ Files can be attached to records. When a record has a file attached to it, it ha
 
 The Remote Settings client API is **not in charge** of downloading the remote files.
 
-During synchronization, only the records that changed are fetched. Depending on the download implementation, attachments may have to be redownloaded completely even if only a few bytes were changed.
+During synchronization, only the records that changed are fetched. Depending on your implementation, attachments may have to be redownloaded completely even if only a few bytes were changed.
+
+.. note::
+
+    Some day we'd like to have a reusable helper for attachment. Tracking happens in `Bug 1501214 <https://bugzilla.mozilla.org/show_bug.cgi?id=1501214>`_.
 
 
 Publish records with attachments
@@ -90,7 +90,7 @@ Using JavaScript, a **naive** implementation to download records attachments can
 
     XPCOMUtils.defineLazyGetter(this, "baseAttachmentsURL", async () => {
       const server = Services.prefs.getCharPref("services.settings.server");
-      const serverInfo = await fetch(`${server}/`);
+      const serverInfo = await (await fetch(`${server}/`)).json();
       const { capabilities: { attachments: { base_url } } } = serverInfo;
       return base_url;
     });
@@ -117,7 +117,7 @@ Using JavaScript, a **naive** implementation to download records attachments can
         toDownload.map(async record => {
           const { attachment: { location, filename } } = record;
 
-          const resp = await fetch(`${baseAttachmentsURL}${location}`);
+          const resp = await fetch((await baseAttachmentsURL) + location);
           const buffer = await resp.arrayBuffer();
           const bytes = new Uint8Array(buffer);
 
