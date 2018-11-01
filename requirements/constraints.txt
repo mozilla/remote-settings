@@ -52,8 +52,8 @@ Unidecode==1.0.22 \
     --hash=sha256:8c33dd588e0c9bc22a76eaa0c715a5434851f726131bd44a6c26471746efabf5
 MarkupSafe==1.0 \
     --hash=sha256:a6be69091dac236ea9c6bc7d012beab42010fa914c459791d627dad4910eb665
-pyldap==3.0.0.post1 \
-    --hash=sha256:9ea6ae79b48f3178561a6bc105bcbc77231d5994e67ffb81b7699b8f19dd92c3
+pyldap==3.0.0 \
+    --hash=sha256:9c10dc9663d3b3f5899f811fcb89618cc96d41b9f8a68b3eed5f13de5b44ce24
 PyBrowserID==0.14.0 \
     --hash=sha256:6c227669e87cc25796ae76f6a0ef65025528c8ad82d352679fa9a3e5663a71e3 \
     --hash=sha256:8e237d6a2bc9ead849a4472a84d3e6a9309bec99cf8e10d36213710dda8df8ca
