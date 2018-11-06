@@ -39,8 +39,8 @@ boto==2.49.0 \
 python-memcached==1.59 \
     --hash=sha256:4dac64916871bd3550263323fc2ce18e1e439080a2d5670c594cf3118d99b594 \
     --hash=sha256:a2e28637be13ee0bf1a8b6843e7490f9456fd3f2a4cb60471733c7b5d5557e4f
-SQLAlchemy==1.2.12 \
-    --hash=sha256:c5951d9ef1d5404ed04bae5a16b60a0779087378928f997a294d1229c6ca4d3e
+SQLAlchemy==1.2.13 \
+    --hash=sha256:84412de3794acee05630e7788f25e80e81f78eb4837e7b71d0499129f660486a
 zope.sqlalchemy==1.0 \
     --hash=sha256:9316a1a8bb9e4f9f59332acf1ad2cc8b664f19a4bde5f68be7f61f3e11f80514
 psycopg2==2.7.5 \
