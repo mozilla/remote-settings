@@ -21,6 +21,14 @@ kinto-attachment
 
 - Fix heartbeat when allowed file types is not ``any`` (Kinto/kinto-attachment#148)
 
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.3.4 → 3.3.5**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.5
+
+**Bug fixes**
+
+- Fix Canonical JSON about float numbers to conform with `ECMAScript V6 notation <https://www.ecma-international.org/ecma-262/6.0/#sec-tostring-applied-to-the-number-type>`_
 
 11.1.0 (2018-10-25)
 ===================
