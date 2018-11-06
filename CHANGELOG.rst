@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-11.2.0 (2018-10-25)
+12.0.0 (2018-11-06)
 ===================
 
 kinto-attachment
