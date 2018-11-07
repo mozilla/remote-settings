@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-12.0.2 (unreleased)
+12.0.2 (2018-11-08)
 ===================
 
 kinto-signer
