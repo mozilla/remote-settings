@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-12.1.0 (unreleased)
+12.0.1 (2018-11-07)
 ===================
 
-- Nothing changed yet.
+kinto-megaphone
+'''''''''''''''
+
+**kinto-megaphone 0.2.0 → 0.2.2**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.2.2
+
+- Add a few log messages to help try to troubleshoot.
+- 0.2.1 was a bogus release. Skip to 0.2.2.
+
 
 
 12.0.0 (2018-11-06)
