@@ -8,7 +8,12 @@ the version control of each dependency.
 12.0.2 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-megaphone
+'''''''''''''''
+
+**kinto-megaphone 0.2.2 → 0.2.3**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.2.3
+
+- Remove a broken log message (Kinto/kinto-megaphone#10).
 
 
 12.0.1 (2018-11-07)
