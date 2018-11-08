@@ -8,7 +8,15 @@ the version control of each dependency.
 12.0.2 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.3.5 → 3.3.6**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.6
+
+**Bug fixes**
+
+- Fix Canonical JSON serialization of zero
+- Allow installing ``kinto-signer`` with ``--no-deps`` in order to import ``kinto_signer.serializer.canonical_json()`` without the Pyramid ecosystem
 
 
 12.0.1 (2018-11-07)
