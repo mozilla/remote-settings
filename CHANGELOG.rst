@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-12.1.0 (2018-11-12)
+13.0.0 (2018-11-12)
 ===================
 
 kinto-megaphone
