@@ -232,9 +232,7 @@ staging:
             enabled: true
             guid: youtube@downloader.yt
             id: 8514eaee-850c-e27a-a058-8badeeafc26e
-            last_modified: 1480349199528
             prefs: []
-            schema: 1480349193877
             versionRange:
             - maxVersion: '*'
               minVersion: '0'
@@ -256,9 +254,7 @@ staging:
             enabled: true
             guid: superlrcs@svenyor.net
             id: 002cd4fa-4c2b-e28b-9220-4a520f4d9ec6
-            last_modified: 1480349215672
             prefs: []
-            schema: 1480349193877
             versionRange:
             - maxVersion: '*'
               minVersion: '0'
@@ -276,9 +272,7 @@ staging:
             enabled: true
             guid: '{95E84BD3-3604-4AAC-B2CA-D9AC3E55B64B}'
             id: 04b25e3d-a725-493e-be07-cbd74fb37ea7
-            last_modified: 1487288975999
             prefs: []
-            schema: 1487179851382
             versionRange:
             - maxVersion: '*'
               minVersion: '0'
@@ -399,8 +393,6 @@ staging:
             enabled: true
             id: 003234b2-f425-eae6-9596-040747dab2b9
             issuerName: MCgxCzAJBgNVBAYTAkJFMRkwFwYDVQQDExBCZWxnaXVtIFJvb3QgQ0Ey
-            last_modified: 1484704580277
-            schema: 1483471396473
             serialNumber: RH7WhshwXRK6f0VfOfjXgQ==
           permissions: {}
         00ac492e-04f7-ee6d-5fd2-bb12b97a4b7f:
@@ -414,8 +406,6 @@ staging:
             enabled: true
             id: 00ac492e-04f7-ee6d-5fd2-bb12b97a4b7f
             issuerName: MEwxIDAeBgNVBAsTF0dsb2JhbFNpZ24gUm9vdCBDQSAtIFIyMRMwEQYDVQQKEwpHbG9iYWxTaWduMRMwEQYDVQQDEwpHbG9iYWxTaWdu
-            last_modified: 1483471393177
-            schema: 1480617578654
             serialNumber: BAAAAAABElatX7I=
           permissions: {}
     gfx:
@@ -668,7 +658,6 @@ staging:
             feature: DIRECT2D
             featureStatus: BLOCKED_DRIVER_VERSION
             id: 00a6b9d2-285f-83f0-0a1f-ef0205a60067
-            last_modified: 1480349134459
             os: WINNT 6.1
             schema: 1480343737148
             vendor: '0x10de'
@@ -689,9 +678,7 @@ staging:
             feature: DIRECT2D
             featureStatus: BLOCKED_DRIVER_VERSION
             id: 0afc5fe9-1f81-7fde-2424-0cb4d933c173
-            last_modified: 1480349134090
             os: WINNT 6.2
-            schema: 1480343737148
             vendor: '0x1022'
           permissions: {}
     plugins:
@@ -939,9 +926,7 @@ staging:
                 check page</a>.
             enabled: true
             id: 02a5865d-f6ea-a330-674e-7dea7390680f
-            last_modified: 1480349144187
             matchFilename: JavaAppletPlugin\.plugin
-            schema: 1480343754054
             versionRange:
             - maxVersion: Java 6 Update 45
               minVersion: Java 6 Update 42
@@ -968,10 +953,8 @@ staging:
                 are strongly recommended to keep the plugin disabled unless necessary.
             enabled: true
             id: 06621403-39a8-3867-ba6e-406dc20c88af
-            last_modified: 1480349145223
             matchFilename: libnpjp2\.so
             matchName: Java\(TM\) Plug-in 1\.7\.0(_0?([0-9]|(1[0-1]))?)?([^\d\._]|$)
-            schema: 1480349144394
             versionRange:
             - severity: 0
               targetApplication:
@@ -985,5 +968,4 @@ staging:
           permissions: {}
   data:
     id: staging
-    last_modified: 1494010161921
   permissions: {}
