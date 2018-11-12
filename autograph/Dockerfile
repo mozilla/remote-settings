@@ -1,2 +1,2 @@
-FROM mozilla/autograph:2.4.0@sha256:66d80135b7dff1f0301a9cc404abed477f5e6ca9490cea10e27b04a78f0fe73f
+FROM mozilla/autograph:2.5.0@sha256:c4fe1cdf3094285802543702ec3daa1f77fb71f801dd9fe3fe79815569174ba3
 ADD autograph.yaml /app
