@@ -5,6 +5,20 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+13.0.0 (2018-11-12)
+===================
+
+kinto-megaphone
+'''''''''''''''
+
+**kinto-megaphone 0.2.3 → 0.3.0**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.3.0
+
+**New features/Breaking changes**
+
+- Add configuration to restrict what kinto-changes records cause
+  notifications (#13). This configuration is **mandatory**.
+
+
 12.0.2 (2018-11-08)
 ===================
 
