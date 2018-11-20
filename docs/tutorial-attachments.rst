@@ -150,4 +150,9 @@ In the admin tool
 
 The Remote Settings administration tool supports attachments as well. If a collection has a record schema and attachments are "enabled" for that collection, then editors will be able to upload attachments as part of editing records.
 
-You can enable attachments on a collection on the edit screen by checking the "File attachment" section. The checkboxes here correspond to the ``attachment`` field of the collection's data.
+The controls for attachments in a given collection are in the ``attachment`` field in the collection data. ``attachment`` should be an object and it can have the following properties:
+
+- ``enabled``: boolean, true to enable attachments for this collection
+- ``required``: boolean, true if records in this collection must have an attachment
+
+In stage, you can also enable attachments on a collection on the edit screen by checking the "File attachment" section.
