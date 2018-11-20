@@ -144,3 +144,10 @@ About compression
 The server does not compress the files.
 
 We plan to enable compression at the HTTP level (`Bug 1339114 <https://bugzilla.mozilla.org/show_bug.cgi?id=1339114>`_) for when clients fetch the attachment using the ``Accept-Encoding: gzip`` request header.
+
+In the admin tool
+-----------------
+
+The Remote Settings administration tool supports attachments as well. If a collection has a record schema and attachments are "enabled" for that collection, then editors will be able to upload attachments as part of editing records.
+
+You can enable attachments on a collection on the edit screen by checking the "File attachment" section. The checkboxes here correspond to the ``attachment`` field of the collection's data.
