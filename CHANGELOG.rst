@@ -8,7 +8,9 @@ the version control of each dependency.
 13.0.1 (unreleased)
 ===================
 
-- Nothing changed yet.
+**Breaking changes**
+
+- ``kinto-ldap`` is not distributed anymore
 
 
 13.0.0 (2018-11-12)
