@@ -10,7 +10,7 @@ the version control of each dependency.
 
 **Breaking changes**
 
-- ``kinto-ldap`` is not distributed anymore
+- ``kinto-ldap`` is not shipped in this distribution anymore (#369)
 
 
 13.0.0 (2018-11-12)
