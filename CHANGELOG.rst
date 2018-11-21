@@ -8,7 +8,15 @@ the version control of each dependency.
 13.0.1 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.3.6 → 3.3.7**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.7
+
+**Bug fixes**
+
+- If ``to_review_enabled`` is False, the preview collection is not created, nor updated (Kinto/kinto-signer#279)
+- Show collections with specific settings in capabilities
 
 
 13.0.0 (2018-11-12)
