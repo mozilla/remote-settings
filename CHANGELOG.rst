@@ -8,6 +8,10 @@ the version control of each dependency.
 13.0.1 (unreleased)
 ===================
 
+**Breaking changes**
+
+- ``kinto-ldap`` is not shipped in this distribution anymore (#369)
+
 kinto-signer
 ''''''''''''
 

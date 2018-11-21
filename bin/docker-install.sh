@@ -9,7 +9,6 @@ apt-get install -y --no-install-recommends \
     git \
     gcc \
     libffi-dev \
-    libldap2-dev \
     libpq-dev \
     libsasl2-dev \
     libssl-dev \
