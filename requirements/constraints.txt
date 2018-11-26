@@ -147,9 +147,9 @@ idna==2.7 \
 ecdsa==0.13 \
     --hash=sha256:40d002cf360d0e035cf2cb985e1308d41aaa087cbfc135b2dc2d844296ea546c \
     --hash=sha256:64cf1ee26d1cde3c73c6d7d107f835fed7c6a2904aef9eac223d57ad800c43fa
-boto3==1.9.50 \
-    --hash=sha256:8c63e616b91907037ab19236afbcf0057efb31411faf38b46f4590e634dc17ea \
-    --hash=sha256:177e9dd53db5028bb43050da20cc7956287889fc172e5e6275a634e42a10beeb
+boto3==1.9.51 \
+    --hash=sha256:cc189072a38250d79f61660e83c0af899ff45e9de5f05b0a54f3a8a27b87d153 \
+    --hash=sha256:40872be3cab0e1078e97aa0cfa8d836841d4e0acf40f5a4e59c6c33eacaea321
 pyramid_mailer==0.15.1 \
     --hash=sha256:28d4a7829ebc19dd40e712d8cb1998cec03c296ba675b2c112a503539738bdc1 \
     --hash=sha256:ec0aff54d9179b2aa2922ff82c2016a4dc8d1da5dc3408d6594f0e2096446f9b
@@ -205,8 +205,8 @@ elasticsearch==6.3.1 \
 urllib3==1.24.1 \
     --hash=sha256:61bf29cada3fc2fbefad4fdf059ea4bd1b4a86d2b6d15e1c7c0b582b9752fe39 \
     --hash=sha256:de9529817c93f27c8ccbfead6985011db27bd0ddfcdb2d86f3f663385c6a9c22
-pyramid_storage==0.1.2 \
-    --hash=sha256:f9d381492b7b74fa2020db27e7a5b70fd0f1b130aabe9df4dc4c83f884aac978
+pyramid_storage==0.2.0 \
+    --hash=sha256:a85b3459cef80f5042b59258f5fd4072f907617a0a39d64c14dff7a4bc5fe96d
 transaction==2.4.0 \
     --hash=sha256:726059c461b9ec4e69e5bead6680667a3db01bf2adf901f23e4031228a0f9f9f \
     --hash=sha256:b96a5e9aaa73f905759bc9ccf0021bf4864c01ac36666e0d28395e871f6d584a
