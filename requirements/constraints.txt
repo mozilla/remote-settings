@@ -212,9 +212,9 @@ transaction==2.4.0 \
     --hash=sha256:b96a5e9aaa73f905759bc9ccf0021bf4864c01ac36666e0d28395e871f6d584a
 logging-color-formatter==1.0.2 \
     --hash=sha256:a115c04ebd0be5dc511f71a44dbad531e5b7cb91b91d3924982d69dff0333ad4
-colorama==0.4.0 \
-    --hash=sha256:a3d89af5db9e9806a779a50296b5fdb466e281147c2c235e8225ecc6dbf7bbf3 \
-    --hash=sha256:c9b54bebe91a6a803e0772c8561d53f2926bfeb17cd141fbabcb08424086595c
+colorama==0.4.1 \
+    --hash=sha256:f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48 \
+    --hash=sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d
 cornice==3.4.2 \
     --hash=sha256:ad1995826ece82a5be3a030d177645a759548c496eaccdba70597cd1e198b8f0 \
     --hash=sha256:c88f246aa6a84a0cdbaa8231a062c60e18ad9c0a65dc178f536ce5eb3a831418
