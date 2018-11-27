@@ -62,8 +62,8 @@ How often the synchronization happens?
 Right now, every 24H. But once integrated with the Megaphone project in Firefox 64, it will be a matter of minutes thanks to push notifications.
 
 
-Once ready with STAGE, how do we go live in PROD?
--------------------------------------------------
+Once data is ready in STAGE, how do we go live in PROD?
+-------------------------------------------------------
 
 Stage and prod are aligned in terms of setup, features and versions.
 
