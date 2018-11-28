@@ -5,6 +5,12 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+14.0.2 (unreleased)
+===================
+
+- Nothing changed yet.
+
+
 14.0.1 (2018-11-28)
 ===================
 
