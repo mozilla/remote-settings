@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-14.1.0 (unreleased)
+14.0.1 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 3.3.7 → 3.3.8**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.7
+
+**Bug fixes**
+
+- Fix "RuntimeError: OrderedDict mutated during iteration" (#283).
 
 
 14.0.0 (2018-11-22)
