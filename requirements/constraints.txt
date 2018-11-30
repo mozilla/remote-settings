@@ -361,9 +361,9 @@ zope.interface==4.6.0 \
 hupper==1.4.2 \
     --hash=sha256:0c0083efcd1b777d7c292e7476e36adaaad187bd0f3cd7b48d8f8ab0abf288a3 \
     --hash=sha256:eb3778398658a011c96e620adcd73175f306f880a6d86b2ebb6d2a15a74b6b9b
-PasteDeploy==1.5.2 \
-    --hash=sha256:39973e73f391335fac8bc8a8a95f7d34a9f42e2775600ce2dc518d93b37ef943 \
-    --hash=sha256:d5858f89a255e6294e63ed46b73613c56e3b9a2d82a42f1df4d06c8421a9e3cb
+PasteDeploy==2.0.0 \
+    --hash=sha256:3a2fb2a52a29154aabfdb0432d14bcbeefcf75c22b395009435023e7e513557c \
+    --hash=sha256:8ac7aed091a46eee34bcbb687bfdce73327be1897f558534e6f49d2d4faf020e
 repoze.lru==0.7 \
     --hash=sha256:0429a75e19380e4ed50c0694e26ac8819b4ea7851ee1fc7583c8572db80aff77 \
     --hash=sha256:f77bf0e1096ea445beadd35f3479c5cff2aa1efe604a133e67150bc8630a62ea
