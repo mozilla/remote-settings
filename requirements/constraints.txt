@@ -322,9 +322,9 @@ cornice-swagger==0.7.0 \
 venusian==1.1.0 \
     --hash=sha256:757162c5f907e18571b6ab41b7673e5bf18cc8715abf8164292eaef4f1610668 \
     --hash=sha256:9902e492c71a89a241a18b2f9950bea7e41d025cc8f3af1ea8d8201346f8577d
-zope.deprecation==4.3.0 \
-    --hash=sha256:7d52e134bbaaa0d72e1e2bc90f0587f1adc116c4bdf15912afaf2f1e8856b224 \
-    --hash=sha256:c83cfef3085d10dcb07de5a59a2d95713865befa46e0e88784c5648610fba789
+zope.deprecation==4.4.0 \
+    --hash=sha256:f1480b74995958b24ce37b0ef04d3663d2683e5d6debc96726eff18acf4ea113 \
+    --hash=sha256:0d453338f04bacf91bbfba545d8bcdf529aa829e67b705eac8c1a7fdce66e2df
 WebOb==1.8.4 \
     --hash=sha256:a48315158db05df0c47fbdd061b57ba0ba85bdd0b6ea9dca87511b4b7c798e99 \
     --hash=sha256:fc8c466af474e2e2775f1aef7afb902ed8b82e597eb0b13624818a34e8bfe720
