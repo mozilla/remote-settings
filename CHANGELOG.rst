@@ -8,7 +8,14 @@ the version control of each dependency.
 14.0.2 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-attachment
+''''''''''''''''
+
+**kinto-attachment 6.0.0 → 6.0.1**: https://github.com/Kinto/kinto-attachment/releases/tag/6.0.1
+
+**Bug fixes**
+
+- Fix support of Kinto >= 12
 
 
 14.0.1 (2018-11-28)
