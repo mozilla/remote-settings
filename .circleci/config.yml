@@ -40,7 +40,14 @@ jobs:
           name: Start once
           command: |
             # This will start all the dependencies first
-            docker-compose run web sleep 10
+            docker-compose run web sleep 5
+
+      - run:
+          name: Wait for megaphone
+          command: |
+            # Megaphone can take an arbitrary amount of time to start
+            # up (probably waiting for mysql to accept connections)
+            until curl http://localhost:8000/__heartbeat__; do sleep 1; done
 
       - run:
           name: Migrate
