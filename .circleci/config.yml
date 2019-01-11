@@ -40,7 +40,7 @@ jobs:
           name: Start once
           command: |
             # This will start all the dependencies first
-            docker-compose run web sleep 5
+            docker-compose run web sleep 10
 
       - run:
           name: Migrate
