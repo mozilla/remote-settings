@@ -43,18 +43,18 @@ jobs:
             docker-compose run web sleep 5
 
       - run:
-          name: Wait for megaphone
-          command: |
-            # Megaphone can take an arbitrary amount of time to start
-            # up (probably waiting for mysql to accept connections)
-            until docker-compose run tests http --check-status "http://megaphone:8000/__heartbeat__"; do date; sleep 1; done
-
-      - run:
           name: Migrate
           command: |
             mkdir mail
             sudo chmod 777 mail
             docker-compose run web migrate
+
+      - run:
+          name: Wait for megaphone
+          command: |
+            # Megaphone can take an arbitrary amount of time to start
+            # up (probably waiting for mysql to accept connections)
+            until docker-compose run tests http --check-status "http://megaphone:8000/__heartbeat__"; do date; sleep 1; done
 
       - run:
           name: Tests
