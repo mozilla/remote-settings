@@ -26,6 +26,8 @@ services:
       ROCKET_DATABASE_URL: mysql://megaphone-user:megaphone-pass@mysql/megaphone
       ROCKET_BROADCASTER_AUTH: "{kinto-dist-test=[token1]}"
       ROCKET_READER_AUTH: "{reader=[token2]}"
+      ROCKET_LOG: normal
+      RUST_BACKTRACE: 1
     ports:
       - "8000:8000"
 
