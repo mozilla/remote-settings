@@ -50,6 +50,13 @@ jobs:
             docker-compose run web migrate
 
       - run:
+          name: Wait for megaphone
+          command: |
+            # Megaphone can take an arbitrary amount of time to start
+            # up (probably waiting for mysql to accept connections)
+            until docker-compose run tests http --check-status "http://megaphone:8000/__heartbeat__"; do date; docker logs kintodist_megaphone_1 | tail; sleep 1; done
+
+      - run:
           name: Tests
           command: |
               docker-compose run tests start
