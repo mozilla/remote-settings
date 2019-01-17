@@ -54,7 +54,7 @@ jobs:
           command: |
             # Megaphone can take an arbitrary amount of time to start
             # up (probably waiting for mysql to accept connections)
-            until docker-compose run tests http --check-status "http://megaphone:8000/__heartbeat__"; do date; docker logs kintodist_megaphone_1 | tail; sleep 1; done
+            x=0; until docker-compose run tests http --check-status "http://megaphone:8000/__heartbeat__" || [ $x -gt 10 ]; do date; sleep 1; echo $((x += 1)); done; if [ $x -eq 10 ]; then docker logs kintodist_megaphone_1; fi
 
       - run:
           name: Tests
