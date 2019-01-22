@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-14.0.2 (unreleased)
+15.0.0 (2019-01-22)
 ===================
 
 kinto
