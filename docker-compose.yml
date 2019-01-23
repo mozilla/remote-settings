@@ -32,7 +32,7 @@ services:
       - "8000:8000"
 
   mysql:
-    image: mysql:5.7.24
+    image: mysql:5.7.25
     environment:
       MYSQL_ROOT_PASSWORD: mysql-root-pass
       MYSQL_DATABASE: megaphone
