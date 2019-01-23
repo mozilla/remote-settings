@@ -5,8 +5,54 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-14.0.2 (unreleased)
+15.0.0 (2019-01-22)
 ===================
+
+kinto
+'''''
+
+**kinto 11.1.0 → 12.0.1**: https://github.com/Kinto/kinto/releases/tag/12.0.1
+
+**Breaking changes**
+
+- Remove Python 3.5 support and upgrade to Python 3.6. (Kinto/kinto#1886)
+- Remove ``record`` from UnicityError class (Kinto/kinto#1919). This enabled us to fix Kinto/kinto#1545.
+- Storage backend API has changed, notions of collection and records were replaced
+  by the generic terms *resource* and *object*. Plugins that subclass the internal
+  ``ShareableResource`` class may also break.
+- GET requests no longer include the ``Total-Records`` header. To get a count in a collection
+  you need to do a HEAD request. And the new header name is ``Total-Objects``. (Kinto/kinto#1624)
+- Remove the ``UserResource`` class. And ``ShareableResource`` is now deprecated in
+  favor of ``Resource``.
+- Removed ``kinto.core.utils.parse_resource()`. Use ``kinto.core.utils.view_lookup_registry()`` instead (Kinto/kinto#1828)
+- Remove delete-collection command (Kinto/kinto#1959)
+
+API is now at version **1.21**. See `API changelog`_.
+
+**New features**
+
+- Add a ``user-data`` endpoint at ``/__user_data__/`` which can be used to delete all data
+  associated with a principal. This might be helpful for pursuing GDPR
+  compliance, for instance. (Kinto/kinto#442.)
+- Return a ``500 Internal Error`` on ``__version__`` instead of 404 if the version file
+  cannot be found (Kinto/kinto#1841)
+
+**Bug Fixes**
+
+- Like query now returns 400 when a non string value is used. (Kinto/kinto#1899)
+- Record ID is validated if explicitly mentioned in the collection schema (Kinto/kinto#1942)
+- The Memory permission backend implementation of ``remove_principal``
+  is now less generous with what it removes (Kinto/kinto#1955).
+- Fix bumping of tombstones timestamps when deleting objects in PostgreSQL storage backend (Kinto/kinto#1981)
+- Fix ETag header in responses of DELETE on plural endpoints (Kinto/kinto#1981)
+- Fix the ``http_api_version`` exposed in the ``/v1/`` endpoint. The
+  version ``1.20`` was getting parsed as a number ``1.2``.
+- Fix ``record:create`` not taken into account from settings. (Kinto/kinto#1813)
+
+**Documentation**
+
+- Change PostgreSQL backend URLs to be ``postgresql://`` instead of the deprecated ``postgres://``
+- Add documentation on troubleshooting Auth0 multiauth issue. (Kinto/kinto#1889)
 
 kinto-attachment
 ''''''''''''''''
@@ -16,6 +62,28 @@ kinto-attachment
 **Bug fixes**
 
 - Fix support of Kinto >= 12
+
+kinto-changes
+'''''''''''''
+
+**kinto-changes 1.3.0 → 2.0.0**: https://github.com/Kinto/kinto-changes/releases/tag/2.0.0
+
+**Breaking changes**
+
+- Require Kinto >= 12
+
+kinto-signer
+'''''''''''''
+
+**kinto-signer 3.3.8 → 4.0.0**: https://github.com/Kinto/kinto-signer/releases/tag/4.0.0
+
+**Bug fixes**
+
+- Fix inconsistencies when source records are deleted via the DELETE /records endpoint (Kinto/kinto-signer#287)
+
+**Breaking changes**
+
+- Require Kinto >= 12.0.0
 
 
 14.0.1 (2018-11-28)
@@ -96,7 +164,6 @@ kinto-megaphone
 - 0.2.1 was a bogus release. Skip to 0.2.2.
 
 
-
 12.0.0 (2018-11-06)
 ===================
 
@@ -121,6 +188,7 @@ kinto-signer
 **Bug fixes**
 
 - Fix Canonical JSON about float numbers to conform with `ECMAScript V6 notation <https://www.ecma-international.org/ecma-262/6.0/#sec-tostring-applied-to-the-number-type>`_
+
 
 11.1.0 (2018-10-25)
 ===================
