@@ -75,11 +75,15 @@ kinto-changes
 kinto-signer
 '''''''''''''
 
-**kinto-signer 3.3.8 → 3.3.9**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.9
+**kinto-signer 3.3.8 → 4.0.0**: https://github.com/Kinto/kinto-signer/releases/tag/4.0.0
 
-**Internal Changes**
+**Bug fixes**
 
-- Do not use the count value from ``storage.get_all()``
+- Fix inconsistencies when source records are deleted via the DELETE /records endpoint (Kinto/kinto-signer#287)
+
+**Breaking changes**
+
+- Require Kinto >= 12.0.0
 
 
 14.0.1 (2018-11-28)
