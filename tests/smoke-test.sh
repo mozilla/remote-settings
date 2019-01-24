@@ -113,6 +113,13 @@ echo '{"data": {"status": "to-review"}}' | http PATCH $SERVER/buckets/source/col
 cat mail/*.eml | grep "Subject: account"
 cat mail/*.eml | grep "To: me@you.com"
 
+#
+# kinto-fxa script
+#
+# Setting up a mock SQS queue and mock FxA token is too much work.
+# Just run the script at all to ensure all the dependencies are there.
+kinto-fxa --help
+
 
 # END OF THE TEST
 # If you made it here, that means all the smoke tests above did not fail.
