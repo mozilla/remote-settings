@@ -5,10 +5,13 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-15.1.0 (unreleased)
+15.0.1 (unreleased)
 ===================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Include kinto-fxa script dependencies so that the
+  process-account-events script can run. (#507)
 
 
 15.0.0 (2019-01-22)
