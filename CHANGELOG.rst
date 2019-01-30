@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-15.1.0 (unreleased)
+15.0.2 (2019-01-30)
 ===================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 4.0.0 → 4.0.1**: https://github.com/Kinto/kinto-signer/releases/tag/4.0.1
+
+**Security issue**
+
+- Signer parameters were displayed in capabilities. Fixed in Kinto/kinto-signer#326.
 
 
 15.0.1 (2019-01-25)
