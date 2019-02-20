@@ -8,7 +8,12 @@ the version control of each dependency.
 15.0.3 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-emailer
+'''''''''''''
+
+**kinto-emailer 1.0.1 → 1.1.0**: https://github.com/Kinto/kinto-emailer/releases/tag/1.1.0
+
+- Allow regexp in filters values when selecting events (Kinto/kinto-emailer#88)
 
 
 15.0.2 (2019-01-30)
