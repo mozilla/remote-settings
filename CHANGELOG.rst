@@ -11,7 +11,7 @@ the version control of each dependency.
 kinto-emailer
 '''''''''''''
 
-**kinto-emailer 1.0.1 → 1.1.0**: https://github.com/Kinto/kinto-emailer/releases/tag/1.1.0
+**kinto-emailer 1.0.2 → 1.1.0**: https://github.com/Kinto/kinto-emailer/releases/tag/1.1.0
 
 - Allow regexp in filters values when selecting events (Kinto/kinto-emailer#88)
 
