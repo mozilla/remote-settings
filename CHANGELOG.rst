@@ -5,6 +5,12 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+15.2.0 (unreleased)
+===================
+
+- Nothing changed yet.
+
+
 15.1.0 (2019-02-21)
 ===================
 
