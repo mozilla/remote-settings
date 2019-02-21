@@ -8,6 +8,13 @@ the version control of each dependency.
 15.0.3 (unreleased)
 ===================
 
+kinto-changes
+'''''''''''''
+
+**kinto-changes 2.0.0 → 2.1.0**: https://github.com/Kinto/kinto-changes/releases/tag/2.1.0
+
+- Send ``Cache-Control`` headers if cache busting query parameters or concurrency control request headers are sent (Kinto/kinto-changes#66)
+
 kinto-emailer
 '''''''''''''
 
