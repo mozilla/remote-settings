@@ -139,9 +139,9 @@ idna==2.8 \
 ecdsa==0.13 \
     --hash=sha256:40d002cf360d0e035cf2cb985e1308d41aaa087cbfc135b2dc2d844296ea546c \
     --hash=sha256:64cf1ee26d1cde3c73c6d7d107f835fed7c6a2904aef9eac223d57ad800c43fa
-boto3==1.9.110 \
-    --hash=sha256:084fcb90fb1a8d4834cff2fbd842ec546f5bad334acf740ed8a16fc0ebf47f61 \
-    --hash=sha256:1a1da1d9ec446e50ec04b21a6ec6eaf37f614161d24a8ba92b92e93ad78e18fc
+boto3==1.9.111 \
+    --hash=sha256:f3b77dff382374773d02411fa47ee408f4f503aeebd837fd9dc9ed8635bc5e8e \
+    --hash=sha256:06414c75d1f62af7d04fd652b38d1e4fd3cfd6b35bad978466af88e2aaecd00d
 pyramid_mailer==0.15.1 \
     --hash=sha256:28d4a7829ebc19dd40e712d8cb1998cec03c296ba675b2c112a503539738bdc1 \
     --hash=sha256:ec0aff54d9179b2aa2922ff82c2016a4dc8d1da5dc3408d6594f0e2096446f9b
@@ -175,9 +175,9 @@ pyasn1==0.4.5 \
     --hash=sha256:da2420fe13a9452d8ae97a0e478adde1dee153b11ba832a95b223a2ba01c10f7
 pycparser==2.19 \
     --hash=sha256:a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3
-botocore==1.12.110 \
-    --hash=sha256:b18d7b0949a613331160af20e9517a3663e0009a2edb4cb1e1177ab4fdff6c9d \
-    --hash=sha256:995c29b9913f8ae9dc95408db48034c7040fb1b5378a2e9e1e4030167c6b80ee
+botocore==1.12.111 \
+    --hash=sha256:9f5123c7be704b17aeacae99b5842ab17bda1f799dd29134de8c70e0a50a45d7 \
+    --hash=sha256:6af473c52d5e3e7ff82de5334e9fee96b2d5ec2df5d78bc00cd9937e2573a7a8
 s3transfer==0.2.0 \
     --hash=sha256:7b9ad3213bff7d357f888e0fab5101b56fa1a0548ee77d121c3a3dbfbef4cb2e \
     --hash=sha256:f23d5cb7d862b104401d9021fc82e5fa0e0cf57b7660a1331425aab0c691d021
