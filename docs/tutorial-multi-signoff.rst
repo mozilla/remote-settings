@@ -17,7 +17,7 @@ Prerequisites
 This guide assumes you have already installed and set up the following:
 
 - cURL
-- `jq <https://stedolan.github.io/jq/>`_
+- `jq <https://stedolan.github.io/jq/>`_ (*optional*)
 - :ref:`a local instance <tutorial-local-server>` with multi signoff enabled
   or access/contact with two users that have permissions on STAGE/PROD
 

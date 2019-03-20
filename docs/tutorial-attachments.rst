@@ -15,6 +15,7 @@ This guide assumes that you have already installed the following commands:
 
 - cURL
 - uuidgen
+- `jq <https://stedolan.github.io/jq/>`_ (*optional*)
 
 And that you are familiar with the Remote Settings API, at least on the dev server.
 

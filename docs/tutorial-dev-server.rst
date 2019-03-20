@@ -16,6 +16,7 @@ Prerequisites
 This guide assumes you have already installed and set up the following:
 
 - cURL
+- `jq <https://stedolan.github.io/jq/>`_ (*optional*)
 
 
 Introduction
