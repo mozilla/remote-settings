@@ -26,7 +26,7 @@ In order to restrict a setting to a particular audience, just write the proper f
         id: "68b19efa-1067-401b-b1c1-8d7b4263bb86",
         last_modified: 1531762863373,
         title: "Only for users of 57",
-        filter_expression: "environment.version == 57"
+        filter_expression: "env.version == 57"
     }
 
 When calling ``RemoteSettings("key").get()`` or listening to ``sync`` events, you will only see the settings entries whose ``filter_expression`` resolved to a truthy value (and those who don't have any as by default).
@@ -101,7 +101,7 @@ support attribute access:
 
 .. code-block:: javascript
 
-   environment.locale == 'en-US' // == true if the client's locale is en-US
+   env.locale == 'en-US' // == true if the client's locale is en-US
 
 Another unique feature of JEXL is transforms, which modify the value given to
 them. Transforms are applied to a value using the ``|`` operator, and may take
@@ -121,17 +121,17 @@ This section defines the context passed to filter expressions when they are
 evaluated. In other words, this is the client information available within
 filter expressions.
 
-.. js:data:: environment
+.. js:data:: env
 
-   The ``environment`` object contains general information about the client.
+   The ``env`` object contains general information about the client.
 
-.. js:attribute:: environment.version
+.. js:attribute:: env.version
 
    **Example:** ``'47.0.1'``
 
    String containing the user's Firefox version.
 
-.. js:attribute:: environment.channel
+.. js:attribute:: env.channel
 
    String containing the update channel. Valid values include, but are not
    limited to:
@@ -142,15 +142,15 @@ filter expressions.
    * ``'nightly'``
    * ``'default'`` (self-built or automated testing builds)
 
-.. js:attribute:: environment.isDefaultBrowser
+.. js:attribute:: env.isDefaultBrowser
 
    Boolean specifying whether Firefox is set as the user's default browser.
 
-.. js:attribute:: environment.appID
+.. js:attribute:: env.appID
 
    String containing the XUL application ID, eg. Firefox is ``"{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"``.
 
-.. js:attribute:: environment.searchEngine
+.. js:attribute:: env.searchEngine
 
    **Example:** ``'google'``
 
@@ -168,44 +168,44 @@ filter expressions.
    * ``'twitter'``
    * ``'wikipedia'``
 
-.. js:attribute:: environment.syncSetup
+.. js:attribute:: env.syncSetup
 
    Boolean containing whether the user has set up Firefox Sync.
 
-.. js:attribute:: environment.syncDesktopDevices
+.. js:attribute:: env.syncDesktopDevices
 
    Integer specifying the number of desktop clients the user has added to their
    Firefox Sync account.
 
-.. js:attribute:: environment.syncMobileDevices
+.. js:attribute:: env.syncMobileDevices
 
    Integer specifying the number of mobile clients the user has added to their
    Firefox Sync account.
 
-.. js:attribute:: environment.syncTotalDevices
+.. js:attribute:: env.syncTotalDevices
 
    Integer specifying the total number of clients the user has added to their
    Firefox Sync account.
 
-.. js:attribute:: environment.plugins
+.. js:attribute:: env.plugins
 
    An object mapping of plugin names to plugin objects describing
    the plugins installed on the client.
 
-.. js:attribute:: environment.locale
+.. js:attribute:: env.locale
 
    **Example:** ``'en-US'``
 
    String containing the user's locale.
 
-.. js:attribute:: environment.distribution
+.. js:attribute:: env.distribution
 
    String set to the user's distribution ID. This is commonly used to target
    funnelcake builds of Firefox.
 
    On Firefox versions prior to 48.0, this value is set to ``undefined``.
 
-.. js:attribute:: environment.telemetry
+.. js:attribute:: env.telemetry
 
    Object containing data for the most recent Telemetry_ packet of each type.
    This allows you to target recipes at users based on their Telemetry data.
@@ -217,19 +217,19 @@ filter expressions.
    .. code-block:: javascript
 
       // Target clients that are running Firefox on a tablet
-      environment.telemetry.main.environment.system.device.isTablet
+      env.telemetry.main.env.system.device.isTablet
 
       // Target clients whose last crash had a BuildID of "201403021422"
-      environment.telemetry.crash.payload.metadata.BuildID == '201403021422'
+      env.telemetry.crash.payload.metadata.BuildID == '201403021422'
 
    .. _Telemetry: https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/index.html#
    .. _Telemetry data documentation: https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/data/index.html
 
-.. js:attribute:: environment.doNotTrack
+.. js:attribute:: env.doNotTrack
 
    Boolean specifying whether the user has enabled Do Not Track.
 
-.. js:attribute:: environment.addons
+.. js:attribute:: env.addons
 
    Object containing information about installed add-ons. The keys on this
    object are add-on IDs. The values contain the following attributes:
@@ -263,10 +263,10 @@ filter expressions.
    .. code-block:: javascript
 
       // Target users with a specific add-on installed
-      environment.addons["shield-recipe-client@mozilla.org"]
+      env.addons["shield-recipe-client@mozilla.org"]
 
       // Target users who have at least one of a group of add-ons installed
-      environment.addons|keys intersect [
+      env.addons|keys intersect [
          "shield-recipe-client@mozilla.org",
          "some-other-addon@example.com"
       ]
@@ -316,7 +316,7 @@ function is the value being transformed.
    .. code-block:: javascript
 
       // True 50% of the time, stable per-version per-locale.
-      [environment.locale, environment.version]|stableSample(0.5)
+      [env.locale, env.version]|stableSample(0.5)
 
 .. js:function:: bucketSample(input, start, count, total)
 
@@ -340,8 +340,8 @@ function is the value being transformed.
       // Half of users will match the first filter and not the
       // second one, while the other half will match the second and not
       // the first, even across multiple settings.
-      [environment.locale]|bucketSample(0, 5000, 10000)
-      [environment.locale]|bucketSample(5000, 5000, 10000)
+      [env.locale]|bucketSample(0, 5000, 10000)
+      [env.locale]|bucketSample(5000, 5000, 10000)
 
    The range to check wraps around the total bucket range. This means that if
    you have 100 buckets, and specify a range starting at bucket 70 that is 50
@@ -440,21 +440,21 @@ This section lists some examples of commonly-used filter expressions.
 .. code-block:: javascript
 
    // Match users using the en-US locale
-   environment.locale == 'en-US'
+   env.locale == 'en-US'
 
    // Match users in any English locale using Firefox Beta
    (
-      environment.locale in ['en-US', 'en-AU', 'en-CA', 'en-GB', 'en-NZ', 'en-ZA']
-      && environment.channel == 'beta'
+      env.locale in ['en-US', 'en-AU', 'en-CA', 'en-GB', 'en-NZ', 'en-ZA']
+      && env.channel == 'beta'
    )
 
    // Match users located in the US who have Firefox as their default browser
-   environment.country == 'US' && environment.isDefaultBrowser
+   env.country == 'US' && env.isDefaultBrowser
 
    // Match users with the Flash plugin installed. If Flash is missing, the
    // plugin list returns `undefined`, which is a falsy value in JavaScript and
    // fails the match. Otherwise, it returns a plugin object, which is truthy.
-   environment.plugins['Shockwave Flash']
+   env.plugins['Shockwave Flash']
 
 .. _target-filters-debugging:
 
@@ -478,7 +478,7 @@ Advanced: Testing Filter Expressions in the Browser Console
    .. code-block:: javascript
 
         let FILTER_TO_TEST = `
-            environment.locale == "fr-FR"
+            env.locale == "fr-FR"
         `;
 
         (
