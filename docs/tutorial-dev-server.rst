@@ -7,7 +7,7 @@ Goals
 -----
 
 * Create remote records
-* Pull them the server
+* Pull them from the server
 
 
 Prerequisites
