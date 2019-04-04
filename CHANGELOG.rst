@@ -8,7 +8,14 @@ the version control of each dependency.
 15.2.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-signer
+''''''''''''
+
+**kinto-signer 4.0.1 → 5.0.0**: https://github.com/Kinto/kinto-signer/releases/tag/5.0.0
+
+**Breaking changes**
+
+- Do not invalidate CloudFront on signature refresh (Kinto/kinto-signer#430)
 
 
 15.1.0 (2019-02-21)
