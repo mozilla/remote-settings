@@ -18,8 +18,9 @@ kinto-elasticsearch==0.3.1 \
     --hash=sha256:25300a270ef2fc96e2391bb128cdb75e520b1b6ce2a26f7766e19785dce70f5d
 kinto-emailer==1.1.0 \
     --hash=sha256:356dc98fe23a21829a4a1e1be5e4032ad4da98dd03ba72f2ea69b1472890a406
-kinto-signer==4.0.1 \
-    --hash=sha256:59d3e5d78e98f4c061f5035798163fb4ed249312bb9dbceaf7c5eba64b50d5a9
+kinto-signer==5.0.0 \
+    --hash=sha256:d6df05cf2f63c286e736188502f6735e351c21d7c6d787ef5dfdd775fa984692 \
+    --hash=sha256:753e21e4196b0c5f4472f1e29ae04951f42e4241153f057b73d7d0d62ecd0fc1
 kinto-megaphone==0.3.0 \
     --hash=sha256:1702367d97b199e56f6e5acbd017db64e68c07487486fb8fdf8255140792f4b4 \
     --hash=sha256:5c74ee8174373f627629dbda946a06a5f407a64110d8c1aaac36f6da74aa090b
