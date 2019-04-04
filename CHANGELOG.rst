@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-15.2.0 (unreleased)
+16.0.0 (2019-04-04)
 ===================
 
 kinto-signer
