@@ -8,7 +8,7 @@ the version control of each dependency.
 16.1.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+- Update the Docker compose configuration to use Redis for the cache backend (#1405)
 
 
 16.0.0 (2019-04-04)

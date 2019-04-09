@@ -8,9 +8,9 @@ services:
       interval: 1s
       timeout: 3s
       retries: 30
-  memcached:
-    image: memcached:1.5.12
 
+  redis:
+    image: redis:5.0.4
 
   autograph:
     build:
@@ -46,7 +46,7 @@ services:
     image: kinto:build
     depends_on:
       - db
-      - memcached
+      - redis
       - autograph
       - megaphone
     environment:
@@ -54,8 +54,8 @@ services:
       - KINTO_PERMISSION_URL=postgres://postgres@db/postgres
       - KINTO_SIGNER_AUTOGRAPH_SERVER_URL=http://autograph:8000
       - KINTO_ATTACHMENT_BASE_URL=http://autograph:8000
-      - KINTO_CACHE_BACKEND=kinto.core.cache.memcached
-      - KINTO_CACHE_HOSTS=memcached:11211
+      - KINTO_CACHE_BACKEND=kinto_redis.cache
+      - KINTO_CACHE_URL=redis://redis:6379/2
     ports:
       - "8888:8888"
       - "9999:9999"
