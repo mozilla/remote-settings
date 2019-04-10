@@ -8,7 +8,9 @@ the version control of each dependency.
 16.1.0 (unreleased)
 ===================
 
-- Update the Docker compose configuration to use Redis for the cache backend (#1405)
+- Add kinto-redis to the distribution (fixes #653). This allows use of
+  the kinto-redis cache backend. The Docker compose configuration now
+  uses Redis for the cache backend in order to ensure it works.
 
 
 16.0.0 (2019-04-04)
