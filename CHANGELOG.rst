@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-16.1.0 (unreleased)
+16.1.0 (2019-04-10)
 ===================
 
 - Add kinto-redis to the distribution (fixes #653). This allows use of
