@@ -193,9 +193,9 @@ docutils==0.14 \
 elasticsearch==7.0.0 \
     --hash=sha256:c621f2272bb2f000d228dc7016d058a1f90f15babdc938240b9f2d13690222db \
     --hash=sha256:cf6cf834b6d0172dac5e704c398a11d1917cf61f15d32b79b1ddad4cd673c4b1
-urllib3==1.24.1 \
-    --hash=sha256:61bf29cada3fc2fbefad4fdf059ea4bd1b4a86d2b6d15e1c7c0b582b9752fe39 \
-    --hash=sha256:de9529817c93f27c8ccbfead6985011db27bd0ddfcdb2d86f3f663385c6a9c22
+urllib3==1.24.2 \
+    --hash=sha256:4c291ca23bbb55c76518905869ef34bdd5f0e46af7afe6861e8375643ffee1a0 \
+    --hash=sha256:9a247273df709c4fedb38c711e44292304f73f39ab01beda9f6b9fc375669ac3
 pyramid_storage==0.2.0 \
     --hash=sha256:a85b3459cef80f5042b59258f5fd4072f907617a0a39d64c14dff7a4bc5fe96d
 transaction==2.4.0 \
