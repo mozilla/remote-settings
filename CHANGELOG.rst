@@ -8,7 +8,14 @@ the version control of each dependency.
 16.2.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-redis
+''''''''''
+
+**kinto-redis 2.0.0 → 2.0.1**: https://github.com/Kinto/kinto-redis/releases/tag/2.0.1
+
+**Bug fixes**
+
+- ``pool_size`` setting should remain optional
 
 
 16.1.0 (2019-04-10)
