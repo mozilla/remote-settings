@@ -42,6 +42,14 @@ kinto
 - Loosen up the Content-Security policies in the Kinto Admin plugin to prevent Webpack inline script to be rejected (fixes #2000)
 - **security**: Fix a pagination bug in the PostgreSQL backend that could leak records between collections
 
+kinto-redis
+''''''''''
+
+**kinto-redis 2.0.0 → 2.0.1**: https://github.com/Kinto/kinto-redis/releases/tag/2.0.1
+
+**Bug fixes**
+
+- ``pool_size`` setting should remain optional
 
 16.1.0 (2019-04-10)
 ===================
