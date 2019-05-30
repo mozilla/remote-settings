@@ -95,18 +95,13 @@ And it should be listed in the monitor/changes endpoint:
 Prepare the client
 ------------------
 
-The following preferences must be created/changed to the following values in ``about:config``:
+The following preference must be created/changed to the following values in ``about:config`` (*or use the Dev Tools*):
 
 * ``services.settings.server`` : ``https://kinto.dev.mozaws.net/v1``
-* ``services.settings.verify_signature`` : ``false``
 
 .. important::
 
     Those are critical preferences, you should use a dedicated Firefox profile for development.
-
-
-Synchronize manually
---------------------
 
 From your code, or the browser console, register the new collection by listening to the ``sync`` event:
 
@@ -114,10 +109,19 @@ From your code, or the browser console, register the new collection by listening
 
     const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js", {});
 
-    RemoteSettings("focus-search-engines").on("sync", ({ data }) => {
+    const client = RemoteSettings("focus-search-engines");
+
+    // No signature on Dev Server
+    client.verifySignature = false;
+
+    client.on("sync", ({ data }) => {
       // Dump records titles to stdout
       data.current.forEach(r => dump(`${r.title}\n`));
     });
+
+
+Synchronize manually
+--------------------
 
 Then force a synchronization manually with:
 
