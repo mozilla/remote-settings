@@ -80,9 +80,9 @@ Create a configuration file ``server.ini`` with the following content:
     kinto.signer.main-workspace.editors_group = {collection_id}-editors
     kinto.signer.main-workspace.reviewers_group = {collection_id}-reviewers
     kinto.signer.autograph.server_url = http://autograph-server:8000
-    # Use credentials from https://github.com/mozilla-services/autograph/blob/2bc1af/autograph.yaml#L348-349
-    kinto.signer.autograph.hawk_id = normandev
-    kinto.signer.autograph.hawk_secret = 3dhoaupudifjjvm7xznd9bn73159xn3xwr77b61kzdjwzzsjts
+    # Use credentials from https://github.com/mozilla-services/autograph/blob/5b4a473/autograph.yaml
+    kinto.signer.autograph.hawk_id = kintodev
+    kinto.signer.autograph.hawk_secret = 3isey64n25fim18chqgewirm6z2gwva1mas0eu71e9jtisdwv6bd
 
     [uwsgi]
     wsgi-file = app.wsgi
@@ -183,9 +183,27 @@ First, run the Autograph container in a separate terminal:
 
 .. code-block:: bash
 
-    docker run --name autograph-server mozilla/autograph
+    docker run --rm --name autograph-server mozilla/autograph
 
-And run the remote settings server with a link to ``autograph-server`` container:
+Autograph generates the ``x5u`` certificate chains on startup. In order to have them available to download from Firefox, let's copy them out of the container.
+
+First, look up the certificate filename using ``ls`` from within the container:
+
+.. code-block:: bash
+
+    docker exec -i -t autograph-server '/bin/sh'
+    $ ls /tmp/autograph/chains/remotesettingsdev/
+    remote-settings.content-signature.mozilla.org-20190503.chain
+    $ ^C
+
+Then, copy the file from the container into the host:
+
+.. code-block:: bash
+
+    mkdir -p /tmp/autograph/chains/remotesettingsdev/
+    docker cp autograph-server:/tmp/autograph/chains/remotesettingsdev/remote-settings.content-signature.mozilla.org-20190503.chain /tmp/autograph/chains/remotesettingsdev/
+
+And run the Remote Settings server with a link to ``autograph-server`` container:
 
 .. code-block:: bash
 
@@ -245,11 +263,7 @@ Prepare the client
 The following preferences must be changed to the following values in ``about:config``:
 
 * ``services.settings.server`` : ``http://localhost:8888/v1``
-* ``services.settings.verify_signature`` : ``false``
-
-.. note::
-
-    We now sign the data locally, but with a custom signer so we still have to disable signature verification.
+* ``security.content.signature.root_hash`` : ``5E:36:F2:14:DE:82:3F:8B:29:96:89:23:5F:03:41:AC:AF:A0:75:AF:82:CB:4C:D4:30:7C:3D:B3:43:39:2A:FE``
 
 .. seealso::
 
