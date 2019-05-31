@@ -187,7 +187,7 @@ First, run the Autograph container in a separate terminal:
 
 Autograph generates the ``x5u`` certificate chains on startup. In order to have them available to download from Firefox, let's copy them out of the container.
 
-First, checkout the certificate filename using ``ls`` from within the container:
+First, look up the certificate filename using ``ls`` from within the container:
 
 .. code-block:: bash
 
