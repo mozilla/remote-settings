@@ -8,7 +8,26 @@ the version control of each dependency.
 17.1.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-admin
+'''''''''''
+
+**kinto-admin 1.23.0 → 1.24.0**: https://github.com/Kinto/kinto/releases/tag/1.24.0
+
+**New features**
+
+- Fix #501: UI notifications improvements (Kinto/kinto-admin#932)
+- Fix #935: Show records changes without having to request review (Kinto/kinto-admin#943)
+- Fix #915: Add button to copy authentication header
+- Fix #443: Collapse diffs and only show 3 lines of context (Kinto/kinto-admin#960)
+- Fix #467: Add links to source/preview/destination collections (Kinto/kinto-admin#959)
+
+**Bug fixes**
+
+- Fix #938: Show login form on authentication error (Kinto/kinto-admin#939)
+- Fix #686: Do not scroll to bottom on pagination load (Kinto/kinto-admin#947)
+- Fix #712: fix history pagination loading (Kinto/kinto-admin#948)
+- Fix #949: fix history list from signoff diff details (Kinto/kinto-admin#950)
+- Fix behaviour of servers history in login page (Kinto/kinto-admin#946)
 
 
 17.0.0 (2019-05-27)
