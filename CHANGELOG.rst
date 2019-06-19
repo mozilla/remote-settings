@@ -5,11 +5,11 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-17.1.0 (unreleased)
+17.1.0 (2019-06-19)
 ===================
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.23.0 → 1.24.0**: https://github.com/Kinto/kinto/releases/tag/1.24.0
 
@@ -34,7 +34,7 @@ kinto-admin
 ===================
 
 kinto
-'''''
+-----
 
 **kinto 12.0.1 → 13.1.1**: https://github.com/Kinto/kinto/releases/tag/13.1.1
 
@@ -68,7 +68,7 @@ kinto
 - **security**: Fix a pagination bug in the PostgreSQL backend that could leak records between collections
 
 kinto-redis
-''''''''''
+-----------
 
 **kinto-redis 2.0.0 → 2.0.1**: https://github.com/Kinto/kinto-redis/releases/tag/2.0.1
 
@@ -88,7 +88,7 @@ kinto-redis
 ===================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 4.0.1 → 5.0.0**: https://github.com/Kinto/kinto-signer/releases/tag/5.0.0
 
@@ -101,14 +101,14 @@ kinto-signer
 ===================
 
 kinto-changes
-'''''''''''''
+-------------
 
 **kinto-changes 2.0.0 → 2.1.0**: https://github.com/Kinto/kinto-changes/releases/tag/2.1.0
 
 - Send ``Cache-Control`` headers if cache busting query parameters or concurrency control request headers are sent (Kinto/kinto-changes#66)
 
 kinto-emailer
-'''''''''''''
+-------------
 
 **kinto-emailer 1.0.2 → 1.1.0**: https://github.com/Kinto/kinto-emailer/releases/tag/1.1.0
 
@@ -119,7 +119,7 @@ kinto-emailer
 ===================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 4.0.0 → 4.0.1**: https://github.com/Kinto/kinto-signer/releases/tag/4.0.1
 
@@ -141,7 +141,7 @@ kinto-signer
 ===================
 
 kinto
-'''''
+-----
 
 **kinto 11.1.0 → 12.0.1**: https://github.com/Kinto/kinto/releases/tag/12.0.1
 
@@ -187,7 +187,7 @@ API is now at version **1.21**. See `API changelog`_.
 - Add documentation on troubleshooting Auth0 multiauth issue. (Kinto/kinto#1889)
 
 kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 6.0.0 → 6.0.1**: https://github.com/Kinto/kinto-attachment/releases/tag/6.0.1
 
@@ -196,7 +196,7 @@ kinto-attachment
 - Fix support of Kinto >= 12
 
 kinto-changes
-'''''''''''''
+-------------
 
 **kinto-changes 1.3.0 → 2.0.0**: https://github.com/Kinto/kinto-changes/releases/tag/2.0.0
 
@@ -205,7 +205,7 @@ kinto-changes
 - Require Kinto >= 12
 
 kinto-signer
-'''''''''''''
+-------------
 
 **kinto-signer 3.3.8 → 4.0.0**: https://github.com/Kinto/kinto-signer/releases/tag/4.0.0
 
@@ -222,7 +222,7 @@ kinto-signer
 ===================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.3.7 → 3.3.8**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.7
 
@@ -239,7 +239,7 @@ kinto-signer
 - ``kinto-ldap`` is not shipped in this distribution anymore (#369)
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.3.6 → 3.3.7**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.7
 
@@ -253,7 +253,7 @@ kinto-signer
 ===================
 
 kinto-megaphone
-'''''''''''''''
+---------------
 
 **kinto-megaphone 0.2.3 → 0.3.0**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.3.0
 
@@ -267,7 +267,7 @@ kinto-megaphone
 ===================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.3.5 → 3.3.6**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.6
 
@@ -277,7 +277,7 @@ kinto-signer
 - Allow installing ``kinto-signer`` with ``--no-deps`` in order to import ``kinto_signer.serializer.canonical_json()`` without the Pyramid ecosystem
 
 kinto-megaphone
-'''''''''''''''
+---------------
 
 **kinto-megaphone 0.2.2 → 0.2.3**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.2.3
 
@@ -288,7 +288,7 @@ kinto-megaphone
 ===================
 
 kinto-megaphone
-'''''''''''''''
+---------------
 
 **kinto-megaphone 0.2.0 → 0.2.2**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.2.2
 
@@ -300,7 +300,7 @@ kinto-megaphone
 ===================
 
 kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 5.0.0 → 6.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/6.0.0
 
@@ -313,7 +313,7 @@ kinto-attachment
 - Fix heartbeat when allowed file types is not ``any`` (Kinto/kinto-attachment#148)
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.3.4 → 3.3.5**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.5
 
@@ -326,7 +326,7 @@ kinto-signer
 ===================
 
 kinto
-'''''
+-----
 
 **kinto 11.0.0 → 11.1.0**: https://github.com/Kinto/kinto/releases/tag/11.1.0
 
@@ -347,7 +347,7 @@ kinto
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.3.3 → 3.3.4**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.4
 
@@ -360,7 +360,7 @@ kinto-signer
 ===================
 
 kinto
-'''''
+-----
 
 **kinto 10.1.2 → 11.0.0**: https://github.com/Kinto/kinto/releases/tag/11.0.0
 
@@ -400,7 +400,7 @@ You will find more details the `authentication settings section of the documenta
 - Huge refactor of documentation about authentication (#1736)
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.19.2 → 1.21.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.21.0
 
@@ -430,7 +430,7 @@ kinto-admin
 * Fix #459: bucket readonly filter with writable collection (Kinto/kinto-admin#627)
 
 kinto-changes
-'''''''''''''
+-------------
 
 **kinto-changes 1.2.1 → 1.3.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.3.0
 
@@ -453,7 +453,7 @@ kinto-changes
 ===================
 
 kinto
-'''''
+-----
 
 **kinto 10.1.1 → 10.1.2**: https://github.com/Kinto/kinto/releases/tag/10.1.2
 
@@ -463,7 +463,7 @@ kinto
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.20.1 → 1.20.2**: https://github.com/Kinto/kinto-admin/releases/tag/1.20.2
 
@@ -476,7 +476,7 @@ kinto-admin
 ===================
 
 kinto
-'''''
+-----
 
 **kinto 9.2.3 → 10.1.1**: https://github.com/Kinto/kinto/releases/tag/10.1.1
 
@@ -516,7 +516,7 @@ kinto
 - Upgrade kinto-admin to v1.20.0
 
 kinto-changes
-'''''''''''''
+-------------
 
 **kinto-changes 1.1.0 → 1.2.1**: https://github.com/Kinto/kinto-changes/releases/tag/1.2.1
 
@@ -533,14 +533,14 @@ kinto-changes
 - Get rid of six
 
 kinto-megaphone
-'''''''''''''''
+---------------
 
 **kinto-megaphone 0.2.0**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.2.0
 
 Addition of this plugin.
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.3.0 → 3.3.2**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.2
 
@@ -562,7 +562,7 @@ kinto-signer
 ==================
 
 kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 4.0.0 → 5.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/5.0.0
 
@@ -591,7 +591,7 @@ kinto-attachment
 ==================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.2.5 → 3.3.0**: https://github.com/Kinto/kinto-signer/releases/tag/3.3.0
 
@@ -600,7 +600,7 @@ kinto-signer
 - Allow to refresh the signature when the collection has pending changes (Kinto/kinto-signer#245)
 
 kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 3.0.1 → 4.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/4.0.0
 
@@ -614,7 +614,7 @@ kinto-attachment
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 9.2.2 → 9.2.3**: https://github.com/Kinto/kinto/releases/tag/9.2.3
 
@@ -623,7 +623,7 @@ kinto
 - Upgrade to kinto-admin v1.19.2
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.19.1 → 1.19.2**: https://github.com/Kinto/kinto-admin/releases/tag/1.19.2
 
@@ -633,7 +633,7 @@ kinto-admin
 - Fix history diff viewing (kinto/kinto-admin#563)
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.2.4 → 3.2.5**: https://github.com/Kinto/kinto/releases/tag/3.2.5
 
@@ -643,7 +643,7 @@ kinto-signer
 - Prevent kinto-attachment to raise errors when attachments are updated (kinto/kinto-signer#256)
 
 kinto-fxa
-'''''''''
+---------
 
 **kinto-fxa 2.5.1 → 2.5.2**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.2
 
@@ -652,7 +652,7 @@ kinto-fxa
 - Fix the ``process-account-events`` script to take client user ID suffixes into account (kinto/kinto-fxa#61)
 
 kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 3.0.0 → 3.0.1**: https://github.com/Kinto/kinto-attachment/releases/tag/3.0.1
 
@@ -661,9 +661,9 @@ kinto-attachment
 - Do not delete attachment when record is deleted if ``keep_old_files`` setting is true (kinto/kinto-attachment#137)
 
 amo2kinto
-'''''''''
+---------
 
-**amo2kinto 3.2.1 → 4.0.1: https://github.com/mozilla-services/amo2kinto/releases/tag/4.0.1
+**amo2kinto 3.2.1 → 4.0.1**: https://github.com/mozilla-services/amo2kinto/releases/tag/4.0.1
 
 **Bug fix**
 
@@ -679,7 +679,7 @@ amo2kinto
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 9.1.1 → 9.2.2**: https://github.com/Kinto/kinto/releases/tag/9.2.2
 
@@ -705,7 +705,7 @@ kinto
   to authorize endpoint.
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.17.2 → 1.19.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.19.1
 
@@ -716,7 +716,7 @@ kinto-admin
 - Remember last used authentication method (Kinto/kinto-admin#525)
 
 kinto-fxa
-'''''''''
+---------
 
 **kinto-fxa 2.5.0 → 2.5.1**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.1
 
@@ -730,7 +730,7 @@ kinto-fxa
 ==================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.2.3 → 3.2.4**: https://github.com/Kinto/kinto-signer/releases/tag/3.2.4
 
@@ -743,7 +743,7 @@ kinto-signer
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 9.0.1 → 9.1.1**: https://github.com/Kinto/kinto/releases/tag/9.1.1
 
@@ -762,7 +762,7 @@ kinto
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.17.1 → 1.17.2**: https://github.com/Kinto/kinto-admin/releases/tag/1.17.2
 
@@ -776,14 +776,14 @@ kinto-admin
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 9.0.0 → 9.0.1**: https://github.com/Kinto/kinto/releases/tag/9.0.0
 
 - Update version of kinto-admin
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.17.0 → 1.17.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.17.1
 
@@ -793,7 +793,7 @@ kinto-admin
 - Fetch capabilities from singleServer if set (Kinto/kinto-admin#532)
 
 kinto-fxa
-'''''''''
+---------
 
 **kinto-fxa 2.4.1 → 2.5.0**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.0
 
@@ -809,7 +809,7 @@ kinto-fxa
 ==================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.2.2 → 3.2.3**: https://github.com/Kinto/kinto-signer/releases/tag/3.2.3
 
@@ -822,7 +822,7 @@ kinto-signer
 ==================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.2.1 → 3.2.2**: https://github.com/Kinto/kinto-signer/releases/tag/3.2.2
 
@@ -835,7 +835,7 @@ kinto-signer
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 8.2.3 → 9.0.0**: https://github.com/Kinto/kinto/releases/tag/9.0.0
 
@@ -857,7 +857,7 @@ API is now at version **1.19**. See `API changelog`_.
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.15.0 → 1.17.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.17.0
 
@@ -875,7 +875,7 @@ kinto-admin
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 3.0.0 → 3.2.1**: https://github.com/Kinto/kinto-signer/releases/tag/3.2.1
 
@@ -898,7 +898,7 @@ kinto-signer
 
 
 kinto-elasticsearch
-'''''''''''''''''''
+-------------------
 
 **kinto-elasticsearch 0.3.0 → 0.3.1**: https://github.com/Kinto/kinto-elasticsearch/releases/tag/0.3.1
 
@@ -908,7 +908,7 @@ kinto-elasticsearch
 
 
 kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 2.1.0 → 3.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/3.0.0
 
@@ -922,7 +922,7 @@ kinto-attachment
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 8.2.2 → 8.2.3**: https://github.com/Kinto/kinto/releases/tag/8.2.3
 
@@ -938,7 +938,7 @@ kinto
 
 
 kinto
-'''''
+-----
 
 **kinto 8.2.0 → 8.2.2**: https://github.com/Kinto/kinto/releases/tag/8.2.2
 
@@ -948,7 +948,7 @@ kinto
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.15.0 → 1.15.1**: https://github.com/Kinto/kinto-admin/releases/tag/v1.15.1
 
@@ -961,7 +961,7 @@ kinto-admin
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 8.1.5 → 8.2.0**: https://github.com/Kinto/kinto/releases/tag/8.2.0
 
@@ -976,7 +976,7 @@ kinto
 - Fix crash in Postgresql when the value of url param is empty (Kinto/kinto#1305)
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.14.0 → 1.15.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.15.0
 
@@ -991,7 +991,7 @@ kinto-admin
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 2.2.0 → 3.0.0**: https://github.com/Kinto/kinto/releases/tag/3.0.0
 
@@ -1022,7 +1022,7 @@ kinto-signer
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 8.1.4 → 8.1.5**: https://github.com/Kinto/kinto/releases/tag/8.1.5
 
@@ -1040,7 +1040,7 @@ kinto
 ==================
 
 kinto-amo
-'''''''''
+---------
 
 **kinto-amo 0.4.0 → 1.0.1**: https://github.com/mozilla-services/kinto-amo/releases/tag/1.0.1
 
@@ -1059,7 +1059,7 @@ kinto-amo
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 8.1.3 → 8.1.4**: https://github.com/Kinto/kinto/releases/tag/8.1.4
 
@@ -1073,7 +1073,7 @@ kinto
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 8.1.2 → 8.1.3**: https://github.com/Kinto/kinto/releases/tag/8.1.3
 
@@ -1088,7 +1088,7 @@ kinto
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 8.1.1 → 8.1.2**: https://github.com/Kinto/kinto/releases/tag/8.1.2
 
@@ -1117,7 +1117,7 @@ kinto
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 8.1.0 → 8.1.1**: https://github.com/Kinto/kinto/releases/tag/8.1.1
 
@@ -1132,7 +1132,7 @@ kinto
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 8.0.0 → 8.1.0**: https://github.com/Kinto/kinto/releases/tag/8.1.0
 
@@ -1172,7 +1172,7 @@ kinto
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 2.1.1 → 2.2.0**: https://github.com/Kinto/kinto-signer/releases/tag/2.2.0
 
@@ -1183,7 +1183,7 @@ kinto-signer
 
 
 kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 2.0.1 → 2.1.0**: https://github.com/Kinto/kinto-attachment/releases/tag/2.1.0
 
@@ -1196,7 +1196,7 @@ kinto-attachment
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 7.6.1 → 8.0.0**: https://github.com/Kinto/kinto/releases/tag/8.0.0
 
@@ -1241,7 +1241,7 @@ kinto
 ==================
 
 kinto-fxa
-'''''''''
+---------
 
 **kinto-fxa 2.3.0 → 2.4.0**: https://github.com/Kinto/kinto-fxa/releases/tag/2.4.0
 
@@ -1262,7 +1262,7 @@ kinto-fxa
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 7.5.1 → 7.6.0**: https://github.com/Kinto/kinto/releases/tag/7.6.0
 
@@ -1296,7 +1296,7 @@ kinto
 
 
 kinto-changes
-'''''''''''''
+-------------
 
 **kinto-changes 1.0.0 → 1.1.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.1.0
 
@@ -1309,7 +1309,7 @@ kinto-changes
 ==================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 2.1.0 → 2.1.1**: https://github.com/Kinto/kinto-signer/releases/tag/2.1.1
 
@@ -1340,7 +1340,7 @@ kinto-signer
 ==================
 
 amo2kinto
-'''''''''
+---------
 
 **amo2kinto 1.7.2 → 3.0.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/3.0.0
 
@@ -1351,7 +1351,7 @@ amo2kinto
 
 
 kinto
-'''''
+-----
 
 **kinto 7.4.1 → 7.5.0**: https://github.com/Kinto/kinto/releases/tag/7.5.0
 
@@ -1364,7 +1364,7 @@ kinto
 ==================
 
 kinto-elasticsearch
-'''''''''''''''''''
+-------------------
 
 **kinto 0.2.1 → 0.3.0**: https://github.com/Kinto/kinto-elasticsearch/releases/tag/0.3.0
 
@@ -1378,7 +1378,7 @@ kinto-elasticsearch
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 7.3.2 → 7.4.1**: https://github.com/Kinto/kinto/releases/tag/7.4.1
 
@@ -1396,7 +1396,7 @@ kinto
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 7.3.1 → 7.3.2**: https://github.com/Kinto/kinto/releases/tag/7.3.2
 
@@ -1420,7 +1420,7 @@ kinto
 ==================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.5.4 → 2.1.0**: https://github.com/Kinto/kinto-signer/releases/tag/2.1.0
 
@@ -1443,7 +1443,7 @@ kinto-signer
 ==================
 
 kinto-elasticsearch
-'''''''''''''''''''
+-------------------
 
 **kinto-elasticsearch 0.2.1**: https://github.com/Kinto/kinto/releases/tag/0.2.1
 
@@ -1477,7 +1477,7 @@ kinto-elasticsearch
 ==================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.5.3 → 1.5.4**: https://github.com/Kinto/kinto-signer/releases/tag/1.5.4
 
@@ -1496,7 +1496,7 @@ kinto-signer
 ==================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.5.2 → 1.5.3**: https://github.com/Kinto/kinto-signer/releases/tag/1.5.3
 
@@ -1509,7 +1509,7 @@ kinto-signer
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 7.1.0 → 7.3.1**: https://github.com/Kinto/kinto/releases/tag/7.3.1
 
@@ -1553,7 +1553,7 @@ API is now at version **1.17**. See `API changelog <http://kinto.readthedocs.io/
   filters and NULL values (Kinto/kinto#1291)
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.13.3 → 1.14.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.14.0
 
@@ -1563,7 +1563,7 @@ kinto-admin
 - Add support for the Kinto Account plugin. (Kinto/kinto-admin#439)
 
 kinto-amo
-'''''''''
+---------
 
 **kinto-amo 0.3.0 → 0.4.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.4.0
 
@@ -1576,7 +1576,7 @@ kinto-amo
 ==================
 
 kinto-emailer
-'''''''''''''
+-------------
 
 **kinto-emailer 0.4.0 → 1.0.0**: https://github.com/Kinto/kinto-emailer/releases/tag/1.0.0
 
@@ -1586,7 +1586,7 @@ kinto-emailer
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.5.1 → 1.5.2**: https://github.com/Kinto/kinto-signer/releases/tag/1.5.2
 
@@ -1597,7 +1597,7 @@ kinto-signer
 ==================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.5.0 → 1.5.1**: https://github.com/Kinto/kinto-signer/releases/tag/1.5.1
 
@@ -1608,7 +1608,7 @@ kinto-signer
 ==================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.4.0 → 1.5.0**: https://github.com/Kinto/kinto-signer/releases/tag/1.5.0
 
@@ -1632,7 +1632,7 @@ kinto-signer
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 6.1.0 → 7.1.0**: https://github.com/Kinto/kinto/releases/tag/7.1.0
 
@@ -1734,7 +1734,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
 - Upgraded the kinto-admin to version 1.13.2
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.3.3 → 1.4.0**: https://github.com/Kinto/kinto-signer/releases/tag/1.4.0
 
@@ -1747,7 +1747,7 @@ kinto-signer
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 6.0.8 → 6.1.0**: https://github.com/Kinto/kinto/releases/tag/6.1.0
 
@@ -1772,7 +1772,7 @@ kinto
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 6.0.7 → 6.0.8**: https://github.com/Kinto/kinto/releases/tag/6.0.8
 
@@ -1785,7 +1785,7 @@ kinto
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 6.0.6 → 6.0.7**: https://github.com/Kinto/kinto/releases/tag/6.0.7
 
@@ -1798,7 +1798,7 @@ kinto
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 6.0.4 → 6.0.6**: https://github.com/Kinto/kinto/releases/tag/6.0.6
 
@@ -1809,7 +1809,7 @@ kinto
 - Upgrade the kinto-admin to v1.13.3
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.13.2 → 1.13.3**: https://github.com/Kinto/kinto-admin/releases/tag/v1.13.3
 
@@ -1820,7 +1820,7 @@ kinto-admin
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.3.2 → 1.3.3**: https://github.com/Kinto/kinto-signer/releases/tag/1.3.3
 
@@ -1834,7 +1834,7 @@ kinto-signer
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 6.0.1 → 6.0.4**: https://github.com/Kinto/kinto/releases/tag/6.0.4
 
@@ -1844,7 +1844,7 @@ kinto
 
 
 kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 2.0.0 → 2.0.1**: https://github.com/Kinto/kinto-attachment/releases/tag/2.0.1
 
@@ -1854,7 +1854,7 @@ kinto-attachment
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.10.0 → 1.13.2**: https://github.com/Kinto/kinto-admin/releases/tag/v1.13.2
 
@@ -1876,7 +1876,7 @@ kinto-admin
 
 
 kinto-emailer
-'''''''''''''
+-------------
 
 **kinto-emailer 0.3.0 → 0.4.0**: https://github.com/Kinto/kinto-emailer/releases/tag/0.4.0
 
@@ -1891,7 +1891,7 @@ kinto-emailer
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.3.0 → 1.3.2**: https://github.com/Kinto/kinto-signer/releases/tag/1.3.2
 
@@ -1908,7 +1908,7 @@ kinto-signer
 ==================
 
 kinto
-'''''
+-----
 
 **kinto 6.0.0 → 6.0.1**: https://github.com/Kinto/kinto/releases/tag/6.0.1
 
@@ -1923,7 +1923,7 @@ kinto
   bucket (Kinto/kinto#1137)
 
 kinto-ldap
-''''''''''
+----------
 
 **kinto-ldap 0.3.0 → 0.3.1**: https://github.com/Kinto/kinto-ldap/releases/tag/0.3.1
 
@@ -1936,7 +1936,7 @@ kinto-ldap
 ==================
 
 Configuration Breaking Changes
-''''''''''''''''''''''''''''''
+------------------------------
 
 * ``kinto_changes`` must now be present in ``kinto.includes`` (eg. on read-only stacks)
   otherwise the monitoring endpoint won't be accessible.
@@ -1962,7 +1962,7 @@ Now:
 
 
 kinto
-'''''
+-----
 
 **kinto 5.4.1 → 6.0.0**: https://github.com/Kinto/kinto/releases/tag/6.0.0
 
@@ -2009,14 +2009,14 @@ Protocol is now at version **1.15**. See `API changelog`_.
   the PostgreSQL backend using PostgreSQL 9.5+ ``ON CONFLICT`` clause. (Kinto/kinto#1122)
 
 kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 1.1.2 → 2.0.0**: https://github.com/Kinto/kinto-attachment/releases/tag/2.0.0
 
 - Remove Python 2.7 support and upgrade to Python 3.5. (Kinto/kinto-attachment#125)
 
 kinto-changes
-'''''''''''''
+-------------
 
 **kinto-changes 0.5.0 → 1.0.0**: https://github.com/Kinto/kinto-changes/releases/tag/1.0
 
@@ -2034,7 +2034,7 @@ kinto-changes
 * The listener was dropped. Configuration must be changed (see above)
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.2.0 → 1.3.0**: https://github.com/Kinto/kinto-signer/releases/tag/1.3.0
 
@@ -2045,7 +2045,7 @@ kinto-signer
 ===================
 
 kinto
-'''''
+-----
 
 **kinto 5.4.0 → 5.4.1**: https://github.com/Kinto/kinto/releases/tag/5.4.1
 
@@ -2058,7 +2058,7 @@ kinto
 ===================
 
 amo2kinto
-'''''''''
+---------
 
 **amo2kinto 1.6.0 → 1.7.2**: https://github.com/mozilla-services/kinto-amo/releases/tag/1.7.2
 
@@ -2067,7 +2067,7 @@ amo2kinto
 - Fix XML exporter on missing blockID. (mozilla-services/amo2kinto#63)
 
 kinto
-'''''
+-----
 
 **kinto 5.3.5 → 5.3.6**: https://github.com/Kinto/kinto/releases/tag/5.3.6
 
@@ -2077,7 +2077,7 @@ kinto
 - Handle Integer overflow in querystring parameters. (Kinto/kinto#1076)
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.8.1 → 1.9.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.9.0
 
@@ -2098,7 +2098,7 @@ kinto-admin
 ===================
 
 kinto
-'''''
+-----
 
 **kinto 5.3.4 → 5.3.5**: https://github.com/Kinto/kinto/releases/tag/5.3.5
 
@@ -2111,7 +2111,7 @@ kinto
 ===================
 
 kinto
-'''''
+-----
 
 **kinto 5.3.2 → 5.3.4**: https://github.com/Kinto/kinto/releases/tag/5.3.4
 
@@ -2120,7 +2120,7 @@ kinto
 - Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (Kinto/kinto#1055)
 
 kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 1.0.1 → 1.1.2**: https://github.com/Kinto/kinto-attachment/releases/tag/1.1.2
 
@@ -2138,7 +2138,7 @@ kinto-attachment
 =================
 
 kinto
-'''''
+-----
 
 **kinto 5.3.1 → 5.3.2**: https://github.com/Kinto/kinto/releases/tag/5.3.2
 
@@ -2151,7 +2151,7 @@ kinto
 =================
 
 kinto
-'''''
+-----
 
 **kinto 5.3.0 → 5.3.1**: https://github.com/Kinto/kinto/releases/tag/5.3.1
 
@@ -2164,7 +2164,7 @@ kinto
 
 
 kinto-emailer
-'''''''''''''
+-------------
 
 **kinto-emailer 0.3.0**: https://github.com/Kinto/kinto-emailer/releases/tag/0.3.0
 
@@ -2188,7 +2188,7 @@ See more details in `Pyramid Mailer documentation <http://docs.pylonsproject.org
 
 
 kinto-fxa
-'''''''''
+---------
 
 **kinto-fxa 2.3.0 → 2.3.1**: https://github.com/Kinto/kinto-fxa/releases/tag/2.3.0
 
@@ -2202,7 +2202,7 @@ kinto-fxa
 ================
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto 5.2.0 → 5.3.0**: https://github.com/Kinto/kinto/releases/tag/5.3.0
 
@@ -2244,7 +2244,7 @@ kinto-signer
 ================
 
 kinto-changes
-'''''''''''''
+-------------
 
 **kinto-changes 0.4.0 → 0.5.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.5.0
 
@@ -2254,7 +2254,7 @@ kinto-changes
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 1.0.0 → 1.1.1**: https://github.com/Kinto/kinto-signer/releases/tag/1.1.1
 
@@ -2269,7 +2269,7 @@ kinto-signer
 
 
 Kinto
-'''''
+-----
 
 **kinto 5.1.0 → 5.2.0**: https://github.com/Kinto/kinto/releases/tag/5.2.0
 
@@ -2288,7 +2288,7 @@ Kinto
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.6.1 → 1.7.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.7.0
 
@@ -2315,7 +2315,7 @@ kinto-admin
                                       /buckets/blocklists-preview
 
 Kinto
-'''''
+-----
 
 **kinto 4.3.6 → 5.1.0**: https://github.com/Kinto/kinto/releases/tag/5.1.0
 
@@ -2337,7 +2337,7 @@ Kinto
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.5.1 → 1.6.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.6.0
 
@@ -2356,7 +2356,7 @@ kinto-admin
 
 
 kinto-fxa
-'''''''''
+---------
 
 **kinto-fxa 2.2.0 → 2.3.0**: https://github.com/mozilla-services/kinto-fxa/releases/2.3.0
 
@@ -2373,7 +2373,7 @@ kinto-fxa
 ================
 
 Kinto
-'''''
+-----
 
 **kinto 4.3.4 → 4.3.6**: https://github.com/Kinto/kinto-admin/releases/tag/4.3.6
 
@@ -2392,7 +2392,7 @@ Kinto
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.5.0 → 1.5.1**: https://github.com/Kinto/kinto-admin/releases/tag/1.5.1
 
@@ -2406,7 +2406,7 @@ kinto-admin
 
 
 kinto-ldap
-''''''''''
+----------
 
 **kinto-ldap 0.2.1 → 0.3.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.3.0
 
@@ -2418,7 +2418,7 @@ kinto-ldap
 ================
 
 Kinto
-'''''
+-----
 
 **kinto 4.3.3 → 4.3.4**: https://github.com/Kinto/kinto-admin/releases/tag/4.3.4
 
@@ -2428,7 +2428,7 @@ Kinto
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.4.3 → 1.5.0**: https://github.com/Kinto/kinto-admin/releases/tag/1.5.0
 
@@ -2449,7 +2449,7 @@ kinto-admin
 ================
 
 Kinto
-'''''
+-----
 
 **kinto 4.3.2 → 4.3.3**: https://github.com/Kinto/kinto-admin/releases/tag/4.3.3
 
@@ -2462,7 +2462,7 @@ Kinto
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.4.2 → 1.4.3**: https://github.com/Kinto/kinto-admin/releases/tag/1.4.3
 
@@ -2476,7 +2476,7 @@ kinto-admin
 ================
 
 kinto-ldap
-''''''''''
+----------
 
 **kinto-ldap 0.1.0 → 0.2.1**: https://github.com/Kinto/kinto-ldap/releases/tag/0.2.1
 
@@ -2500,7 +2500,7 @@ kinto-ldap
 - Do not crash and log exception if LDAP when server is unreachable (fixes #9)
 
 kinto-changes
-'''''''''''''
+-------------
 
 **kinto-changes 0.3.0 → 0.4.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.4.0
 
@@ -2516,7 +2516,7 @@ kinto-changes
 
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.4.1 → 1.4.2**: https://github.com/Kinto/kinto-admin/releases/tag/1.4.2
 
@@ -2531,7 +2531,7 @@ kinto-admin
 ================
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.4.1**: https://github.com/Kinto/kinto-admin/releases/tag/v1.4.1
 
@@ -2539,7 +2539,7 @@ See `changelog for kinto-admin 1.4.0 <https://github.com/Kinto/kinto-admin/relea
 
 
 kinto-amo
-'''''''''
+---------
 
 **kinto-amo 0.2.0 → 0.3.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.3.0
 
@@ -2558,7 +2558,7 @@ Then you can access kinto-amo endpoints:
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 0.9.2 → 1.0.0**: https://github.com/Kinto/kinto-signer/releases/tag/1.0.0
 
@@ -2587,7 +2587,7 @@ for more details about workflows.
 
 
 kinto-fxa
-'''''''''
+---------
 
 **kinto-fxa 2.1.0 → 2.2.0**: https://github.com/mozilla-services/kinto-fxa/releases/2.2.0
 
@@ -2596,12 +2596,12 @@ kinto-fxa
 ==================
 
 Kinto
-'''''
+-----
 
 **kinto 4.3.0 → 4.3.1**: https://github.com/Kinto/kinto/releases/tag/4.3.1
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 0.9.1 → 0.9.2**: https://github.com/Kinto/kinto-signer/releases/tag/0.9.2
 
@@ -2610,7 +2610,7 @@ kinto-signer
 ==================
 
 Kinto
-'''''
+-----
 
 **kinto 3.3.2 → 4.3.0**: https://github.com/Kinto/kinto/releases/tag/4.3.0
 
@@ -2635,7 +2635,7 @@ Kinto
 - New ``kinto delete-collection`` command to delete a collection from the command-line.
 
 kinto-admin
-'''''''''''
+-----------
 
 **kinto-admin 1.3.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.3.0
 
@@ -2644,7 +2644,7 @@ kinto-admin
 - Activate the signoff plugin to allow triggering a signature from the Admin.
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 0.7.3 → 0.9.1**: https://github.com/Kinto/kinto-signer/releases/tag/0.9.0
 
@@ -2720,7 +2720,7 @@ In order to enable this feature, the following procedure must be followed:
 ==================
 
 Kinto
-'''''
+-----
 
 **kinto 3.3.0 → 3.3.2**: https://github.com/Kinto/kinto/releases/tag/3.3.2
 
@@ -2732,7 +2732,7 @@ Kinto
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 0.7.1 → 0.7.2**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.2
 
@@ -2750,7 +2750,7 @@ kinto-signer
 **kinto-admin 1.2.0**: https://github.com/Kinto/kinto-admin/releases/tag/1.2.0
 
 Kinto
-'''''
+-----
 
 **kinto 3.2.2 → 3.3.0**: https://github.com/Kinto/kinto/releases/tag/3.3.0
 
@@ -2769,7 +2769,7 @@ API is now at version **1.8**. See `API changelog <http://kinto.readthedocs.io/e
 
 
 Kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 0.7.0 → 0.8.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.8.0
 
@@ -2799,7 +2799,7 @@ Kinto-attachment
 * Add integration test for every enabled plugins
 
 Kinto
-'''''
+-----
 
 **kinto 3.2.2 → 3.2.4**: https://github.com/Kinto/kinto/releases/tag/3.2.4
 
@@ -2816,7 +2816,7 @@ Kinto
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 0.7.0 → 0.7.1**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.1
 
@@ -2833,7 +2833,7 @@ kinto-signer
 ==================
 
 Kinto
-'''''
+-----
 
 **kinto 3.2.1 → 3.2.2**: https://github.com/Kinto/kinto/releases/tag/3.2.2
 
@@ -2863,7 +2863,7 @@ Should be changed to::
 
 
 Kinto
-'''''
+-----
 
 **kinto 2.1.2 → 3.2.0**: https://github.com/Kinto/kinto/releases/tag/3.2.0
 
@@ -2931,7 +2931,7 @@ API is now at version **1.7**. See `API changelog <http://kinto.readthedocs.io/e
 
 
 Kinto-attachment
-''''''''''''''''
+----------------
 
 **kinto-attachment 0.5.0 → 0.7.0**: https://github.com/Kinto/kinto-attachment/releases/tag/0.7.0
 
@@ -2948,7 +2948,7 @@ Kinto-attachment
 
 
 kinto-amo
-'''''''''
+---------
 
 **kinto-amo 0.1.0 → 0.2.0**: https://github.com/mozilla-services/kinto-amo/releases/tag/0.2.0
 
@@ -2956,7 +2956,7 @@ kinto-amo
 
 
 kinto-changes
-'''''''''''''
+-------------
 
 **kinto-changes 0.2.0 → 0.3.0**: https://github.com/Kinto/kinto-changes/releases/tag/0.3.0
 
@@ -2964,7 +2964,7 @@ kinto-changes
 
 
 kinto-signer
-''''''''''''
+------------
 
 **kinto-signer 0.4.0 → 0.7.0**: https://github.com/Kinto/kinto-signer/releases/tag/0.7.0
 
@@ -2983,7 +2983,7 @@ kinto-signer
 
 
 kinto-fxa
-'''''''''
+---------
 
 **cliquet-fxa 1.4.0 → kinto-fxa  2.0.0**: https://github.com/mozilla-services/kinto-fxa/releases/tag/2.0.0
 
@@ -3002,7 +3002,7 @@ kinto-fxa
 
 
 kinto-ldap
-''''''''''
+----------
 
 **kinto-ldap 0.1.0**: https://github.com/Kinto/kinto-ldap/releases/tag/0.1.0
 
