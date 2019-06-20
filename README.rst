@@ -230,6 +230,7 @@ Then:
    $ git checkout master
    $ git pull
    $ release
+   $ git checkout -b start-X.Y.Z
    $ postrelease
 
 The Mozilla remote-settings CI will immediately deploy the
@@ -252,10 +253,8 @@ have it be reviewed:
 
 .. code-block:: bash
 
-   $ git checkout -b start-X.Y.Z
    $ git push origin start-X.Y.Z
    $ git checkout master
-   $ git reset --hard origin/master
 
 Then:
 
