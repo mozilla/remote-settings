@@ -59,8 +59,8 @@ raven==6.10.0 \
 statsd==3.3.0 \
     --hash=sha256:c610fb80347fca0ef62666d241bce64184bd7cc1efe582f9690e045c25535eaa \
     --hash=sha256:e3e6db4c246f7c59003e51c9720a51a7f39a396541cb9b147ff4b14d15b5dd1f
-newrelic==4.20.0.120 \
-    --hash=sha256:df880bc3b5da8d4ecb6c3e743d21b0a08cfbd911e5eef8873511480ceb20a2a5
+newrelic==4.20.1.121 \
+    --hash=sha256:708ac6a75c76a59e3d6c0d714e2fbb1e4ec7d540f7d34bddd81e61bdb636e895
 Werkzeug==0.15.4 \
     --hash=sha256:865856ebb55c4dcd0630cdd8f3331a1847a819dda7e8c750d3db6f2aa6c0209c \
     --hash=sha256:a0b915f0815982fb2a09161cb8f31708052d0951c3ba433ccc5e1aa276507ca6
