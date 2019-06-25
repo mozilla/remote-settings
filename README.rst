@@ -253,7 +253,6 @@ have it be reviewed:
 
 .. code-block:: bash
 
-   $ git push origin start-X.Y.Z
    $ git checkout master
 
 Then:

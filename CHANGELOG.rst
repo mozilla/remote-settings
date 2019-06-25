@@ -5,10 +5,18 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-17.2.0 (unreleased)
+17.1.1 (2019-06-25)
 ===================
 
-- Nothing changed yet.
+kinto-admin
+-----------
+
+**kinto-admin 1.24.0 → 1.24.1**: https://github.com/Kinto/kinto/releases/tag/1.24.1
+
+**Bug fixes**
+
+- Fix #977: Fix copy to clipboard in Firefox (#980)
+- Fix #978: Move notifications below header bar (#979)
 
 
 17.1.0 (2019-06-19)
