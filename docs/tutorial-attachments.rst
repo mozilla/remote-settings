@@ -27,13 +27,11 @@ Introduction
 
 Files can be attached to records. When a record has a file attached to it, it has an ``attachment`` attribute, which contains the file related information (url, hash, size, mimetype, etc.).
 
-The Remote Settings client API is **not in charge** of downloading the remote files.
+The Remote Settings client API is **not in charge** of downloading the remote files during synchronization.
+
+However, a `helper is available <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#file-attachments>`_ on the client instance.
 
 During synchronization, only the records that changed are fetched. Depending on your implementation, attachments may have to be redownloaded completely even if only a few bytes were changed.
-
-.. note::
-
-    Some day we'd like to have a reusable helper for attachment. Tracking happens in `Bug 1501214 <https://bugzilla.mozilla.org/show_bug.cgi?id=1501214>`_.
 
 
 Publish records with attachments
@@ -75,68 +73,32 @@ And in order to create a record with both attributes and attachment, you'll have
 Synchronize attachments
 -----------------------
 
-The location attribute in records only contains a relative path. In order to build the full URL, some metadata has to be obtained from the server root URL.
+Attachments can be downloaded when the ``"sync"`` event is received.
 
 .. code-block:: bash
 
-    curl -s {$SERVER}/ | jq .capabilities.attachments.base_url
+    const client = RemoteSettings("a-key");
 
-Using JavaScript, a **naive** implementation to download records attachments can look like this:
+    client.on("sync", async ({ data: { created, updated, deleted } }) => {
+      const toDownload = created
+        .concat(updated.map(u => u.new))
+        .filter(d => d.attachment);
 
-.. code-block:: JavaScript
-
-    ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-    ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
-    XPCOMUtils.defineLazyGlobalGetters(this, ["fetch"]);
-
-    XPCOMUtils.defineLazyGetter(this, "baseAttachmentsURL", async () => {
-      const server = Services.prefs.getCharPref("services.settings.server");
-      const serverInfo = await (await fetch(`${server}/`)).json();
-      const { capabilities: { attachments: { base_url } } } = serverInfo;
-      return base_url;
-    });
-
-    RemoteSettings("public-suffix-list").on("sync", async (event) => {
-      const {
-        data: { created, updated, deleted }
-      } = event;
-
-      // Remove every removed attachment.
-      const toRemove = deleted.concat(updated.map(u => u.old));
-      await Promise.all(
-        toRemove.map(async record => {
-          const { attachment: { location, filename } } = record;
-
-          const path = OS.Path.join(OS.Constants.Path.profileDir, filename);
-          return OS.File.remove(path, { ignoreAbsent: true });
-        })
+      // Download attachments
+      const fileURLs = await Promise.all(
+        toDownload.map(entry => client.attachments.download(entry, { retries: 2 }))
       );
 
-      // Download every new/updated attachment.
-      const toDownload = created.concat(updated.map(u => u.new));
-      await Promise.all(
-        toDownload.map(async record => {
-          const { attachment: { location, filename } } = record;
-
-          const resp = await fetch((await baseAttachmentsURL) + location);
-          const buffer = await resp.arrayBuffer();
-          const bytes = new Uint8Array(buffer);
-
-          const path = OS.Path.join(OS.Constants.Path.profileDir, filename);
-          return OS.File.writeAtomic(path, bytes, { tmpPath: path + ".tmp" });
+      // Open downloaded files...
+      const fileContents = await Promise.all(
+        fileURLs.map(async url => {
+          const r = await fetch(url);
+          return r.blob();
         })
       );
     });
 
-.. important::
-
-    Downloading attachments can introduce complexity, particularly:
-
-    - check available disk space
-    - preserve bandwidth
-    - resume failed downloads
-    - verify integrity (md5sum) regularly
-    - redownload corrupt files
+See more details in `client documentation <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#file-attachments>`_.
 
 
 About compression
@@ -145,6 +107,7 @@ About compression
 The server does not compress the files.
 
 We plan to enable compression at the HTTP level (`Bug 1339114 <https://bugzilla.mozilla.org/show_bug.cgi?id=1339114>`_) for when clients fetch the attachment using the ``Accept-Encoding: gzip`` request header.
+
 
 In the admin tool
 -----------------
