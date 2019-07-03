@@ -5,6 +5,12 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+17.1.2 (unreleased)
+===================
+
+- Nothing changed yet.
+
+
 17.1.1 (2019-06-25)
 ===================
 
