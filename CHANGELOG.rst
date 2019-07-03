@@ -5,6 +5,16 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+17.1.2 (2019-07-03)
+===================
+
+**kinto-fxa 2.5.2 → 2.5.3**: https://github.com/Kinto/kinto-fxa/releases/tag/2.5.3
+
+**Optimization**
+
+- Try to keep ``OAuthClient`` around longer to take advantage of HTTP keepalives (Kinto/kinto-fxa#133).
+
+
 17.1.1 (2019-06-25)
 ===================
 
