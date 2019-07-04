@@ -8,7 +8,14 @@ the version control of each dependency.
 17.1.3 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 13.1.1 → 13.2.2**: https://github.com/Kinto/kinto/releases/tag/13.2.2
+
+**Bug fixes**
+
+- Fix apparence of Admin notifications (Kinto/kinto#2191)
 
 
 17.1.2 (2019-07-03)
