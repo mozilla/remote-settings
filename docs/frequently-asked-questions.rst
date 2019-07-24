@@ -135,6 +135,6 @@ I cannot access my collection
 -----------------------------
 
 * Check that you can ping the server on the VPN
-  - If not, contact ``:wezhou`` on #storage
+  - If not, contact ``:wezhou`` on #engops on Slack
 * Check that you can login on the Kinto Admin UI
 * In the ``main-workspace`` bucket, check that you can create records in your collection (eg. main-workspace/tippytop)
