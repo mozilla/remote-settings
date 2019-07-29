@@ -30,8 +30,8 @@ kinto-http==10.4.1 \
 Jinja2==2.10.1 \
     --hash=sha256:14dd6caf1527abb21f08f86c784eac40853ba93edb79552aa1e4b8aef1b61c7b \
     --hash=sha256:065c4f02ebe7f7cf559e49ee5a95fb800a9e4528727aec6f24402a5374c65013
-PyFxA==0.7.2 \
-    --hash=sha256:87c1f940e40c6dce4d46ec0d411bb521a897f574234462c970e6392a834305ea
+PyFxA==0.7.3 \
+    --hash=sha256:f47f4285629fa6c033c79adc3fb90926c0818a42cfddb04d32818547362f1627
 requests-hawk==1.0.0 \
     --hash=sha256:aef0dff8053dcae2057774516386bed0a3bc03fabea9e18f3aa98f02672ea5d0 \
     --hash=sha256:c2626ab31ebef0c81b97781c44c2275bfcc6d8e8520fc4ced495f0f386f8fe26
