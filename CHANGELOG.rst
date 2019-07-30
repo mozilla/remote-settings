@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-17.1.4 (unreleased)
+17.1.4 (2019-07-30)
 ===================
 
-- Nothing changed yet.
+kinto-signer
+------------
+
+**kinto-signer 5.0.0 → 5.0.1**: https://github.com/Kinto/kinto-signer/releases/tag/5.0.1
+
+**Bug Fixes**
+
+- Make sure the DB transaction is rolledback when signing fails (Kinto/kinto-signer#591)
 
 
 17.1.3 (2019-07-04)
