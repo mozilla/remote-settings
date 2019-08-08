@@ -21,6 +21,11 @@ Once done, you will be able to login and edit your records on the **STAGE** and 
 - https://settings-writer.stage.mozaws.net/v1/admin/
 - https://settings-writer.prod.mozaws.net/v1/admin/
 
+The records will then be publicly visible at:
+
+- https://settings.stage.mozaws.net/v1/bucket/main/collections/{collection-id}/records (**STAGE**)
+- https://firefox.settings.services.mozilla.com/v1/bucket/main/collections/{collection-id}/records (**PROD**)
+
 Don't hesitate to contact us (``#storage`` on IRC) if you're stuck or have questions about the process!
 
 Check out the :ref:`screencast to create, request review and approve changes <screencasts-modify-request-review>`, or :ref:`our FAQ <faq>`!
@@ -33,7 +38,7 @@ Check out the :ref:`screencast to create, request review and approve changes <sc
 About your data
 ---------------
 
-Name your collection in lowercase with dashes (eg. ``public-list-suffix``, `examples  <https://settings.prod.mozaws.net/v1/buckets/main/collections?_fields=id>`_).
+Name your collection in lowercase with dashes (eg. ``public-list-suffix``, `examples  <https://firefox.settings.services.mozilla.com/v1/buckets/main/collections?_fields=id>`_).
 
 The Admin UI automatically builds forms based on some metadata for your collection, namely:
 
