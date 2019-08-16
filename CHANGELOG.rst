@@ -8,7 +8,22 @@ the version control of each dependency.
 17.1.5 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 13.2.2 → 13.3.0**: https://github.com/Kinto/kinto/releases/tag/13.3.0
+
+**Bug fixes**
+
+- Prevent password to be modified on modification of accounts metadata (Kinto/kinto#2058)
+- Fix unexpected exception in ``/__version__`` endpoint
+- Add ``Content-Type`` to default_cors_headers Kinto/kinto#2220)
+- Fix crash with non-allowed requests on ``__user_data__`` (Kinto/kinto#2063)
+- Fix multiple event listeners on READ action (Kinto/kinto#1755)
+
+**New features**
+
+- Allow StatsD counter to be incremented by an arbitrary number
 
 
 17.1.4 (2019-07-30)
