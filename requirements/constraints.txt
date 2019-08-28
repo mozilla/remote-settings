@@ -267,9 +267,9 @@ requests==2.22.0 \
 dockerflow==2019.6.0 \
     --hash=sha256:885e4e32ebedc87a86c0d9c16fe4797f9ffe70622eb3a056615e37611eb983fd \
     --hash=sha256:3342654c419492fa16dc5872546c893433fefce8fd9ba90da9bc9cfcafaecac1
-waitress==1.3.0 \
-    --hash=sha256:90fe750cd40b282fae877d3c866255d485de18e8a232e93de42ebd9fb750eebb \
-    --hash=sha256:4e2a6e6fca56d6d3c279f68a2b2cc9b4798d834ea3c3a9db3e2b76b6d66f4526
+waitress==1.3.1 \
+    --hash=sha256:f103e557725b17ae3c62f9e6005cdd85103f8b68fa86cf7c764ba7adc38ca5a2 \
+    --hash=sha256:278e09d6849acc1365404bbf7d790d0423b159802e850c726e8cd0a126a2dac7
 python-dateutil==2.8.0 \
     --hash=sha256:7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb \
     --hash=sha256:c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e
