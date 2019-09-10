@@ -25,6 +25,17 @@ kinto
 
 - Allow StatsD counter to be incremented by an arbitrary number
 
+kinto-signer
+------------
+
+**kinto-signer 5.0.1 → 5.1.0**: https://github.com/Kinto/kinto-signer/releases/tag/5.1.0
+
+**New Features**
+
+- Add StatsD counter for number of changes approved (Kinto/kinto-signer#606)
+- Prevent deletion of preview or destination if in use (Kinto/kinto-signer#641)
+- Add ability to rollback changes (Kinto/kinto-signer#260)
+
 
 17.1.4 (2019-07-30)
 ===================
