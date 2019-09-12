@@ -11,7 +11,7 @@ the version control of each dependency.
 kinto
 -----
 
-**kinto 13.2.2 → 13.3.0**: https://github.com/Kinto/kinto/releases/tag/13.3.0
+**kinto 13.2.2 → 13.4.0**: https://github.com/Kinto/kinto/releases/tag/13.4.0
 
 **Bug fixes**
 
@@ -24,6 +24,22 @@ kinto
 **New features**
 
 - Allow StatsD counter to be incremented by an arbitrary number
+
+kinto-admin
+-----------
+
+**kinto-admin 1.24.1 → 1.25.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.25.0
+
+**New features**
+
+* Rollback changes button (Kinto/kinto-admin#520)
+
+**Bug fixes**
+
+* Remove kinto-signer from filtered history (Kinto/kinto-admin#1015)
+* Since parameter not taken into account in history list (Kinto/kinto-admin#1007)
+* Fix inverted diff (Kinto/kinto-admin#988)
+
 
 kinto-signer
 ------------
