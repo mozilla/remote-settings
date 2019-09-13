@@ -32,7 +32,7 @@ Check out the :ref:`screencast to create, request review and approve changes <sc
 
     - https://settings-writer.stage.mozaws.net/v1/admin/ (*Admin UI*)
 
-    In order to switch from PROD to STAGE, use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_!
+    In order to switch Firefox from PROD to STAGE, use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_!
 
     The records will be publicly visible at `https://settings.stage.mozaws.net/v1/bucket/main/collections/{collection-id}/records`_
 
