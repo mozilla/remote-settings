@@ -16,23 +16,29 @@ Basically, you will have to go through these 3 steps:
 2. Design your data model (see below) and prepare the list of colleagues that will be allowed to review your data
 3. Request the creation of your collection using `this Bugzilla ticket template <https://bugzilla.mozilla.org/enter_bug.cgi?assigned_to=nobody%40mozilla.com&bug_file_loc=http%3A%2F%2F&bug_ignored=0&bug_severity=normal&bug_status=NEW&cc=mathieu%40mozilla.com&cc=eglassercamp%40mozilla.com&cf_fx_iteration=---&cf_fx_points=---&cf_status_firefox62=---&cf_status_firefox63=---&cf_status_firefox64=---&cf_status_firefox_esr60=---&cf_status_geckoview62=---&cf_tracking_firefox62=---&cf_tracking_firefox63=---&cf_tracking_firefox64=---&cf_tracking_firefox_esr60=---&cf_tracking_firefox_relnote=---&cf_tracking_geckoview62=---&comment=Collection%20name%3A%20_____%20%28eg.%20fingerprint-fonts%2C%20focus-experiments%2C%20...%29%0D%0A%0D%0AList%20of%20LDAP%20emails%20allowed%20to%20change%20the%20records%20%28editors%29%3A%0D%0A%20-%20user1%40mozilla.com%0D%0A%20-%20...%0D%0A%0D%0AList%20of%20LDAP%20emails%20allowed%20to%20approve%20the%20changes%20%28reviewers%29%0D%0A%20-%20user1%40mozilla.com%0D%0A%20-%20...%0D%0A%0D%0A%0D%0A%28optional%29%20Allow%20file%20attachments%20on%20records%3A%20%28yes%2Fno%29%0D%0A%28optional%29%20Are%20attachments%20required%20on%20records%20%28yes%2Fno%29%0D%0A%28optional%29%20List%20of%20fields%20names%20to%20display%20as%20columns%20in%20the%20records%20list%20UI%3A%20%28eg.%20%22name%22%2C%20%22details.size%22%29%0D%0A%28optional%29%20JSON%20schema%20to%20validate%20records%20%28in%20YAML%20format%29%3A%20%28eg.%20https%3A%2F%2Fgist.github.com%2Fleplatrem%2F4d86d5a64a56b5d8990be9af592d0e7f%29%0D%0A%28optional%29%20Manual%20records%20ID%3A%20%28yes%2Fno%29%0D%0A%28optional%29%20JEXL%20target%20filters%3A%20%28yes%2Fno%29%0D%0A&component=Server%3A%20Remote%20Settings&contenttypemethod=list&contenttypeselection=text%2Fplain&defined_groups=1&flag_type-37=X&flag_type-5=X&flag_type-607=X&flag_type-708=X&flag_type-721=X&flag_type-737=X&flag_type-748=X&flag_type-787=X&flag_type-800=X&flag_type-803=X&flag_type-846=X&flag_type-864=X&flag_type-929=X&flag_type-933=X&form_name=enter_bug&groups=mozilla-employee-confidential&maketemplate=Remember%20values%20as%20bookmarkable%20template&op_sys=Unspecified&priority=--&product=Cloud%20Services&rep_platform=Unspecified&short_desc=Please%20create%20the%20new%20collection%20%22_____%22&target_milestone=---&version=unspecified&bug_type=task>`_
 
-Once done, you will be able to login and edit your records on the **STAGE** and **PROD** Admin UIs:
+Once done, you will be able to login and edit your records on the Admin UIs:
 
-- https://settings-writer.stage.mozaws.net/v1/admin/
 - https://settings-writer.prod.mozaws.net/v1/admin/
 
-The records will then be publicly visible at:
+The records will then be publicly visible at `https://firefox.settings.services.mozilla.com/v1/bucket/main/collections/{collection-id}/records`_
 
-- https://settings.stage.mozaws.net/v1/bucket/main/collections/{collection-id}/records (**STAGE**)
-- https://firefox.settings.services.mozilla.com/v1/bucket/main/collections/{collection-id}/records (**PROD**)
-
-Don't hesitate to contact us (``#storage`` on IRC) if you're stuck or have questions about the process!
+Don't hesitate to contact us (``@delivery`` on Slack) if you're stuck or have questions about the process!
 
 Check out the :ref:`screencast to create, request review and approve changes <screencasts-modify-request-review>`, or :ref:`our FAQ <faq>`!
 
 .. note::
 
-    If you simply want to play with the stack or the API, the best way to get started is probably to use our :ref:`DEV server <tutorial-dev-server>`, since everyone is allowed to manipulate data on the server and the multi-signoff workflow is not enabled. Check out the :ref:`dedicated tutorial <tutorial-dev-server>`!
+    In order to **try out changes in a real environment**, you can use the **STAGE** instance:
+
+    - https://settings-writer.stage.mozaws.net/v1/admin/ (*Admin UI*)
+
+    In order to switch from PROD to STAGE, use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_!
+
+    The records will be publicly visible at `https://settings.stage.mozaws.net/v1/bucket/main/collections/{collection-id}/records`_
+
+.. note::
+
+    If you simply **want to play** with the stack or the API, the best way to get started is probably to use our :ref:`DEV server <tutorial-dev-server>`, since everyone is allowed to manipulate data on the server and the multi-signoff workflow is not enabled. Check out the :ref:`dedicated tutorial <tutorial-dev-server>`!
 
 
 About your data
