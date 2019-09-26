@@ -5,10 +5,38 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-17.3.0 (unreleased)
+17.3.0 (2019-09-26)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 13.4.0 → 13.5.0**: https://github.com/Kinto/kinto/releases/tag/13.5.0
+
+**Internal changes**
+
+- Add a warning when using the accounts plugin with the memory backend. (Kinto/kinto#2258)
+- Upgrade kinto-admin to `v1.25.1 <https://github.com/Kinto/kinto-admin/releases/tag/v1.25.1>`_
+
+kinto-admin
+-----------
+
+**kinto-admin 1.25.0 → 1.25.1**: https://github.com/Kinto/kinto-admin/releases/tag/v1.25.1
+
+**Bug fixes**
+
+* Fix inverted diff (bis) (Kinto/kinto-admin#988)
+
+kinto-signer
+------------
+
+**kinto-signer 5.1.0 → 5.2.0**: https://github.com/Kinto/kinto-signer/releases/tag/5.2.0
+
+**New features**
+
+- Log Autograph requests references (Kinto/kinto-signer#687)
+- Set status of new collections to signed (Kinto/kinto-signer#683)
+- Fix collection deletion safety check (Kinto/kinto-signer#684)
 
 
 17.2.0 (2019-09-12)
