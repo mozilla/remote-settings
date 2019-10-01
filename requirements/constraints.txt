@@ -342,9 +342,9 @@ plaster-pastedeploy==0.7 \
 plaster==1.0 \
     --hash=sha256:215c921a438b5349931fd7df9a5a11a3572947f20f4bc6dd622ac08f1c3ba249 \
     --hash=sha256:8351c7c7efdf33084c1de88dd0f422cbe7342534537b553c49b857b12d98c8c3
-attrs==19.1.0 \
-    --hash=sha256:69c0dbf2ed392de1cb5ec704444b08a5ef81680a61cb899dc08127123af36a79 \
-    --hash=sha256:f0b870f674851ecbfbbbd364d6b5cbdff9dcedbc7f3f5e18a6891057f21fe399
+attrs==19.2.0 \
+    --hash=sha256:ec20e7a4825331c1b5ebf261d111e16fa9612c1f7a5e1f884f12bd53a664dfd2 \
+    --hash=sha256:f913492e1663d3c36f502e5e9ba6cd13cf19d7fab50aa13239e420fef95e1396
 pyrsistent==0.15.4 \
     --hash=sha256:34b47fa169d6006b32e99d4b3c4031f155e6e68ebcc107d6454852e8e0ee6533
 cached-property==1.5.1 \
