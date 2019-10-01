@@ -15,6 +15,14 @@ def read_file(filename):
 README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 
+INSTALL_REQUIRES = [
+    x.replace(" \\", "")
+    for x in (
+        read_file("./requirements/default.txt")
+        + read_file("./requirements/constraints.txt")
+    ).split("\n")
+    if not x.startswith(" ")
+]
 
 setup(
     name='kinto-dist',
@@ -40,4 +48,5 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
+    install_requires=INSTALL_REQUIRES,
 )
