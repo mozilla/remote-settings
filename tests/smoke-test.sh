@@ -36,8 +36,6 @@ echo '{"data": {"type": "logo"}}' | http --check-status PUT $SERVER/buckets/blog
 http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/logo/attachment attachment@kinto-logo.svg --auth $AUTH
 
 # kinto-signer test
-python $DIR/e2e.py --server=$SERVER --auth=$AUTH --editor-auth=$EDITOR_AUTH --reviewer-auth=$REVIEWER_AUTH --source-bucket=source --source-col=source
-python $DIR/create_groups.py --server=$SERVER --bucket=source --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 
 # kinto-changes
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"destination"'
@@ -51,7 +49,6 @@ APPID="\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}"
 http --check-status $SERVER/blocklist/3/$APPID/46.0/
 echo '{"permissions": {"write": ["system.Authenticated"]}}' | http PUT $SERVER/buckets/staging --auth="$AUTH"
 
-python $DIR/create_groups.py --server=$SERVER --bucket=staging --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 # 1. Add a few records
 pwd # TEMP
 ls -l  # TEMP
