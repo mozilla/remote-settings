@@ -38,6 +38,8 @@ Initialization script
 
 Since the container is not configured with a real database by default, the content is flushed on each restart.
 
+This means you will have to populate data regularly.
+
 We'll create a small bash script ``init.sh`` with the following commands:
 
 .. code-block:: bash
@@ -47,7 +49,7 @@ We'll create a small bash script ``init.sh`` with the following commands:
 
     SERVER=http://localhost:8888/v1
 
-In the :ref:`prerequisiste tutorial <tutorial-local-server>`, an ``admin`` user was created, as well as the basic buckets. Let's add that to our script:
+In the :ref:`prerequisite tutorial <tutorial-local-server>`, an ``admin`` user was created, as well as the basic buckets. Let's add that to our script:
 
 .. code-block:: bash
 
