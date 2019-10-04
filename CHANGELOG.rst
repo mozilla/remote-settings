@@ -5,10 +5,22 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-17.4.0 (unreleased)
+17.4.0 (2019-10-04)
 ===================
 
-- Nothing changed yet.
+kinto-signer
+------------
+
+**kinto-signer 5.2.0 → 5.2.1**: https://github.com/Kinto/kinto-signer/releases/tag/5.2.1
+
+- Fix crash in collection deletion safety check (Kinto/kinto-signer#709)
+
+kinto-megaphone
+---------------
+
+**kinto-megaphone 0.3.0 → 0.4.0**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.4.0
+
+- Log version value when broadcasting to Megaphone
 
 
 17.3.0 (2019-09-26)
