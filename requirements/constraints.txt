@@ -131,9 +131,9 @@ idna==2.8 \
 ecdsa==0.13.2 \
     --hash=sha256:20c17e527e75acad8f402290e158a6ac178b91b881f941fc6ea305bfdfb9657c \
     --hash=sha256:5c034ffa23413ac923541ceb3ac14ec15a0d2530690413bff58c12b80e56d884
-boto3==1.9.242 \
-    --hash=sha256:4189e1ffed768bd0efd754a0abedebce19495ba2aa6b2f5e20f29ba80f81f9cb \
-    --hash=sha256:fa4e28166922feeb9b7b56134c1acc817a1bca36284a0035bc08a3dab1853a9f
+boto3==1.9.243 \
+    --hash=sha256:c6e5a7e4548ce7586c354ff633f2a66ba3c471d15a8ae6a30f873122ab04e1cf \
+    --hash=sha256:404acbecef8f4912f18312fcfaffe7eba7f10b3b7adf7853bdba59cdf2275ebb
 pyramid_mailer==0.15.1 \
     --hash=sha256:28d4a7829ebc19dd40e712d8cb1998cec03c296ba675b2c112a503539738bdc1 \
     --hash=sha256:ec0aff54d9179b2aa2922ff82c2016a4dc8d1da5dc3408d6594f0e2096446f9b
