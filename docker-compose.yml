@@ -51,7 +51,6 @@ services:
       - KINTO_STORAGE_URL=postgres://postgres@db/postgres
       - KINTO_PERMISSION_URL=postgres://postgres@db/postgres
       - KINTO_SIGNER_AUTOGRAPH_SERVER_URL=http://autograph:8000
-      - KINTO_ATTACHMENT_BASE_URL=http://autograph:8000
       - KINTO_CACHE_BACKEND=kinto_redis.cache
       - KINTO_CACHE_URL=redis://redis:6379/2
     ports:
