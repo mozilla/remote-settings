@@ -13,10 +13,7 @@ services:
     image: redis:5.0.4
 
   autograph:
-    build:
-      context: autograph
-      dockerfile: Dockerfile
-    image: kinto:autograph
+    image: mozilla/autograph:3.8.0
 
   megaphone:
     image: mozilla/megaphone:0.1.5
