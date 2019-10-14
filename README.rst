@@ -29,8 +29,8 @@ all is working as expected is to run:
           all the Kinto data in your local persistent PostgreSQL with
           ``curl -XPOST http://localhost:8888/v1/__flush__``
 
-That will start ``redis``, ``postgresql``, ``autograph`` (at ``autograph:8000``)
-and Kinto (at ``web:8888``) and lastly the ``tests`` container that primarily
+That will start ``redis``, ``postgresql``, ``autograph`` and Kinto (at ``web:8888``)
+and lastly the ``tests`` container that primarily
 uses ``curl http://web:8888/v1`` to test various things.
 
 When you're done running the above command, the individual servers will still
