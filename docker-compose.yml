@@ -28,8 +28,6 @@ services:
       ROCKET_READER_AUTH: "{reader=[token2]}"
       ROCKET_LOG: normal
       RUST_BACKTRACE: 1
-    ports:
-      - "8000:8000"
 
   mysql:
     image: mysql:5.7.25
@@ -50,12 +48,12 @@ services:
       - autograph
       - megaphone
     environment:
+      - KINTO_CACHE_BACKEND=kinto_redis.cache
+      - KINTO_CACHE_URL=redis://redis:6379/2
       - KINTO_STORAGE_URL=postgres://postgres@db/postgres
       - KINTO_PERMISSION_URL=postgres://postgres@db/postgres
       - KINTO_SIGNER_AUTOGRAPH_SERVER_URL=http://autograph:8000
-      - KINTO_ATTACHMENT_BASE_URL=http://autograph:8000
-      - KINTO_CACHE_BACKEND=kinto_redis.cache
-      - KINTO_CACHE_URL=redis://redis:6379/2
+      # - Megaphone is configured in config/example.ini (see event_listeners)
     ports:
       - "8888:8888"
       - "9999:9999"
