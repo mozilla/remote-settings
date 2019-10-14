@@ -1,0 +1,30 @@
+server:
+    listen: "0.0.0.0:8000"
+    # cache 500k nonces to protect from authorization replay attacks
+    noncecachesize: 524288
+
+# The keys below are testing keys that do not grant any power
+signers:
+    # a p384 key, the standard
+    - id: appkey1
+      type: contentsignature
+      x5u: https://bucket.example.net/appkey1.pem
+      privatekey: |
+          -----BEGIN EC PARAMETERS-----
+          BgUrgQQAIg==
+          -----END EC PARAMETERS-----
+          -----BEGIN EC PRIVATE KEY-----
+          MIGkAgEBBDAzX2TrGOr0WE92AbAl+nqnpqh25pKCLYNMTV2hJHztrkVPWOp8w0mh
+          scIodK8RMpagBwYFK4EEACKhZANiAATiTcWYbt0Wg63dO7OXvpptNG0ryxv+v+Js
+          JJ5Upr3pFus5fZyKxzP9NPzB+oFhL/xw3jMx7X5/vBGaQ2sJSiNlHVkqZgzYF6JQ
+          4yUyiqTY7v67CyfUPA1BJg/nxOS9m3o=
+          -----END EC PRIVATE KEY-----
+
+authorizations:
+    - id: kintodev
+      key: 3isey64n25fim18chqgewirm6z2gwva1mas0eu71e9jtisdwv6bd
+      signers:
+          - appkey1
+
+monitoring:
+    key: 19zd4w3xirb5syjgdx8atq6g91m03bdsmzjifs2oddivswlu9qs
