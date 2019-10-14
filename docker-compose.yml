@@ -13,7 +13,7 @@ services:
     image: redis:5.0.4
 
   autograph:
-    image: mozilla/autograph:3.8.0
+    image: mozilla/autograph:3.1.0
 
   megaphone:
     image: mozilla/megaphone:0.1.5
