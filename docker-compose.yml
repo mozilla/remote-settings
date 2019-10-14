@@ -13,10 +13,9 @@ services:
     image: redis:5.0.4
 
   autograph:
-    build:
-      context: autograph
-      dockerfile: Dockerfile
-    image: kinto:autograph
+    image: mozilla/autograph:2.7.0
+    volumes:
+      - ${PWD}/autograph/autograph.yaml:/app/autograph.yaml
 
   megaphone:
     image: mozilla/megaphone:0.1.5
