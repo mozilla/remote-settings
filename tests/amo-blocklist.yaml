@@ -1,5 +1,38 @@
 buckets:
   staging:
+    groups:
+      certificates-editors:
+        data:
+          members:
+          - account:editor
+      certificates-reviewers:
+        data:
+          members:
+          - account:reviewer
+      addons-editors:
+        data:
+          members:
+          - account:editor
+      addons-reviewers:
+        data:
+          members:
+          - account:reviewer
+      gfx-editors:
+        data:
+          members:
+          - account:editor
+      gfx-reviewers:
+        data:
+          members:
+          - account:reviewer
+      plugins-editors:
+        data:
+          members:
+          - account:editor
+      plugins-reviewers:
+        data:
+          members:
+          - account:reviewer
     collections:
       addons:
         data:
@@ -967,6 +1000,3 @@ buckets:
                   minVersion: '2.14'
                 vulnerabilityStatus: 1
             permissions: {}
-    data:
-      id: staging
-    permissions: {}
