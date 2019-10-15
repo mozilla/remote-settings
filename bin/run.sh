@@ -4,7 +4,7 @@ set -eo pipefail
 : "${KINTO_INI:=config/example.ini}"
 
 usage() {
-  echo "usage: ./bin/run.sh uwsgistart|start|bash|whatevercommandyouwant"
+  echo "usage: ./bin/run.sh migrate|start|uwsgistart|bash|whatevercommandyouwant"
   exit 1
 }
 
