@@ -11,19 +11,21 @@ AUTH="${AUTH:-user:pass}"
 EDITOR_AUTH="${EDITOR_AUTH:-editor:pass}"
 REVIEWER_AUTH="${REVIEWER_AUTH:-reviewer:pass}"
 
+
 # Create Kinto accounts
 echo '{"data": {"password": "pass"}}' | http --check-status PUT $SERVER/accounts/user
 echo '{"data": {"password": "pass"}}' | http --check-status PUT $SERVER/accounts/editor
 echo '{"data": {"password": "pass"}}' | http --check-status PUT $SERVER/accounts/reviewer
 
-http --check-status PUT $SERVER/buckets/blog --auth $AUTH
-http --check-status PUT $SERVER/buckets/blog/collections/articles --auth $AUTH
-# Create preview and destination buckets explicitly (see Kinto/kinto-signer#155)
-http --check-status PUT $SERVER/buckets/blocklists --auth $AUTH
-http --check-status PUT $SERVER/buckets/blocklists-preview --auth $AUTH
-
 http --check-status $SERVER/__heartbeat__
 http --check-status $SERVER/__api__ | grep "/buckets/monitor/collections/changes/records"
+
+#
+# Basic test
+#
+
+http --check-status PUT $SERVER/buckets/blog --auth $AUTH
+http --check-status PUT $SERVER/buckets/blog/collections/articles --auth $AUTH
 
 # kinto.plugins.history
 http --check-status GET $SERVER/buckets/blog/history --auth $AUTH | grep '"articles"'
@@ -35,9 +37,36 @@ http --check-status --form POST $SERVER/buckets/blog/collections/articles/record
 echo '{"data": {"type": "logo"}}' | http --check-status PUT $SERVER/buckets/blog/collections/articles/records/logo --auth $AUTH
 http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/logo/attachment attachment@kinto-logo.svg --auth $AUTH
 
+
+
+#
 # kinto-signer test
-python $DIR/e2e.py --server=$SERVER --auth=$AUTH --editor-auth=$EDITOR_AUTH --reviewer-auth=$REVIEWER_AUTH --source-bucket=source --source-col=source
-python $DIR/create_groups.py --server=$SERVER --bucket=source --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
+#
+
+python $DIR/e2e.py --server=$SERVER --auth=$AUTH --editor-auth=$EDITOR_AUTH --reviewer-auth=$REVIEWER_AUTH --source-bucket="source" --source-col="source"
+
+# kinto-emailer
+echo '{"data": {
+  "kinto-emailer": {
+    "hooks": [{
+      "event": "kinto_signer.events.ReviewRequested",
+      "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
+      "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
+      "recipients": ["me@you.com", "/buckets/source/groups/reviewers"]
+    }]
+  }
+}}' | http PATCH $SERVER/buckets/source --auth="$AUTH"
+
+echo '{"data": {"status": "to-review"}}' | http PATCH $SERVER/buckets/source/collections/source --auth="$EDITOR_AUTH"
+
+cat mail/*.eml | grep "Subject: account"
+cat mail/*.eml | grep "To: me@you.com"
+
+
+
+#
+# kinto-amo test
+#
 
 # kinto-changes
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"destination"'
@@ -51,7 +80,6 @@ APPID="\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}"
 http --check-status $SERVER/blocklist/3/$APPID/46.0/
 echo '{"permissions": {"write": ["system.Authenticated"]}}' | http PUT $SERVER/buckets/staging --auth="$AUTH"
 
-python $DIR/create_groups.py --server=$SERVER --bucket=staging --auth="$AUTH" --editor-auth="$EDITOR_AUTH" --reviewer-auth="$REVIEWER_AUTH"
 # 1. Add a few records
 pwd # TEMP
 ls -l  # TEMP
@@ -93,26 +121,11 @@ python validate_signature.py --server=$SERVER --bucket=blocklists --collection=c
 python validate_signature.py --server=$SERVER --bucket=blocklists --collection=plugins
 python validate_signature.py --server=$SERVER --bucket=blocklists --collection=gfx
 
-#
-# Emailer
-#
-echo '{"data": {
-  "kinto-emailer": {
-    "hooks": [{
-      "event": "kinto_signer.events.ReviewRequested",
-      "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
-      "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
-      "recipients": ["me@you.com", "/buckets/source/groups/reviewers"]
-    }]
-  }
-}}' | http PATCH $SERVER/buckets/source --auth="$AUTH"
-
-echo '{"data": {"status": "to-review"}}' | http PATCH $SERVER/buckets/source/collections/source --auth="$EDITOR_AUTH"
-
-cat mail/*.eml | grep "Subject: account"
-cat mail/*.eml | grep "To: me@you.com"
 
 #
+# FxA
+#
+
 # kinto-fxa script
 #
 # Setting up a mock SQS queue and mock FxA token is too much work.

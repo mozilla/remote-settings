@@ -112,14 +112,13 @@ def main():
                     (args.source_bucket, None) == (r['source']['bucket'], r['source']['collection'])]
     assert len(resources) > 0, 'Specified source not configured to be signed'
     resource = resources[0]
-    if 'preview' in resource:
-        print('Signoff: {source[bucket]}/{source[collection]} => {preview[bucket]}/{preview[collection]} => {destination[bucket]}/{destination[collection]}'.format(**resource))
-    else:
-        print('Signoff: {source[bucket]}/{source[collection]} => {destination[bucket]}/{destination[collection]}'.format(**resource))
-
+    print('Signoff: {source[bucket]}/{source[collection]} => {preview[bucket]}/{preview[collection]} => {destination[bucket]}/{destination[collection]}'.format(**resource))
     print('_' * 80)
 
     bucket = client.create_bucket(if_not_exists=True)
+    bucket = client.create_bucket(id=resource["preview"]["bucket"], if_not_exists=True)
+    bucket = client.create_bucket(id=resource["destination"]["bucket"], if_not_exists=True)
+
     client.create_collection(permissions={'write': [editor_id, reviewer_id] + bucket['permissions']['write']}, if_not_exists=True)
 
     editors_group = resource.get('editors_group') or signer_capabilities['editors_group']
