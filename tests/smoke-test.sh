@@ -6,7 +6,6 @@ set -e -x
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SERVER="${SERVER:-http://localhost:8888/v1}"
-MAILFILESERVER="${MAILFILESERVER:-http://localhost:9999}"
 
 AUTH="${AUTH:-user:pass}"
 EDITOR_AUTH="${EDITOR_AUTH:-editor:pass}"
