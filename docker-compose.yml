@@ -2,7 +2,7 @@ version: '3'
 
 services:
   db:
-    image: postgres:9.6
+    image: postgres
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 1s
@@ -10,15 +10,15 @@ services:
       retries: 30
 
   redis:
-    image: redis:5.0.4
+    image: redis
 
   autograph:
-    image: mozilla/autograph:2.7.0
+    image: mozilla/autograph
     volumes:
       - ${PWD}/autograph/autograph.yaml:/app/autograph.yaml
 
   megaphone:
-    image: mozilla/megaphone:0.1.5
+    image: mozilla/megaphone
     depends_on:
       - mysql
     environment:
@@ -31,7 +31,7 @@ services:
       - "5555:8000"
 
   mysql:
-    image: mysql:5.7.25
+    image: mysql
     environment:
       MYSQL_ROOT_PASSWORD: mysql-root-pass
       MYSQL_DATABASE: megaphone
