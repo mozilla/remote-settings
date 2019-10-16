@@ -8,6 +8,8 @@ apt-get update
 apt-get install -y --no-install-recommends \
     git \
     gcc \
+    mime-support \
+    libpcre3-dev \
     libffi-dev \
     libpq-dev \
     libsasl2-dev \
