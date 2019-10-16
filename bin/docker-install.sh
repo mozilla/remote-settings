@@ -13,7 +13,8 @@ apt-get install -y --no-install-recommends \
     libsasl2-dev \
     libssl-dev \
     libxml2-dev \
-    libxslt1-dev
+    libxslt1-dev \
+    libz-dev
 
 
 # Python packages
