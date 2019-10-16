@@ -29,7 +29,7 @@ all is working as expected is to run:
           all the Kinto data in your local persistent PostgreSQL with
           ``curl -XPOST http://localhost:8888/v1/__flush__``
 
-That will start ``redis``, ``postgresql``, ``autograph`` and Kinto (at ``web:8888``)
+That will start ``memcached``, ``postgresql``, ``autograph`` and Kinto (at ``web:8888``)
 and lastly the ``tests`` container that primarily
 uses ``curl http://web:8888/v1`` to test various things.
 
