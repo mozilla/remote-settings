@@ -9,8 +9,8 @@ services:
       timeout: 3s
       retries: 30
 
-  redis:
-    image: redis:5
+  memcached:
+    image: memcached:1
 
   autograph:
     # Autograph is stuck at 2.7.0 because of mozilla-services/autograph#344
@@ -47,12 +47,12 @@ services:
     image: kinto:build
     depends_on:
       - db
-      - redis
+      - memcached
       - autograph
       - megaphone
     environment:
-      - KINTO_CACHE_BACKEND=kinto_redis.cache
-      - KINTO_CACHE_URL=redis://redis:6379/2
+      - KINTO_CACHE_BACKEND=kinto.core.cache.memcached
+      - KINTO_CACHE_HOSTS=memcached:11211 memcached:11212
       - KINTO_STORAGE_URL=postgres://postgres@db/postgres
       - KINTO_PERMISSION_URL=postgres://postgres@db/postgres
       - KINTO_SIGNER_AUTOGRAPH_SERVER_URL=http://autograph:8000
