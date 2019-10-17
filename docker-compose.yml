@@ -50,7 +50,7 @@ services:
       - megaphone
     environment:
       - KINTO_CACHE_BACKEND=kinto.core.cache.memcached
-      - KINTO_CACHE_HOSTS=127.0.0.1:11211 127.0.0.1:11212
+      - KINTO_CACHE_HOSTS=memcached:11211 memcached:11212
       - KINTO_STORAGE_URL=postgres://postgres@db/postgres
       - KINTO_PERMISSION_URL=postgres://postgres@db/postgres
       - KINTO_SIGNER_AUTOGRAPH_SERVER_URL=http://autograph:8000
