@@ -2,7 +2,7 @@ version: '3'
 
 services:
   db:
-    image: postgres
+    image: postgres:9
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 1s
@@ -10,7 +10,7 @@ services:
       retries: 30
 
   redis:
-    image: redis
+    image: redis:5
 
   autograph:
     # Autograph is stuck at 2.7.0 because of mozilla-services/autograph#344
@@ -32,7 +32,7 @@ services:
       - "5555:8000"
 
   mysql:
-    image: mysql
+    image: mysql:5
     environment:
       MYSQL_ROOT_PASSWORD: mysql-root-pass
       MYSQL_DATABASE: megaphone
