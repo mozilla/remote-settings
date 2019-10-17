@@ -20,6 +20,7 @@ services:
 
   megaphone:
     image: mozilla/megaphone
+    container_name: megaphone
     depends_on:
       - mysql
     environment:
