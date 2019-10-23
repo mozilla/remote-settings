@@ -174,9 +174,9 @@ pyasn1==0.4.7 \
     --hash=sha256:a9495356ca1d66ed197a0f72b41eb1823cf7ea8b5bd07191673e8147aecf8604
 pycparser==2.19 \
     --hash=sha256:a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3
-botocore==1.12.252 \
-    --hash=sha256:a3160078343577b38e459b9d599d7fd4e83710fd0baeafcc913873bc6c4a54cf \
-    --hash=sha256:30c43c2f88be51a2bc9ed3b8c0d3093d3865698576a6dda557cd04734dc73eff
+botocore==1.13.0 \
+    --hash=sha256:507b8f13583a64ec2c9c112ff6e3dd8b548060adc7e1f57f25fda9fa34c2dfdb \
+    --hash=sha256:c4b2ffb0f6ed7169beb260485bf5a42ee72a0a02f49f48b0557ed5e32bcf9e79
 s3transfer==0.2.1 \
     --hash=sha256:b780f2411b824cb541dbcd2c713d0cb61c7d1bcadae204cdddda2b35cef493ba \
     --hash=sha256:6efc926738a3cd576c2a79725fed9afde92378aa5c6a957e3af010cb019fac9d
