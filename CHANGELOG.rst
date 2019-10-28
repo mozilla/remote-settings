@@ -5,10 +5,26 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-17.5.0 (unreleased)
+17.5.0 (2019-10-28)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 13.5.0 → 13.6.0**: https://github.com/Kinto/kinto/releases/tag/13.6.0
+
+**New Features**
+
+- Add Content-Security-Policy header (Kinto/kinto#2303)
+
+kinto-admin
+-----------
+
+**kinto-admin 1.25.1 → 1.25.2**: https://github.com/Kinto/kinto-admin/releases/tag/v1.25.2
+
+**Bug fixes**
+
+* Fix status and rollback in preview/destination collections (Kinto/kinto-admin#1098)
 
 
 17.4.0 (2019-10-04)
