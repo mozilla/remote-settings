@@ -8,7 +8,14 @@ the version control of each dependency.
 17.6.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 13.6.0 → 13.6.1**: https://github.com/Kinto/kinto/releases/tag/13.6.1
+
+**Bug fixes**
+
+- Fix loading of Kinto Admin (Kinto/kinto#2320)
 
 
 17.5.0 (2019-10-28)
