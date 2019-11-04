@@ -75,6 +75,35 @@ jobs:
             if [ -n "${CIRCLE_TAG}" ]; then
               ./bin/deploy-dockerhub.sh "$CIRCLE_TAG"
             fi
+  integration_test:
+    machine:
+      image: ubuntu-1604:201903-01
+    working_directory: ~/kinto-dist
+    steps:
+      - checkout
+       run:
+          name: "Set Python Version"
+          command: pyenv global 3.7.4
+      - run:
+          name: Install Docker Compose
+          command: |
+            set -x
+            sudo bash -c "curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose"
+            sudo chmod +x /usr/local/bin/docker-compose
+      - run:
+          name: Build
+          command: docker-compose build
+      - run:
+          name: Setup env and run tests
+          command: |
+            mkdir mail
+            sudo chmod 777 mail
+            docker-compose run web migrate
+            docker-compose up -d web
+            sleep 5
+            pip install pytest-selenium
+            docker run -d --shm-size 2g --net host selenium/standalone-firefox
+            pytest --driver Remote --capability browserName firefox --base-url=http://localhost:8888/v1/admin -k tests/test_integration.py
 
 workflows:
   version: 2
@@ -84,3 +113,4 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - integration_test
