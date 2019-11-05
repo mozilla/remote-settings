@@ -84,6 +84,8 @@ jobs:
       - run:
           name: "Set Python Version"
           command: |
+            git clone git://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
+            pyenv update
             pyenv install 3.7.4
             pyenv global 3.7.4
       - run:
