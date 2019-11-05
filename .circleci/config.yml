@@ -106,10 +106,10 @@ jobs:
             sudo chmod 777 mail
             docker-compose run web migrate
             docker-compose up -d web
-            sleep 5
+            curl --retry 10 --retry-delay 1 --retry-connrefused http://0.0.0.0:8888
             pip install pytest-selenium
             docker run -d --shm-size 2g --net host selenium/standalone-firefox
-            sleep 5
+            curl --retry 10 --retry-delay 1 --retry-connrefused http://0.0.0.0:8888
             pytest --driver Remote --capability browserName firefox --base-url=http://localhost:8888/v1/admin --html=integration-test.html --self-contained-html -k tests/test_integration.py
       - store_artifacts:
           path: integration-test.html
