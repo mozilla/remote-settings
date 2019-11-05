@@ -86,6 +86,11 @@ jobs:
           command: |
             pyenv global 3.7.0
       - run:
+          name: Install essential packages
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y curl
+      - run:
           name: Install Docker Compose
           command: |
             set -x
