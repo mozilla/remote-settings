@@ -88,6 +88,7 @@ jobs:
       - run:
           name: Update curl
           command: |
+            sudo apt-get update && sudo apt-get install -y curl-dev
             wget https://curl.haxx.se/download/curl-7.52.1.tar.gz
             tar -xvf curl-7.52.1.tar.gz
             cd curl-7.52.1
