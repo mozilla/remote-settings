@@ -110,7 +110,9 @@ jobs:
             pip install pytest-selenium
             docker run -d --shm-size 2g --net host selenium/standalone-firefox
             sleep 5
-            pytest --driver Remote --capability browserName firefox --base-url=http://localhost:8888/v1/admin -k tests/test_integration.py
+            pytest --driver Remote --capability browserName firefox --base-url=http://localhost:8888/v1/admin --html=integration-test.html --self-contained-html -k tests/test_integration.py
+      - store_artifacts:
+          path: integration-test.html
 
 workflows:
   version: 2
