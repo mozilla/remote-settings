@@ -88,10 +88,11 @@ jobs:
       - run:
           name: Update curl
           command: |
-            wget https://curl.haxx.se/download/curl-7.66.0.tar.gz
-            tar -xvf curl-7.66.0.tar.gz
-            cd curl-7.66.0
-            sudo make
+            wget https://curl.haxx.se/download/curl-7.52.1.tar.gz
+            tar -xvf curl-7.52.1.tar.gz
+            cd curl-7.52.1
+            ./configure
+            make
             sudo make install
       - run:
           name: Install Docker Compose
