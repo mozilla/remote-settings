@@ -294,9 +294,9 @@ iso8601==0.1.12 \
     --hash=sha256:bbbae5fb4a7abfe71d4688fd64bff70b91bbd74ef6a99d964bab18f7fdf286dd
 cornice-swagger==0.7.0 \
     --hash=sha256:740472ed535e74a4698d0140b67fa787c6772a1be8fc10175999f3b843cf40a1
-venusian==1.2.0 \
-    --hash=sha256:2f2d077a1eedc3fda40425f65687c8c494da7e83d7c23bc2c4d1a40eb3ca5b6d \
-    --hash=sha256:64ec8285b80b110d0ae5db4280e90e31848a59db98db1aba4d7d46f48ce91e3e
+venusian==2.0.0 \
+    --hash=sha256:406ef52f15b99badbb0dd6377518792f86b2c4ca3ea724c266422648083508d3 \
+    --hash=sha256:98404617c7bb3ee2fe04685ab6aa04828ec2d65d4b152ca506ee18a936810a95
 zope.deprecation==4.4.0 \
     --hash=sha256:f1480b74995958b24ce37b0ef04d3663d2683e5d6debc96726eff18acf4ea113 \
     --hash=sha256:0d453338f04bacf91bbfba545d8bcdf529aa829e67b705eac8c1a7fdce66e2df
