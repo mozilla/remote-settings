@@ -95,6 +95,11 @@ jobs:
             sudo bash -c "curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose"
             sudo chmod +x /usr/local/bin/docker-compose
       - run:
+          name: Set hosts
+          command: |
+            echo 127.0.0.1 localhost | sudo tee -a /etc/hosts
+            cat /etc/hosts
+      - run:
           name: Build
           command: docker-compose build
       - run:
@@ -107,6 +112,7 @@ jobs:
             sleep 5
             pip install pytest-selenium
             docker run -d --shm-size 2g --net host selenium/standalone-firefox
+            sleep 5
             pytest --driver Remote --capability browserName firefox --base-url=http://localhost:8888/v1/admin -k tests/test_integration.py
 
 workflows:
