@@ -86,10 +86,13 @@ jobs:
           command: |
             pyenv global 3.7.0
       - run:
-          name: Install essential packages
+          name: Update curl
           command: |
-            sudo apt-get update
-            sudo apt-get install -y curl
+            wget https://curl.haxx.se/download/curl-7.66.0.tar.gz
+            tar -xvf curl-7.66.0.tar.gz
+            cd curl-7.66.0.tar.gz
+            sudo make
+            sudo make install
       - run:
           name: Install Docker Compose
           command: |
