@@ -104,10 +104,10 @@ jobs:
           command: |
             mkdir mail
             sudo chmod 777 mail
+            docker run -d --shm-size 2g --net host selenium/standalone-firefox
             docker-compose run web migrate
             docker-compose up -d web
             pip install pytest-selenium
-            docker run -d --shm-size 2g --net host selenium/standalone-firefox
             pytest --driver Remote --capability browserName firefox --base-url=http://localhost:8888/v1/admin --verify-base-url --html=integration-test.html --self-contained-html -k tests/test_integration.py
       - store_artifacts:
           path: integration-test.html
