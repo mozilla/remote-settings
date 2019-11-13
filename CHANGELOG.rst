@@ -8,7 +8,14 @@ the version control of each dependency.
 17.6.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-attachment
+----------------
+
+**kinto-attachment 6.0.1 → 6.0.2**: https://github.com/Kinto/kinto-attachment/releases/tag/6.0.2
+
+**Bug fixes**
+
+- Fix attachment deletion not being committed (fixes #149)
 
 
 17.5.2 (2019-11-04)
