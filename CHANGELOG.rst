@@ -8,6 +8,16 @@ the version control of each dependency.
 18.0.0 (2019-11-15)
 ===================
 
+kinto-signer
+------------
+
+**kinto-signer 5.2.1 → 6.0.0**: https://github.com/Kinto/kinto-signer/releases/tag/6.0.0
+
+**Breaking changes**
+
+- Records timestamps are now bumped when copied to preview/destination collections (Kinto/kinto-signer#779)
+
+
 kinto-attachment
 ----------------
 
