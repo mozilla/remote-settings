@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-17.6.0 (unreleased)
+18.0.0 (2019-11-15)
 ===================
 
 kinto-attachment
