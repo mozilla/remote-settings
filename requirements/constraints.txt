@@ -138,9 +138,9 @@ idna==2.8 \
 ecdsa==0.14.1 \
     --hash=sha256:e108a5fe92c67639abae3260e43561af914e7fd0d27bae6d2ec1312ae7934dfe \
     --hash=sha256:64c613005f13efec6541bb0a33290d0d03c27abab5f15fbab20fb0ee162bdd8e
-boto3==1.10.28 \
-    --hash=sha256:e4daa659f2aaf5664a32224cbcbbcaa9042ac657f1c64326d0e3230f967c2a30 \
-    --hash=sha256:21a75f1a3f85fbfcc00d691200fbe4aa71f18e98389d88401f38e35ae50825e9
+boto3==1.10.30 \
+    --hash=sha256:259b795fc577ba0c8c085509d18bc7b9a7c7e813c93c2d72278affb922f64d8d \
+    --hash=sha256:cf887435085e90ab2fdce50ea77b4569b8728faf9a8d86b16f382161af6bd441
 pyramid_mailer==0.15.1 \
     --hash=sha256:28d4a7829ebc19dd40e712d8cb1998cec03c296ba675b2c112a503539738bdc1 \
     --hash=sha256:ec0aff54d9179b2aa2922ff82c2016a4dc8d1da5dc3408d6594f0e2096446f9b
@@ -174,9 +174,9 @@ pyasn1==0.4.8 \
     --hash=sha256:aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba
 pycparser==2.19 \
     --hash=sha256:a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3
-botocore==1.13.28 \
-    --hash=sha256:9b886c4fc7efe0927ea90a3e070bc7e44dc6b8a1518ece6e99ecb21f52c75831 \
-    --hash=sha256:5a343562b52d6216dbda89b8969dcbffa4474c7df9cbe04ee7440033c1c4075b
+botocore==1.13.30 \
+    --hash=sha256:9857929cab4366badda0cc9d2066bb1f71269344ef7523186f6a1b26924bbc15 \
+    --hash=sha256:ced50943d83d7007fe02b91739e849f36b64ed5c5ab7af3b771bff21aca554a7
 s3transfer==0.2.1 \
     --hash=sha256:b780f2411b824cb541dbcd2c713d0cb61c7d1bcadae204cdddda2b35cef493ba \
     --hash=sha256:6efc926738a3cd576c2a79725fed9afde92378aa5c6a957e3af010cb019fac9d
@@ -206,9 +206,9 @@ logging-color-formatter==1.0.2 \
 colorama==0.4.1 \
     --hash=sha256:f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48 \
     --hash=sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d
-cornice==3.6.1 \
-    --hash=sha256:c35f6094d21d470780ddbd69d18dccc38dc64ab2d250cb314cc6af3306ff044e \
-    --hash=sha256:d3d608b9ff405e7ba5e9629ef0c09b7605997e1aea0dafb2aaa66761ff7cab08
+cornice==4.0.1 \
+    --hash=sha256:17e59f454d22818ab9f2aaa5e971523115502d333c492d80ab8bcc0c4368efe6 \
+    --hash=sha256:d083832e9db65da4784436deabd7d37959de88c3b8ba51d539fa1e1f8313439d
 jsonschema==3.2.0 \
     --hash=sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163 \
     --hash=sha256:c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a
