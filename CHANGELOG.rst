@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-18.1.0 (unreleased)
+18.0.1 (2019-12-05)
 ===================
 
-- Nothing changed yet.
+kinto-signer
+------------
+
+**kinto-signer 6.0.0 → 6.0.1**: https://github.com/Kinto/kinto-signer/releases/tag/6.0.1
+
+**Bug fixes**
+
+- Fix records dropped since Kinto/kinto-signer#780 (Kinto/kinto-signer#816)
 
 
 18.0.0 (2019-11-15)
