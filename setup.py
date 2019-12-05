@@ -26,7 +26,7 @@ INSTALL_REQUIRES = [
 
 setup(
     name='kinto-dist',
-    version='18.1.0.dev0',
+    version='18.0.1',
     description='Kinto Distribution',
     long_description=README + "\n\n" + CHANGELOG,
     license='Apache License (2.0)',
