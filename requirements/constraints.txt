@@ -380,6 +380,6 @@ importlib-metadata==1.2.0 \
 zipp==0.6.0 \
     --hash=sha256:3718b1cbcd963c7d4c5511a8240812904164b7f381b647143a89d3b98f9bcd8e \
     --hash=sha256:f06903e9f1f43b12d371004b4ac7b06ab39a44adc747266928ae6debfa7b3335
-more-itertools==8.0.0 \
-    --hash=sha256:a0ea684c39bc4315ba7aae406596ef191fd84f873d2d2751f84d64e81a7a2d45 \
-    --hash=sha256:53ff73f186307d9c8ef17a9600309154a6ae27f25579e80af4db8f047ba14bc2
+more-itertools==8.0.1 \
+    --hash=sha256:57cc732766f26ddc424a4ed76d837677777a03f557c7ebeecb7e2be2888ce702 \
+    --hash=sha256:a293dbdad9d4d22e1e70832b8dcab72aac20805f0fa0575aec27cab8841e09ff
