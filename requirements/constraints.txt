@@ -198,9 +198,9 @@ urllib3==1.25.7 \
     --hash=sha256:f3c5fd51747d450d4dcf6f923c81f78f811aab8205fda64b0aba34a4e48b0745
 pyramid_storage==0.3.0 \
     --hash=sha256:13dbab419fd719ca65c457c09d873705a937ed0feaace52b1b1e6b39ba0f9d18
-transaction==2.4.0 \
-    --hash=sha256:726059c461b9ec4e69e5bead6680667a3db01bf2adf901f23e4031228a0f9f9f \
-    --hash=sha256:b96a5e9aaa73f905759bc9ccf0021bf4864c01ac36666e0d28395e871f6d584a
+transaction==3.0.0 \
+    --hash=sha256:e0397e7733124e23a670cd3eee4096c197b48f1e14730d7cc7da868389f016b7 \
+    --hash=sha256:3b0ad400cb7fa25f95d1516756c4c4557bb78890510f69393ad0bd15869eaa2d
 logging-color-formatter==1.0.2 \
     --hash=sha256:a115c04ebd0be5dc511f71a44dbad531e5b7cb91b91d3924982d69dff0333ad4
 colorama==0.4.3 \
