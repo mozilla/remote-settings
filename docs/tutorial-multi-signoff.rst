@@ -25,7 +25,7 @@ We'll refer the running instance as ``$SERVER`` (eg. ``http://localhost:8888/v1`
 
 .. seealso::
 
-    If you need to give additional users access to your collection on STAGE/PROD you must edit the :ref:`collection manifest <https://remote-settings.readthedocs.io/en/latest/getting-started.html#collection-manifests>`.
+    If you need to give additional users access to your collection on STAGE/PROD you must edit the `collection manifest <https://remote-settings.readthedocs.io/en/latest/getting-started.html#collection-manifests>`.
 
 
 Introduction
