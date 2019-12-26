@@ -23,6 +23,11 @@ This guide assumes you have already installed and set up the following:
 
 We'll refer the running instance as ``$SERVER`` (eg. ``http://localhost:8888/v1`` or ``https://settings-writer.prod.mozaws.net/v1`` via the VPN).
 
+.. seealso::
+
+    If you need to give additional users access to your collection on STAGE/PROD you must edit the :ref:`collection manifest <https://remote-settings.readthedocs.io/en/latest/getting-started.html#collection-manifests>`.
+
+
 Introduction
 ------------
 
