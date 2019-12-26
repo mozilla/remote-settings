@@ -61,6 +61,7 @@ It is recommended to keep your Remote Settings records small, especially if you 
 
 By default, all records are made available to all users. If you want to control which users should have a particular entry, you can add a ``filter_expression`` field (see :ref:`target filters <target-filters>`).
 
+.. _collection-manifests:
 
 Collection manifests
 --------------------
