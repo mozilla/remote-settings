@@ -8,7 +8,24 @@ the version control of each dependency.
 18.1.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-changes
+-------------
+
+**kinto-changes 2.1.0 → 2.1.1**: https://github.com/Kinto/kinto-changes/releases/tag/2.1.1
+
+**Bug fixes**
+
+- Use explicit resource timestamp from DB instead of event payload
+
+
+kinto-megaphone
+---------------
+
+**kinto-megaphone 0.4.0 → 0.4.1**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.4.1
+
+**Bug fixes**
+
+- Send resource timestamp instead of event timestamp (fixes #65)
 
 
 18.0.1 (2019-12-05)
