@@ -27,6 +27,15 @@ kinto-megaphone
 
 - Send resource timestamp instead of event timestamp (fixes #65)
 
+kinto-signer
+------------
+
+**kinto-signer 6.0.1 → 6.0.2**: https://github.com/Kinto/kinto-signer/releases/tag/6.0.2
+
+**Bug fixes**
+
+- Do not recreate tombstones on rollback (fixes Kinto/kinto-signe#832)
+
 
 18.0.1 (2019-12-05)
 ===================
