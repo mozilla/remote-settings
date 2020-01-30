@@ -8,7 +8,24 @@ the version control of each dependency.
 18.1.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 13.6.2 → 13.6.3**: https://github.com/Kinto/kinto/releases/tag/13.6.3
+
+**Bug fixes**
+
+- History entries datetimes now carry timezone information
+- Fix ``kinto init`` command (Kinto/kinto#2375)
+- Fix float strings parsing in certain URL query parameters (Kinto/kinto#2392)
+
+kinto-admin
+-----------
+
+**kinto-admin 1.25.2 → 1.26.1**: https://github.com/Kinto/kinto-admin/releases/tag/v1.26.1
+
+- Close modal after rollback (Kinto/kinto-admin#1134)
+- Remove the button to refresh signature (Kinto/kinto-admin#1166)
 
 
 18.0.2 (2020-01-07)
