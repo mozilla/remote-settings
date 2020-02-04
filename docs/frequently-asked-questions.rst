@@ -47,13 +47,22 @@ How do I automate the publication of records?
 
 The Remote Settings server is a REST API (namely a `Kinto instance <https://www.kinto-storage.org>`_). Records can be created in batches, and as seen in the :ref:`multi signoff tutorial <tutorial-multi-signoff>` reviews can be requested and approved using ``PATCH`` requests.
 
-If the automation is meant to last (eg. cronjob, AWS lambda) then `request a dedicated Kinto internal account <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ to be created for you.
-
 If it is a one time run, then you can run the script as if it was you:
 
 1. Authenticate on the Admin UI
 2. Using the DevTools, inspect the outgoing requests and copy the ``Authorization`` header (eg. ``Bearer r43yt0956u0yj1``)
 3. Use this header in your ``cURL`` commands (or Python/JS/Rust clients etc.)
+
+
+If the automation is meant to last (eg. cronjob, lambda, server to server) then the procedure is a bit stricter, especially if it implies disabling dual sign-off.  
+
+1. If you want to skip manual approval, request a review of your design by the security team (*:ulfr*)
+2. `Request a dedicated Kinto internal account <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ to be created for you (eg. ``account:cfr-publisher``)  and the collection where it should be allowed to edit or review. Secrets should be remain in a vault and managed by OPs. Don't forget to link the security team approval (`example <https://bugzilla.mozilla.org/show_bug.cgi?id=1576989>`_).
+3. If approved by the security team, ask for dual sign-off to be disabled (and the preview collection to be deleted if disabled after its creation).
+
+.. note::
+
+	Frequency of updates matters. On every approval of changes, a push notification is sent to all possible clients to fetch the new publication.
 
 
 How often the synchronization happens?
