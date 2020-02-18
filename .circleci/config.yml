@@ -99,6 +99,13 @@ jobs:
       - run:
           name: Build
           command: docker-compose build
+
+      - run:
+          name: Start once
+          command: |
+            # This will start all the dependencies first
+            docker-compose run web sleep 5
+
       - run:
           name: Setup env and run tests
           command: |
