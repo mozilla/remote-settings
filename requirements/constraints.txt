@@ -253,8 +253,8 @@ jsonpointer==2.0 \
 pyramid_multiauth==0.9.0 \
     --hash=sha256:3eda2a01de867ce8e68e8f0f410a7b51be68891e34dc31808992fdf1bcc4f952 \
     --hash=sha256:6cad38c3613db10b45fe7dd5f4b81e43d7ed12c623cbceee7626d4d0dd8a0f52
-ujson==1.35 \
-    --hash=sha256:f66073e5506e91d204ab0c614a148d5aa938bdbf104751be66f8ad7a222f5f86
+ujson==2.0.1 \
+    --hash=sha256:0a88069adf9f99acb301c9902c7e31f73cd928f63a03657805a9e79e3b391f44
 pyramid_tm==2.4 \
     --hash=sha256:4a4e212cd239f06c496d074f5d294e88478b94059541448bc151d505f653be59 \
     --hash=sha256:5fd6d4ac9181a65ec54e5b280229ed6d8b3ed6a8f5a0bcff05c572751f086533

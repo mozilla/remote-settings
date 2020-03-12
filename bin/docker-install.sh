@@ -7,6 +7,7 @@ set -eo pipefail
 apt-get update
 apt-get install -y --no-install-recommends \
     git \
+    g++ \
     gcc \
     mime-support \
     libpcre3-dev \
