@@ -8,7 +8,14 @@ the version control of each dependency.
 18.2.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-megaphone
+---------------
+
+**kinto-megaphone 0.4.1 → 0.5.0**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.5.0
+
+**New features**
+
+- Add option to exclude certain resources (Kinto/kinto-megaphone#75)
 
 
 18.1.0 (2020-02-04)
