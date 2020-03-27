@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-18.2.0 (unreleased)
+18.2.0 (2020-03-27)
 ===================
 
 kinto-megaphone
