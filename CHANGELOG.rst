@@ -17,6 +17,19 @@ kinto-megaphone
 
 - Add option to exclude certain resources (Kinto/kinto-megaphone#75)
 
+kinto-changes
+-------------
+
+**kinto-changes 2.1.1 → 2.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/2.2.0
+
+**New features**
+
+- Add changeset endpoint (Kinto/kinto-changes#154)
+
+**Bug fixes**
+
+- Fix crash with ``If-None-Match: *`` (Kinto/kinto-changes#158)
+
 
 18.1.0 (2020-02-04)
 ===================
