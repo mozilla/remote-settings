@@ -30,6 +30,13 @@ kinto-changes
 
 - Fix crash with ``If-None-Match: *`` (Kinto/kinto-changes#158)
 
+kinto-signer
+------------
+
+**kinto-signer 6.0.2 → 6.1.0**: https://github.com/Kinto/kinto-signer/releases/tag/6.1.0
+
+- Send resource events on rollback (#894)
+
 
 18.1.0 (2020-02-04)
 ===================
