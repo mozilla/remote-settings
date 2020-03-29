@@ -8,6 +8,19 @@ the version control of each dependency.
 18.2.0 (2020-03-29)
 ===================
 
+kinto
+-----
+
+**kinto 13.6.3 → 13.6.4**: https://github.com/Kinto/kinto/releases/tag/13.6.4
+
+**Security fix**
+
+- Fix permission checking with POST on plural endpoints (Kinto/kinto#2459)
+
+**Bug fixes**
+
+- Apply CORS headers to EOL responses (Kinto/kinto#2452)
+
 kinto-megaphone
 ---------------
 
