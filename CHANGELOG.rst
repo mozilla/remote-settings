@@ -5,10 +5,59 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-18.2.0 (unreleased)
+18.2.0 (2020-03-29)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 13.6.3 → 13.6.4**: https://github.com/Kinto/kinto/releases/tag/13.6.4
+
+**Security fix**
+
+- Fix permission checking with POST on plural endpoints (Kinto/kinto#2459)
+
+**Bug fixes**
+
+- Apply CORS headers to EOL responses (Kinto/kinto#2452)
+
+kinto-megaphone
+---------------
+
+**kinto-megaphone 0.4.1 → 0.5.0**: https://github.com/Kinto/kinto-megaphone/releases/tag/0.5.0
+
+**New features**
+
+- Add option to exclude certain resources (Kinto/kinto-megaphone#75)
+
+kinto-changes
+-------------
+
+**kinto-changes 2.1.1 → 2.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/2.2.0
+
+**New features**
+
+- Add changeset endpoint (Kinto/kinto-changes#154)
+
+**Bug fixes**
+
+- Fix crash with ``If-None-Match: *`` (Kinto/kinto-changes#158)
+
+kinto-signer
+------------
+
+**kinto-signer 6.0.2 → 6.1.0**: https://github.com/Kinto/kinto-signer/releases/tag/6.1.0
+
+- Send resource events on rollback (#894)
+
+kinto-attachment
+----------------
+
+**kinto-attachment 6.0.2 → 6.0.3**: https://github.com/Kinto/kinto-attachment/releases/tag/6.0.3
+
+**Bug fixes**
+
+- Fix broken compatibility with Kinto 13.6.4
 
 
 18.1.0 (2020-02-04)
