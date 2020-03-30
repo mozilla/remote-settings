@@ -5,6 +5,12 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+18.3.0 (unreleased)
+===================
+
+- Nothing changed yet.
+
+
 18.2.0 (2020-03-29)
 ===================
 
