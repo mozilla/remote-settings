@@ -50,6 +50,15 @@ kinto-signer
 
 - Send resource events on rollback (#894)
 
+kinto-attachment
+----------------
+
+**kinto-attachment 6.0.2 → 6.0.3**: https://github.com/Kinto/kinto-attachment/releases/tag/6.0.3
+
+**Bug fixes**
+
+- Fix broken compatibility with Kinto 13.6.4
+
 
 18.1.0 (2020-02-04)
 ===================
