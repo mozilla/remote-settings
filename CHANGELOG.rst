@@ -8,7 +8,14 @@ the version control of each dependency.
 18.3.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 13.6.4 → 13.6.5**: https://github.com/Kinto/kinto/releases/tag/13.6.5
+
+**Bug fixes**
+
+- Simplify get_objects_permissions query (#2475)
 
 
 18.2.0 (2020-03-29)
