@@ -5,6 +5,19 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+18.2.1 (2020-03-31)
+===================
+
+kinto
+-----
+
+**kinto 13.6.4 → 13.6.5**: https://github.com/Kinto/kinto/releases/tag/13.6.5
+
+**Bug fixes**
+
+- Simplify get_objects_permissions query (#2475)
+
+
 18.2.0 (2020-03-29)
 ===================
 
