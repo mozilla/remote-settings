@@ -306,8 +306,8 @@ iso8601==0.1.12 \
     --hash=sha256:210e0134677cc0d02f6028087fee1df1e1d76d372ee1db0bf30bf66c5c1c89a3 \
     --hash=sha256:49c4b20e1f38aa5cf109ddcd39647ac419f928512c869dc01d5c7098eddede82 \
     --hash=sha256:bbbae5fb4a7abfe71d4688fd64bff70b91bbd74ef6a99d964bab18f7fdf286dd
-cornice-swagger==0.7.0 \
-    --hash=sha256:740472ed535e74a4698d0140b67fa787c6772a1be8fc10175999f3b843cf40a1
+cornice-swagger==1.0.0 \
+    --hash=sha256:130d6337b3e4f88211719cb3bc9b46a503cc98d8bacb7e7a48f29b38a1568bfd
 venusian==3.0.0 \
     --hash=sha256:06e7385786ad3a15c70740b2af8d30dfb063a946a851dcb4159f9e2a2302578f \
     --hash=sha256:f6842b7242b1039c0c28f6feef29016e7e7dd3caaeb476a193acf737db31ee38
