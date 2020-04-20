@@ -5,10 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-18.3.0 (unreleased)
+19.0.0 (2020-04-20)
 ===================
 
-- Nothing changed yet.
+kinto-changes
+-------------
+
+**kinto-changes 2.2.0 → 3.0.0**: https://github.com/Kinto/kinto-changes/releases/tag/3.0.0
+
+**Breaking changes**
+
+- Switch changeset timestamp from ETag to integer (#168)
 
 
 18.2.1 (2020-03-31)
