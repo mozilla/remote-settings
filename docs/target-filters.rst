@@ -146,9 +146,15 @@ filter expressions.
 
    Boolean specifying whether Firefox is set as the user's default browser.
 
-.. js:attribute:: env.appID
+.. js:attribute:: env.appinfo
 
-   String containing the XUL application ID, eg. Firefox is ``"{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"``.
+   Object containing application details:
+
+   - ``ID``: String containing the XUL application ID, eg. Firefox is ``"{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"``.
+   - ``platformVersion``: The version of the XULRunner platform
+   - ``platformBuildID``: The build ID/date of gecko and the XULRunner platform
+   - ``version``: The version of the XUL application. It is different than the version of the XULRunner platform. Be careful about which one you want.
+   - `more... <https://searchfox.org/mozilla-central/source/dom/webidl/AppInfo.webidl>`_
 
 .. js:attribute:: env.searchEngine
 
