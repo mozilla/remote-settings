@@ -22,7 +22,12 @@ This guide assumes you have already installed and set up the following:
 Introduction
 ------------
 
-We run a public instance of Kinto, the underlying software of Remote Settings, at https://kinto.dev.mozaws.net/v1
+Remote Settings is built on top of a project called Kinto. As a
+service to the Kinto community, Mozilla hosts a public instance of
+Kinto at https://kinto.dev.mozaws.net/v1. Although this server is not
+officially maintained and has no official connection with the Remote
+Settings project, it can be convenient to use it when exploring Remote
+Settings.
 
 Several authentication options are available. We will use local accounts and Basic Auth for the sake of simplicity.
 
@@ -95,13 +100,17 @@ And it should be listed in the monitor/changes endpoint:
 Prepare the client
 ------------------
 
-The following preference must be created/changed to the following values in ``about:config`` (*or use the Dev Tools*):
-
-* ``services.settings.server`` : ``https://kinto.dev.mozaws.net/v1``
+There is no officially "blessed" way to point the client at the dev
+server. Unlike other environments, the `Remote Settings dev tools
+<https://github.com/mozilla-extensions/remote-settings-devtools/>`_
+cannot be used for this purpose. You can change the
+``services.settings.server`` preference if you like, but because the
+data in the dev server is not signed, you will get signature
+verification errors.
 
 .. important::
 
-    Those are critical preferences, you should use a dedicated Firefox profile for development.
+    This is a critical preference, you should use a dedicated Firefox profile for development.
 
 From your code, or the browser console, register the new collection by listening to the ``sync`` event:
 
