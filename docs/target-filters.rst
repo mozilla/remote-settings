@@ -3,12 +3,15 @@
 Target filters
 ==============
 
-By default all records in a collection are made available.  However, there are some use cases where it is more practical to use a single server side collection and filter record visibility in the browser.  Target filters allows for these use cases.
+By default all records in a collection are made available.  However, there are some use cases where it is more practical to use a single server side collection and filter record visibility in the browser.  Target filters allows for use cases.
 
 Filters are conditional expressions evaluated in the client's browser and, if they pass, the corresponding record is available. Filters have access to information about the user, such as their locale, addons, and Firefox version.
 
 .. important::
    All records are downloaded to Firefox.  Filters only control what is returned by ``.get()`` or the ``sync`` event.
+
+.. important::
+   The ideal use case for target filters is to use a single collection to service a small number (dozens) of different groups of users.  Filtering by channel, browser version or locale are good use cases.
 
 
 How?
