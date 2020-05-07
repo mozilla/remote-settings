@@ -260,10 +260,11 @@ The ``main-preview`` and ``main`` buckets are (re)initialized with read-only per
 Prepare the client
 ------------------
 
-The following preferences must be changed to the following values in ``about:config``:
-
-* ``services.settings.server`` : ``http://localhost:8888/v1``
-* ``security.content.signature.root_hash`` : ``5E:36:F2:14:DE:82:3F:8B:29:96:89:23:5F:03:41:AC:AF:A0:75:AF:82:CB:4C:D4:30:7C:3D:B3:43:39:2A:FE``
+The official way to point the client at another server is using the
+`Remote Settings dev tools
+<https://github.com/mozilla-extensions/remote-settings-devtools>`_. This
+tool can set the constellation of preferences necessary to operate
+correctly with your local server.
 
 .. seealso::
 
