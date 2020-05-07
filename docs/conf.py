@@ -20,7 +20,7 @@ import datetime
 # -- Project information -----------------------------------------------------
 
 project = 'Remote Settings'
-copyright = "2015-%s — Mozilla Services" % datetime.datetime.now().year
+copyright = "2015-%s, Mozilla Services" % datetime.datetime.now().year
 author = 'Mozilla'
 
 # The short X.Y version
