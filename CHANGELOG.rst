@@ -11,7 +11,7 @@ the version control of each dependency.
 amo2kinto
 ---------
 
-**amo2kinto 4.0.1 → 4.0.2**: 4.0.1**: https://github.com/mozilla-services/amo2kinto/releases/tag/4.0.2
+**amo2kinto 4.0.1 → 4.0.2**: https://github.com/mozilla-services/amo2kinto/releases/tag/4.0.2
 
 **Bug fix**
 
