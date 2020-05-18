@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-19.1.0 (unreleased)
+19.0.1 (2020-05-18)
 ===================
 
 amo2kinto
