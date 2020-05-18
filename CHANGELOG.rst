@@ -8,7 +8,14 @@ the version control of each dependency.
 19.1.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+amo2kinto
+---------
+
+**amo2kinto 4.0.1 → 4.0.2**: 4.0.1**: https://github.com/mozilla-services/amo2kinto/releases/tag/4.0.2
+
+**Bug fix**
+
+- Fix crash when ``prefs`` field is missing from addons entry
 
 
 19.0.0 (2020-04-20)
