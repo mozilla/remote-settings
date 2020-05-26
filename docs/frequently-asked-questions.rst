@@ -1,6 +1,33 @@
 Support
 =======
 
+.. _code-examples:
+
+Code Examples
+-------------
+
+Client side
+
+* `Search service <https://bugzilla.mozilla.org/showdependencytree.cgi?id=1635220&hide_resolved=0>`_
+  - signature verification on `.get()`
+  - loading from packaged initial data on first startup
+* `Addons bloomfilters blocklist <https://bugzilla.mozilla.org/show_bug.cgi?id=1620621>`_
+  - packaged binary attachments
+
+Server side
+
+* `Normandy publication of recipes <https://github.com/mozilla/normandy/blob/af64ac29516836f48389bc4b0533ebcf1d8bf37a/normandy/recipes/exports.py>`_
+  - Multi-signoff is disabled (server-to-server)
+  - kinto-http.py
+* `Publish Github data to Remote Settings <https://github.com/mozilla-services/remote-settings-lambdas/blob/98772fb8d45e3b9d345b9516d510834b3bb9b2c1/commands/publish_dafsa.py#L96-L120>`_
+* Signature verification
+  - `Python <https://github.com/mozilla-services/poucave/blob/master/checks/remotesettings/validate_signatures.py>`_
+
+Misc
+
+* `CLI authentication in Javascript <https://github.com/kewisch/mozblocklist/blob/6d7e0d1be9877dd9a40e7c02c4aba008b8412eee/src/kinto-client.js#L68-L128>`_. See `Bug 1630651 <https://bugzilla.mozilla.org/show_bug.cgi?id=1630651>`_
+
+
 .. _troubleshooting:
 
 Troubleshooting
