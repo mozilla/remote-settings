@@ -10,9 +10,9 @@ kinto-attachment==6.0.3 \
 kinto-amo==1.0.1 \
     --hash=sha256:5601bc1f0d8c71f12b89862d3c82bcca4380b3fec8824919b01b6e52bbed6d69 \
     --hash=sha256:cb8520bbbba0df6413350f03c048afacb0922f73c02804e89ceccc45d1ed4e5b
-kinto-changes==3.0.0 \
-    --hash=sha256:2c466b336a3effaa05fff54c104bae8cdfa67048651463525e2f4cd62725780c \
-    --hash=sha256:c18052d016edb7226cbef6f7b879daf0a8fe890cd9bd9fe4d3bf792efeb57afd
+kinto-changes==3.0.2 \
+    --hash=sha256:46c648ff14fb5f5fc7c3df0c25a6483daab7218e6e6c15b6e4d8f59613516325 \
+    --hash=sha256:a057531f3c40df1e1377d45208cf3806a4b322c9cf6fae4a79a28faa6b9c66e5
 kinto-elasticsearch==0.3.1 \
     --hash=sha256:0315227738cf08fbe532330bc4fac9c963e4b688041de6fc042be04af7597870 \
     --hash=sha256:25300a270ef2fc96e2391bb128cdb75e520b1b6ce2a26f7766e19785dce70f5d
@@ -61,8 +61,8 @@ raven==6.10.0 \
 statsd==3.3.0 \
     --hash=sha256:c610fb80347fca0ef62666d241bce64184bd7cc1efe582f9690e045c25535eaa \
     --hash=sha256:e3e6db4c246f7c59003e51c9720a51a7f39a396541cb9b147ff4b14d15b5dd1f
-newrelic==5.12.1.141 \
-    --hash=sha256:43dbaf5227b647c1b4b206064fc3367ac14f7b99ce38d11d50e82d49d21ccb76
+newrelic==5.14.0.142 \
+    --hash=sha256:428b451151660b1b611420256e7ae86fba58b436bc78079a47d8b7dabcdcaa33
 Werkzeug==1.0.1 \
     --hash=sha256:2de2a5db0baeae7b2d2664949077c2ac63fbd16d98da0ff71837f7d1dea3fd43 \
     --hash=sha256:6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c
