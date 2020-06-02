@@ -5,6 +5,16 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+19.0.2 (2020-06-02)
+===================
+
+**kinto-changes 3.0.0 → 3.0.2**: https://github.com/Kinto/kinto-changes/releases/tag/3.0.2
+
+**Bug fixes**
+
+- Include tombstones in changeset endpoint (Kinto/kinto-changes#175)
+
+
 19.0.1 (2020-05-18)
 ===================
 
