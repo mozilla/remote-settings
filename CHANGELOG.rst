@@ -5,10 +5,21 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-19.1.0 (unreleased)
+19.1.0 (2020-06-23)
 ===================
 
-- Nothing changed yet.
+kinto-attachment
+----------------
+
+**kinto-attachment 6.0.3 → 6.1.0**: https://github.com/Kinto/kinto-attachment/releases/tag/6.1.0
+
+**New features**
+
+- Allow to override mimetypes from config (#315)
+
+**Bug fixes**
+
+- Add missing content type when uploading to S3
 
 
 19.0.2 (2020-06-02)
