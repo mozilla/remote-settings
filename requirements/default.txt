@@ -4,9 +4,9 @@ pyramid==1.10.4 \
 kinto==13.6.5 \
     --hash=sha256:6be27b5dae1ceb649df3030699aa3eca5eb9517eda30b583f5478faa743bb198 \
     --hash=sha256:98a22550a54a7aa090291f9bce2a7169e6615c8042def4a09e350319549a2488
-kinto-attachment==6.0.3 \
-    --hash=sha256:13f800d8e5e0a0b563fc1dd053f954430479ffaaf6d4946a9ba45255b037e75b \
-    --hash=sha256:6b74d860639c371a0881b21f0fefbecfbcdee456fa459552fdec235f1eec71f5
+kinto-attachment==6.0.4 \
+    --hash=sha256:b682244c46e558560c7da040fb899907f30d13fa8d36800667b953aba69fc208 \
+    --hash=sha256:b2adbe5f4c54de7b21cd0cdf9b83ae004c34b370dace1a043e0967112eccd998
 kinto-amo==1.0.1 \
     --hash=sha256:5601bc1f0d8c71f12b89862d3c82bcca4380b3fec8824919b01b6e52bbed6d69 \
     --hash=sha256:cb8520bbbba0df6413350f03c048afacb0922f73c02804e89ceccc45d1ed4e5b
