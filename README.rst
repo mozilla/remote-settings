@@ -1,7 +1,7 @@
 Kinto Distribution
 ==================
 
-.. image:: https://circleci.com/gh/mozilla-services/kinto-dist/tree/master.svg?style=svg
+.. image:: https://circleci.com/gh/mozilla-services/kinto-dist/tree/main.svg?style=svg
    :target: https://circleci.com/gh/mozilla-services/kinto-dist
 
 This repository contains:
@@ -227,7 +227,7 @@ Then:
 
 .. code-block:: bash
 
-   $ git checkout master
+   $ git checkout main
    $ git pull
    $ release
    $ git checkout -b start-X.Y.Z
@@ -244,7 +244,7 @@ the ReST-style section headings to Markdown-style ``##`` headings.
 
 Then:
 
-The "Back to development" commit cannot be pushed to master because we don't allow pushes to master.
+The "Back to development" commit cannot be pushed to main because we don't allow pushes to main.
 
 You can just throw away the commit (``git reset --hard HEAD^``) but
 the next person to touch the changelog will have to introduce a new
@@ -253,7 +253,7 @@ have it be reviewed:
 
 .. code-block:: bash
 
-   $ git checkout master
+   $ git checkout main
 
 Then:
 
