@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Create version.json
           command: |
-            # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/master/docs/version_object.md
+            # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/main/docs/version_object.md
             printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' \
             "$CIRCLE_SHA1" \
             "$CIRCLE_TAG" \
@@ -69,7 +69,7 @@ jobs:
       - run:
           name: Push to Dockerhub
           command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            if [ "${CIRCLE_BRANCH}" == "main" ]; then
               ./bin/deploy-dockerhub.sh latest
             fi
             if [ -n "${CIRCLE_TAG}" ]; then
