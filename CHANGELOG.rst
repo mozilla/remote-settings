@@ -8,7 +8,14 @@ the version control of each dependency.
 19.2.0 (2020-08-14)
 ===================
 
-- Update dependencies
+kinto
+-----
+
+**kinto 13.6.5 → 14.0.0**: https://github.com/Kinto/kinto/releases/tag/14.0.0
+
+- Drop the ``strict_json`` option, and use ``ultrajson`` everywhere
+- Fix messages duplication in logs (#2513)
+- Fix resource timestamp unicity (fixes #2472, #602)
 
 
 19.1.0 (2020-06-23)
