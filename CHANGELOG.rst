@@ -5,6 +5,12 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+19.2.0 (2020-08-14)
+===================
+
+- Update dependencies
+
+
 19.1.0 (2020-06-23)
 ===================
 
