@@ -5,6 +5,19 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+20.0.0 (2020-08-14)
+===================
+
+kinto
+-----
+
+**kinto 13.6.5 → 14.0.0**: https://github.com/Kinto/kinto/releases/tag/14.0.0
+
+- Drop the ``strict_json`` option, and use ``ultrajson`` everywhere
+- Fix messages duplication in logs (#2513)
+- Fix resource timestamp unicity (fixes #2472, #602)
+
+
 19.1.0 (2020-06-23)
 ===================
 
