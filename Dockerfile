@@ -1,4 +1,4 @@
-FROM python:3.8.5-slim@sha256:d2cbcf4d205ca2210e46915f79f486dffe710d2b1deedbe4f7c017e2f9d9b6a8
+FROM python:3.8.5-slim@sha256:7eae34b43d562e5dcd08c0c637e14f0f66a21209fe2591660ff37cfb7e5fa9bb
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/ \
