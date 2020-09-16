@@ -8,7 +8,26 @@ the version control of each dependency.
 20.1.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 14.0.0 → 14.0.1**: https://github.com/Kinto/kinto/releases/tag/14.0.1
+
+**Bug fixes**
+
+- Do not break storage implementations (ie. kinto-redis) that rely on ``json`` class attribute (removed in v14.0.0)
+- Do not return 400 for ``?_since=null`` (fixes #2595)
+
+kinto-signer
+------------
+
+**kinto-signer 6.1.0 → 7.0.0**: https://github.com/Kinto/kinto-signer/releases/tag/7.0.0
+
+**Breaking changes**
+
+- Records cannot contain float values anymore.
+
+Set ``kinto.signer.allow_floats = true`` to keep old behaviour.
 
 
 20.0.0 (2020-08-14)
