@@ -5,6 +5,24 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+21.1.0 (2020-09-23)
+===================
+
+kinto-changes
+-------------
+
+**kinto-changes 3.0.2 → 3.1.0**: https://github.com/Kinto/kinto-changes/releases/tag/3.1.0
+
+**New features**
+
+- Redirect clients whose ``?_since`` value is too old (21 days by default)
+- Add support for monitor/changes in changeset endpoints (fixes #173)
+
+**Bug fixes**
+
+- Fix validation rule for ``_since`` query parameter
+
+
 21.0.0 (2020-09-16)
 ===================
 
