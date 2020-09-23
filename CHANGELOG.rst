@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-21.1.0 (unreleased)
+21.1.0 (2020-09-23)
 ===================
 
 kinto-changes
