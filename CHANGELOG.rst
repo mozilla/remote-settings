@@ -5,6 +5,19 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+21.1.1 (2020-09-28)
+===================
+
+kinto-changes
+-------------
+
+**kinto-changes 3.1.0 → 3.1.1**: https://github.com/Kinto/kinto-changes/releases/tag/3.1.1
+
+**Bug fixes**
+
+- Bypass storage when redirecting on old ``_since`` (Kinto/kinto-changes#209)
+
+
 21.1.0 (2020-09-23)
 ===================
 
