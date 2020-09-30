@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-21.1.1 (2020-09-29)
+21.1.2 (2020-09-29)
 ===================
 
 kinto-changes
