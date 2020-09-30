@@ -4,6 +4,18 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+21.1.2 (2020-09-29)
+===================
+
+kinto-changes
+-------------
+
+**kinto-changes 3.1.1 → 3.1.2**: https://github.com/Kinto/kinto-changes/releases/tag/3.1.2
+
+**Bug fixes**
+
+- Fix crash when collection is unknown and backend running in readonly mode (Kinto/kinto-changes#210)
+
 
 21.1.1 (2020-09-28)
 ===================

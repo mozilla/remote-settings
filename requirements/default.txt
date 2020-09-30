@@ -10,9 +10,9 @@ kinto-attachment==6.1.0 \
 kinto-amo==1.0.1 \
     --hash=sha256:5601bc1f0d8c71f12b89862d3c82bcca4380b3fec8824919b01b6e52bbed6d69 \
     --hash=sha256:cb8520bbbba0df6413350f03c048afacb0922f73c02804e89ceccc45d1ed4e5b
-kinto-changes==3.1.1 \
-    --hash=sha256:968b7b597407181d7938f722fa9088bf21890435d35fd6e0c182ea41b8b5d95a \
-    --hash=sha256:ed8b73fc35d2df74597b9d1b9ef9a5be00c8d902156271f156a9c193ac1a4b09
+kinto-changes==3.1.2 \
+    --hash=sha256:4e78bb7b885432acf19d96fd76718643498e4bb8183d4fae221144fb4297ca27 \
+    --hash=sha256:6b60db7bede1001e3b3255c687732c3b726d5e9eadecd33c27d73f8eeac27965
 kinto-elasticsearch==0.3.1 \
     --hash=sha256:0315227738cf08fbe532330bc4fac9c963e4b688041de6fc042be04af7597870 \
     --hash=sha256:25300a270ef2fc96e2391bb128cdb75e520b1b6ce2a26f7766e19785dce70f5d
