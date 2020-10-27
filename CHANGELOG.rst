@@ -7,7 +7,23 @@ the version control of each dependency.
 21.1.3 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 14.0.1 → 14.1.0**: https://github.com/Kinto/kinto/releases/tag/14.1.0
+
+**New feature**
+
+- Add ability to disable explicit permissions at object level (ref Kinto/kinto#893). Use ``kinto.explicit_permissions = false`` to only rely on inherited permissions (see settings docs)
+
+kinto-admin
+-----------
+
+**kinto-admin 1.26.1 → 1.27.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.27.0
+
+- Fix portier login form (Kinto/kinto-admin#1553)
+- Upgrade to Bootstrap v4 (Kinto/kinto-admin#1519)
+- Replace Glyphicons with Bootstrap icons (Kinto/kinto-admin#1518)
 
 
 21.1.2 (2020-09-29)
