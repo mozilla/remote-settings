@@ -7,7 +7,18 @@ the version control of each dependency.
 21.3.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 14.1.0 → 14.1.1**: https://github.com/Kinto/kinto/releases/tag/14.1.1
+
+**Bug fixes**
+
+- Fix broken Kinto admin (#2646)
+
+**Internal Changes**
+
+- Upgrade kinto-admin to v1.27.3
 
 
 21.2.0 (2020-10-27)
