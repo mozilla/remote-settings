@@ -4,6 +4,23 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+21.2.1 (2020-11-04)
+===================
+
+kinto
+-----
+
+**kinto 14.1.0 → 14.1.1**: https://github.com/Kinto/kinto/releases/tag/14.1.1
+
+**Bug fixes**
+
+- Fix broken Kinto admin (#2646)
+
+**Internal Changes**
+
+- Upgrade kinto-admin to v1.27.3
+
+
 21.2.0 (2020-10-27)
 ===================
 
