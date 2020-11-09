@@ -78,9 +78,28 @@ Stage and prod are aligned in terms of setup, features and versions.
 
 Hence, once done in STAGE there is nothing specific / additional to do: you should be able to redo the same in PROD!
 
-.. note::
 
-    If you have a lot of data that you want to duplicate from one instance to another, check out `kinto-wizard <https://github.com/Kinto/kinto-wizard/>`_ that can dump and load records!
+If you have a lot of data that you want to duplicate from one instance to another, you can use `kinto-wizard <https://github.com/Kinto/kinto-wizard/>`_ to dump and load records!
+
+.. code-block::
+
+	pip install --user kinto-wizard
+
+Dump the main records:
+
+.. code-block::
+
+    kinto-wizard dump --records --server https://settings.stage.mozaws.net/v1 --bucket=main --collection=top-sites > top-sites.yaml
+
+Open the ``.yaml`` file and rename the bucket name on top to ``main-workspace``.
+
+Login in the Remote Settings Admin and copy the authentication header (icon in the top bar), in order to use it in the ``--auth`` parameter of the ``kinto-wizard load`` command.
+
+.. code-block::
+
+    kinto-wizard load --server https://settings.prod.mozaws.net/v1 --auth="Bearer uLdb-Yafefe....2Hyl5_w" top-sites.yaml
+
+Requesting review can be done via the UI, :ref:`or the command-line <>`.
 
 
 How many records does it support?
