@@ -4,6 +4,27 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+21.2.2 (2020-11-09)
+===================
+
+kinto
+-----
+
+**kinto 14.1.1 → 14.1.3**: https://github.com/Kinto/kinto/releases/tag/14.1.3
+
+**Internal Changes**
+
+- Upgrade kinto-admin to v1.28.0
+
+kinto-admin
+-----------
+
+**kinto-admin 1.27.3 → 1.28.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.27.0
+
+- Fix signoff comment popup (#1598)
+- Distinguish signoff progress bar on readonly preview/main collections (#1597)
+
+
 21.2.1 (2020-11-04)
 ===================
 
