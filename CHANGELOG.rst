@@ -4,6 +4,12 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+21.2.3 (unreleased)
+===================
+
+- Nothing changed yet.
+
+
 21.2.2 (2020-11-09)
 ===================
 
