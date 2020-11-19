@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-21.2.3 (unreleased)
+22.0.0 (2020-11-19)
 ===================
 
 kinto-signer
