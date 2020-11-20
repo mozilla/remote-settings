@@ -21,6 +21,15 @@ kinto-signer
 - Replaced custom Canonical JSON with ``python-canonicaljson-rs`` (Kinto/kinto-signer#1260)
 - Removed CloudFront invalidation code (Kinto/kinto-signer#1256)
 
+kinto-changes
+-------------
+
+**kinto-changes 3.1.2 → 3.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/3.2.0
+
+**New features**
+
+- Add filtering support in monitor/changes changeset endpoint
+
 
 21.2.2 (2020-11-09)
 ===================
