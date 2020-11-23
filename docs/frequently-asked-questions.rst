@@ -54,21 +54,17 @@ If it is a one time run, then you can run the script as if it was you:
 3. Use this header in your ``cURL`` commands (or Python/JS/Rust clients etc.)
 
 
-If the automation is meant to last (eg. cronjob, lambda, server to server) then the procedure is a bit stricter, especially if it implies disabling dual sign-off.  
+If the automation is meant to last (eg. cronjob, lambda, server to server) then the procedure is a bit stricter, especially if it implies disabling dual sign-off.
 
-1. If you want to skip manual approval, request a review of your design by the security team (*:ulfr*)
+1. If you want to skip manual approval, request a review of your design by the cloud operations security team
 2. `Request a dedicated Kinto internal account <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ to be created for you (eg. ``account:cfr-publisher``)  and the collection where it should be allowed to edit or review. Secrets should be remain in a vault and managed by OPs. Don't forget to link the security team approval (`example <https://bugzilla.mozilla.org/show_bug.cgi?id=1576989>`_).
 3. If approved by the security team, ask for dual sign-off to be disabled (and the preview collection to be deleted if disabled after its creation).
-
-.. note::
-
-	Frequency of updates matters. On every approval of changes, a push notification is sent to all possible clients to fetch the new publication.
 
 
 How often the synchronization happens?
 --------------------------------------
 
-Right now, every 24H. But once integrated with the Megaphone project in Firefox 64, it will be a matter of minutes thanks to push notifications.
+Synchronizations can be within 10 minutes of the change or in 24 hours.  There are two triggers for synchronization.  A push notification and a polling check.  Every five minutes a server side process checks for changes.  If any changes are found a push notification will be sent and online clients will check in for updates.   Clients that are offline or did not receive the push notification will automatically poll for changes every 24 hours.
 
 
 Once data is ready in STAGE, how do we go live in PROD?
