@@ -64,7 +64,9 @@ If the automation is meant to last (eg. cronjob, lambda, server to server) then 
 How often the synchronization happens?
 --------------------------------------
 
-Synchronizations can be within 10 minutes of the change or in 24 hours.  There are two triggers for synchronization.  A push notification and a polling check.  Every five minutes a server side process checks for changes.  If any changes are found a push notification will be sent and online clients will check in for updates.   Clients that are offline or did not receive the push notification will automatically poll for changes every 24 hours.
+Synchronizations can be within 10 minutes of the change or in 24 hours.
+
+There are two triggers for synchronization: a push notification and a polling check. Every five minutes a server side process checks for changes. If any changes are found a push notification will be sent and online clients will check in for updates. Clients that are offline or did not receive the push notification will either catch-up on next startup or automatically poll for changes every 24 hours.
 
 
 Once data is ready in STAGE, how do we go live in PROD?
