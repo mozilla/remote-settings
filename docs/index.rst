@@ -15,15 +15,15 @@ Remote Settings is a Mozilla service that makes it easy to manage evergreen sett
 
    introduction
    getting-started
+   support
+   target-filters
+   screencasts
    tutorial-dev-server
    tutorial-local-server
    tutorial-multi-signoff
    tutorial-attachments
-   target-filters
    tutorial-normandy-integration
    tutorial-dev-kinto-admin
-   screencasts
-   frequently-asked-questions
 
 Indices and tables
 ==================
