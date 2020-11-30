@@ -4,6 +4,33 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+22.0.0 (2020-11-19)
+===================
+
+kinto-signer
+------------
+
+**kinto-signer 7.0.0 → 8.0.0**: https://github.com/Kinto/kinto-signer/releases/tag/8.0.0
+
+**New feature**
+
+- Add comments to sign-off events attributes (Kinto/kinto-signer#1274)
+
+**Breaking changes**
+
+- Replaced custom Canonical JSON with ``python-canonicaljson-rs`` (Kinto/kinto-signer#1260)
+- Removed CloudFront invalidation code (Kinto/kinto-signer#1256)
+
+kinto-changes
+-------------
+
+**kinto-changes 3.1.2 → 3.2.0**: https://github.com/Kinto/kinto-changes/releases/tag/3.2.0
+
+**New features**
+
+- Add filtering support in monitor/changes changeset endpoint
+
+
 21.2.2 (2020-11-09)
 ===================
 

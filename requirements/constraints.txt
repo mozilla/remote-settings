@@ -447,3 +447,7 @@ more-itertools==8.6.0 \
 PyJWT==1.7.1 \
     --hash=sha256:5c6eca3c2940464d106b99ba83b00c6add741c9becaec087fb7ccdefea71350e \
     --hash=sha256:8d59a976fb773f3e6a39c85636357c4f0e242707394cadadd9814f5cbaa20e96
+canonicaljson-rs==0.3.0 \
+    --hash=sha256:9d8fb412ba9819190d5d07b1b8b01a1a17705fa0487b5253ec78668f263962cc \
+    --hash=sha256:cf73fa7e041557da507dc2f35277d155d75f0eece57fb1cc76e81bd2ea091e1f \
+    --hash=sha256:e4df74f4e8cbfde079c65c61d67ff0f10da8e0e71593294ad9caf719a3551a04

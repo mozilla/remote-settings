@@ -10,17 +10,17 @@ kinto-attachment==6.1.0 \
 kinto-amo==1.0.1 \
     --hash=sha256:5601bc1f0d8c71f12b89862d3c82bcca4380b3fec8824919b01b6e52bbed6d69 \
     --hash=sha256:cb8520bbbba0df6413350f03c048afacb0922f73c02804e89ceccc45d1ed4e5b
-kinto-changes==3.1.2 \
-    --hash=sha256:4e78bb7b885432acf19d96fd76718643498e4bb8183d4fae221144fb4297ca27 \
-    --hash=sha256:6b60db7bede1001e3b3255c687732c3b726d5e9eadecd33c27d73f8eeac27965
+kinto-changes==3.2.0 \
+    --hash=sha256:2df50b6461a4d3066d5d69d111a7a8c5fd26fa22ba1ad8d457708ce088c392fb \
+    --hash=sha256:ac8475cc6d76cd18b7677bc6178d1afc8f0b4f0df9145d0d012ea98cc08a655f
 kinto-elasticsearch==0.3.1 \
     --hash=sha256:0315227738cf08fbe532330bc4fac9c963e4b688041de6fc042be04af7597870 \
     --hash=sha256:25300a270ef2fc96e2391bb128cdb75e520b1b6ce2a26f7766e19785dce70f5d
 kinto-emailer==1.1.0 \
     --hash=sha256:356dc98fe23a21829a4a1e1be5e4032ad4da98dd03ba72f2ea69b1472890a406
-kinto-signer==7.0.0 \
-    --hash=sha256:d23e5c8e8af5431ab58eb5f423beefa2b0b8ae88b8ac5054c3bde062ccdb3ab3 \
-    --hash=sha256:94038dc699bb5a2a064608a4df66fb3a18468fef5c4a0057ea62409b35acd986
+kinto-signer==8.0.0 \
+    --hash=sha256:57937ebe4fde919023b98b0f3f76ac7e76cf43d9804b0e0db82a41dd05746d37 \
+    --hash=sha256:ca61e80d7b13bb9bd2c0b3cf74af5359ab4f14ed1544102903434332d78f421b
 kinto-megaphone==0.5.0 \
     --hash=sha256:d9cb79bf6ff02a42e1744c086fcdfc966e1a6a81559d14ad86fe9656f781b27a \
     --hash=sha256:f5d89198ca382712006eeb6fea71ddace3f358e61fb4e932d7081d7e81cccfd8
