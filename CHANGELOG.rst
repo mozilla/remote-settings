@@ -7,7 +7,14 @@ the version control of each dependency.
 22.1.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto-emailer
+-------------
+
+**kinto-emailer 1.1.0 → 2.0.0**: https://github.com/Kinto/kinto-emailer/releases/tag/2.0.0
+
+**Breaking Changes**
+
+- Remove template variable validation (Kinto/kinto-emailer#235)
 
 
 22.0.0 (2020-11-19)
