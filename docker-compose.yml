@@ -21,7 +21,7 @@ services:
       - ${PWD}/autograph/autograph.yaml:/app/autograph.yaml
 
   megaphone:
-    image: mozilla/megaphone
+    image: mozilla/megaphone:0.1.6
     container_name: megaphone
     depends_on:
       - mysql
