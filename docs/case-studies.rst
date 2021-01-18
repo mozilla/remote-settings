@@ -49,6 +49,17 @@ Misc
 * `Poucave checks for Normandy <https://github.com/mozilla-services/poucave/tree/v1.32.0/checks/normandy>`_
 
 
+HIBP Monitor Breaches
+---------------------
+
+Automation
+''''''''''
+
+* A script pulls from `Have I Been Powned <https://haveibeenpwned.com/>`_ API, and creates the missing records using a Kinto Account, and then requests review (`source <https://github.com/mozilla/blurts-server/blob/c33a85b/scripts/updatebreaches.js>`_)
+* This script is ran by OPs as a cron job (`source <https://github.com/mozilla-services/cloudops-infra/blob/4c43e86cf8beabb8fe4fea6871121f867217df5b/projects/firefoxmonitor/k8s/charts/firefoxmonitor/templates/cronjob-load-breaches.yaml#L43>`_, `request ticket <https://bugzilla.mozilla.org/show_bug.cgi?id=1529860>`_)
+* A human approves the changes manually
+
+
 Blocklist
 ---------
 
