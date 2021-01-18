@@ -107,6 +107,7 @@ We will add our ``reviewer`` user above to the ``password-recipes-reviewers`` gr
 
     When using internal accounts the, user IDs are prefixed with ``account:``. In STAGE/PROD, most user IDs look like this: ``ldap:jdoe@mozilla.com``.
 
+.. _tutorial-multi-signoff-request-review:
 
 Change records and request review
 ---------------------------------

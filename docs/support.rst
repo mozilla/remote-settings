@@ -69,23 +69,46 @@ How do I define default data for new profiles?
 See `developer docs about initial data <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#initial-data>`_.
 
 
-How do I automate the publication of records?
-'''''''''''''''''''''''''''''''''''''''''''''
+How do I automate the publication of records? (one shot)
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 The Remote Settings server is a REST API (namely a `Kinto instance <https://www.kinto-storage.org>`_). Records can be created in batches, and as seen in the :ref:`multi signoff tutorial <tutorial-multi-signoff>` reviews can be requested and approved using ``PATCH`` requests.
 
 If it is a one time run, then you can run the script as if it was you:
 
 1. Authenticate on the Admin UI
-2. Using the DevTools, inspect the outgoing requests and copy the ``Authorization`` header (eg. ``Bearer r43yt0956u0yj1``)
+2. On the top right corner, use the 📋 icon to copy the authentication string (eg. ``Bearer r43yt0956u0yj1``)
 3. Use this header in your ``cURL`` commands (or Python/JS/Rust clients etc.)
 
+.. code-block:: bash
 
-If the automation is meant to last (eg. cronjob, lambda, server to server) then the procedure is a bit stricter, especially if it implies disabling dual sign-off.
+	curl 'https://settings-writer.stage.mozaws.net/v1/' \
+	  -H 'Authorization: Bearer r43yt0956u0yj1'
 
-1. If you want to skip manual approval, request a review of your design by the cloud operations security team
-2. `Request a dedicated Kinto internal account <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ to be created for you (eg. ``account:cfr-publisher``)  and the collection where it should be allowed to edit or review. Secrets should be remain in a vault and managed by OPs. Don't forget to link the security team approval (`example <https://bugzilla.mozilla.org/show_bug.cgi?id=1576989>`_).
-3. If approved by the security team, ask for dual sign-off to be disabled (and the preview collection to be deleted if disabled after its creation).
+
+How do I automate the publication of records? (forever)
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+If the automation is meant to last (eg. cronjob, lambda, server to server) then the procedure would look like this:
+
+1. `Request a dedicated Kinto internal account <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ to be created for you (eg. ``password-rules-publisher``). Secret password should be remain in a vault and managed by OPs.
+2. Write a script that:
+
+  1. takes the server and credentials as ENV variables (eg. ``SERVER=prod AUTH=password-rules-publisher:s3cr3t``).
+  2. compares your source of truth with the collection records. Exit early if no change;
+  3. performs all deletions/updates/creations;
+  4. patches the collection metadata in order to request review (see :ref:`multi-signoff tutorial <tutorial-multi-signoff-request-review>`);
+
+3. Request the OPs team to setup a cronjob in order to run your script (`request example <https://bugzilla.mozilla.org/show_bug.cgi?id=1529860>`_)
+
+We recommend the use of `kinto-http.py <https://github.com/Kinto/kinto-http.py>`_ (`script exanple <https://gist.github.com/leplatrem/f3cf7ac5b0b9b0b27ff6456f47f719ca>`_), but Node JS is also possible (`HIBP example <https://github.com/mozilla/blurts-server/blob/c33a85b/scripts/updatebreaches.js>`_).
+
+.. note::
+
+	Even if publication of records is done by a script, a human will have to approve the changes manually.
+	Generally speaking, disabling dual sign-off is possible, but only in **very** specific cases.
+
+	If you want to skip manual approval, request a review of your design by the cloud operations security team.
 
 
 How often the synchronization happens?
@@ -124,7 +147,7 @@ Login in the Remote Settings Admin and copy the authentication header (icon in t
 
     kinto-wizard load --server https://settings.prod.mozaws.net/v1 --auth="Bearer uLdb-Yafefe....2Hyl5_w" top-sites.yaml
 
-Requesting review can be done via the UI, :ref:`or the command-line <>`.
+Requesting review can be done via the UI, :ref:`or the command-line <tutorial-multi-signoff-request-review>`.
 
 
 How many records does it support?
