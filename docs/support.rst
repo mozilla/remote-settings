@@ -91,10 +91,10 @@ How do I automate the publication of records? (forever)
 
 If the automation is meant to last (eg. cronjob, lambda, server to server) then the procedure would look like this:
 
-1. `Request a dedicated Kinto internal account <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ to be created for you (eg. ``password-rules-publisher``). Secret password should be remain in a vault and managed by OPs.
+1. `Request a dedicated Kinto internal account <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ to be created for you (eg. ``password-rules-publisher``). Secret password should remain in a vault and managed by OPs.
 2. Write a script that:
 
-  1. takes the server and credentials as ENV variables (eg. ``SERVER=prod AUTH=password-rules-publisher:s3cr3t``).
+  1. takes the server and credentials as ENV variables (eg. ``SERVER=prod AUTH=password-rules-publisher:s3cr3t``);
   2. compares your source of truth with the collection records. Exit early if no change;
   3. performs all deletions/updates/creations;
   4. patches the collection metadata in order to request review (see :ref:`multi-signoff tutorial <tutorial-multi-signoff-request-review>`);

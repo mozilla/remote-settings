@@ -20,7 +20,7 @@ Once done, you will be able to login and edit your records on the Admin UIs:
 
 - https://settings-writer.prod.mozaws.net/v1/admin/
 
-The records will then be publicly visible at `https://firefox.settings.services.mozilla.com/v1/bucket/main/collections/{collection-id}/records`_
+The records will then be publicly visible at `<https://firefox.settings.services.mozilla.com/v1/bucket/main/collections/{collection-id}/records>`__
 
 Don't hesitate to contact us (``@delivery`` on Slack) if you're stuck or have questions about the process!
 
@@ -34,7 +34,7 @@ Check out the :ref:`screencast to create, request review and approve changes <sc
 
     In order to switch Firefox from PROD to STAGE, use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_!
 
-    The records will be publicly visible at `https://settings.stage.mozaws.net/v1/bucket/main/collections/{collection-id}/records`_
+    The records will be publicly visible at `<https://settings.stage.mozaws.net/v1/bucket/main/collections/{collection-id}/records>`__
 
 .. note::
 
