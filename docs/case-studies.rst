@@ -71,7 +71,7 @@ Misc
 HIBP Monitor Breaches
 ---------------------
 
-The list websites whose credentials database was leaked is managed via the ``fxmonitor-breaches`` collection.
+The list of websites whose credentials database was leaked is managed via the ``fxmonitor-breaches`` collection.
 
 Automation
 ''''''''''
