@@ -57,9 +57,47 @@ The Admin UI automatically builds forms based on some metadata for your collecti
 
     If your client code expects to find 0 or 1 record by looking up on a specific field, you should probably use that field as the record ID. ``RemoteSettings("cid").get({filters: {id: "a-value"}})`` will be instantaneous.
 
-It is recommended to keep your Remote Settings records small, especially if you update them often. If you have big amounts of data to publish via Remote Settings, use our :ref:`file attachments feature <tutorial-attachments>` instead.
-
 By default, all records are made available to all users. If you want to control which users should have a particular entry, you can add a ``filter_expression`` field (see :ref:`target filters <target-filters>`).
+
+
+Records vs. Attachments?
+''''''''''''''''''''''''
+
+Since the diff-based synchronization happens at the record level, it is recommended to keep your Remote Settings records small, especially if you update them often.
+
+It is important to design your data layout carefully, especially if:
+
+* you have too many records (eg. > 2000)
+* you have big amounts of data (eg. > 1MB)
+* your data cannot be easily broken into pieces
+* your updates are likely to overwrite most of the collection content
+
+Consider the following summary table:
+
++-------------------------------------+--------------------------------------+-------------------------------------+
+| Strategy                            | Pros                                 | Cons                                |
++-------------------------------------+--------------------------------------+-------------------------------------+
+| Many small records                  | - Efficient sync                     | - Costly lookups in client          |
+|                                     | - Easier to review changes in Admin  | - Updates potentially harder to     |
+|                                     |   UI                                 |   automate                          |
+|                                     |                                      |                                     |
++-------------------------------------+--------------------------------------+-------------------------------------+
+| Few big records                     | - Efficient lookups in client        | - Harder to review changes within   |
+|                                     |                                      |   records in Admin UI               |
+|                                     |                                      | - Memory usage in client            |
+|                                     |                                      |                                     |
++-------------------------------------+--------------------------------------+-------------------------------------+
+| Attachments                         | - No limit in size & format          | - No partial update                 |
+|                                     |                                      | - Packaging attachments in release  |
+|                                     |                                      |   binary is feasible but tedious    |
+|                                     |                                      |   (source_)                         |
+|                                     |                                      |                                     |
++-------------------------------------+--------------------------------------+-------------------------------------+
+
+.. _source: https://searchfox.org/mozilla-central/rev/dd042f25a8da58d565d199dcfebe4f34db64863c/taskcluster/docker/periodic-updates/scripts/periodic_file_updates.sh#309-324
+
+- See our :ref:`tutorial for file attachments <tutorial-attachments>`
+
 
 .. _collection-manifests:
 
