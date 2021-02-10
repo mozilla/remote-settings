@@ -21,6 +21,7 @@ apt-get install -y --no-install-recommends \
 
 
 # Python packages
+pip install --upgrade pip
 pip install --no-cache-dir -r default.txt -r prod.txt -c constraints.txt
 uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 # The above command puts the `dogstatsd_plugin.so` in the root.
