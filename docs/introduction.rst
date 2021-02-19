@@ -119,7 +119,7 @@ And the record is now published:
 
 .. code-block:: bash
 
-    curl ${SERVER}/buckets/main-workspace/collections/${COLLECTION}/records
+    curl ${SERVER}/buckets/main/collections/${COLLECTION}/records
 
 .. note::
 
