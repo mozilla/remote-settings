@@ -7,6 +7,10 @@ Basically, Remote Settings consists of two components: a remote server (REST API
 
 Everything is done via a collection of records that is kept in sync between the client local database and the remote data.
 
+.. note::
+
+    See also `The History of Remote Settings <https://blog.mathieu-leplatre.info/the-history-of-firefox-remote-settings.html>`_
+
 
 Why is it better than building my own?
 --------------------------------------
