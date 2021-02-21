@@ -214,9 +214,9 @@ logging-color-formatter==1.0.2 \
 colorama==0.4.4 \
     --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2 \
     --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b
-cornice==5.0.3 \
-    --hash=sha256:2aa7bd075e1b3c6ee2c1cba86b58577fc372f955b952f12add4dfa72e7fd3c42 \
-    --hash=sha256:f971831e90343374b21c0c97d523e23eb09cec41a2a8fc2e85bb5c2585348576
+cornice==5.1.0 \
+    --hash=sha256:b002c23c82229c30d4b5b62a883b80c7d3cf3f2d21baf2f6913e444bfbc2d9f2 \
+    --hash=sha256:c81cd9429759c0de475f580bbff92d5646cfc5f43e8aa24492037e2e90677ee6
 jsonschema==3.2.0 \
     --hash=sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163 \
     --hash=sha256:c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a
