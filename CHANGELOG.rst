@@ -7,7 +7,23 @@ the version control of each dependency.
 23.1.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 14.1.3 → 14.2.0**: https://github.com/Kinto/kinto/releases/tag/14.2.0
+
+**New feature**
+
+- Allow rotation of the user password hmac secret without rotating the default bucket id hmac secret. (kinto/kinto#2647)
+
+kinto-admin
+-----------
+
+**kinto-admin 1.28.0 → 1.29.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.29.0
+
+- Show spinner while loading history (kinto/kinto-admin#1701)
+- Do not loose history list view context when switch to diff overview (kinto/kinto-admin#1702)
+- Fix content of diff overview when records were deleted via plural endpoint (kinto/kinto-admin@45e69be)
 
 
 23.0.0 (2020-12-01)
