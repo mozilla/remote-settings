@@ -4,7 +4,20 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-23.1.0 (unreleased)
+23.1.1 (2021-02-23)
+===================
+
+kinto-signer
+------------
+
+**kinto-signer 8.0.0 → 8.0.1**: https://github.com/Kinto/kinto-signer/releases/tag/8.0.1
+
+**Bug fixes**
+
+- Fix behaviour with preview collection when review is disabled (Kinto/kinto-signer#1327)
+
+
+23.1.0 (2021-02-22)
 ===================
 
 kinto
