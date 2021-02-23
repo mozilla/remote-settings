@@ -4,6 +4,12 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+23.2.0 (unreleased)
+===================
+
+- Nothing changed yet.
+
+
 23.1.1 (2021-02-23)
 ===================
 
