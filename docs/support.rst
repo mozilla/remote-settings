@@ -30,6 +30,22 @@ I approved the changes, but still don't see them
 Frequently Asked Questions
 --------------------------
 
+How often the synchronization happens?
+''''''''''''''''''''''''''''''''''''''
+
+Synchronizations can be within 10 minutes of the change or in 24 hours.
+
+There are two triggers for synchronization: a push notification and a polling check. Every five minutes a server side process checks for changes. If any changes are found a push notification will be sent and online clients will check in for updates. Clients that are offline or did not receive the push notification will either catch-up on next startup or automatically poll for changes every 24 hours.
+
+
+What is the lag on the CDN?
+'''''''''''''''''''''''''''
+
+The client uses the ``/v1/buckets/main/collections/{cid}/changeset`` endpoint, which requires a ``?_expected={}`` query parameter. Since the Push notification contains the latest change timestamp, the first clients to pull the changes from the CDN will bust its cache.
+
+When using the ``/records`` endpoint manually, without any query parameters, the CDN lag can be much higher (typically 1H).
+
+
 How do I setup Firefox to pull data from STAGE?
 '''''''''''''''''''''''''''''''''''''''''''''''
 
@@ -109,14 +125,6 @@ We recommend the use of `kinto-http.py <https://github.com/Kinto/kinto-http.py>`
 	Generally speaking, disabling dual sign-off is possible, but only in **very** specific cases.
 
 	If you want to skip manual approval, request a review of your design by the cloud operations security team.
-
-
-How often the synchronization happens?
-''''''''''''''''''''''''''''''''''''''
-
-Synchronizations can be within 10 minutes of the change or in 24 hours.
-
-There are two triggers for synchronization: a push notification and a polling check. Every five minutes a server side process checks for changes. If any changes are found a push notification will be sent and online clients will check in for updates. Clients that are offline or did not receive the push notification will either catch-up on next startup or automatically poll for changes every 24 hours.
 
 
 Once data is ready in STAGE, how do we go live in PROD?
