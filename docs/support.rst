@@ -49,9 +49,18 @@ When using the ``/records`` endpoint manually, without any query parameters, the
 How do I setup Firefox to pull data from STAGE?
 '''''''''''''''''''''''''''''''''''''''''''''''
 
-The recommended way to setup Firefox to pull data from STAGE is to use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_ extension: switch the environment in the configuration section and click the *Sync* button.
+The **recommended way** to setup Firefox to pull data from STAGE is to use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_ extension: switch the environment in the configuration section and click the *Sync* button.
 
-Alternatively, you can change the `appropriate preferences <https://github.com/mozilla/remote-settings-devtools/blob/1.0.0/extension/experiments/remotesettings/api.js#L96-L106>`_, restart and trigger a synchronization manually.
+Alternatively, in order to point STAGE before on fresh profiles for example, you can set the `appropriate preferences <https://github.com/mozilla/remote-settings-devtools/blob/1.4.0/extension/experiments/remotesettings/api.js#L113-L124>`_ in a ``user.js`` file:
+
+::
+
+    user_pref("services.settings.server", "https://settings.stage.mozaws.net/v1");
+    user_pref("dom.push.serverURL", "https://autopush.stage.mozaws.net");
+    user_pref("security.content.signature.root_hash", "3C:01:44:6A:BE:90:36:CE:A9:A0:9A:CA:A3:A5:20:AC:62:8F:20:A7:AE:32:CE:86:1C:B2:EF:B7:0F:A0:C7:45");
+    user_pref("services.settings.load_dump", false);
+
+See `developer docs <https://firefox-source-docs.mozilla.org/services/common/RemoteSettings.html#trigger-a-synchronization-manually>`_ to trigger a synchronization manually.
 
 
 How do I preview the changes before approving?
