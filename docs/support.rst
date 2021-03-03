@@ -60,7 +60,7 @@ Alternatively, in order to point STAGE before on fresh profiles for example, you
     user_pref("security.content.signature.root_hash", "3C:01:44:6A:BE:90:36:CE:A9:A0:9A:CA:A3:A5:20:AC:62:8F:20:A7:AE:32:CE:86:1C:B2:EF:B7:0F:A0:C7:45");
     user_pref("services.settings.load_dump", false);
 
-See `developer docs <https://firefox-source-docs.mozilla.org/services/common/RemoteSettings.html#trigger-a-synchronization-manually>`_ to trigger a synchronization manually.
+See `developer docs <https://firefox-source-docs.mozilla.org/services/settings/#trigger-a-synchronization-manually>`_ to trigger a synchronization manually.
 
 
 How do I preview the changes before approving?
@@ -85,13 +85,13 @@ Possible workarounds:
 How do I trigger a synchronization manually?
 ''''''''''''''''''''''''''''''''''''''''''''
 
-See `developer docs <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#trigger-a-synchronization-manually>`_.
+See `developer docs <https://firefox-source-docs.mozilla.org/services/settings/#trigger-a-synchronization-manually>`_.
 
 
 How do I define default data for new profiles?
 ''''''''''''''''''''''''''''''''''''''''''''''
 
-See `developer docs about initial data <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#initial-data>`_.
+See `developer docs about initial data <https://firefox-source-docs.mozilla.org/services/settings/#initial-data>`_.
 
 
 How do I automate the publication of records? (one shot)

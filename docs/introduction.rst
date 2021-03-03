@@ -80,7 +80,7 @@ Or get the current list of local records:
 
 .. note::
 
-    * `Client API full reference <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html>`_
+    * `Client API full reference <https://firefox-source-docs.mozilla.org/services/settings/>`_
 
 
 What does the server side API look like?

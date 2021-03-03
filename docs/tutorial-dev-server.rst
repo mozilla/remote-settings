@@ -140,7 +140,7 @@ Then force a synchronization manually with:
 
 .. note::
 
-    Since the developement server is flushed every day, if the client was previously synchronized with data that is not there anymore, the synchronization might fail. You can start from a new profile (``./mach run --temp-profile``) or clear the local state manually (using `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_ or `development docs about local data <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#manipulate-local-data>`_).
+    Since the developement server is flushed every day, if the client was previously synchronized with data that is not there anymore, the synchronization might fail. You can start from a new profile (``./mach run --temp-profile``) or clear the local state manually (using `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_ or `development docs about local data <https://firefox-source-docs.mozilla.org/services/settings/#manipulate-local-data>`_).
 
 .. seealso::
 
