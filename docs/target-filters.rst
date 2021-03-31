@@ -162,7 +162,7 @@ filter expressions.
    **Example:** ``'google'``
 
    String containing the user's default search engine identifier. Identifiers
-   are lowercase, and may by locale-specific (Wikipedia, for examnple, often has
+   are lowercase, and may be locale-specific (Wikipedia, for example, often has
    locale-specific codes like ``'wikipedia-es'``).
 
    The default identifiers included in Firefox are:
