@@ -69,7 +69,7 @@ And in order to create a record with both attributes and attachment, you'll have
 
     Since the dev server is open to anyone and runs on ``.mozaws.net``, we only allow certain types of files (images, audio, video, archives, ``.bin``, ``.json``, ``.gz``).
 
-    If you need to uploadd files with specific extension, let us know and we add it to the whitelist (except ``.html``, ``.js``).
+    If you need to upload files with a specific extension, let us know and we will add it to the whitelist (except ``.html``, ``.js``).
 
 
 Synchronize attachments
