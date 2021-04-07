@@ -4,6 +4,15 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+23.1.2 (2021-04-07)
+===================
+
+**Internal changes**
+
+- Upgraded sub-dependencies
+- Switch to `pip-tools <https://pypi.org/project/pip-tools/>`_ to manage requirements and constraints (#1784)
+
+
 23.1.1 (2021-02-23)
 ===================
 
