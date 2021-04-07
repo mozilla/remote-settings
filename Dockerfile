@@ -13,9 +13,7 @@ RUN mkdir /app && \
     groupadd --gid 10001 app && \
     useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
 
-COPY requirements/default.txt .
-COPY requirements/prod.txt .
-COPY requirements/constraints.txt .
+COPY requirements.txt .
 COPY bin/docker-install.sh .
 RUN ./docker-install.sh
 
