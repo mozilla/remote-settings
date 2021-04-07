@@ -1,4 +1,4 @@
-FROM python:3.9.0-slim@sha256:05f1cd528fd6a1114d44c59d6da400f5221c9cc3180a8e1b6ac2fe2fb8d24f03
+FROM python:3.9.1-slim@sha256:56d9bdc243bc53d4bb055305b58cc0be15b05cc09dcda9b9d5e224233889b61b
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/ \
@@ -13,9 +13,7 @@ RUN mkdir /app && \
     groupadd --gid 10001 app && \
     useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
 
-COPY requirements/default.txt .
-COPY requirements/prod.txt .
-COPY requirements/constraints.txt .
+COPY requirements.txt .
 COPY bin/docker-install.sh .
 RUN ./docker-install.sh
 

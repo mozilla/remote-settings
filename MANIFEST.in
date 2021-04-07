@@ -1,3 +1,2 @@
-recursive-include requirements *.txt
-include *.rst LICENSE Makefile
+include *.rst LICENSE Makefile requirements.txt
 include app.wsgi
