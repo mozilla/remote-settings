@@ -1,0 +1,51 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: weekly
+    day: sunday
+    timezone: UCT
+  open-pull-requests-limit: 99
+  reviewers:
+  - leplatrem
+  ignore:
+  - dependency-name: boto3
+    versions:
+    - 1.16.59
+    - 1.16.63
+    - 1.17.17
+    - 1.17.27
+    - 1.17.33
+    - 1.17.39
+  - dependency-name: botocore
+    versions:
+    - 1.19.59
+    - 1.19.63
+    - 1.20.17
+    - 1.20.27
+    - 1.20.33
+    - 1.20.39
+    - 1.20.44
+  - dependency-name: sqlalchemy
+    versions:
+    - 1.4.2
+    - 1.4.3
+    - 1.4.5
+  - dependency-name: pyramid
+    versions:
+    - "2.0"
+  - dependency-name: idna
+    versions:
+    - "3.1"
+  - dependency-name: importlib-metadata
+    versions:
+    - 3.7.2
+    - 3.7.3
+    - 3.8.1
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: daily
+    timezone: UCT
+  open-pull-requests-limit: 99
