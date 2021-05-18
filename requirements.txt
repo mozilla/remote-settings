@@ -39,10 +39,6 @@ botocore==1.20.46 \
     # via
     #   boto3
     #   s3transfer
-cached-property==1.5.2 \
-    --hash=sha256:9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130 \
-    --hash=sha256:df4f613cf7ad9a588cc381aaf4a512d26265ecebd5eb9e1ba12f1319eb85a6a0
-    # via ec2-metadata
 canonicaljson-rs==0.3.0 \
     --hash=sha256:9d8fb412ba9819190d5d07b1b8b01a1a17705fa0487b5253ec78668f263962cc \
     --hash=sha256:cf73fa7e041557da507dc2f35277d155d75f0eece57fb1cc76e81bd2ea091e1f \
@@ -136,9 +132,9 @@ dockerflow==2020.10.0 \
     --hash=sha256:226086becc436b5a1995348e26c4fb2ad1d4e5dbc10dffec0c675c9a43306c8b \
     --hash=sha256:36787fa016e5505d71d60c36cd4e0de7b2d1e50059160bd4e93ceb62bb40d3f8
     # via kinto
-ec2-metadata==2.3.0 \
-    --hash=sha256:2c12317282de8da1c8315ed4333fb76ae91012d5dcff43fbc81e7e8776b101f8 \
-    --hash=sha256:affd28d4897932d03511970e9703d9e49bf3702b481c6b8a4c471e461ca4a97c
+ec2-metadata==2.4.0 \
+    --hash=sha256:8b27dbbb1234457bda32773adb047acb9980ccbda2791d2e870f253354405b69 \
+    --hash=sha256:99dd21247c5f0401735fea835383eb191c18a32202d255b3b98e17c9a8b9d4db
     # via -r requirements.in
 ecdsa==0.16.1 \
     --hash=sha256:881fa5e12bb992972d3d1b3d4dfbe149ab76a89f13da02daa5ea1ec7dea6e747 \
@@ -640,9 +636,9 @@ webob==1.8.7 \
     # via
     #   hawkauthlib
     #   pyramid
-werkzeug==1.0.1 \
-    --hash=sha256:2de2a5db0baeae7b2d2664949077c2ac63fbd16d98da0ff71837f7d1dea3fd43 \
-    --hash=sha256:6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c
+werkzeug==2.0.0 \
+    --hash=sha256:3389bbfe6d40c6dd25e6d3f974155163c8b3de5bbda6a89342d4ab93fae80ba0 \
+    --hash=sha256:64c02f6495ba01eddd6625b3675f357cd358a73f1e38458a56ad86c5baa30b53
     # via
     #   -r requirements.in
     #   kinto
