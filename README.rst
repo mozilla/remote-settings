@@ -104,36 +104,17 @@ Upgrade Things
 --------------
 
 Most common use-case with ``kinto-dist`` is that you want to upgrade one
-of the dependencies. All dependencies are listed in:
+of the dependencies. 
 
-* ``requirements/default.txt``
-* ``requirements/constraints.txt``
-* ``requirements/prod.txt``
+Top level dependencies are listed in ``requirements.in``.
 
-If there's a package you want to upgrade or add, do that to the
-``requirements/default.txt`` file. If you find out that what you're adding
-requires its own dependencies, add that to ``requirements/constraints.txt``.
+We use `pip-tools's pip-compile <https://pypi.org/project/pip-tools/>`_ command to generate the exhaustive list of pinned dependencies with their hash.
 
-To upgrade the requirements file, install `hashin <https://pypi.org/project/hashin/>`_
-globally on your laptop and then run the following (example) command:
+To upgrade a single package, run:
 
 .. code-block:: shell
 
-    $ hashin -r requirements/default.txt myhotnewpackage
-
-Or if you know the exact version you need:
-
-.. code-block:: shell
-
-    $ hashin -r requirements/default.txt myhotnewpackage==1.2.3
-
-If you just want to *upgrade* an existing package, based on the latest version
-available on `PyPi <https://pypi.org/>`_ you do it as if it's a new package.
-For example:
-
-.. code-block:: shell
-
-    $ hashin -r requirements/default.txt requests
+    $ pip-compile --upgrade-package pyramid
 
 To test that this installs run:
 
