@@ -1,4 +1,4 @@
-pyramid<2
+pyramid
 kinto[postgresql,monitoring]
 kinto-attachment
 kinto-amo
