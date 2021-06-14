@@ -4,6 +4,33 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+23.2.0 (2021-06-14)
+===================
+
+kinto
+-----
+
+**kinto 14.1.3 → 14.2.0**: https://github.com/Kinto/kinto/releases/tag/14.3.0
+
+**Documentation**
+
+- Fix documentation about disabling endpoints (Kinto/kinto#2794)
+
+**Internal changes**
+
+- Now compatible with Pyramid 2 (Kinto/kinto#2764)
+- Upgrade kinto-admin to v1.30.0
+
+kinto-admin
+-----------
+
+**kinto-admin 1.29.0 → 1.30.0**: https://github.com/Kinto/kinto-admin/releases/tag/v1.30.0
+
+**New feature**
+
+- (signoff) Added simple review page, accessible at `/#/buckets/{bid}/collections/{cid}/simple-review` (thanks @k88hudson! Kinto/kinto-admin#1885)
+
+
 23.1.2 (2021-04-07)
 ===================
 
