@@ -122,15 +122,6 @@ To test that this installs run:
 
     $ docker-compose build web
 
-If it fails because ``pip`` believes your new package has other dependencies
-not already mentioned in ``requirements/constraints.txt`` add them like this:
-
-.. code-block:: shell
-
-    $ hashin -r requirements/constraints.txt imneedy alsoneeded
-
-And finally, run ``docker-compose build web`` again.
-
 
 About versioning
 ----------------
