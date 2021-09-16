@@ -23,16 +23,16 @@ bcrypt==3.2.0 \
     --hash=sha256:cd1ea2ff3038509ea95f687256c46b79f5fc382ad0aa3664d200047546d511d1 \
     --hash=sha256:cdcdcb3972027f83fe24a48b1e90ea4b584d35f1cc279d76de6fc4b13376239d
     # via kinto
-boto3==1.17.93 \
-    --hash=sha256:64899ae291f6a0bcbef0cfad9c5e45e1f4bf3a4cbc89e1b9a817349600deec9b \
-    --hash=sha256:e55cbe77a79ef125c17900be38e1cada6d6dab1cc7356f10b24ac07f0a7d0445
-    # via kinto-signer
 boto==2.49.0 \
     --hash=sha256:147758d41ae7240dc989f0039f27da8ca0d53734be0eb869ef16e3adcfa462e8 \
     --hash=sha256:ea0d3b40a2d852767be77ca343b58a9e3a4b00d9db440efb8da74b4e58025e5a
     # via
     #   -r requirements.in
     #   kinto-attachment
+boto3==1.17.93 \
+    --hash=sha256:64899ae291f6a0bcbef0cfad9c5e45e1f4bf3a4cbc89e1b9a817349600deec9b \
+    --hash=sha256:e55cbe77a79ef125c17900be38e1cada6d6dab1cc7356f10b24ac07f0a7d0445
+    # via kinto-signer
 botocore==1.20.93 \
     --hash=sha256:47b8cea6213490866f34fb31ab30f04c2d7cf188c7ab9714556f0e8f7926ebc4 \
     --hash=sha256:aae0f08627ef411a9579ae2a588a15f0859b2b40cecd5cde6055f0354712dd6f
@@ -117,15 +117,15 @@ colorama==0.4.4 \
     --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
     --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
     # via logging-color-formatter
-cornice-swagger==1.0.0 \
-    --hash=sha256:130d6337b3e4f88211719cb3bc9b46a503cc98d8bacb7e7a48f29b38a1568bfd
-    # via kinto
 cornice==5.2.0 \
     --hash=sha256:50f86a5e9fb73d664d20e8dd0bdc3ce419145eb17813591a5a40e8a9d567b9c5 \
     --hash=sha256:71077c0d26eff4ca5b9fdb4ba3b1c3ea7104fa9b6069158f4404db10a9d14fb6
     # via
     #   cornice-swagger
     #   kinto
+cornice-swagger==1.0.0 \
+    --hash=sha256:130d6337b3e4f88211719cb3bc9b46a503cc98d8bacb7e7a48f29b38a1568bfd
+    # via kinto
 cryptography==3.4.7 \
     --hash=sha256:0f1212a66329c80d68aeeb39b8a16d54ef57071bf22ff4e521657b27372e327d \
     --hash=sha256:1e056c28420c072c5e3cb36e2b23ee55e260cb04eee08f702e0edfec3fb51959 \
@@ -144,9 +144,9 @@ dockerflow==2020.10.0 \
     --hash=sha256:226086becc436b5a1995348e26c4fb2ad1d4e5dbc10dffec0c675c9a43306c8b \
     --hash=sha256:36787fa016e5505d71d60c36cd4e0de7b2d1e50059160bd4e93ceb62bb40d3f8
     # via kinto
-ec2-metadata==2.4.0 \
-    --hash=sha256:8b27dbbb1234457bda32773adb047acb9980ccbda2791d2e870f253354405b69 \
-    --hash=sha256:99dd21247c5f0401735fea835383eb191c18a32202d255b3b98e17c9a8b9d4db
+ec2-metadata==2.5.0 \
+    --hash=sha256:4fcbdabd84da849fe087a39d2a722b3be50207f7b9f191197475a73f3120bec5 \
+    --hash=sha256:8fbfede6e7fc7f37104bda2f32c10982080620c6f396ba48c207714728e0feb5
     # via -r requirements.in
 ecdsa==0.17.0 \
     --hash=sha256:5cf31d5b33743abe0dfc28999036c849a69d548f994b535e527ee3cb7f3ef676 \
@@ -245,6 +245,20 @@ jsonschema==3.2.0 \
     --hash=sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163 \
     --hash=sha256:c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a
     # via kinto
+kinto[monitoring,postgresql]==14.3.0 \
+    --hash=sha256:291273eaf7f1c24305b25da28c9e3ac5b8ea3ad24785e9b3d7a7d48b1c6f3fed \
+    --hash=sha256:713b2ac9078cd3bbd8e522a68f781d906e5d6e55b3ed52ab4f4fbdaac819c8a4
+    # via
+    #   -r requirements.in
+    #   kinto-amo
+    #   kinto-attachment
+    #   kinto-changes
+    #   kinto-elasticsearch
+    #   kinto-emailer
+    #   kinto-fxa
+    #   kinto-megaphone
+    #   kinto-redis
+    #   kinto-signer
 kinto-amo==1.0.1 \
     --hash=sha256:5601bc1f0d8c71f12b89862d3c82bcca4380b3fec8824919b01b6e52bbed6d69 \
     --hash=sha256:cb8520bbbba0df6413350f03c048afacb0922f73c02804e89ceccc45d1ed4e5b
@@ -285,20 +299,6 @@ kinto-signer==8.0.1 \
     --hash=sha256:4ac15b108726cf5425da0c88fb5a7eab01ea51e3ecd1df172cab0fb19421a95b \
     --hash=sha256:f5cee3e9f3c641460dddeae46822924d2ee2e2bc0cb5bd6a9692cd6371f77091
     # via -r requirements.in
-kinto[monitoring,postgresql]==14.3.0 \
-    --hash=sha256:291273eaf7f1c24305b25da28c9e3ac5b8ea3ad24785e9b3d7a7d48b1c6f3fed \
-    --hash=sha256:713b2ac9078cd3bbd8e522a68f781d906e5d6e55b3ed52ab4f4fbdaac819c8a4
-    # via
-    #   -r requirements.in
-    #   kinto-amo
-    #   kinto-attachment
-    #   kinto-changes
-    #   kinto-elasticsearch
-    #   kinto-emailer
-    #   kinto-fxa
-    #   kinto-megaphone
-    #   kinto-redis
-    #   kinto-signer
 logging-color-formatter==1.0.2 \
     --hash=sha256:a115c04ebd0be5dc511f71a44dbad531e5b7cb91b91d3924982d69dff0333ad4
     # via kinto
@@ -404,16 +404,16 @@ pastedeploy==2.1.1 \
     --hash=sha256:14923cfd6ad4281b570693afc278bab5076fbdd4cd15aa9d99b042d694aa4217 \
     --hash=sha256:6dead6ab9823a85d585ef27f878bc647f787edb9ca8da0716aa9f1261b464817
     # via plaster-pastedeploy
-plaster-pastedeploy==0.7 \
-    --hash=sha256:391d93a4e1ff81fc3bae27508ebb765b61f1724ae6169f83577f06b6357be7fd \
-    --hash=sha256:7c8aa37c917b615c70bf942b24dc1e0455c49f62f1a2214b1a0dd98871644bbb
-    # via pyramid
 plaster==1.0 \
     --hash=sha256:215c921a438b5349931fd7df9a5a11a3572947f20f4bc6dd622ac08f1c3ba249 \
     --hash=sha256:8351c7c7efdf33084c1de88dd0f422cbe7342534537b553c49b857b12d98c8c3
     # via
     #   plaster-pastedeploy
     #   pyramid
+plaster-pastedeploy==0.7 \
+    --hash=sha256:391d93a4e1ff81fc3bae27508ebb765b61f1724ae6169f83577f06b6357be7fd \
+    --hash=sha256:7c8aa37c917b615c70bf942b24dc1e0455c49f62f1a2214b1a0dd98871644bbb
+    # via pyramid
 psycopg2==2.8.6 \
     --hash=sha256:00195b5f6832dbf2876b8bf77f12bdce648224c89c880719c745b90515233301 \
     --hash=sha256:068115e13c70dc5982dfc00c5d70437fe37c014c808acce119b5448361c03725 \
@@ -446,6 +446,17 @@ pyjwt==2.1.0 \
     --hash=sha256:934d73fbba91b0483d3857d1aff50e96b2a892384ee2c17417ed3203f173fca1 \
     --hash=sha256:fba44e7898bbca160a2b2b501f492824fc8382485d3a6f11ba5d0c1937ce6130
     # via pyfxa
+pyramid==2.0 \
+    --hash=sha256:45431b387587ed0fac6213b54d6e9f0936f0cc85238a8f5af7852fc9484c5c77 \
+    --hash=sha256:de7f097fa2fa43bead1f690761e56594d24954ae7dc7cbf69a5d84bb75c5a099
+    # via
+    #   -r requirements.in
+    #   cornice
+    #   kinto
+    #   pyramid-mailer
+    #   pyramid-multiauth
+    #   pyramid-storage
+    #   pyramid-tm
 pyramid-mailer==0.15.1 \
     --hash=sha256:28d4a7829ebc19dd40e712d8cb1998cec03c296ba675b2c112a503539738bdc1 \
     --hash=sha256:ec0aff54d9179b2aa2922ff82c2016a4dc8d1da5dc3408d6594f0e2096446f9b
@@ -463,17 +474,6 @@ pyramid-tm==2.4 \
     --hash=sha256:4a4e212cd239f06c496d074f5d294e88478b94059541448bc151d505f653be59 \
     --hash=sha256:5fd6d4ac9181a65ec54e5b280229ed6d8b3ed6a8f5a0bcff05c572751f086533
     # via kinto
-pyramid==2.0 \
-    --hash=sha256:45431b387587ed0fac6213b54d6e9f0936f0cc85238a8f5af7852fc9484c5c77 \
-    --hash=sha256:de7f097fa2fa43bead1f690761e56594d24954ae7dc7cbf69a5d84bb75c5a099
-    # via
-    #   -r requirements.in
-    #   cornice
-    #   kinto
-    #   pyramid-mailer
-    #   pyramid-multiauth
-    #   pyramid-storage
-    #   pyramid-tm
 pyrsistent==0.17.3 \
     --hash=sha256:2e636185d9eb976a18a8a8e96efce62f2905fea90041958d8cc2a189756ebf3e
     # via jsonschema
@@ -502,10 +502,6 @@ repoze.sendmail==4.4.1 \
     --hash=sha256:7a8ea37914a5d38bad38052a83eac1d867b171ff4cc8b4d4994e892c05b0d424 \
     --hash=sha256:f1396893d3aa43502624e88941a441233c06679ae50b1966ffbfccba05da6347
     # via pyramid-mailer
-requests-hawk==1.1.1 \
-    --hash=sha256:4a5c7135ee2f5f8be70054a8c3874c918dd4dcd355d675f2de8653aab6f94e39 \
-    --hash=sha256:4c74bd31b581f6d2b36d575bb537b1f29469509f560f5050339a48195d48929b
-    # via kinto-signer
 requests==2.25.1 \
     --hash=sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804 \
     --hash=sha256:c210084e36a42ae6b9219e00e48287def368a26d03a048ddad7bfee44f75871e
@@ -517,6 +513,10 @@ requests==2.25.1 \
     #   pybrowserid
     #   pyfxa
     #   requests-hawk
+requests-hawk==1.1.1 \
+    --hash=sha256:4a5c7135ee2f5f8be70054a8c3874c918dd4dcd355d675f2de8653aab6f94e39 \
+    --hash=sha256:4c74bd31b581f6d2b36d575bb537b1f29469509f560f5050339a48195d48929b
+    # via kinto-signer
 s3transfer==0.4.2 \
     --hash=sha256:9b3752887a2880690ce628bc263d6d13a3864083aeacff4890c1c9839a5eb0bc \
     --hash=sha256:cb022f4b16551edebbb31a377d3f09600dbada7363d8c5db7976e7f47732e1b2
