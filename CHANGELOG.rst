@@ -4,6 +4,32 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+23.3.0 (2021-09-16)
+===================
+
+kinto
+-----
+
+**kinto 14.2.0 → 14.4.0**: https://github.com/Kinto/kinto/releases/tag/14.4.0
+
+**Documentation**
+
+- Fix "negociation" typo in docs/images/architecture.svg (Kinto/kinto#2813)
+
+**Internal changes**
+
+- Replace ujson with rapidjson. (Kinto/kinto#2677)
+
+kinto-admin
+-----------
+
+**kinto-admin 1.30.0 → 1.30.2**: https://github.com/Kinto/kinto-admin/releases/tag/v1.30.2
+
+**Bug fixes**
+
+- Rollback to Bootstrap 4 (Kinto/kinto-admin#2046, mozilla/remote-settings#127)
+
+
 23.2.0 (2021-06-14)
 ===================
 
