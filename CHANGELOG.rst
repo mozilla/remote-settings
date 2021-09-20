@@ -4,6 +4,19 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+23.3.1 (2021-09-20)
+===================
+
+kinto
+-----
+
+**kinto 14.4.0 → 14.4.1**: https://github.com/Kinto/kinto/releases/tag/14.4.1
+
+**Bug fixes**
+
+- Fix bundle of kinto-admin, using same versions of React as upstream package (fixes mozilla/remote-settings#129)
+
+
 23.3.0 (2021-09-16)
 ===================
 
