@@ -64,10 +64,6 @@ cat mail/*.eml | grep "To: me@you.com"
 
 
 
-#
-# kinto-amo test
-#
-
 # kinto-changes
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"destination"'
 
@@ -75,52 +71,12 @@ http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '
 http --check-status -h "$SERVER/admin/"
 http --check-status -h "$SERVER/admin/index.html"
 
-# kinto-amo
-APPID="\{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}"
-http --check-status $SERVER/blocklist/3/$APPID/46.0/
-echo '{"permissions": {"write": ["system.Authenticated"]}}' | http PUT $SERVER/buckets/staging --auth="$AUTH"
-
-# 1. Add a few records
-pwd # TEMP
-ls -l  # TEMP
-kinto-wizard load amo-blocklist.yaml --server "$SERVER" --auth="$AUTH" --bucket staging
-
-# 2. Ask for a review
-echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/certificates --auth "$EDITOR_AUTH"
-echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/gfx --auth "$EDITOR_AUTH"
-echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/plugins --auth "$EDITOR_AUTH"
-echo '{"data": {"status": "to-review"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/addons --auth "$EDITOR_AUTH"
-
-# 3. Validate the review
-echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/certificates --auth "$REVIEWER_AUTH"
-echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/gfx --auth "$REVIEWER_AUTH"
-echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/plugins --auth "$REVIEWER_AUTH"
-echo '{"data": {"status": "to-sign"}}' | http --check-status PATCH $SERVER/buckets/staging/collections/addons --auth "$REVIEWER_AUTH"
-
-
-# Preview XML was published during review
-http --check-status $SERVER/preview/3/$APPID/46.0/ | grep 'youtube'
-# Final XML is identical to production
-http --check-status $SERVER/blocklist/3/$APPID/46.0/ | grep 'youtube'
-# xml-verifier blocked/blocklists.xml $SERVER/blocklist/3/$APPID/46.0/
-
-
-# Expected monitored changes
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"blocklists-preview"'
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"addons"'
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"certificates"'
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"plugins"'
-http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"gfx"'
 # Empty history for preview and signed.
-http --check-status GET $SERVER/buckets/blocklists/history --auth $AUTH | grep '\[\]'
-http --check-status GET $SERVER/buckets/blocklists-preview/history --auth $AUTH | grep '\[\]'
+http --check-status GET $SERVER/buckets/preview/history --auth $AUTH | grep '\[\]'
+http --check-status GET $SERVER/buckets/destination/history --auth $AUTH | grep '\[\]'
 
 curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/2.1.0/scripts/validate_signature.py
-python validate_signature.py --server=$SERVER --bucket=blocklists --collection=addons
-python validate_signature.py --server=$SERVER --bucket=blocklists --collection=certificates
-python validate_signature.py --server=$SERVER --bucket=blocklists --collection=plugins
-python validate_signature.py --server=$SERVER --bucket=blocklists --collection=gfx
-
+python validate_signature.py --server=$SERVER --bucket=destination --collection=source
 
 #
 # FxA
