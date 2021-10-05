@@ -77,20 +77,15 @@ jobs:
             fi
   integration_test:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202107-02
     working_directory: ~/kinto-dist
     steps:
       - checkout
       - run:
           name: "Set Python Version"
           command: |
-            pyenv global 3.7.0
-      - run:
-          name: Install Docker Compose
-          command: |
-            set -x
-            sudo bash -c "curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose"
-            sudo chmod +x /usr/local/bin/docker-compose
+            python3 --version
+            pyenv global 3.9.4
       - run:
           name: Set hosts
           command: |
