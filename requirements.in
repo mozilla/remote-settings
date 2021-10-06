@@ -1,14 +1,12 @@
 pyramid
 kinto[postgresql,monitoring]
 kinto-attachment
-kinto-amo
 kinto-changes
 kinto-elasticsearch
 kinto-emailer
 kinto-signer
 kinto-megaphone
 kinto-fxa
-amo2kinto
 boto
 python-memcached
 Werkzeug
