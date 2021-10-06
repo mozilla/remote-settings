@@ -117,9 +117,9 @@ colorama==0.4.4 \
     --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
     --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
     # via logging-color-formatter
-cornice==5.2.0 \
-    --hash=sha256:50f86a5e9fb73d664d20e8dd0bdc3ce419145eb17813591a5a40e8a9d567b9c5 \
-    --hash=sha256:71077c0d26eff4ca5b9fdb4ba3b1c3ea7104fa9b6069158f4404db10a9d14fb6
+cornice==6.0.0 \
+    --hash=sha256:532485ed53cae81ef476aaf4cc7c2e0208749ad1959119c46efefdeea5546eba \
+    --hash=sha256:ee1e6dd5f3827f642f7fe98b5e34fe8e88e698a0b80f72c848e7f22591cd6eef
     # via
     #   cornice-swagger
     #   kinto
