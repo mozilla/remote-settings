@@ -4,6 +4,23 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+24.0.0 (2021-10-08)
+===================
+
+**Breaking changes**
+
+- Removed `kinto-amo` from packages distribution (#1915)
+
+kinto
+-----
+
+**kinto 14.4.1 → 14.5.0**: https://github.com/Kinto/kinto/releases/tag/14.5.0
+
+**New feature**
+
+- Add ``kinto.version_prefix_redirect_ttl_seconds`` setting in order to send ``Cache-Control`` response headers on version prefix redirects (fixes Kinto/kinto#2874)
+
+
 23.3.1 (2021-09-20)
 ===================
 
