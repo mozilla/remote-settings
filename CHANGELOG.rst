@@ -7,6 +7,10 @@ the version control of each dependency.
 23.4.0 (unreleased)
 ===================
 
+**Breaking changes**
+
+- Removed `kinto-amo` from packages distribution (#1915)
+
 kinto
 -----
 
