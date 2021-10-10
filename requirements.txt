@@ -523,8 +523,8 @@ urllib3==1.26.5 \
     #   botocore
     #   elasticsearch
     #   requests
-uwsgi==2.0.19.1 \
-    --hash=sha256:faa85e053c0b1be4d5585b0858d3a511d2cd10201802e8676060fd0a109e5869
+uwsgi==2.0.20 \
+    --hash=sha256:88ab9867d8973d8ae84719cf233b7dafc54326fcaec89683c3f9f77c002cdff9
     # via -r requirements.in
 venusian==3.0.0 \
     --hash=sha256:06e7385786ad3a15c70740b2af8d30dfb063a946a851dcb4159f9e2a2302578f \
