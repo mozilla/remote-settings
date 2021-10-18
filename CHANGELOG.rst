@@ -7,7 +7,14 @@ the version control of each dependency.
 24.0.1 (unreleased)
 ===================
 
-- Nothing changed yet.
+kinto
+-----
+
+**kinto 14.5.0 → 14.5.1**: https://github.com/Kinto/kinto/releases/tag/14.5.1
+
+**Bug fixes**
+
+- Fix bundle of kinto-admin, using same versions of React as upstream package #GroundhogDay (Kinto/kinto#2880)
 
 
 24.0.0 (2021-10-08)
