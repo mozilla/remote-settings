@@ -5,7 +5,6 @@ kinto-changes
 kinto-elasticsearch
 kinto-emailer
 kinto-signer
-kinto-megaphone
 kinto-fxa
 boto
 python-memcached

@@ -4,6 +4,15 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+
+25.0.0 (unreleased)
+===================
+
+**Breaking Changes**
+
+- Removed ``kinto_megaphone`` from packages distribution
+
+
 24.0.1 (2021-10-18)
 ===================
 
