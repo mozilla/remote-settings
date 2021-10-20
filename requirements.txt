@@ -245,7 +245,6 @@ kinto[monitoring,postgresql]==14.5.1 \
     #   kinto-elasticsearch
     #   kinto-emailer
     #   kinto-fxa
-    #   kinto-megaphone
     #   kinto-redis
     #   kinto-signer
 kinto-attachment==6.1.0 \
@@ -255,9 +254,7 @@ kinto-attachment==6.1.0 \
 kinto-changes==3.2.0 \
     --hash=sha256:2df50b6461a4d3066d5d69d111a7a8c5fd26fa22ba1ad8d457708ce088c392fb \
     --hash=sha256:ac8475cc6d76cd18b7677bc6178d1afc8f0b4f0df9145d0d012ea98cc08a655f
-    # via
-    #   -r requirements.in
-    #   kinto-megaphone
+    # via -r requirements.in
 kinto-elasticsearch==0.3.1 \
     --hash=sha256:0315227738cf08fbe532330bc4fac9c963e4b688041de6fc042be04af7597870 \
     --hash=sha256:25300a270ef2fc96e2391bb128cdb75e520b1b6ce2a26f7766e19785dce70f5d
@@ -268,10 +265,6 @@ kinto-emailer==2.0.0 \
 kinto-fxa==2.5.3 \
     --hash=sha256:86878cc3c3e93dfabd3298e3a7e557aa15bd92328902d8197b57bf6c9eda0c52 \
     --hash=sha256:927b8bf6365a8f5d898e46428a2888d4007641b7e8de59aa37488cfebf22b3a8
-    # via -r requirements.in
-kinto-megaphone==0.5.0 \
-    --hash=sha256:d9cb79bf6ff02a42e1744c086fcdfc966e1a6a81559d14ad86fe9656f781b27a \
-    --hash=sha256:f5d89198ca382712006eeb6fea71ddace3f358e61fb4e932d7081d7e81cccfd8
     # via -r requirements.in
 kinto-redis==2.0.1 \
     --hash=sha256:f1a7147e16b6d83abe24a3ef32e0c7f3f48880ad60f88ae832e225f225cf6903
@@ -439,7 +432,6 @@ requests==2.25.1 \
     # via
     #   ec2-metadata
     #   kinto
-    #   kinto-megaphone
     #   pybrowserid
     #   pyfxa
     #   requests-hawk
