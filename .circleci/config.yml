@@ -50,18 +50,6 @@ jobs:
             docker-compose run web migrate
 
       - run:
-          name: Env
-          command: docker-compose run megaphone env
-
-      - run:
-          name: Wait for megaphone
-          command: |
-            # Megaphone can take an arbitrary amount of time to start
-            # up (probably waiting for mysql to accept connections)
-            wget -q --tries=30 --retry-connrefused --waitretry=1 -O /dev/null "http://localhost:5555/__heartbeat__"
-            docker logs megaphone
-
-      - run:
           name: Tests
           command: |
               docker-compose run tests start

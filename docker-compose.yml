@@ -20,28 +20,6 @@ services:
     volumes:
       - ${PWD}/autograph/autograph.yaml:/app/autograph.yaml
 
-  megaphone:
-    image: mozilla/megaphone:0.1.6
-    container_name: megaphone
-    depends_on:
-      - mysql
-    environment:
-      ROCKET_DATABASE_URL: mysql://megaphone-user:megaphone-pass@mysql/megaphone
-      ROCKET_BROADCASTER_AUTH: "{kinto-dist-test=[token1]}"
-      ROCKET_READER_AUTH: "{reader=[token2]}"
-      ROCKET_LOG: normal
-      RUST_BACKTRACE: 1
-    ports:
-      - "5555:8000"
-
-  mysql:
-    image: mysql:5
-    environment:
-      MYSQL_ROOT_PASSWORD: mysql-root-pass
-      MYSQL_DATABASE: megaphone
-      MYSQL_USER: megaphone-user
-      MYSQL_PASSWORD: megaphone-pass
-
   web:
     build:
       context: .
@@ -51,14 +29,12 @@ services:
       - db
       - memcached
       - autograph
-      - megaphone
     environment:
       - KINTO_CACHE_BACKEND=kinto.core.cache.memcached
       - KINTO_CACHE_HOSTS=memcached:11211 memcached:11212
       - KINTO_STORAGE_URL=postgresql://postgres@db/postgres
       - KINTO_PERMISSION_URL=postgresql://postgres@db/postgres
       - KINTO_SIGNER_AUTOGRAPH_SERVER_URL=http://autograph:8000
-      # - Megaphone is configured in config/example.ini (see event_listeners)
     ports:
       - "8888:8888"
     volumes:

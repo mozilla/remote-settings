@@ -4,7 +4,6 @@ kinto-attachment
 kinto-changes
 kinto-emailer
 kinto-signer
-kinto-megaphone
 boto
 python-memcached
 Werkzeug

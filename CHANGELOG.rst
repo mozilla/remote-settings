@@ -10,7 +10,7 @@ the version control of each dependency.
 
 **Breaking Changes**
 
-- Removed ``kinto_fxa``, ``kinto_elasticsearch``, and ``kinto_redis`` from packages distribution (not officially maintained by Mozilla)
+- Removed ``kinto_fxa``, ``kinto_elasticsearch``,  ``kinto_megaphone``, and ``kinto_redis`` from packages distribution (not officially maintained by Mozilla)
 
 
 24.0.1 (2021-10-18)
