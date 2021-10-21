@@ -2,14 +2,10 @@ pyramid
 kinto[postgresql,monitoring]
 kinto-attachment
 kinto-changes
-kinto-elasticsearch
 kinto-emailer
 kinto-signer
-kinto-fxa
 boto
 python-memcached
 Werkzeug
 ec2-metadata
-kinto-redis
-redis
 uWSGI

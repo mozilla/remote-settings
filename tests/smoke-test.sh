@@ -78,16 +78,6 @@ http --check-status GET $SERVER/buckets/destination/history --auth $AUTH | grep 
 curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/2.1.0/scripts/validate_signature.py
 python validate_signature.py --server=$SERVER --bucket=destination --collection=source
 
-#
-# FxA
-#
-
-# kinto-fxa script
-#
-# Setting up a mock SQS queue and mock FxA token is too much work.
-# Just run the script at all to ensure all the dependencies are there.
-kinto-fxa --help
-
 
 # END OF THE TEST
 # If you made it here, that means all the smoke tests above did not fail.
