@@ -12,6 +12,15 @@ the version control of each dependency.
 
 - Removed ``kinto_fxa``, ``kinto_elasticsearch``,  ``kinto_megaphone``, and ``kinto_redis`` from packages distribution (not officially maintained by Mozilla)
 
+kinto-changes
+-------------
+
+**kinto-changes 3.2.0 → 4.0.0**: https://github.com/Kinto/kinto-changes/releases/tag/4.0.0
+
+**Breaking Changes**
+
+- No ``ResourceEvent`` is sent anymore for changes in this virtual monitor/changes collection.
+
 
 24.0.1 (2021-10-18)
 ===================
