@@ -9,6 +9,7 @@ apt-get install -y --no-install-recommends \
     git \
     g++ \
     gcc \
+    curl \
     mime-support \
     libpcre3-dev \
     libffi-dev \
@@ -18,6 +19,13 @@ apt-get install -y --no-install-recommends \
     libxml2-dev \
     libxslt1-dev \
     libz-dev
+
+
+# Get rustup https://rustup.rs/
+# minimal profile https://rust-lang.github.io/rustup/concepts/profiles.html
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
+# Add cargo to PATH
+source ~/.cargo/env
 
 
 # Python packages
