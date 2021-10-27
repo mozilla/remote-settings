@@ -21,7 +21,7 @@ apt-get install -y --no-install-recommends \
     libz-dev
 
 
-# Get rustup https://rustup.rs/
+# Get rustup https://rustup.rs/ for canonicaljson-rs
 # minimal profile https://rust-lang.github.io/rustup/concepts/profiles.html
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
 # Add cargo to PATH
