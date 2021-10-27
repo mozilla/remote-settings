@@ -12,6 +12,10 @@ the version control of each dependency.
 
 - Removed ``kinto_fxa``, ``kinto_elasticsearch``,  ``kinto_megaphone``, and ``kinto_redis`` from packages distribution (not officially maintained by Mozilla)
 
+**Bug fixes**
+
+- Fix docker-compose command that primes the PostgreSQL server for local testing (mozilla-services/kinto-dist#1930)
+
 kinto-changes
 -------------
 

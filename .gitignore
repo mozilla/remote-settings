@@ -71,3 +71,6 @@ target/
 # misc
 tests/pub
 mail/*.eml
+
+# Visual Studio Code
+.vscode/
