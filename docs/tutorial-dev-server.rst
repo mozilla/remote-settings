@@ -98,11 +98,11 @@ And request a review in order to trigger content signatures:
          -d '{"data": {"status": "to-review"}}' \
          -H "Authorization:${BEARER_TOKEN}"
 
-At this point, the server part is ready: it contains a public **preview** collection with one record. You can fetch its records with:
+At this point, the server part is ready: it contains a public **preview** collection with one record. You can fetch its content (records and signature) with:
 
 .. code-block:: bash
 
-    curl ${SERVER}/buckets/main-preview/collections/${CID}/records
+    curl ${SERVER}/buckets/main-preview/collections/${CID}/changeset?_expected=0  # arbitrary cache-bust value
 
 And it should be listed in the monitor/changes endpoint:
 
