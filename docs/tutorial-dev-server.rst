@@ -179,8 +179,8 @@ Delete your collection
 
 .. code-block:: bash
 
-    http DELETE $SERVER/buckets/main-workspace/groups/$CID-editors -H "Authorization:${BEARER_TOKEN}"
-    http DELETE $SERVER/buckets/main-workspace/groups/$CID-reviewers -H "Authorization:${BEARER_TOKEN}"
-    http DELETE $SERVER/buckets/main-workspace/collections/$CID -H "Authorization:${BEARER_TOKEN}"
-    http DELETE $SERVER/buckets/main-preview/collections/$CID -H "Authorization:${BEARER_TOKEN}"
-    http DELETE $SERVER/buckets/main/collections/$CID -H "Authorization:${BEARER_TOKEN}"
+    curl -X DELETE ${SERVER}/buckets/main-workspace/groups/${CID}-editors -H "Authorization:${BEARER_TOKEN}"
+    curl -X DELETE ${SERVER}/buckets/main-workspace/groups/${CID}-reviewers -H "Authorization:${BEARER_TOKEN}"
+    curl -X DELETE ${SERVER}/buckets/main-workspace/collections/${CID} -H "Authorization:${BEARER_TOKEN}"
+    curl -X DELETE ${SERVER}/buckets/main-preview/collections/${CID} -H "Authorization:${BEARER_TOKEN}"
+    curl -X DELETE ${SERVER}/buckets/main/collections/${CID} -H "Authorization:${BEARER_TOKEN}"
