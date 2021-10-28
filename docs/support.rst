@@ -16,7 +16,7 @@ I cannot access my collection
   - Make sure you were added in the appropriate VPN group (see :ref:`getting-started`)
   - Join ``#engops`` on Slack to troubleshoot.
 * Check that you can login on the Admin UI
-* In the ``main-workspace`` bucket, check that you can create records in your collection (eg. main-workspace/tippytop)
+* In the ``main-workspace`` bucket, check that you can create records in your collection (eg. ``main-workspace/tippytop``)
 
 I approved the changes, but still don't see them
 ''''''''''''''''''''''''''''''''''''''''''''''''
@@ -136,12 +136,14 @@ We recommend the use of `kinto-http.py <https://github.com/Kinto/kinto-http.py>`
 	If you want to skip manual approval, request a review of your design by the cloud operations security team.
 
 
-Once data is ready in STAGE, how do we go live in PROD?
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+.. _duplicate_data:
+
+Once data is ready in DEV or STAGE, how do we go live in PROD?
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Stage and prod are aligned in terms of setup, features and versions.
 
-Hence, once done in STAGE there is nothing specific / additional to do: you should be able to redo the same in PROD!
+Hence, once done in DEV or STAGE there is nothing specific / additional to do: you should be able to redo the same in PROD!
 
 
 If you have a lot of data that you want to duplicate from one instance to another, you can use `kinto-wizard <https://github.com/Kinto/kinto-wizard/>`_ to dump and load records!
