@@ -22,7 +22,7 @@ Once done, you will be able to login and edit your records on the Admin UIs:
 
 The records will then be publicly visible at `<https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/{collection-id}/records>`__
 
-Don't hesitate to contact us (``@delivery`` on Slack) if you're stuck or have questions about the process!
+Don't hesitate to contact us (``#delivery`` on Slack) if you're stuck or have questions about the process!
 
 Check out the :ref:`screencast to create, request review and approve changes <screencasts-modify-request-review>`, or :ref:`our FAQ <faq>`!
 
@@ -38,7 +38,8 @@ Check out the :ref:`screencast to create, request review and approve changes <sc
 
 .. note::
 
-    If you simply **want to play** with the stack or the API, the best way to get started is probably to use our :ref:`DEV server <tutorial-dev-server>`, since everyone is allowed to manipulate data on the server and the multi-signoff workflow is not enabled. Check out the :ref:`dedicated tutorial <tutorial-dev-server>`!
+    If you simply **want to play** with the stack or the API, the best way to get started is probably to use our :ref:`DEV server <tutorial-dev-server>`,
+    since it's accessible without VPN access.
 
 
 About your data
@@ -106,4 +107,4 @@ Collection manifests
 
 Both STAGE and PROD collections attributes and permissions are managed via YAML files in the `remote-settings-permissions <https://github.com/mozilla-services/remote-settings-permissions>`_ Github repository.
 
-If you want to accelerate the process of getting your collection deployed or adjust its schema, in STAGE or PROD, you can open a pull-request with the collection, and the definition of ``{collection}-editors`` and ``{collection}-reviewers`` groups. Check out the existing ones that were merged.
+If you want to accelerate the process of getting your collection deployed or adjust its schema, in DEV, STAGE or PROD, you can open a pull-request with the collection, and the definition of ``{collection}-editors`` and ``{collection}-reviewers`` groups. Check out the existing ones that were merged.

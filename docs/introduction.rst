@@ -106,14 +106,14 @@ Requesting review:
          -d '{"data": {"status": "to-review"}}' \
          -u us3r:p455w0rd
 
-Approving changes:
+Approving changes (different user):
 
 .. code-block:: bash
 
     curl -X PATCH ${SERVER}/buckets/main-workspace/collections/${COLLECTION} \
          -H 'Content-Type:application/json' \
          -d '{"data": {"status": "to-sign"}}' \
-         -u us3r:p455w0rd
+         -u another:p455w0rd
 
 And the record is now published:
 
