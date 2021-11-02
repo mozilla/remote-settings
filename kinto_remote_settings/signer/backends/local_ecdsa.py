@@ -9,6 +9,7 @@ from ..utils import get_first_matching_setting
 from .base import SignerBase
 from .exceptions import BadSignatureError
 
+
 # Autograph uses this prefix prior to signing.
 SIGN_PREFIX = b"Content-Signature:\x00"
 

@@ -9,6 +9,7 @@ from kinto_remote_settings.signer import events as signer_events
 
 from .support import BaseWebTest
 
+
 here = os.path.abspath(os.path.dirname(__file__))
 
 

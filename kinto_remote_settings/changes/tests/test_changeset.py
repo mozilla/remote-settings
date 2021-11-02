@@ -6,6 +6,7 @@ from kinto.core.testing import get_user_headers
 
 from . import BaseWebTest
 
+
 SAMPLE_RECORD = {"data": {"dev-edition": True}}
 
 

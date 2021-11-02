@@ -6,6 +6,7 @@ from kinto_remote_settings import __version__
 
 from . import BaseWebTest
 
+
 SAMPLE_RECORD = {"data": {"dev-edition": True}}
 HOUR_AGO = int(datetime.datetime.now().timestamp() * 1000) - 3600
 

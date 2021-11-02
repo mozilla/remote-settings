@@ -1,0 +1,8 @@
+black
+flake8
+httpie
+isort
+kinto-http
+pytest
+pytest-env
+webtest

@@ -13,6 +13,7 @@ from kinto_remote_settings.signer.backends import (
     local_ecdsa,
 )
 
+
 SIGNATURE = (
     "ikfq6qOV85vR7QaNCTldVvvtcNpPIICqqMp3tfyiT7fHCgFNq410SFnIfjAPgSa"
     "jEtxxyGtZFMoI_BzO_1y5oShLtX0LH4wx_Wft7wz17T7fFqpDQ9hFZzTOPBwZUIbx"

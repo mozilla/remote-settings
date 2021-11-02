@@ -5,6 +5,7 @@ from kinto import main as kinto_main
 from kinto.core.testing import BaseWebTest as CoreWebTest
 from kinto.core.testing import get_user_headers
 
+
 here = os.path.abspath(os.path.dirname(__file__))
 
 

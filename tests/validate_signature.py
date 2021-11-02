@@ -3,6 +3,7 @@ from kinto_http import cli_utils
 from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
 
+
 DEFAULT_SERVER = "https://settings-cdn.stage.mozaws.net/v1"
 DEST_BUCKET = "blocklists"
 DEST_COLLECTION = "certificates"

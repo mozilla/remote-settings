@@ -4,15 +4,15 @@
 # DOCKER_USER
 # DOCKER_PASS
 #
-version: 2
+version: 2.1
 jobs:
   build_test_publish:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2004:202111-01
       docker_layer_caching: true
 
     working_directory: ~/kinto-dist
-    
+
     environment:
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
@@ -22,7 +22,7 @@ jobs:
           name: Install essential packages
           command: |
             sudo apt-get update
-            sudo apt-get install -y ca-certificates curl git openssh-client
+            sudo apt-get install -y ca-certificates curl git openssh-client libpq-dev
 
       - checkout
 
@@ -39,27 +39,18 @@ jobs:
 
       - run:
           name: Build
-          command: |
-            ./bin/build-images.sh
-            docker-compose build
+          command: make build
 
       - run:
-          name: Start once
-          command: |
-            # This will start all the dependencies first
-            docker-compose run web sleep 5
-
-      - run:
-          name: Migrate
+          name: Setup env
           command: |
             mkdir mail
             sudo chmod 777 mail
-            docker-compose run web migrate
+            make runkinto
 
       - run:
-          name: Tests
-          command: |
-            docker-compose run tests start
+          name: Smoke Test
+          command: make smoke-test
 
       - run:
           name: Push to Dockerhub
@@ -72,7 +63,7 @@ jobs:
             fi
   integration_test:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2004:202111-01
       docker_layer_caching: true
     working_directory: ~/kinto-dist
     environment:
@@ -80,39 +71,41 @@ jobs:
       COMPOSE_DOCKER_CLI_BUILD: 1
       BUILDKIT_PROGRESS: plain
     steps:
-      - checkout
       - run:
-          name: "Set Python Version"
+          name: Install essential packages
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y libpq-dev
+
+      - checkout
+
+      - run:
+          name: Set Python Version
           command: |
             python3 --version
-            pyenv global 3.9.4
+            pyenv global 3.9.7
+
       - run:
           name: Set hosts
           command: |
             echo 127.0.0.1 localhost | sudo tee -a /etc/hosts
             cat /etc/hosts
+
       - run:
           name: Build
-          command: |
-            ./bin/build-images.sh
-            docker-compose build
+          command: make build
 
       - run:
-          name: Start once
-          command: |
-            # This will start all the dependencies first
-            docker-compose run web sleep 5
-
-      - run:
-          name: Setup env and run tests
+          name: Setup env
           command: |
             mkdir mail
             sudo chmod 777 mail
-            docker run -d --shm-size 2g --net host selenium/standalone-firefox
-            docker-compose run web migrate
-            docker-compose up -d web
-            pip install pytest-selenium
-            pytest --driver Remote --capability browserName firefox --base-url=http://localhost:8888/v1/admin --verify-base-url --html=integration-test.html --self-contained-html tests/test_integration.py
+            make runkinto
+
+      - run:
+          name: Integration Test
+          command: make int-test
+
       - store_artifacts:
           path: integration-test.html
   unit_test:
@@ -127,33 +120,16 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Install dependencies"
-          command: |
-            pip install -r requirements.txt
-            pip install -r dev-requirements.txt
-      - run:
-          name: "Run kinto_remote_settings plugin unit tests"
-          command: |
-            pytest kinto_remote_settings/
+          name: Run kinto_remote_settings plugin unit tests
+          command: make test
   lint_format:
     docker:
       - image: cimg/python:3.9
     steps:
       - checkout
       - run:
-          name: "Install dependencies"
-          command: |
-            pip install -r requirements.txt
-            pip install -r dev-requirements.txt
-      - run:
-          name: "Check formatting"
-          command: |
-            black --check .
-            isort --check .
-      - run:
-          name: "Check linting"
-          command: |
-            flake8 kinto_remote_settings/ tests/
+          name: Check linting and formatting
+          command: make lint
 workflows:
   version: 2
   main:

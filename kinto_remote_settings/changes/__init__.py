@@ -2,6 +2,7 @@ from pyramid.settings import aslist
 
 from .. import __version__
 
+
 MONITOR_BUCKET = "monitor"
 MONITOR_BUCKET_PATH = "/buckets/{}".format(MONITOR_BUCKET)
 CHANGES_COLLECTION = "changes"

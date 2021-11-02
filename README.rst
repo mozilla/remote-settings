@@ -24,20 +24,14 @@ To run unit tests, you need Postgres installed and a database ``testdb`` availab
 
 .. code-block:: shell
 
-    $ psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
-    $ psql -c "ALTER DATABASE testdb SET TIMEZONE TO UTC;"
+    psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
+    psql -c "ALTER DATABASE testdb SET TIMEZONE TO UTC;"
 
-You should also install the requirements found in ``dev-requirements.txt``:
-
-.. code-block:: shell
-
-    $ pip install -r dev-requirements.txt
-
-After this setup is complete, run tests with ``pytest``
+After this setup is complete, tests can be run with ``pytest`` using ``make``:
 
 .. code-block:: shell
 
-    $ pytest kinto_remote_settings
+    make test
 
 
 **Integration Tests**
@@ -47,8 +41,10 @@ all is working as expected is to run:
 
 .. code-block:: shell
 
-    $ docker-compose run web migrate  # only needed once
-    $ docker-compose run tests
+    export DOCKER_BUILDKIT=1 # or add to your shell's profile
+    export COMPOSE_DOCKER_CLI_BUILD=1 # or add to your shell's profile
+    make runkinto
+    make int-test
 
 .. note:: The ``run web migrate`` command is only needed once, to prime the
           PostgreSQL server. You can flush
@@ -65,7 +61,7 @@ finished, run:
 
 .. code-block:: shell
 
-    $ docker-compose stop
+    make stop
 
 Debugging Locally (simple)
 --------------------------
@@ -75,15 +71,13 @@ which is default) in one terminal first:
 
 .. code-block:: shell
 
-    $ docker-compose up web
+    make runkinto
 
-Now, in a separate terminal, first check that you can reach the Kinto
-server:
+Now, run a suite of smoke tests against the kinto server:
 
 .. code-block:: shell
 
-    $ curl http://localhost:8888/v1/__heartbeat__
-    $ docker-compose run tests
+    make smoke-test
 
 Debugging Locally (advanced)
 ----------------------------
@@ -93,7 +87,7 @@ a ``bash`` session like this:
 
 .. code-block:: shell
 
-    $ docker-compose run --service-ports --user 0 web bash
+    docker-compose run --service-ports --user 0 web bash
 
 Now you're ``root`` so you can do things like ``apt-get update && apt-get install jed``
 to install tools and editors. Also, because of the ``--service-ports`` if you do
@@ -104,26 +98,26 @@ manually with ``kinto start``:
 
 .. code-block:: shell
 
-    $ kinto start --ini config/example.ini
+    kinto start --ini config/example.ini
 
-Another thing you might want to debug is the ``tests`` container that does
+Another thing you might want to debug is the ``smoke-test`` container that does
 the ``curl`` commands against the Kinto server. But before you do that,
 you probably want to start the services:
 
 .. code-block:: shell
 
-    $ docker-compose up web
+    make runkinto
 
 .. code-block:: shell
 
-    $ docker-compose run tests bash
+    docker-compose run smoke-test bash
 
 Now, from that ``bash`` session you can reach the other services like:
 
 .. code-block:: shell
 
-    $ curl http://autograph:8000/__heartbeat__
-    $ curl http://web:8000/v1/__heartbeat__
+    curl http://autograph:8000/__heartbeat__
+    curl http://web:8888/v1/__heartbeat__
 
 
 Upgrade Things
@@ -140,13 +134,13 @@ To upgrade a single package, run:
 
 .. code-block:: shell
 
-    $ pip-compile --upgrade-package pyramid
+    pip-compile --upgrade-package pyramid
 
 To test that this installs run:
 
 .. code-block:: shell
 
-    $ docker-compose build web
+    docker-compose build web
 
 
 About versioning
@@ -172,8 +166,8 @@ First:
 
 .. code-block:: bash
 
-  $ git checkout -b prepare-X.Y.Z
-  $ prerelease
+  git checkout -b prepare-X.Y.Z
+  prerelease
 
 - Bump the ``__version__`` value in ``kinto_remote_settings/__init__.py`` to match the version to be released according to the CHANGELOG
 
@@ -186,16 +180,16 @@ First:
 
 .. code-block:: bash
 
-   $ git checkout main
-   $ git pull
-   $ release
+   git checkout main
+   git pull
+   release
 
 - At this point the package is published on Pypi. Now prepare the next version and push the tag to the repo with:
 
 .. code-block:: bash
 
-   $ git checkout -b start-X.Y.Z
-   $ postrelease
+   git checkout -b start-X.Y.Z
+   postrelease
 
 - Draft a release on Github: https://github.com/mozilla-services/kinto-dist/releases
   For release notes, just use the CHANGELOG entry for the release, but change all

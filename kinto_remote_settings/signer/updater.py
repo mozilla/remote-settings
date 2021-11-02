@@ -9,6 +9,7 @@ from pyramid.security import Everyone
 from .serializer import canonical_json
 from .utils import STATUS, ensure_resource_exists, notify_resource_event, records_diff
 
+
 logger = logging.getLogger(__name__)
 
 

@@ -7,6 +7,7 @@ from kinto.core.utils import build_request, instance_uri
 from kinto.views import NameGenerator
 from pyramid.exceptions import ConfigurationError
 
+
 PLUGIN_USERID = "plugin:kinto-signer"
 FIELD_LAST_MODIFIED = "last_modified"
 

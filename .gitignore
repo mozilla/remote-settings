@@ -6,6 +6,7 @@ __pycache__/
 kinto-logo.png
 config/kinto.ini
 config/development.ini
+.pytest_cache/
 
 # C extensions
 *.so
@@ -47,6 +48,7 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+integration-test.html
 
 # Translations
 *.mo

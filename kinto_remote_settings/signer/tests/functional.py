@@ -10,6 +10,7 @@ from kinto_http.patch_type import JSONPatch
 from kinto_remote_settings.signer.backends import local_ecdsa
 from kinto_remote_settings.signer.serializer import canonical_json
 
+
 __HERE__ = os.path.abspath(os.path.dirname(__file__))
 
 SERVER_URL = "http://localhost:8888/v1"

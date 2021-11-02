@@ -7,6 +7,7 @@ from kinto_http import Client
 from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
 
+
 DEFAULT_SERVER = "http://localhost:8888/v1"
 DEFAULT_AUTH = "user:pass"
 DEFAULT_SOURCE_BUCKET = "alice"
