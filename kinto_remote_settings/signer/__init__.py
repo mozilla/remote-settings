@@ -2,7 +2,7 @@ import copy
 import functools
 import re
 
-from .events import ReviewApproved
+from .events import ReviewRequested, ReviewApproved, ReviewRejected
 
 DEFAULT_SIGNER = "kinto_remote_settings.signer.signer.local_ecdsa"
 
@@ -263,3 +263,14 @@ def includeme(config):
         current.addBeforeCommitHook(listeners.send_signer_events, args=(event,))
 
     config.add_subscriber(on_new_request, NewRequest)
+
+    try:
+        from kinto_emailer import send_notification
+        from pyramid_mailer import IMailer
+
+        if config.registry.queryUtility(IMailer):
+            config.add_subscriber(send_notification, ReviewRequested)
+            config.add_subscriber(send_notification, ReviewApproved)
+            config.add_subscriber(send_notification, ReviewRejected)
+    except ImportError:
+        pass

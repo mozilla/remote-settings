@@ -44,12 +44,13 @@ http --check-status --form POST $SERVER/buckets/blog/collections/articles/record
 #
 
 python $DIR/e2e.py --server=$SERVER --auth=$AUTH --editor-auth=$EDITOR_AUTH --reviewer-auth=$REVIEWER_AUTH --source-bucket="source" --source-col="source"
+python validate_signature.py --server=$SERVER --bucket=destination --collection=source
 
 # kinto-emailer
 echo '{"data": {
   "kinto-emailer": {
     "hooks": [{
-      "event": "kinto_signer.events.ReviewRequested",
+      "event": "kinto_remote_settings.signer.events.ReviewRequested",
       "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
       "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
       "recipients": ["me@you.com", "/buckets/source/groups/reviewers"]
@@ -74,9 +75,6 @@ http --check-status -h "$SERVER/admin/index.html"
 # Empty history for preview and signed.
 http --check-status GET $SERVER/buckets/preview/history --auth $AUTH | grep '\[\]'
 http --check-status GET $SERVER/buckets/destination/history --auth $AUTH | grep '\[\]'
-
-curl -O https://raw.githubusercontent.com/Kinto/kinto-signer/2.1.0/scripts/validate_signature.py
-python validate_signature.py --server=$SERVER --bucket=destination --collection=source
 
 
 # END OF THE TEST

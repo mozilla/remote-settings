@@ -15,9 +15,9 @@ from string import hexdigits
 import argparse
 
 from kinto_http import Client
-from kinto_signer.serializer import canonical_json
-from kinto_signer.hasher import compute_hash
-from kinto_signer.signer.local_ecdsa import ECDSASigner
+from kinto_remote_settings.signer.serializer import canonical_json
+from kinto_remote_settings.signer.hasher import compute_hash
+from kinto_remote_settings.signer.signer.local_ecdsa import ECDSASigner
 
 
 DEFAULT_SERVER = 'http://localhost:8888/v1'
