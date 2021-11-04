@@ -104,7 +104,7 @@ At this point, the server part is ready: it contains a public **preview** collec
 
     curl ${SERVER}/buckets/main-preview/collections/${CID}/changeset?_expected=0  # arbitrary cache-bust value
 
-And it should be listed in the monitor/changes endpoint:
+And it should be listed in the special endpoint that provides all collections timestamps:
 
 .. code-block:: bash
 
