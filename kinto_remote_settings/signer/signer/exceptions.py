@@ -1,0 +1,2 @@
+class BadSignatureError(Exception):
+    pass

@@ -1,0 +1,58 @@
+server:
+    listen: "0.0.0.0:8000"
+    # cache 500k nonces to protect from authorization replay attacks
+    noncecachesize: 524288
+    idletimeout: 60s
+    readtimeout: 60s
+    writetimeout: 60s
+
+statsd:
+    addr: "127.0.0.1:8125"
+    namespace: "autograph."
+    buflen: 1
+
+heartbeat:
+    hsmchecktimeout: 100ms
+    dbchecktimeout: 150ms
+
+# The keys below are testing keys that do not grant any power
+signers:
+    # a p384 key, the standard
+    - id: appkey1
+      type: contentsignature
+      x5u: https://bucket.example.net/appkey1.pem
+      privatekey: |
+          -----BEGIN EC PARAMETERS-----
+          BgUrgQQAIg==
+          -----END EC PARAMETERS-----
+          -----BEGIN EC PRIVATE KEY-----
+          MIGkAgEBBDAzX2TrGOr0WE92AbAl+nqnpqh25pKCLYNMTV2hJHztrkVPWOp8w0mh
+          scIodK8RMpagBwYFK4EEACKhZANiAATiTcWYbt0Wg63dO7OXvpptNG0ryxv+v+Js
+          JJ5Upr3pFus5fZyKxzP9NPzB+oFhL/xw3jMx7X5/vBGaQ2sJSiNlHVkqZgzYF6JQ
+          4yUyiqTY7v67CyfUPA1BJg/nxOS9m3o=
+          -----END EC PRIVATE KEY-----
+
+    - id: appkey2
+      type: contentsignature
+      x5u: https://bucket.example.net/appkey2.pem
+      privatekey: |
+          -----BEGIN EC PRIVATE KEY-----
+          MIGkAgEBBDDzB8n4AOghssIP8Y1/qBLAh3uW8w5i75fZG6qQDTGbOGZbpooeQvdk
+          agQT/dt8/KqgBwYFK4EEACKhZANiAARBmh+6Wc7CvAWylhyEsw5CMy7eSC5nfOo9
+          rszb+aoRxxe/PFrebfgqIBGx8EpXN+DT6QX5dZTLqcjj7GMWx50UvJ1+kIKTLbUx
+          +8Q7KIqH8pQ40GJbFySJS01LyNkqgqc=
+          -----END EC PRIVATE KEY-----
+
+
+authorizations:
+    - id: alice
+      key: fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu
+      signers:
+          - appkey1
+    - id: bob
+      key: 9vh6bhlc10y63ow2k4zke7k0c3l9hpr8mo96p92jmbfqngs9e7d
+      signers:
+          - appkey2
+
+monitoring:
+    key: 19zd4w3xirb5syjgdx8atq6g91m03bdsmzjifs2oddivswlu9qs

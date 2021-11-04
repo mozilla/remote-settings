@@ -6,9 +6,11 @@ Kinto Distribution
 
 This repository contains:
 
-1. A set requirements file that combines all packages needed
-   to run a Kinto server with a known good set of dependencies.
-2. An example configuration file to run it.
+1. A set requirements file that combines all packages needed to run a Kinto
+   server with a known good set of dependencies.
+2. Source code for several Kinto plugins that are specific to remote settings.
+   These are contained in the ``kinto_remote_settings`` package.
+3. An example configuration file to run it.
 
 **The most important function of this repository is to build a Docker image
 with a set of known working dependencies and then ship that to DockerHub.**
@@ -16,6 +18,29 @@ with a set of known working dependencies and then ship that to DockerHub.**
 Test Locally
 ------------
 
+Kinto Remote Settings Unit Tests
+~~~~~~~~~~~~~~~~~~~~~~
+To run unit tests, you need Postgres installed and a database ``testdb`` available. This can be created like:
+
+.. code-block:: shell
+
+    $ psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
+
+You should also install the requirements found in ``dev-requirements.txt``:
+
+.. code-block:: shell
+
+    $ pip install -r dev-requirements.txt
+
+After this setup is complete, run tests with ``pytest``
+
+.. code-block:: shell
+
+    $ pytest kinto_remote_settings
+
+
+Integration Tests
+~~~~~~~~~~~~~~~~~~~~~~
 You need Docker and ``docker-compose``. The simplest way to test that
 all is working as expected is to run:
 
