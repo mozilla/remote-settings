@@ -168,7 +168,7 @@ class CacheExpiresTest(BaseWebTest, unittest.TestCase):
         # The `If-None-Match` header is just a way to obtain a 304 instead of a 200
         # with an empty list. In the client code [0] it is always used in conjonction
         # with _since={last-etag}
-        # [0] https://searchfox.org/mozilla-central/rev/93905b66/services/settings/Utils.jsm#70-73
+        # [0] https://searchfox.org/mozilla-central/rev/93905b66/services/settings/Utils.jsm#70-73 # noqa: 501
         headers = {"If-None-Match": f'"{HOUR_AGO}"'}
         resp = self.app.get(self.changes_uri + f'?_since="{HOUR_AGO}"', headers=headers)
         assert "max-age=60" in resp.headers["Cache-Control"]

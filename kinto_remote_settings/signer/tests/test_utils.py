@@ -216,16 +216,16 @@ class ParseResourcesTest(unittest.TestCase):
 
         # Source in other's destination.
         raw_resources = """
-        /buckets/b/collections/c  -> /buckets/b/collections/c2 -> /buckets/b/collections/c3
-        /buckets/b/collections/ca -> /buckets/b/collections/cb -> /buckets/b/collections/c
+    /buckets/b/collections/c  -> /buckets/b/collections/c2 -> /buckets/b/collections/c3
+    /buckets/b/collections/ca -> /buckets/b/collections/cb -> /buckets/b/collections/c
         """
         with self.assertRaises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         # Preview in other's destination.
         raw_resources = """
-        /buckets/b/collections/c0 -> /buckets/b/collections/c1 -> /buckets/b/collections/c2
-        /buckets/b/collections/ca -> /buckets/b/collections/cb -> /buckets/b/collections/c1
+    /buckets/b/collections/c0 -> /buckets/b/collections/c1 -> /buckets/b/collections/c2
+    /buckets/b/collections/ca -> /buckets/b/collections/cb -> /buckets/b/collections/c1
         """
         with self.assertRaises(ConfigurationError):
             utils.parse_resources(raw_resources)

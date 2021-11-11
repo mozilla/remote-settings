@@ -119,7 +119,7 @@ class IncludeMeTest(unittest.TestCase):
             "signer.resources": (
                 "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1\n"
             ),
-            "signer.sb1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",
+            "signer.sb1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",  # noqa: 501
             "signer.sb1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.ecdsa.private_key": "/path/to/private",
         }
@@ -135,7 +135,7 @@ class IncludeMeTest(unittest.TestCase):
             "signer.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",
             "signer.ecdsa.public_key": "/path/to/key",
             "signer.ecdsa.private_key": "/path/to/private",
-            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",
+            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",  # noqa: 501
             "signer.sb1.sc1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.sc1.ecdsa.private_key": "/path/to/private",
         }
@@ -149,10 +149,10 @@ class IncludeMeTest(unittest.TestCase):
             "signer.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",
             "signer.ecdsa.public_key": "/path/to/key",
             "signer.ecdsa.private_key": "/path/to/private",
-            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",
+            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",  # noqa: 501
             "signer.sb1.sc1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.sc1.ecdsa.private_key": "/path/to/private",
-            "signer.sb2.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",
+            "signer.sb2.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",  # noqa: 501
             "signer.sb2.ecdsa.public_key": "/path/to/key",
             "signer.sb2.ecdsa.private_key": "/path/to/private",
         }
@@ -169,10 +169,10 @@ class IncludeMeTest(unittest.TestCase):
                 "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1\n"
                 "/buckets/sb1/collections/sc2 -> /buckets/db1/collections/dc2"
             ),
-            "signer.sb1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",
+            "signer.sb1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",  # noqa: 501
             "signer.sb1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.ecdsa.private_key": "/path/to/private",
-            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.signer.autograph",
+            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.signer.autograph",  # noqa: 501
             "signer.sb1.sc1.autograph.server_url": "http://localhost",
             "signer.sb1.sc1.autograph.hawk_id": "alice",
             "signer.sb1.sc1.autograph.hawk_secret": "a-secret",
@@ -232,7 +232,7 @@ class IncludeMeTest(unittest.TestCase):
 
     def test_includeme_raises_value_error_if_unknown_placeholder(self):
         settings = {
-            "signer.resources": "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1",
+            "signer.resources": "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1",  # noqa: 501
             "signer.editors_group": "{datetime}_group",
             "signer.ecdsa.public_key": "/path/to/key",
             "signer.ecdsa.private_key": "/path/to/private",
@@ -498,7 +498,7 @@ class SourceCollectionDeletion(BaseWebTest, unittest.TestCase):
         self.app.put_json("/buckets/bid/collections/a", headers=self.headers)
 
         patch = mock.patch(
-            "kinto_remote_settings.signer.updater.LocalUpdater.sign_and_update_destination"
+            "kinto_remote_settings.signer.updater.LocalUpdater.sign_and_update_destination"  # noqa: 501
         )
         mocked = patch.start()
         self.addCleanup(patch.stop)

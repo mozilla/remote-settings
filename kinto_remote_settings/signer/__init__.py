@@ -2,9 +2,10 @@ import copy
 import functools
 import re
 
-from .events import ReviewRequested, ReviewApproved, ReviewRejected
+from .events import ReviewApproved, ReviewRejected, ReviewRequested
 
 DEFAULT_SIGNER = "kinto_remote_settings.signer.signer.local_ecdsa"
+
 
 def get_exposed_resources(resource_dict, review_settings):
     """Compute a set of resources to be shown as part of the server's capabilities.

@@ -6,12 +6,7 @@ from unittest import mock
 
 import pytest
 
-from kinto_remote_settings.signer.signer import (
-    autograph,
-    base,
-    exceptions,
-    local_ecdsa,
-)
+from kinto_remote_settings.signer.signer import autograph, base, exceptions, local_ecdsa
 
 SIGNATURE = (
     "ikfq6qOV85vR7QaNCTldVvvtcNpPIICqqMp3tfyiT7fHCgFNq410SFnIfjAPgSa"

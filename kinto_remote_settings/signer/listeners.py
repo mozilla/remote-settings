@@ -85,7 +85,8 @@ def sign_collection_data(event, resources, **kwargs):
         # Ignore changes made by plugin.
         return
 
-    # Prevent recursivity, since the following operations will alter the current collection.
+    # Prevent recursivity, since the following operations will alter the current
+    # collection.
     impacted_objects = list(event.impacted_objects)
 
     for impacted in impacted_objects:
@@ -144,14 +145,17 @@ def sign_collection_data(event, resources, **kwargs):
                 updater.sign_and_update_destination(
                     event.request,
                     source_attributes=new_collection,
-                    next_source_status=None,  # Do not update source attributes (done below).
+                    # Do not update source attributes (done below).
+                    next_source_status=None,
                 )
             updater.destination = resource["destination"]
             updater.sign_and_update_destination(
                 event.request,
                 source_attributes=new_collection,
-                previous_source_status=STATUS.SIGNED,  # Prevents last_review_date to be set.
-                next_source_status=STATUS.SIGNED,  # Signed by default.
+                # Prevents last_review_date to be set.
+                previous_source_status=STATUS.SIGNED,
+                # Signed by default.
+                next_source_status=STATUS.SIGNED,
             )
 
         elif old_status == new_status:
@@ -231,8 +235,8 @@ def sign_collection_data(event, resources, **kwargs):
 
 def send_signer_events(event):
     """Send accumulated review events for this request. This listener is bound to the
-    ``AfterResourceChanged`` event so that review events are sent only if the transaction
-    was committed.
+    ``AfterResourceChanged`` event so that review events are sent only if the
+    transaction was committed.
     """
     review_events = event.request.bound_data.pop(
         "kinto_remote_settings.signer.events", []
@@ -662,9 +666,9 @@ def cleanup_preview_destination(event, resources):
             )
 
             # At this point, the DELETE event was sent for the source collection,
-            # but the source records may not have been deleted yet (it happens in an event
-            # listener too). That's why we don't copy the records otherwise it will
-            # recreate the records that were just deleted.
+            # but the source records may not have been deleted yet (it happens in an
+            # event listener too). That's why we don't copy the records otherwise it
+            # will recreate the records that were just deleted.
             updater.sign_and_update_destination(
                 event.request,
                 source_attributes=old_collection,
