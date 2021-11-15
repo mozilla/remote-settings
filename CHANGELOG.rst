@@ -14,7 +14,9 @@ the version control of each dependency.
 
 **Bug fixes**
 
+- Fix redirection for old ``?_since`` values on changeset endpoints (fixes Kinto/kinto-changes#299)
 - Fix docker-compose command that primes the PostgreSQL server for local testing (mozilla-services/kinto-dist#1930)
+
 
 kinto-changes
 -------------

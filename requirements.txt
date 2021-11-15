@@ -222,9 +222,9 @@ kinto-attachment==6.1.0 \
     --hash=sha256:4b27c727174ec058548cc599e8ad2fca5c4bf56c2fdea7aa86fa499f60d6f848 \
     --hash=sha256:f68375270ce83b35446ca7f5c2df2d01b64a08e20a3a78c004cb3ef95ac67e7e
     # via -r requirements.in
-kinto-changes==4.1.0 \
-    --hash=sha256:3a1066b31bcd1b5a7c5dad10b83c0364a08a0f4fc2d1ce01b9b5dc67ba2ed5fe \
-    --hash=sha256:c81a36ffcce6b0394b96fb6ac077af8d5365a52c017083bdc68b3cf0e065b3f2
+kinto-changes==4.1.1 \
+    --hash=sha256:0ca6f7364436f5ccafbd7bd639eaf3e0c0cb066e043015f0f973a172ed82db17 \
+    --hash=sha256:3f4576ee7580aad41c1ddbbe9d5c1081a75578618506e280ebeaf6b894bcebab
     # via -r requirements.in
 kinto-emailer==2.0.0 \
     --hash=sha256:bfc14985b57c003a8e9fff5e13379a8c449da98575bd43cd24019ac0c3886842
