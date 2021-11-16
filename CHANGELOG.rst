@@ -14,18 +14,38 @@ the version control of each dependency.
 
 **Bug fixes**
 
-- Fix redirection for old ``?_since`` values on changeset endpoints (fixes Kinto/kinto-changes#299)
 - Fix docker-compose command that primes the PostgreSQL server for local testing (mozilla-services/kinto-dist#1930)
 
+kinto
+-----
+
+**kinto 14.5.1 → 14.6.0**: https://github.com/Kinto/kinto/releases/tag/14.6.0
+
+**New features**
+
+- Now send ``Cache-Control`` response headers on trailing slash redirects. See ``kinto.trailing_slash_redirect_ttl_seconds`` setting (Kinto/kinto#2895)
+
+**Documentation**
+
+- Fix query params typo in docs/tutorials/synchronisation.rst (Kinto/kinto#2898)
+- Ref #2295: update URL of demo server (Kinto/kinto#2899)
 
 kinto-changes
 -------------
 
-**kinto-changes 3.2.0 → 4.0.0**: https://github.com/Kinto/kinto-changes/releases/tag/4.0.0
+**kinto-changes 3.2.0 → 4.1.1**: https://github.com/Kinto/kinto-changes/releases/tag/4.1.1
 
 **Breaking Changes**
 
 - No ``ResourceEvent`` is sent anymore for changes in this virtual monitor/changes collection.
+
+**New Features**
+
+- Send cache control headers on old ``?_since`` redirects (cache for 1 day by default) (Kinto/kinto-changes#290)
+
+**Bug fixes**
+
+- Fix redirection for old ``?_since`` values on changeset endpoints (fixes Kinto/kinto-changes#299)
 
 
 24.0.1 (2021-10-18)
