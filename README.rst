@@ -25,6 +25,7 @@ To run unit tests, you need Postgres installed and a database ``testdb`` availab
 .. code-block:: shell
 
     $ psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
+    $ psql -c "ALTER DATABASE testdb SET TIMEZONE TO UTC;"
 
 You should also install the requirements found in ``dev-requirements.txt``:
 
