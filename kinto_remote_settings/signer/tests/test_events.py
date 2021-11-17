@@ -41,7 +41,7 @@ class ResourceEventsTest(BaseWebTest, unittest.TestCase):
         )
 
         settings["kinto.signer.signer_backend"] = (
-            "kinto_remote_settings.signer.signer." "local_ecdsa"
+            "kinto_remote_settings.signer.backends." "local_ecdsa"
         )
         settings["signer.ecdsa.private_key"] = os.path.join(
             here, "config", "ecdsa.private.pem"
@@ -358,7 +358,7 @@ class SignoffEventsTest(BaseWebTest, unittest.TestCase):
         )
 
         settings["kinto.signer.signer_backend"] = (
-            "kinto_remote_settings.signer.signer." "local_ecdsa"
+            "kinto_remote_settings.signer.backends." "local_ecdsa"
         )
         settings["signer.ecdsa.private_key"] = os.path.join(
             here, "config", "ecdsa.private.pem"
@@ -518,7 +518,7 @@ class SignoffEventsTest(BaseWebTest, unittest.TestCase):
 
     def test_event_is_not_sent_if_rolledback(self):
         patch = mock.patch(
-            "kinto_remote_settings.signer.signer.local_ecdsa.ECDSASigner.sign",
+            "kinto_remote_settings.signer.backends.local_ecdsa.ECDSASigner.sign",
             side_effect=ValueError("boom"),
         )
         self.addCleanup(patch.stop)

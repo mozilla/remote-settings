@@ -1,6 +1,6 @@
 import sys
 
-from .signer.local_ecdsa import ECDSASigner
+from .backends.local_ecdsa import ECDSASigner
 
 
 def generate_keypair(private_key_location, public_key_location):

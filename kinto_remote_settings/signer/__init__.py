@@ -4,7 +4,7 @@ import re
 
 from .events import ReviewApproved
 
-DEFAULT_SIGNER = "kinto_remote_settings.signer.signer.local_ecdsa"
+DEFAULT_SIGNER = "kinto_remote_settings.signer.backends.local_ecdsa"
 
 
 def get_exposed_resources(resource_dict, review_settings):
@@ -46,7 +46,7 @@ def includeme(config):
     from pyramid.settings import asbool
 
     from . import listeners, utils
-    from .signer import heartbeat
+    from .backends import heartbeat
 
     # Register heartbeat to check signer integration.
     config.registry.heartbeats["signer"] = heartbeat

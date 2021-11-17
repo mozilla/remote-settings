@@ -6,7 +6,12 @@ from unittest import mock
 
 import pytest
 
-from kinto_remote_settings.signer.signer import autograph, base, exceptions, local_ecdsa
+from kinto_remote_settings.signer.backends import (
+    autograph,
+    base,
+    exceptions,
+    local_ecdsa,
+)
 
 SIGNATURE = (
     "ikfq6qOV85vR7QaNCTldVvvtcNpPIICqqMp3tfyiT7fHCgFNq410SFnIfjAPgSa"
@@ -97,7 +102,7 @@ class ECDSASignerTest(unittest.TestCase):
         msg = "Please, specify either a private_key or public_key location."
         assert str(excinfo.value) == msg
 
-    @mock.patch("kinto_remote_settings.signer.signer.local_ecdsa.ECDSASigner")
+    @mock.patch("kinto_remote_settings.signer.backends.local_ecdsa.ECDSASigner")
     def test_load_from_settings(self, mocked_signer):
         local_ecdsa.load_from_settings(
             {
@@ -129,7 +134,7 @@ class AutographSignerTest(unittest.TestCase):
             server_url="http://localhost:8000",
         )
 
-    @mock.patch("kinto_remote_settings.signer.signer.autograph.requests")
+    @mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
     def test_request_is_being_crafted_with_payload_as_input(self, requests):
         response = mock.MagicMock()
         response.json.return_value = [{"signature": SIGNATURE, "x5u": "", "ref": ""}]
@@ -142,7 +147,7 @@ class AutographSignerTest(unittest.TestCase):
         )
         assert signature_bundle["signature"] == SIGNATURE
 
-    @mock.patch("kinto_remote_settings.signer.signer.autograph.AutographSigner")
+    @mock.patch("kinto_remote_settings.signer.backends.autograph.AutographSigner")
     def test_load_from_settings(self, mocked_signer):
         autograph.load_from_settings(
             {

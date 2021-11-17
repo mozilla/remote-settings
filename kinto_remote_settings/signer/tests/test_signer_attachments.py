@@ -13,7 +13,7 @@ class SignerAttachmentsTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
         # Patch calls to Autograph.
-        patch = mock.patch("kinto_remote_settings.signer.signer.autograph.requests")
+        patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
         self.addCleanup(patch.stop)
         self.mocked_autograph = patch.start()
 

@@ -21,7 +21,7 @@ class PostgresWebTest(BaseWebTest):
     def setUp(self):
         super(PostgresWebTest, self).setUp()
         # Patch calls to Autograph.
-        patch = mock.patch("kinto_remote_settings.signer.signer.autograph.requests")
+        patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
         self.addCleanup(patch.stop)
         self.mocked_autograph = patch.start()
 

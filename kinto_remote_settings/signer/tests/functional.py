@@ -7,8 +7,8 @@ import requests
 from kinto_http import Client, KintoException
 from kinto_http.patch_type import JSONPatch
 
+from kinto_remote_settings.signer.backends import local_ecdsa
 from kinto_remote_settings.signer.serializer import canonical_json
-from kinto_remote_settings.signer.signer import local_ecdsa
 
 __HERE__ = os.path.abspath(os.path.dirname(__file__))
 

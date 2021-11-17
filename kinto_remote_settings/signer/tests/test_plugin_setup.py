@@ -10,8 +10,8 @@ from pyramid.exceptions import ConfigurationError
 from requests import exceptions as requests_exceptions
 
 from kinto_remote_settings.signer import includeme, utils
+from kinto_remote_settings.signer.backends.autograph import AutographSigner
 from kinto_remote_settings.signer.listeners import sign_collection_data
-from kinto_remote_settings.signer.signer.autograph import AutographSigner
 
 from .support import BaseWebTest, get_user_headers
 
@@ -78,7 +78,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
 class HeartbeatTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        patch = mock.patch("kinto_remote_settings.signer.signer.autograph.requests")
+        patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
         self.mock = patch.start()
         self.addCleanup(patch.stop)
         self.signature = {"signature": "", "x5u": "", "mode": "", "ref": "abc"}
@@ -119,7 +119,7 @@ class IncludeMeTest(unittest.TestCase):
             "signer.resources": (
                 "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1\n"
             ),
-            "signer.sb1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",  # noqa: 501
+            "signer.sb1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",  # noqa: 501
             "signer.sb1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.ecdsa.private_key": "/path/to/private",
         }
@@ -132,10 +132,10 @@ class IncludeMeTest(unittest.TestCase):
             "signer.resources": (
                 "/buckets/sb1 -> /buckets/db1\n" "/buckets/sb2 -> /buckets/db2\n"
             ),
-            "signer.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",
+            "signer.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.ecdsa.public_key": "/path/to/key",
             "signer.ecdsa.private_key": "/path/to/private",
-            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",  # noqa: 501
+            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",  # noqa: 501
             "signer.sb1.sc1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.sc1.ecdsa.private_key": "/path/to/private",
         }
@@ -146,13 +146,13 @@ class IncludeMeTest(unittest.TestCase):
             "signer.resources": (
                 "/buckets/sb1 -> /buckets/db1\n" "/buckets/sb2 -> /buckets/db2\n"
             ),
-            "signer.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",
+            "signer.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.ecdsa.public_key": "/path/to/key",
             "signer.ecdsa.private_key": "/path/to/private",
-            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",  # noqa: 501
+            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",  # noqa: 501
             "signer.sb1.sc1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.sc1.ecdsa.private_key": "/path/to/private",
-            "signer.sb2.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",  # noqa: 501
+            "signer.sb2.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",  # noqa: 501
             "signer.sb2.ecdsa.public_key": "/path/to/key",
             "signer.sb2.ecdsa.private_key": "/path/to/private",
         }
@@ -169,10 +169,10 @@ class IncludeMeTest(unittest.TestCase):
                 "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1\n"
                 "/buckets/sb1/collections/sc2 -> /buckets/db1/collections/dc2"
             ),
-            "signer.sb1.signer_backend": "kinto_remote_settings.signer.signer.local_ecdsa",  # noqa: 501
+            "signer.sb1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",  # noqa: 501
             "signer.sb1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.ecdsa.private_key": "/path/to/private",
-            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.signer.autograph",  # noqa: 501
+            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.backends.autograph",  # noqa: 501
             "signer.sb1.sc1.autograph.server_url": "http://localhost",
             "signer.sb1.sc1.autograph.hawk_id": "alice",
             "signer.sb1.sc1.autograph.hawk_secret": "a-secret",
@@ -190,7 +190,7 @@ class IncludeMeTest(unittest.TestCase):
                 "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1\n"
                 "/buckets/sb1/collections/sc2 -> /buckets/db1/collections/dc2"
             ),
-            "signer.signer_backend": "kinto_remote_settings.signer.signer.autograph",
+            "signer.signer_backend": "kinto_remote_settings.signer.backends.autograph",
             "signer.autograph.server_url": "http://localhost",
             "signer.sb1.autograph.hawk_id": "bob",
             "signer.sb1.autograph.hawk_secret": "a-secret",
@@ -326,7 +326,7 @@ class BatchTest(BaseWebTest, unittest.TestCase):
         self.app.put_json("/buckets/bob", headers=self.headers)
 
         # Patch calls to Autograph.
-        patch = mock.patch("kinto_remote_settings.signer.signer.autograph.requests")
+        patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
         self.mock = patch.start()
         self.addCleanup(patch.stop)
         self.mock.post.return_value.json.return_value = [
@@ -409,7 +409,7 @@ class RecordChangedTest(BaseWebTest, unittest.TestCase):
         super().setUp()
         self.headers = get_user_headers("me")
 
-        patch = mock.patch("kinto_remote_settings.signer.signer.autograph.requests")
+        patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
         self.mock = patch.start()
         self.addCleanup(patch.stop)
 
@@ -444,7 +444,7 @@ class SourceCollectionDeletion(BaseWebTest, unittest.TestCase):
         super().setUp()
 
         # Patch calls to Autograph.
-        patch = mock.patch("kinto_remote_settings.signer.signer.autograph.requests")
+        patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
         mocked = patch.start()
         self.addCleanup(patch.stop)
         mocked.post.return_value.json.side_effect = lambda: [

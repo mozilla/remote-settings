@@ -1,8 +1,8 @@
 import tempfile
 import unittest
 
+from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.generate_keypair import generate_keypair
-from kinto_remote_settings.signer.signer.local_ecdsa import ECDSASigner
 
 
 class KeyPairGeneratorTest(unittest.TestCase):
