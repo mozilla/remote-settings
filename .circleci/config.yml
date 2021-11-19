@@ -104,7 +104,7 @@ jobs:
           path: integration-test.html
   unit_test:
     docker:
-      - image: cimg/python:3.9.8
+      - image: cimg/python:3.9
       - image: circleci/postgres:12.8-bullseye-ram
         environment:
           POSTGRES_DB: testdb
@@ -124,7 +124,7 @@ jobs:
             pytest kinto_remote_settings/
   lint_format:
     docker:
-      - image: cimg/python:3.9.8
+      - image: cimg/python:3.9
     steps:
       - checkout
       - run:
