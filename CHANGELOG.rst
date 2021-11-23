@@ -17,17 +17,56 @@ the version control of each dependency.
   copied, linting and formatting tools were run against them and changes were
   made for CI checks to pass. 
 
-- ``kinto_signer``'s internal package ``signer`` was renamed to ``backends``
-
 - ``kinto_changes`` and ``kinto_signer`` are now combined into one plugin
   ``kinto_remote_settings``. Kinto config files must be changed to register the
   plugin as such. 
   
-- Some config files (e.g. Remote Settings server configuration, `permissions
-  metadata <https://github.com/mozilla-services/remote-settings-permissions>`_.)
-  rely on classes from ``kinto_signer`` and ``kinto_changes`` to have specific
-  qualified names. These values must be changed to correctly refer to these
-  classes.
+  Before:
+  .. code-block:: ini
+
+      kinto.includes = ...
+                      kinto_changes
+                      kinto_signer
+  After:
+  .. code-block:: ini
+
+      kinto.includes = ...
+                      kinto_remote_settings
+  
+  This change does not include the names of config items. For instance,
+  ``kinto_changes.http_host`` remains with prefix ``kinto_changes`` and was
+  not renamed ``kinto_remote_settings.changes.http_host``.
+
+- In addition to the ``kinto_signer`` & ``kinto_changes`` consolidation as
+  described above, ``kinto_remote_settings.signer``'s internal package
+  ``signer`` was renamed to ``backends``. Consider adjusting the 
+  ``kinto.signer.signer_backend = `` settings in your configuration
+  accordingly.
+
+  .. code-block:: ini
+
+      kinto.signer.signer_backend = kinto_remote_settings.signer.backends.autograph
+    
+- Some collection metadata rely on classes from ``kinto_signer`` to have
+  specific qualified names for ``kinto-emailer`` to send emails on signer
+  events (review requests, approvals, ...). These names must be changed to
+  correctly refer to these classes. For example:
+
+  Before:
+
+  .. code-block:: yaml
+
+    kinto-emailer:
+          hooks:
+          - event: kinto_signer.events.ReviewRequested
+
+  After:
+
+  .. code-block:: yaml
+
+    kinto-emailer:
+          hooks:
+          - event: kinto_remote_settings.signer.events.ReviewRequested
 
 
 25.0.0 (2021-11-15)
