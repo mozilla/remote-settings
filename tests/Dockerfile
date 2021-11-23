@@ -14,6 +14,7 @@ RUN pip install httpie kinto-http kinto-wizard
 
 WORKDIR /app
 ADD tests /app
+ADD kinto_remote_settings /app/kinto_remote_settings
 
 ENTRYPOINT ["/bin/bash", "/app/run.sh"]
 CMD ["start"]

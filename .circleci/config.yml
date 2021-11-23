@@ -102,7 +102,45 @@ jobs:
             pytest --driver Remote --capability browserName firefox --base-url=http://localhost:8888/v1/admin --verify-base-url --html=integration-test.html --self-contained-html tests/test_integration.py
       - store_artifacts:
           path: integration-test.html
-
+  unit_test:
+    docker:
+      - image: cimg/python:3.9
+      - image: circleci/postgres:12.8-bullseye-ram
+        environment:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+    working_directory: ~/kinto-dist
+    steps:
+      - checkout
+      - run:
+          name: "Install dependencies"
+          command: |
+            pip install -r requirements.txt
+            pip install -r dev-requirements.txt
+      - run:
+          name: "Run kinto_remote_settings plugin unit tests"
+          command: |
+            pytest kinto_remote_settings/
+  lint_format:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - run:
+          name: "Install dependencies"
+          command: |
+            pip install -r requirements.txt
+            pip install -r dev-requirements.txt
+      - run:
+          name: "Check formatting"
+          command: |
+            black --check .
+            isort --check .
+      - run:
+          name: "Check linting"
+          command: |
+            flake8 kinto_remote_settings/ tests/
 workflows:
   version: 2
   main:
@@ -112,3 +150,5 @@ workflows:
             tags:
               only: /.*/
       - integration_test
+      - unit_test
+      - lint_format

@@ -17,10 +17,13 @@ COPY requirements.txt .
 COPY bin/docker-install.sh .
 RUN ./docker-install.sh
 
+# TODO: don't copy any /tests folders for prod image (maybe handle this in .dockerignore)
 COPY . /app
 
 # Switch back to home directory
 WORKDIR /app
+
+ENV PYTHONPATH "/app"
 
 # Drop down to unprivileged user
 RUN chown -R 10001:10001 /app
