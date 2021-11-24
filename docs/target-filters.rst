@@ -82,7 +82,7 @@ Expressions can be grouped using parenthesis:
    ((2 + 3) * 3) - 3 // == 7
 
 JEXL also supports lists and objects (known as dictionaries in other languages)
-as well as attribute access:
+ as attribute access:
 
 .. code-block:: javascript
 
@@ -490,14 +490,13 @@ Advanced: Testing Filter Expressions in the Browser Console
 
         (
           async function () {
-            const collection = await client.openCollection();
-            await collection.clear();
-            await collection.db.saveLastModified(42);
+            await client.db.clear();
+            await client.db.saveLastModified(42);
 
-            const record = await collection.create({
+            const record = await client.db.create({
               id: "68b19efa-1067-401b-b1c1-8d7b4263bb86",  // random uuidgen
               filter_expression: FILTER_TO_TEST
-            }, { synced: true });
+            };
 
             const filtered = await client.get();
             console.log(filtered.length == 1);
