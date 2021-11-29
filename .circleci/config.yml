@@ -12,7 +12,11 @@ jobs:
       docker_layer_caching: true
 
     working_directory: ~/kinto-dist
-
+    
+    environment:
+      DOCKER_BUILDKIT: 1
+      COMPOSE_DOCKER_CLI_BUILD: 1
+      BUILDKIT_PROGRESS: plain
     steps:
       - run:
           name: Install essential packages
@@ -35,7 +39,9 @@ jobs:
 
       - run:
           name: Build
-          command: docker-compose build
+          command: |
+            ./bin/build-images.sh
+            docker-compose build
 
       - run:
           name: Start once
@@ -67,7 +73,12 @@ jobs:
   integration_test:
     machine:
       image: ubuntu-2004:202107-02
+      docker_layer_caching: true
     working_directory: ~/kinto-dist
+    environment:
+      DOCKER_BUILDKIT: 1
+      COMPOSE_DOCKER_CLI_BUILD: 1
+      BUILDKIT_PROGRESS: plain
     steps:
       - checkout
       - run:
@@ -82,7 +93,9 @@ jobs:
             cat /etc/hosts
       - run:
           name: Build
-          command: docker-compose build
+          command: |
+            ./bin/build-images.sh
+            docker-compose build
 
       - run:
           name: Start once

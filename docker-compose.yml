@@ -44,7 +44,7 @@ services:
   tests:
     build:
       context: .
-      dockerfile: tests/Dockerfile
+      dockerfile: Testing.Dockerfile
     image: kinto:tests
     depends_on:
       - web
