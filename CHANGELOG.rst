@@ -68,6 +68,16 @@ the version control of each dependency.
           hooks:
           - event: kinto_remote_settings.signer.events.ReviewRequested
 
+kinto-emailer
+-------------
+
+**kinto-emailer 2.0.0 → 2.1.0**: https://github.com/Kinto/kinto-emailer/releases/tag/2.1.0
+
+**New features**
+
+- Add ability to use settings values in placeholders (#294).
+  For example:  ``"subject": "Email from {settings[project_name]}"``
+
 
 25.0.0 (2021-11-15)
 ===================
