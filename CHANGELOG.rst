@@ -27,6 +27,7 @@ the version control of each dependency.
       kinto.includes = ...
                       kinto_changes
                       kinto_signer
+
   After:
   .. code-block:: ini
 
@@ -37,10 +38,10 @@ the version control of each dependency.
   ``kinto_changes.http_host`` remains with prefix ``kinto_changes`` and was
   not renamed ``kinto_remote_settings.changes.http_host``.
 
-- In addition to the ``kinto_signer`` & ``kinto_changes`` consolidation as
+- In addition to the ``kinto_signer`` and ``kinto_changes`` consolidation as
   described above, ``kinto_remote_settings.signer``'s internal package
   ``signer`` was renamed to ``backends``. Consider adjusting the 
-  ``kinto.signer.signer_backend = `` settings in your configuration
+  ``kinto.signer.signer_backend`` settings in your configuration
   accordingly.
 
   .. code-block:: ini
@@ -75,7 +76,7 @@ kinto-emailer
 
 **New features**
 
-- Add ability to use settings values in placeholders (#294).
+- Add ability to use settings values in placeholders (Kinto/kinto-emailer#294).
   For example:  ``"subject": "Email from {settings[project_name]}"``
 
 
