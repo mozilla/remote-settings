@@ -95,7 +95,6 @@ def includeme(config):
         "reviewers_group": "reviewers",
         "editors_group": "editors",
         "to_review_enabled": False,
-        "group_check_enabled": False,
     }
     global_settings = {}
     for setting in listeners.REVIEW_SETTINGS:

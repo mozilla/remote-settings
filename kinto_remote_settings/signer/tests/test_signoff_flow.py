@@ -335,7 +335,6 @@ class RefreshSignatureTest(SignoffWebTest, unittest.TestCase):
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings["signer.to_review_enabled"] = "true"
-        settings["signer.group_check_enabled"] = "true"
         return settings
 
     def setUp(self):
@@ -873,7 +872,6 @@ class UserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
-        settings["signer.group_check_enabled"] = "true"
         return settings
 
     def setUp(self):
@@ -966,8 +964,6 @@ class SpecificUserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestC
             cls.source_collection2.replace("alice", "destination"),
         )
 
-        settings["signer.group_check_enabled"] = "false"
-        settings["signer.alice.cid1.group_check_enabled"] = "true"
         settings["signer.alice.cid1.editors_group"] = "editeurs"
         settings["signer.alice.cid1.reviewers_group"] = "revoyeurs"
         return settings
@@ -990,12 +986,19 @@ class SpecificUserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestC
             headers=self.headers,
         )
 
-    def test_editors_can_ask_to_review_if_not_specificly_configured(self):
-        self.app.patch_json(
+    def test_editors_cannot_ask_to_review_if_not_specificly_configured(self):
+        resp = self.app.patch_json(
             self.source_collection2,
             {"data": {"status": "to-review"}},
             headers=self.someone_headers,
-            status=200,
+            status=403,
+        )
+        self.assertFormattedError(
+            response=resp,
+            code=403,
+            errno=ERRORS.FORBIDDEN,
+            error="Forbidden",
+            message="Not in editors group",
         )
 
     def test_only_specific_editors_can_ask_to_review(self):
@@ -1277,10 +1280,8 @@ class NoReviewTest(SignoffWebTest, unittest.TestCase):
         )
         # dev/onecrl has review enabled.
         settings["signer.to_review_enabled"] = "true"
-        settings["signer.group_check_enabled"] = "true"
         # dev/normandy has review disabled.
         settings["signer.dev.normandy.to_review_enabled"] = "false"
-        settings["signer.dev.normandy.group_check_enabled"] = "false"
 
         return settings
 
@@ -1377,10 +1378,8 @@ class NoPreviewTest(SignoffWebTest, unittest.TestCase):
         )
         # dev/onecrl has review enabled.
         settings["signer.to_review_enabled"] = "true"
-        settings["signer.group_check_enabled"] = "true"
         # dev/normandy has review disabled.
         settings["signer.dev.normandy.to_review_enabled"] = "false"
-        settings["signer.dev.normandy.group_check_enabled"] = "false"
 
         return settings
 

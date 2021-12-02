@@ -25,7 +25,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         settings["signer.alice.source.to_review_enabled"] = "true"
 
         settings["signer.stage.normandy.to_review_enabled"] = "false"
-        settings["signer.stage.normandy.group_check_enabled"] = "true"
         return settings
 
     def test_capability_is_exposed(self):
@@ -37,7 +36,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
             "description": "Digital signatures for integrity and authenticity of records.",  # NOQA
             "url": ("https://github.com/Kinto/kinto-signer#kinto-signer"),
             "to_review_enabled": False,
-            "group_check_enabled": False,
             "editors_group": "editors",
             "reviewers_group": "{bucket_id}-{collection_id}-reviewers",
             "resources": [
@@ -69,7 +67,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                     "preview": {"bucket": "preview", "collection": "normandy"},
                     "destination": {"bucket": "prod", "collection": "normandy"},
                     "reviewers_group": "stage-normandy-reviewers",
-                    "group_check_enabled": True,
                 },
             ],
         }
@@ -322,8 +319,23 @@ class BatchTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(BatchTest, self).setUp()
         self.headers = get_user_headers("me")
+
+        resp = self.app.get("/", headers=self.headers)
+        self.userid = resp.json["user"]["id"]
+
         self.app.put_json("/buckets/alice", headers=self.headers)
         self.app.put_json("/buckets/bob", headers=self.headers)
+
+        self.app.put_json(
+            "/buckets/alice/groups/reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
+        self.app.put_json(
+            "/buckets/bob/groups/reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
 
         # Patch calls to Autograph.
         patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
@@ -396,6 +408,15 @@ class SigningErrorTest(BaseWebTest, unittest.TestCase):
         self.app.app.registry.signers[collection_uri].server_url = "http://0.0.0.0:1234"
 
         self.app.put_json("/buckets/alice", headers=self.headers)
+
+        resp = self.app.get("/", headers=self.headers)
+        self.userid = resp.json["user"]["id"]
+        self.app.put_json(
+            "/buckets/alice/groups/reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
+
         self.app.put_json(
             collection_uri,
             {"data": {"status": "to-sign"}},
@@ -459,12 +480,26 @@ class SourceCollectionDeletion(BaseWebTest, unittest.TestCase):
         ]
 
         self.headers = get_user_headers("me")
+        resp = self.app.get("/", headers=self.headers)
+        self.userid = resp.json["user"]["id"]
 
         self.other_headers = get_user_headers("Sam:Wan Heilss")
         resp = self.app.get("/", headers=self.other_headers)
         self.other_userid = resp.json["user"]["id"]
 
         self.app.put_json("/buckets/stage", headers=self.headers)
+
+        self.app.put_json(
+            "/buckets/stage/groups/something",
+            {"data": {"members": [self.other_userid]}},
+            headers=self.headers,
+        )
+        self.app.put_json(
+            "/buckets/stage/groups/reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
+
         self.create_records_and_sign()
 
         resp = self.app.get("/buckets/prod/collections/a", headers=self.headers)
