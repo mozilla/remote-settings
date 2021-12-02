@@ -18,8 +18,8 @@ with a set of known working dependencies and then ship that to DockerHub.**
 Test Locally
 ------------
 
-Kinto Remote Settings Unit Tests
-~~~~~~~~~~~~~~~~~~~~~~
+**Kinto Remote Settings Unit Tests**
+
 To run unit tests, you need Postgres installed and a database ``testdb`` available. This can be created like:
 
 .. code-block:: shell
@@ -40,8 +40,8 @@ After this setup is complete, run tests with ``pytest``
     $ pytest kinto_remote_settings
 
 
-Integration Tests
-~~~~~~~~~~~~~~~~~~~~~~
+**Integration Tests**
+
 You need Docker and ``docker-compose``. The simplest way to test that
 all is working as expected is to run:
 
