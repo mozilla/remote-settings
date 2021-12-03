@@ -2,7 +2,6 @@ pyramid
 kinto[postgresql,monitoring]
 kinto-attachment
 kinto-emailer
-boto
 python-memcached
 Werkzeug
 ec2-metadata
