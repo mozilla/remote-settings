@@ -986,7 +986,7 @@ class SpecificUserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestC
             headers=self.headers,
         )
 
-    def test_editors_cannot_ask_to_review_if_not_specificly_configured(self):
+    def test_editors_cannot_ask_to_review_if_not_specifically_configured(self):
         resp = self.app.patch_json(
             self.source_collection2,
             {"data": {"status": "to-review"}},
