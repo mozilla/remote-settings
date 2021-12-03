@@ -65,7 +65,6 @@ class SignerAttachmentsTest(BaseWebTest, unittest.TestCase):
         )
 
         settings["signer.to_review_enabled"] = "false"
-        settings["signer.group_check_enabled"] = "false"
 
         settings["attachment.base_path"] = "/tmp"
 

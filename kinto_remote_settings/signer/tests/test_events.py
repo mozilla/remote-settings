@@ -56,6 +56,15 @@ class ResourceEventsTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.app.put_json("/buckets/alice", headers=self.headers)
+
+        resp = self.app.get("/", headers=self.headers)
+        self.userid = resp.json["user"]["id"]
+        self.app.put_json(
+            "/buckets/alice/groups/reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
+
         self.app.put_json(self.source_collection, headers=self.headers)
         self.app.post_json(
             self.source_collection + "/records",
@@ -389,6 +398,15 @@ class SignoffEventsTest(BaseWebTest, unittest.TestCase):
         del self.events[:]
 
         self.app.put_json("/buckets/alice", headers=self.headers)
+
+        resp = self.app.get("/", headers=self.headers)
+        self.userid = resp.json["user"]["id"]
+        self.app.put_json(
+            "/buckets/alice/groups/reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
+
         self.app.put_json(self.source_collection, headers=self.headers)
         self.app.post_json(
             self.source_collection + "/records",
