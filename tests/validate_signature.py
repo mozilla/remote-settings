@@ -1,7 +1,6 @@
 from kinto_http import cli_utils
 
 from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
-from kinto_remote_settings.signer.hasher import compute_hash
 from kinto_remote_settings.signer.serializer import canonical_json
 
 DEFAULT_SERVER = "https://settings-cdn.stage.mozaws.net/v1"
@@ -31,23 +30,20 @@ def main(args=None):
     # 3. Serialize
     serialized = canonical_json(records, timestamp)
 
-    # 4. Compute the hash
-    computed_hash = compute_hash(serialized)
-
-    # 5. Grab the signature
+    # 4. Grab the signature
     signature = dest_col["data"]["signature"]
 
-    # 6. Grab the public key
+    # 5. Grab the public key
     with open("pub", "w") as f:
         f.write(signature["public_key"])
 
-    # 7. Verify the signature matches the hash
+    # 6. Verify the signature matches the hash
     signer = ECDSASigner(public_key="pub")
     try:
         signer.verify(serialized, signature)
         print("Signature OK")
     except Exception:
-        print("Signature KO. Computed hash: %s" % computed_hash)
+        print("Signature KO. Computed hash: %s")
         raise
 
     # XXX 8. Verify that the public key is correct wrt the x5u chain
