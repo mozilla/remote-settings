@@ -43,7 +43,7 @@ def main(args=None):
         signer.verify(serialized, signature)
         print("Signature OK")
     except Exception:
-        print("Signature KO. Computed hash: %s")
+        print("Signature KO")
         raise
 
     # XXX 8. Verify that the public key is correct wrt the x5u chain
