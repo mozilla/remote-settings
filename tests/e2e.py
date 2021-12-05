@@ -5,7 +5,6 @@ from string import hexdigits
 from kinto_http import Client
 
 from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
-from kinto_remote_settings.signer.hasher import compute_hash
 from kinto_remote_settings.signer.serializer import canonical_json
 
 DEFAULT_SERVER = "http://localhost:8888/v1"
@@ -256,7 +255,6 @@ def main():
     assert len(records) == expected, "%s != %s records" % (len(records), expected)
     timestamp = collection_timestamp(dest_client)
     serialized = canonical_json(records, timestamp)
-    print("Hash is %r" % compute_hash(serialized))
 
     # 7. get back the signed hash
 
