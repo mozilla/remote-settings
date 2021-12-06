@@ -4,13 +4,12 @@
 # Show executed commands
 set -e -x
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVER="${SERVER:-http://localhost:8888/v1}"
 
 AUTH="${AUTH:-user:pass}"
 EDITOR_AUTH="${EDITOR_AUTH:-editor:pass}"
 REVIEWER_AUTH="${REVIEWER_AUTH:-reviewer:pass}"
-
 
 # Create Kinto accounts
 echo '{"data": {"password": "pass"}}' | http --check-status PUT $SERVER/accounts/user
@@ -26,10 +25,6 @@ http --check-status $SERVER/__api__ | grep "/buckets/monitor/collections/changes
 
 http --check-status PUT $SERVER/buckets/blog --auth $AUTH
 http --check-status PUT $SERVER/buckets/blog/collections/articles --auth $AUTH
-
-# kinto.plugins.history
-http --check-status GET $SERVER/buckets/blog/history --auth $AUTH | grep '"articles"'
-
 # kinto-attachment test
 # New record.
 http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.svg --auth $AUTH
@@ -37,33 +32,12 @@ http --check-status --form POST $SERVER/buckets/blog/collections/articles/record
 echo '{"data": {"type": "logo"}}' | http --check-status PUT $SERVER/buckets/blog/collections/articles/records/logo --auth $AUTH
 http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/logo/attachment attachment@kinto-logo.svg --auth $AUTH
 
-
-
 #
 # kinto-signer test
 #
 
 python $DIR/e2e.py --server=$SERVER --auth=$AUTH --editor-auth=$EDITOR_AUTH --reviewer-auth=$REVIEWER_AUTH --source-bucket="source" --source-col="source"
 python validate_signature.py --server=$SERVER --bucket=destination --collection=source
-
-# kinto-emailer
-echo '{"data": {
-  "kinto-emailer": {
-    "hooks": [{
-      "event": "kinto_remote_settings.signer.events.ReviewRequested",
-      "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
-      "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
-      "recipients": ["me@you.com", "/buckets/source/groups/reviewers"]
-    }]
-  }
-}}' | http PATCH $SERVER/buckets/source --auth="$AUTH"
-
-echo '{"data": {"status": "to-review"}}' | http PATCH $SERVER/buckets/source/collections/source --auth="$EDITOR_AUTH"
-
-cat mail/*.eml | grep "Subject: account"
-cat mail/*.eml | grep "To: me@you.com"
-
-
 
 # kinto-changes
 http --check-status $SERVER/buckets/monitor/collections/changes/records | grep '"destination"'
@@ -75,7 +49,6 @@ http --check-status -h "$SERVER/admin/index.html"
 # Empty history for preview and signed.
 http --check-status GET $SERVER/buckets/preview/history --auth $AUTH | grep '\[\]'
 http --check-status GET $SERVER/buckets/destination/history --auth $AUTH | grep '\[\]'
-
 
 # END OF THE TEST
 # If you made it here, that means all the smoke tests above did not fail.

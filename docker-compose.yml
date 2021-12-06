@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
     healthcheck:
-      test: ["CMD", "pg_isready"]
+      test: [ "CMD", "pg_isready" ]
       interval: 1s
       timeout: 3s
       retries: 30
@@ -41,11 +41,11 @@ services:
       - $PWD:/app
     command: uwsgistart
 
-  smoke-test:
+  tests:
     build:
       context: .
       dockerfile: Testing.Dockerfile
-    image: kinto:smoke-test
+    image: kinto:tests
     depends_on:
       - web
     environment:
@@ -54,19 +54,4 @@ services:
       - $PWD/tests:/app
       - $PWD/mail:/app/mail/
       - $PWD/kinto_remote_settings:/app/kinto_remote_settings
-    command: smoke
-  
-  int-test:
-    build:
-      context: .
-      dockerfile: Testing.Dockerfile
-    image: kinto:int-test
-    depends_on:
-      - web
-    environment:
-      - SERVER=http://web:8888/v1
-    volumes:
-      - $PWD/tests:/app
-      - $PWD/mail:/app/mail/
-      - $PWD/kinto_remote_settings:/app/kinto_remote_settings
-    command: integration
+    command: start

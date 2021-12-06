@@ -100,8 +100,8 @@ manually with ``kinto start``:
 
     kinto start --ini config/example.ini
 
-Another thing you might want to debug is the ``smoke-test`` container that does
-the ``curl`` commands against the Kinto server. But before you do that,
+Another thing you might want to debug is the ``tests`` container that tests
+against the Kinto server. But before you do that,
 you probably want to start the services:
 
 .. code-block:: shell
@@ -110,7 +110,7 @@ you probably want to start the services:
 
 .. code-block:: shell
 
-    docker-compose run smoke-test bash
+    docker-compose run tests bash
 
 Now, from that ``bash`` session you can reach the other services like:
 

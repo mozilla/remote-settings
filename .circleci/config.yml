@@ -49,8 +49,8 @@ jobs:
             make runkinto
 
       - run:
-          name: Smoke Test
-          command: make smoke-test
+          name: Integration Test
+          command: make int-test
 
       - run:
           name: Push to Dockerhub

@@ -4,10 +4,9 @@ set -eo pipefail
 : "${SERVER:=http://web:8888/v1}"
 
 usage() {
-    echo "usage: ./run.sh smoke|integration"
+    echo "usage: ./run.sh start"
     echo ""
-    echo "    smoke                   Start smoke tests"
-    echo "    integration             Start integration tests"
+    echo "    start                         Start tests"
     echo ""
     exit 1
 }
@@ -15,18 +14,12 @@ usage() {
 [ $# -lt 1 ] && usage
 
 case $1 in
-smoke)
+start)
     wget -q --tries=180 --retry-connrefused --waitretry=1 -O /dev/null $SERVER || (echo "Can't reach $SERVER" && exit 1)
     http --check-status $SERVER/__heartbeat__
     http POST "$SERVER/__flush__"
     SERVER=$SERVER ./smoke-test.sh
-    ;;
-integration)
-    echo "Integration test..."
-    wget -q --tries=180 --retry-connrefused --waitretry=1 -O /dev/null $SERVER || (echo "Can't reach $SERVER" && exit 1)
-    http --check-status $SERVER/__heartbeat__
-    http POST "$SERVER/__flush__"
-    # pytest integration_test.py
+    pytest integration_test.py --server $SERVER
     ;;
 *)
     exec "$@"

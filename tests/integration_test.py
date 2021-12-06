@@ -1,37 +1,75 @@
 import json
+import os
 from typing import Tuple
 
 import pytest
 import requests
-from kinto_http import Client, KintoException
+from kinto_http import Client
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 
-def test_changes_endpoint(get_clients: Tuple[Client, Client, Client, str]):
-    client, editor_client, reviewer_client, server = get_clients
-    buckets = client.get_buckets()
+def test_history_plugin(get_clients: Tuple[Client, Client, Client, str]):
+    client, _, _, _ = get_clients
+    client.create_bucket(id="blog")
+    client.create_collection(id="articles", bucket="blog", if_not_exists=True)
+    history = client.get_history(bucket="blog")
 
-    # create default collection if it doesn't exist
+    assert history
+    assert len(history) == 2
+    assert "collection_id" in history[0]
+    assert "articles" in history[0]["collection_id"]
+    assert "bucket_id" in history[1]
+    assert "blog" in history[1]["bucket_id"]
+
+
+def test_email_plugin(get_clients: Tuple[Client, Client, Client, str]):
+    # remove any existing .eml files in mail directory
     try:
-        client.create_collection()
-    except KintoException as e:
-        print(e)
+        for file in os.listdir("mail"):
+            os.remove(f"mail/{file}")
+    except FileNotFoundError:
+        pass
 
-    col = client.get_collections(bucket=buckets[0]["id"])
-    print(col)
-    server_info = client.server_info()
-    editor_id = editor_client.server_info()["user"]["id"]
-    reviewer_id = reviewer_client.server_info()["user"]["id"]
-    print("Server: {0}".format(server))
-    print("Author: {user[id]}".format(**server_info))
-    print("Editor: {0}".format(editor_id))
-    print("Reviewer: {0}".format(reviewer_id))
-    assert True
+    client, editor_client, _, _ = get_clients
+    client.create_bucket(id="source")
+    client.create_collection(id="email", bucket="source")
+    client.patch_bucket(
+        id="source",
+        data={
+            "kinto-emailer": {
+                "hooks": [
+                    {
+                        "event": "kinto_remote_settings.signer.events.ReviewRequested",
+                        "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
+                        "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
+                        "recipients": [
+                            "me@you.com",
+                            "/buckets/source/groups/reviewers",
+                        ],
+                    }
+                ]
+            }
+        },
+    )
+    editor_client.patch_collection(
+        id="email", bucket="source", data={"status": "to-review"}
+    )
+
+    mail = os.listdir("mail")
+    assert mail
+    assert len(mail) == 1
+    assert mail[0].endswith(".eml")
+
+    with open(f"mail/{mail[0]}", "r") as f:
+        mail_contents = f.read()
+        assert mail_contents.find("Subject: account") >= 0
+        assert mail_contents.find("To: me@you.com") >= 0
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def get_clients(
+    flush_server,
     server: str,
     auth: Tuple[str, str],
     editor_auth: Tuple[str, str],
@@ -99,3 +137,8 @@ def get_clients(
     )
 
     return client, editor_client, reviewer_client, server
+
+
+@pytest.fixture
+def flush_server(server: str):
+    assert requests.post(f"{server}/__flush__")
