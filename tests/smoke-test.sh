@@ -23,15 +23,6 @@ http --check-status $SERVER/__api__ | grep "/buckets/monitor/collections/changes
 # Basic test
 #
 
-http --check-status PUT $SERVER/buckets/blog --auth $AUTH
-http --check-status PUT $SERVER/buckets/blog/collections/articles --auth $AUTH
-# kinto-attachment test
-# New record.
-http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/80ec9929-6896-4022-8443-3da4f5353f47/attachment attachment@kinto-logo.svg --auth $AUTH
-# Existing record.
-echo '{"data": {"type": "logo"}}' | http --check-status PUT $SERVER/buckets/blog/collections/articles/records/logo --auth $AUTH
-http --check-status --form POST $SERVER/buckets/blog/collections/articles/records/logo/attachment attachment@kinto-logo.svg --auth $AUTH
-
 #
 # kinto-signer test
 #
