@@ -4,5 +4,4 @@ httpie
 isort
 kinto-http
 pytest
-pytest-env
 webtest

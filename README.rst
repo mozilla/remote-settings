@@ -73,11 +73,11 @@ which is default) in one terminal first:
 
     make runkinto
 
-Now, run a suite of smoke tests against the kinto server:
+Now, run a suite of tests against the kinto server:
 
 .. code-block:: shell
 
-    make smoke-test
+    make int-test
 
 Debugging Locally (advanced)
 ----------------------------
