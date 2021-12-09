@@ -41,16 +41,17 @@ jobs:
           name: Build
           command: make build
 
-      - run:
-          name: Setup env
-          command: |
-            mkdir mail
-            sudo chmod 777 mail
-            make runkinto
+      # TODO: are these steps even needed if we're testing in another job within the workflow?
+      # - run:
+      #     name: Setup env
+      #     command: |
+      #       mkdir mail
+      #       sudo chmod 777 mail
+      #       make runkinto
 
-      - run:
-          name: Integration Test
-          command: make int-test
+      # - run:
+      #     name: Integration Test
+      #     command: make int-test
 
       - run:
           name: Push to Dockerhub

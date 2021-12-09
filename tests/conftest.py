@@ -3,8 +3,11 @@ from typing import Tuple
 
 import pytest
 import requests
+from _pytest.fixtures import FixtureRequest
 from kinto_http import Client
 from requests.adapters import HTTPAdapter
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.remote.webdriver import WebDriver
 from urllib3.util.retry import Retry
 
 
@@ -126,9 +129,8 @@ def get_clients(
         f"{server.split('://')[0]}://", HTTPAdapter(max_retries=retries)
     )
 
-    create_user(request_session, server, auth)
-    create_user(request_session, server, editor_auth)
-    create_user(request_session, server, reviewer_auth)
+    for user_auth in [auth, editor_auth, reviewer_auth]:
+        create_user(request_session, server, user_auth)
 
     client = Client(
         server_url=server,
@@ -137,7 +139,6 @@ def get_clients(
         collection=source_collection,
         retry=5,
     )
-
     editor_client = Client(
         server_url=server,
         auth=editor_auth,
@@ -159,6 +160,30 @@ def get_clients(
 @pytest.fixture
 def flush_server(server: str):
     assert requests.post(f"{server}/__flush__")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def verify_url(request: FixtureRequest, base_url: str):
+    """Verifies the base URL"""
+    verify = request.config.option.verify_base_url
+    if base_url and verify:
+        session = requests.Session()
+        retries = Retry(backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+        session.mount(base_url, HTTPAdapter(max_retries=retries))
+        session.get(base_url, verify=False)
+
+
+@pytest.fixture
+def firefox_options(firefox_options: Options):
+    firefox_options.headless = True
+    return firefox_options
+
+
+@pytest.fixture
+def selenium(selenium: WebDriver):
+    selenium.set_window_size(1024, 600)
+    selenium.maximize_window()
+    return selenium
 
 
 def create_user(request_session: requests.Session, server: str, auth: Tuple[str, str]):

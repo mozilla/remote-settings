@@ -20,6 +20,14 @@ services:
     volumes:
       - ${PWD}/autograph/autograph.yaml:/app/autograph.yaml
 
+  selenium:
+    image: selenium/standalone-firefox
+    volumes:
+      - /dev/shm:/dev/shm
+    ports:
+      - 4444:4444
+    shm_size: 2g
+
   web:
     build:
       context: .
@@ -36,7 +44,7 @@ services:
       - KINTO_PERMISSION_URL=postgresql://postgres@db/postgres
       - KINTO_SIGNER_AUTOGRAPH_SERVER_URL=http://autograph:8000
     ports:
-      - "8888:8888"
+      - 8888:8888
     volumes:
       - $PWD:/app
     command: uwsgistart
@@ -48,8 +56,11 @@ services:
     image: kinto:tests
     depends_on:
       - web
+      - selenium
     environment:
       - SERVER=http://web:8888/v1
+      - SELENIUM_HOST=selenium
+      - SELENIUM_PORT=4444
     volumes:
       - $PWD/tests:/app
       - $PWD/mail:/app/mail/
