@@ -109,9 +109,9 @@ dockerflow==2021.7.0 \
     --hash=sha256:9f309fdf72a897290878f97cc30fd4bb3609b13cf74bfce4268f5e368e466070 \
     --hash=sha256:e47bbca06c261a5c3d97e5e0990aa71dafed41b723d0e0009c32e1d2f9b92db4
     # via kinto
-ec2-metadata==2.5.0 \
-    --hash=sha256:4fcbdabd84da849fe087a39d2a722b3be50207f7b9f191197475a73f3120bec5 \
-    --hash=sha256:8fbfede6e7fc7f37104bda2f32c10982080620c6f396ba48c207714728e0feb5
+ec2-metadata==2.6.0 \
+    --hash=sha256:9f73e6298e81508b4f0108ea0cd14ac7663fd5be1cea9c70b7f02d3f14ad3e14 \
+    --hash=sha256:d7058cf6ffa40e88362a924a71305e275c699ce6767ad86518cf613a1949e3c4
     # via -r requirements.in
 ecdsa==0.17.0 \
     --hash=sha256:5cf31d5b33743abe0dfc28999036c849a69d548f994b535e527ee3cb7f3ef676 \
@@ -177,10 +177,6 @@ idna==3.3 \
     --hash=sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff \
     --hash=sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d
     # via requests
-importlib-resources==5.4.0 \
-    --hash=sha256:33a95faed5fc19b4bc16b29a6eeae248a3fe69dd55d4d229d2b480e23eeaad45 \
-    --hash=sha256:d756e2f85dd4de2ba89be0b21dba2a3bbec2e871a42a3a16719258a11f87506b
-    # via jsonschema
 iso8601==1.0.0 \
     --hash=sha256:22c7de877cfcbbcf241b4aa3934a1fa1fb6b200b242dbb054e438a9e5af56ce0 \
     --hash=sha256:79ec9749f8bf35ffae77f835e80e96d2f95affa0f79d3d7b25c0fa7e06207a8b
@@ -472,10 +468,6 @@ werkzeug==2.0.2 \
     # via
     #   -r requirements.in
     #   kinto
-zipp==3.6.0 \
-    --hash=sha256:71c644c5369f4a6e07636f0aa966270449561fcea2e3d6747b8d23efaa9d7832 \
-    --hash=sha256:9fe5ea21568a0a70e50f273397638d39b03353731e6cbbb3fd8502a33fec40bc
-    # via importlib-resources
 zope.deprecation==4.4.0 \
     --hash=sha256:0d453338f04bacf91bbfba545d8bcdf529aa829e67b705eac8c1a7fdce66e2df \
     --hash=sha256:f1480b74995958b24ce37b0ef04d3663d2683e5d6debc96726eff18acf4ea113
