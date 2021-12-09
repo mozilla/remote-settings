@@ -199,9 +199,9 @@ kinto[monitoring,postgresql]==14.6.0 \
     #   -r requirements.in
     #   kinto-attachment
     #   kinto-emailer
-kinto-attachment==6.1.0 \
-    --hash=sha256:4b27c727174ec058548cc599e8ad2fca5c4bf56c2fdea7aa86fa499f60d6f848 \
-    --hash=sha256:f68375270ce83b35446ca7f5c2df2d01b64a08e20a3a78c004cb3ef95ac67e7e
+kinto-attachment==6.2.0 \
+    --hash=sha256:0cffa6757a76f6d53ad02828bd441f2040c51deca0253ddf5113d959f60f8ca2 \
+    --hash=sha256:d1966ada1d14ea7fcac1ab2ebf215c1df3d346ff444fcefc2465233efdaf9557
     # via -r requirements.in
 kinto-emailer==2.1.0 \
     --hash=sha256:5307f0451625f316143247501941c1916235ca9f9295b9248a29bf81c5ad321b
