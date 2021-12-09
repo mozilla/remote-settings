@@ -9,6 +9,7 @@ from pyramid import testing
 from pyramid.exceptions import ConfigurationError
 from requests import exceptions as requests_exceptions
 
+from kinto_remote_settings import __version__
 from kinto_remote_settings.signer import includeme, utils
 from kinto_remote_settings.signer.backends.autograph import AutographSigner
 from kinto_remote_settings.signer.listeners import sign_collection_data
@@ -35,6 +36,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         expected = {
             "description": "Digital signatures for integrity and authenticity of records.",  # NOQA
             "url": ("https://github.com/Kinto/kinto-signer#kinto-signer"),
+            "version": __version__,
             "to_review_enabled": False,
             "editors_group": "editors",
             "reviewers_group": "{bucket_id}-{collection_id}-reviewers",

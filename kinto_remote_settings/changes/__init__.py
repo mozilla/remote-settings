@@ -1,5 +1,7 @@
 from pyramid.settings import aslist
 
+from .. import __version__
+
 MONITOR_BUCKET = "monitor"
 MONITOR_BUCKET_PATH = "/buckets/{}".format(MONITOR_BUCKET)
 CHANGES_COLLECTION = "changes"
@@ -21,6 +23,7 @@ def includeme(config):
         " and collection.",
         url="http://kinto.readthedocs.io/en/latest/tutorials/"
         "synchronisation.html#polling-for-remote-changes",
+        version=__version__,
         collections=aslist(collections),
     )
 

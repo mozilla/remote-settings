@@ -2,6 +2,8 @@ import datetime
 import unittest
 from unittest import mock
 
+from kinto_remote_settings import __version__
+
 from . import BaseWebTest
 
 SAMPLE_RECORD = {"data": {"dev-edition": True}}
@@ -136,6 +138,7 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
             "collections": ["/buckets/blocklists"],
             "url": "http://kinto.readthedocs.io/en/latest/tutorials/"
             "synchronisation.html#polling-for-remote-changes",
+            "version": __version__,
         }
         self.assertEqual(expected, capabilities["changes"])
 

@@ -210,6 +210,7 @@ We follow the usual ``zest.releaser`` approach for releases.
 First:
 
 - Make sure the CHANGELOG is up-to-date and includes details about all the components included in the release
+- Make sure the ``__version__`` value in ``kinto_remote_settings/__init__.py`` matches the version to be released according to the CHANGELOG
 
 .. code-block:: bash
 

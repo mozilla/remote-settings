@@ -5,14 +5,17 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-26.0.0 (unreleased)
+27.0.0 (unreleased)
 ===================
 
 **Breaking Changes**
 
-
 - The ``kinto.signer.group_check_enabled`` setting is now always ``true``, and
   won't be read from configuration anymore.
+
+**Bug fixes**
+
+- Restore ``"version"`` fields in ``signer`` and ``changes`` capabilities metadata
 
 
 kinto-attachment
