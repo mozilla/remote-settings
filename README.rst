@@ -164,7 +164,7 @@ In other words, minor and patch versions are uncomplicated and can be deployed a
 Releasing
 ---------
 
-We follow the usual ``zest.releaser`` approach for releases.
+We recommend using the `zest.releaser <https://github.com/zestsoftware/zest.releaser>`_ tool to automate the ``CHANGELOG.rst`` and ``setup.py`` manipulations.
 
 First:
 
@@ -182,43 +182,29 @@ First:
   $ git commit -a --amend
   $ git push
 
-Then open a PR, and when the PR is approved:
+- Open a PR, and when the PR is approved:
 
 .. code-block:: bash
 
    $ git checkout main
    $ git pull
    $ release
-   $ git checkout -b start-X.Y.Z
-   $ postrelease
 
-The Mozilla remote-settings CI will immediately deploy the
-newly-tagged version to remote-settings stage and run the QA tests
-against it. Results are reported in the Mozilla ``#storage`` channel.
-
-Draft a release on Github:
-https://github.com/mozilla-services/kinto-dist/releases . For release
-notes, just use the CHANGELOG entry for the release, but change all
-the ReST-style section headings to Markdown-style ``##`` headings.
-
-Then:
-
-The "Back to development" commit cannot be pushed to main because we don't allow pushes to main.
-
-You can just throw away the commit (``git reset --hard HEAD^``) but
-the next person to touch the changelog will have to introduce a new
-heading for the next version. Another option is to push the commit and
-have it be reviewed:
+- At this point the package is published on Pypi. Now prepare the next version and push the tag to the repo with:
 
 .. code-block:: bash
 
-   $ git checkout main
+   $ git checkout -b start-X.Y.Z
+   $ postrelease
 
-Then:
+- Draft a release on Github: https://github.com/mozilla-services/kinto-dist/releases
+  For release notes, just use the CHANGELOG entry for the release, but change all
+  the ReST-style section headings to Markdown-style ``##`` headings.
 
-- Open another PR
 
-Then:
+..notes ::
 
-- Create a release on the Github page using the contents of the CHANGELOG as the body
-- Open a Bugzilla bug telling ops to deploy the new release
+    The Mozilla Jenkins job will catch the latest Docker container version on Dockerhub
+    and immediately deploy it to Remote Settings STAGE
+    Integration tests will be executed.
+    Results are reported in the Mozilla ``#kinto-standup`` Slack channel.
