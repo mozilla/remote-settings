@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-27.0.0 (unreleased)
+27.0.0 (2021-12-10)
 ===================
 
 **Breaking Changes**

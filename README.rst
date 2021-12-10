@@ -161,47 +161,6 @@ We respect `SemVer <http://semver.org>`_ here. However, the "public API" of this
 In other words, minor and patch versions are uncomplicated and can be deployed automatically, and major releases are very likely to require specific actions somewhere in the architecture.
 
 
-
-Pull requests
--------------
-
-All PRs should be merged via the `bors merge bot <https://bors.tech>`_. Bors
-will automate that the requirements for a PR have been met, and will then
-merge the PR in an orderly fashion.
-
-Only users with write access to the repository may use bors. Other users will
-get an error message. To use bors to merge a PR, leave a comment that
-includes a line such as::
-
-    bors r+
-
-Alternatively, you can list the user that approved the PR, which could be
-someone else, or multiple people, such as one of the following::
-
-    bors r= @alex
-    bors r= @bob, @carol
-
-If a PR should not be merged, for example because it is a work-in-progress,
-then add the label ``bors-dont-merge`` to the PR. This will prevent bors from
-merging the PR, even if it is ``r+``ed. To allow bors to merge the PR again,
-remove the label and say ``bors r+`` again.
-
-It is possible to temporarily delegate permission to a user to approve a
-particular PR. For example, if the PR is documentation for the ops team, you
-could grant merge access to the ops engineer reviewing the documentation.
-Note that delegating to a use that already has permission (such as an admin
-of the repo) has no affect. To do so, use a command such as::
-
-    bors delegate= @ops-dave
-
-If a PR failed to merge for an intermittent reason, such as network failure,
-you can instruct bors to try to merge the same commit with the same approver
-again with the command::
-
-    bors retry
-
-For more details, see `the bors reference docs <https://bors.tech/documentation/>`_
-
 Releasing
 ---------
 
@@ -210,19 +169,20 @@ We follow the usual ``zest.releaser`` approach for releases.
 First:
 
 - Make sure the CHANGELOG is up-to-date and includes details about all the components included in the release
-- Make sure the ``__version__`` value in ``kinto_remote_settings/__init__.py`` matches the version to be released according to the CHANGELOG
 
 .. code-block:: bash
 
   $ git checkout -b prepare-X.Y.Z
   $ prerelease
 
-Then:
+- Bump the ``__version__`` value in ``kinto_remote_settings/__init__.py`` to match the version to be released according to the CHANGELOG
 
-- Open a PR
-- When the PR is approved, merge it using bors
+.. code-block:: bash
 
-Then:
+  $ git commit -a --amend
+  $ git push
+
+Then open a PR, and when the PR is approved:
 
 .. code-block:: bash
 
