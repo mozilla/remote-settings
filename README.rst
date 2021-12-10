@@ -222,12 +222,3 @@ Then:
 
 - Create a release on the Github page using the contents of the CHANGELOG as the body
 - Open a Bugzilla bug telling ops to deploy the new release
-
-Known Instances
----------------
-
-To know all places where we use ``kinto-dist`` we maintain a list of in a
-machine readable file ``Kinto-Instances.yml``.
-
-Use that to update URLs of instances of ``kinto-dist``. It can be leveraged
-for automation (e.g. places to upgrade) and auditing.
