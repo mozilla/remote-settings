@@ -227,7 +227,7 @@ def test_signer_plugin(
         metadata = preview_client.get_collection()["data"]
         preview_signature = metadata.get("signature")
         assert preview_signature, "Preview collection not signed"
-        preview_timestamp = collection_timestamp(preview_client)
+        preview_timestamp = preview_client.get_records_timestamp()
     # 2.3 approve the review
     print("Reviewer approves and triggers signature")
     data = {"status": "to-sign"}
@@ -282,7 +282,7 @@ def test_signer_plugin(
 
     records = list(dest_client.get_records())
     assert len(records) == expected, f"{len(records)} != {expected} records"
-    timestamp = collection_timestamp(dest_client)
+    timestamp = dest_client.get_records_timestamp()
     serialized = canonical_json(records, timestamp)
 
     # 7. get back the signed hash
@@ -325,13 +325,6 @@ def test_changes_plugin(get_clients: Tuple[Client, Client, Client]):
 
 def _rand(size: int = 10) -> str:
     return "".join(random.choices(hexdigits, k=size))
-
-
-def collection_timestamp(client: Client) -> str:
-    # XXXX Waiting https://github.com/Kinto/kinto-http.py/issues/77
-    endpoint = client.get_endpoint("records")
-    _, headers = client.session.request("get", endpoint)
-    return headers.get("ETag", "").strip('"')
 
 
 def upload_records(
