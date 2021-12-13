@@ -17,16 +17,18 @@ def test_history_plugin(
     make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str]
 ):
     client = make_client(auth)
-    client.create_bucket(id="blog", if_not_exists=True)
-    client.create_collection(id="articles", bucket="blog", if_not_exists=True)
-    history = client.get_history(bucket="blog")
+    client.create_bucket(id="main-workspace", if_not_exists=True)
+    client.create_collection(
+        id="product-integrity", bucket="main-workspace", if_not_exists=True
+    )
+    history = client.get_history(bucket="main-workspace")
 
     assert history
     assert len(history) == 2
     assert "collection_id" in history[0]
-    assert "articles" in history[0]["collection_id"]
+    assert "product-integrity" in history[0]["collection_id"]
     assert "bucket_id" in history[1]
-    assert "blog" in history[1]["bucket_id"]
+    assert "main-workspace" in history[1]["bucket_id"]
 
 
 def test_email_plugin(
@@ -41,11 +43,7 @@ def test_email_plugin(
 
     client = make_client(auth)
     client.create_bucket(id="source", if_not_exists=True)
-    client.create_collection(
-        id="email",
-        bucket="source",
-        if_not_exists=True,
-    )
+    client.create_collection(id="email", bucket="source", if_not_exists=True)
     client.patch_bucket(
         id="source",
         data={
@@ -81,17 +79,21 @@ def test_attachment_plugin_new_record(
     make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str], server: str
 ):
     client = make_client(auth)
-    client.create_bucket(id="blog", if_not_exists=True)
-    client.create_collection(id="articles", bucket="blog", if_not_exists=True)
+    client.create_bucket(id="main-workspace", if_not_exists=True)
+    client.create_collection(
+        id="product-integrity", bucket="main-workspace", if_not_exists=True
+    )
 
     with open("kinto-logo.svg", "rb") as attachment:
         assert requests.post(
-            f"{server}/buckets/blog/collections/articles/records/logo/attachment",
+            f"{server}/buckets/main-workspace/collections/product-integrity/records/logo/attachment",
             files={"attachment": attachment},
             auth=client.session.auth,
         ), "Issue creating a new record with an attachment"
 
-    record = client.get_record(id="logo", bucket="blog", collection="articles")
+    record = client.get_record(
+        id="logo", bucket="main-workspace", collection="product-integrity"
+    )
 
     assert record
     assert "data" in record
@@ -102,24 +104,28 @@ def test_attachment_plugin_existing_record(
     make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str], server: str
 ):
     client = make_client(auth)
-    client.create_bucket(id="blog", if_not_exists=True)
-    client.create_collection(id="articles", bucket="blog", if_not_exists=True)
+    client.create_bucket(id="main-workspace", if_not_exists=True)
+    client.create_collection(
+        id="product-integrity", bucket="main-workspace", if_not_exists=True
+    )
     client.create_record(
         id="logo",
-        bucket="blog",
-        collection="articles",
+        bucket="main-workspace",
+        collection="product-integrity",
         data={"type": "logo"},
         if_not_exists=True,
     )
 
     with open("kinto-logo.svg", "rb") as attachment:
         assert requests.post(
-            f"{server}/buckets/blog/collections/articles/records/logo/attachment",
+            f"{server}/buckets/main-workspace/collections/product-integrity/records/logo/attachment",
             files={"attachment": attachment},
             auth=client.session.auth,
         ), "Issue updating an existing record to include an attachment"
 
-    record = client.get_record(id="logo", bucket="blog", collection="articles")
+    record = client.get_record(
+        id="logo", bucket="main-workspace", collection="product-integrity"
+    )
 
     assert record
     assert "data" in record
@@ -129,8 +135,8 @@ def test_attachment_plugin_existing_record(
 def test_signer_plugin(
     make_client: Callable[[Tuple[str, str]], Client],
     auth: Tuple[str, str],
-    editor_auth: str,
-    reviewer_auth: str,
+    editor_auth: Tuple[str, str],
+    reviewer_auth: Tuple[str, str],
     server: str,
     source_bucket: str,
     source_collection: str,
@@ -315,18 +321,20 @@ def test_changes_plugin(
     make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str]
 ):
     client = make_client(auth)
-    client.create_bucket(id="blog", if_not_exists=True)
-    client.create_collection(id="articles", bucket="blog", if_not_exists=True)
+    client.create_bucket(id="main-workspace", if_not_exists=True)
+    client.create_collection(
+        id="product-integrity", bucket="main-workspace", if_not_exists=True
+    )
     records = client.get_records(bucket="monitor", collection="changes")
 
     assert records
     assert len(records) == 1
     assert "bucket" in records[0]
-    assert records[0]["bucket"] == "blog"
+    assert records[0]["bucket"] == "main-workspace"
 
     initial_last_modified = records[0]["last_modified"]
 
-    upload_records(client, 10, "blog", "articles")
+    upload_records(client, 10, "main-workspace", "product-integrity")
     records = client.get_records(bucket="monitor", collection="changes")
 
     updated_last_modified = records[0]["last_modified"]

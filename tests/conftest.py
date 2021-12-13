@@ -15,8 +15,8 @@ DEFAULT_SERVER = "http://localhost:8888/v1"
 DEFAULT_AUTH = "user:pass"
 DEFAULT_EDITOR_AUTH = "editor:pass"
 DEFAULT_REVIEWER_AUTH = "reviewer:pass"
-DEFAULT_BUCKET = "source"
-DEFAULT_COLLECTION = "source"
+DEFAULT_BUCKET = "main-workspace"
+DEFAULT_COLLECTION = "product-integrity"
 
 
 def pytest_addoption(parser):
