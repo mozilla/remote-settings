@@ -36,13 +36,11 @@ After this setup is complete, tests can be run with ``pytest`` using ``make``:
 
 **Integration Tests**
 
-You need Docker and ``docker-compose``. The simplest way to test that
-all is working as expected is to run:
+You need Docker and ``docker-compose``. Ensure `buildkit <https://docs.docker.com/develop/develop-images/build_enhancements/>`_ is enabled on your Docker engine.
+The simplest way to test that all is working as expected is to run:
 
 .. code-block:: shell
 
-    export DOCKER_BUILDKIT=1 # or add to your shell's profile
-    export COMPOSE_DOCKER_CLI_BUILD=1 # or add to your shell's profile
     make run-kinto
     make integration-test
 
