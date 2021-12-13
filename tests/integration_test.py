@@ -324,7 +324,7 @@ def test_changes_plugin(get_clients: Tuple[Client, Client, Client]):
 
 
 def _rand(size: int = 10) -> str:
-    return "".join([random.choice(hexdigits) for _ in range(size)])
+    return "".join(random.choices(hexdigits, k=size))
 
 
 def collection_timestamp(client: Client) -> str:
