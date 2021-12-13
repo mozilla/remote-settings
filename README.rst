@@ -20,12 +20,11 @@ Test Locally
 
 **Kinto Remote Settings Unit Tests**
 
-To run unit tests, you need Postgres installed and a database ``testdb`` available. This can be created like:
+To run unit tests, you need Postgres installed and a database ``testdb`` available. This can be created with:
 
 .. code-block:: shell
 
-    psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
-    psql -c "ALTER DATABASE testdb SET TIMEZONE TO UTC;"
+    make build-db
 
 After this setup is complete, tests can be run with ``pytest`` using ``make``:
 

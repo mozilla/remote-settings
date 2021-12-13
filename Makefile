@@ -1,5 +1,6 @@
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 INSTALL_STAMP := $(VENV)/.install.stamp
+PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
 
 clean:
 	find . -name '*.pyc' -delete
@@ -41,6 +42,17 @@ run-kinto: $(INSTALL_STAMP) restart
 build:
 	./bin/build-images.sh
 	docker-compose build
+
+build-db:
+ifdef PSQL_INSTALLED
+	@pg_isready 2>/dev/null 1>&2 || (echo Run PostgreSQL before starting tests. && exit 1)
+	@echo Creating db...
+	@psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
+	@psql -c "ALTER DATABASE testdb SET TIMEZONE TO UTC;"
+	@echo Done!
+else
+	@echo PostgreSQL not installed. Please install PostgreSQL to use this command.
+endif
 
 stop:
 	docker-compose stop
