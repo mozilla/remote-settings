@@ -1,7 +1,7 @@
 import os
 import random
 from string import hexdigits
-from typing import Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
 import requests
 from kinto_http import Client
@@ -13,8 +13,10 @@ from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
 
 
-def test_history_plugin(get_clients: Tuple[Client, Client, Client]):
-    client, _, _ = get_clients
+def test_history_plugin(
+    make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str]
+):
+    client = make_client(auth)
     client.create_bucket(id="blog", if_not_exists=True)
     client.create_collection(id="articles", bucket="blog", if_not_exists=True)
     history = client.get_history(bucket="blog")
@@ -27,7 +29,9 @@ def test_history_plugin(get_clients: Tuple[Client, Client, Client]):
     assert "blog" in history[1]["bucket_id"]
 
 
-def test_email_plugin(get_clients: Tuple[Client, Client, Client]):
+def test_email_plugin(
+    make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str]
+):
     # remove any existing .eml files in mail directory
     try:
         for file in os.listdir("mail"):
@@ -35,7 +39,7 @@ def test_email_plugin(get_clients: Tuple[Client, Client, Client]):
     except FileNotFoundError:
         pass
 
-    client, _, _ = get_clients
+    client = make_client(auth)
     client.create_bucket(id="source", if_not_exists=True)
     client.create_collection(
         id="email",
@@ -74,9 +78,9 @@ def test_email_plugin(get_clients: Tuple[Client, Client, Client]):
 
 
 def test_attachment_plugin_new_record(
-    get_clients: Tuple[Client, Client, Client], server: str
+    make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str], server: str
 ):
-    client, _, _ = get_clients
+    client = make_client(auth)
     client.create_bucket(id="blog", if_not_exists=True)
     client.create_collection(id="articles", bucket="blog", if_not_exists=True)
 
@@ -95,9 +99,9 @@ def test_attachment_plugin_new_record(
 
 
 def test_attachment_plugin_existing_record(
-    get_clients: Tuple[Client, Client, Client], server: str
+    make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str], server: str
 ):
-    client, _, _ = get_clients
+    client = make_client(auth)
     client.create_bucket(id="blog", if_not_exists=True)
     client.create_collection(id="articles", bucket="blog", if_not_exists=True)
     client.create_record(
@@ -123,13 +127,18 @@ def test_attachment_plugin_existing_record(
 
 
 def test_signer_plugin(
-    get_clients: Tuple[Client, Client, Client],
+    make_client: Callable[[Tuple[str, str]], Client],
+    auth: Tuple[str, str],
+    editor_auth: str,
+    reviewer_auth: str,
     server: str,
     source_bucket: str,
     source_collection: str,
     reset: bool,
 ):
-    client, editor_client, reviewer_client = get_clients
+    client = make_client(auth)
+    editor_client = make_client(editor_auth)
+    reviewer_client = make_client(reviewer_auth)
 
     # 0. initialize source bucket/collection (if necessary)
     server_info = client.server_info()
@@ -302,8 +311,10 @@ def test_signer_plugin(
         raise
 
 
-def test_changes_plugin(get_clients: Tuple[Client, Client, Client]):
-    client, _, _ = get_clients
+def test_changes_plugin(
+    make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str]
+):
+    client = make_client(auth)
     client.create_bucket(id="blog", if_not_exists=True)
     client.create_collection(id="articles", bucket="blog", if_not_exists=True)
     records = client.get_records(bucket="monitor", collection="changes")

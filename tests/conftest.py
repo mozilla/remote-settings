@@ -100,64 +100,41 @@ def reset(request):
 
 
 @pytest.fixture
-def get_clients(
-    flush_server,
-    server: str,
-    auth: Tuple[str, str],
-    editor_auth: Tuple[str, str],
-    reviewer_auth: Tuple[str, str],
-    source_bucket: str,
-    source_collection: str,
-) -> Tuple[Client, Client, Client]:
-    """Pytest fixture for creating Kinto Clients used for tests.
+def make_client(server: str, source_bucket: str, source_collection: str):
+    """Factory as fixture for creating a Kinto Client used for tests.
 
     Args:
         server (str): Kinto server (in form 'http(s)://<host>:<port>/v1')
-        auth (Tuple[str, str]): Basic authentication where auth[0]=user, auth[1]=pass
-        editor_auth (Tuple[str, str]): Basic authentication for editor
-        reviewer_auth (Tuple[str, str]): Basic authentication for reviewer
-        bucket (str): Source bucket
-        collection (str): Source collection
+        source_bucket (str): Source bucket
+        source_collection (str): Source collection
 
     Returns:
-        Tuple[Client, Client, Client]: User client, editor client, reviewer client
+        Client: Client
     """
 
-    request_session = requests.Session()
-    retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
-    request_session.mount(
-        f"{server.split('://')[0]}://", HTTPAdapter(max_retries=retries)
-    )
+    def _make_client(auth: Tuple[str, str]) -> Client:
+        request_session = requests.Session()
+        retries = Retry(
+            total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
+        )
+        request_session.mount(
+            f"{server.split('://')[0]}://", HTTPAdapter(max_retries=retries)
+        )
 
-    for user_auth in [auth, editor_auth, reviewer_auth]:
-        create_user(request_session, server, user_auth)
+        create_user(request_session, server, auth)
 
-    client = Client(
-        server_url=server,
-        auth=auth,
-        bucket=source_bucket,
-        collection=source_collection,
-        retry=5,
-    )
-    editor_client = Client(
-        server_url=server,
-        auth=editor_auth,
-        bucket=source_bucket,
-        collection=source_collection,
-        retry=5,
-    )
-    reviewer_client = Client(
-        server_url=server,
-        auth=reviewer_auth,
-        bucket=source_bucket,
-        collection=source_collection,
-        retry=5,
-    )
+        return Client(
+            server_url=server,
+            auth=auth,
+            bucket=source_bucket,
+            collection=source_collection,
+            retry=5,
+        )
 
-    return client, editor_client, reviewer_client
+    return _make_client
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def flush_server(server: str):
     assert requests.post(f"{server}/__flush__")
 

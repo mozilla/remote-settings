@@ -70,6 +70,7 @@ target/
 
 # misc
 tests/pub
+tests/setup.cfg
 mail/*.eml
 
 # Visual Studio Code

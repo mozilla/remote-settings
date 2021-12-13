@@ -62,5 +62,8 @@ services:
       - SELENIUM_HOST=selenium
       - SELENIUM_PORT=4444
     volumes:
+      - $PWD/tests:/app
       - $PWD/mail:/app/mail/
+      - $PWD/kinto_remote_settings:/app/kinto_remote_settings
+      - $PWD/setup.cfg:/app/setup.cfg
     command: start
