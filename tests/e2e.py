@@ -142,12 +142,6 @@ def main():
         if_not_exists=True,
     )
 
-    editors_group = (
-        resource.get("editors_group") or signer_capabilities["editors_group"]
-    )
-    editors_group = editors_group.format(collection_id=args.source_col)
-    client.patch_group(id=editors_group, data={"members": [editor_id]})
-
     reviewers_group = (
         resource.get("reviewers_group") or signer_capabilities["reviewers_group"]
     )

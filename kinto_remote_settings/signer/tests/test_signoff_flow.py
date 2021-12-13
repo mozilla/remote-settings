@@ -77,12 +77,7 @@ class SignoffWebTest(PostgresWebTest):
             headers=self.headers,
         )
 
-        # Editors and reviewers group
-        self.app.put_json(
-            self.source_bucket + "/groups/editors",
-            {"data": {"members": [self.userid, self.other_userid]}},
-            headers=self.headers,
-        )
+        # Reviewers group
         self.app.put_json(
             self.source_bucket + "/groups/reviewers",
             {"data": {"members": [self.userid, self.other_userid]}},
@@ -880,45 +875,14 @@ class UserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCase):
         resp = self.app.get("/", headers=self.editor_headers)
         self.editor = resp.json["user"]["id"]
 
-        self.editor_headers = get_user_headers("emo:billier")
-        resp = self.app.get("/", headers=self.editor_headers)
-        self.editor = resp.json["user"]["id"]
-
         self.reviewer_headers = get_user_headers("ray:weaver")
         resp = self.app.get("/", headers=self.reviewer_headers)
         self.reviewer = resp.json["user"]["id"]
 
         self.app.put_json(
-            "/buckets/alice/groups/editors",
-            {"data": {"members": [self.editor]}},
-            headers=self.headers,
-        )
-
-        self.app.put_json(
             "/buckets/alice/groups/reviewers",
             {"data": {"members": [self.reviewer]}},
             headers=self.headers,
-        )
-
-    def test_only_editors_can_ask_to_review(self):
-        resp = self.app.patch_json(
-            self.source_collection,
-            {"data": {"status": "to-review"}},
-            headers=self.reviewer_headers,
-            status=403,
-        )
-        self.assertFormattedError(
-            response=resp,
-            code=403,
-            errno=ERRORS.FORBIDDEN,
-            error="Forbidden",
-            message="Not in editors group",
-        )
-
-        self.app.patch_json(
-            self.source_collection,
-            {"data": {"status": "to-review"}},
-            headers=self.editor_headers,
         )
 
     def test_only_reviewers_can_ask_to_sign(self):
@@ -964,7 +928,6 @@ class SpecificUserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestC
             cls.source_collection2.replace("alice", "destination"),
         )
 
-        settings["signer.alice.cid1.editors_group"] = "editeurs"
         settings["signer.alice.cid1.reviewers_group"] = "revoyeurs"
         return settings
 
@@ -979,42 +942,6 @@ class SpecificUserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestC
         self.editor_headers = get_user_headers("emo:billier")
         resp = self.app.get("/", headers=self.editor_headers)
         self.editor = resp.json["user"]["id"]
-
-        self.app.put_json(
-            "/buckets/alice/groups/editeurs",
-            {"data": {"members": [self.editor]}},
-            headers=self.headers,
-        )
-
-    def test_editors_cannot_ask_to_review_if_not_specifically_configured(self):
-        resp = self.app.patch_json(
-            self.source_collection2,
-            {"data": {"status": "to-review"}},
-            headers=self.someone_headers,
-            status=403,
-        )
-        self.assertFormattedError(
-            response=resp,
-            code=403,
-            errno=ERRORS.FORBIDDEN,
-            error="Forbidden",
-            message="Not in editors group",
-        )
-
-    def test_only_specific_editors_can_ask_to_review(self):
-        resp = self.app.patch_json(
-            self.source_collection1,
-            {"data": {"status": "to-review"}},
-            headers=self.someone_headers,
-            status=403,
-        )
-        self.assertFormattedError(
-            response=resp,
-            code=403,
-            errno=ERRORS.FORBIDDEN,
-            error="Forbidden",
-            message="Not in editeurs group",
-        )
 
     def test_only_reviewers_can_ask_to_sign(self):
         self.app.patch_json(
@@ -1534,13 +1461,11 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
 
         settings["signer.to_review_enabled"] = "true"
 
-        settings["kinto.signer.editors_group"] = "best-editors"
         settings["kinto.signer.reviewers_group"] = "{collection_id}-reviewers"
         settings["kinto.signer.resources"] = ";".join(
             [cls.source_bucket, cls.preview_bucket, cls.destination_bucket]
         )
 
-        cls.editors_group = cls.source_bucket + "/groups/best-editors"
         cls.reviewers_group = cls.source_bucket + "/groups/good-reviewers"
         cls.source_collection = cls.source_bucket + "/collections/good"
 
@@ -1558,29 +1483,27 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
         resp = self.app.get("/", headers=self.other_headers)
         self.other_userid = resp.json["user"]["id"]
 
-    def test_groups_are_not_touched_if_existing(self):
-        resp = self.app.put(self.editors_group, headers=self.headers)
+    def test_group_is_not_touched_if_existing(self):
+        resp = self.app.put(self.reviewers_group, headers=self.headers)
         before = resp.json["data"]["last_modified"]
 
         self.app.put(self.source_collection, headers=self.headers)
 
-        resp = self.app.get(self.editors_group, headers=self.headers)
+        resp = self.app.get(self.reviewers_group, headers=self.headers)
         after = resp.json["data"]["last_modified"]
 
         assert before == after
 
-    def test_groups_are_created_if_missing(self):
-        self.app.get(self.editors_group, headers=self.headers, status=404)
+    def test_group_is_created_if_missing(self):
         self.app.get(self.reviewers_group, headers=self.headers, status=404)
 
         self.app.put(self.source_collection, headers=self.headers)
 
-        self.app.get(self.editors_group, headers=self.headers)
         self.app.get(self.reviewers_group, headers=self.headers)
 
-    def test_groups_are_allowed_to_write_the_source_collection(self):
+    def test_group_is_allowed_to_write_the_source_collection(self):
         body = {"data": {"members": [self.other_userid]}}
-        self.app.put_json(self.editors_group, body, headers=self.headers)
+        self.app.put_json(self.reviewers_group, body, headers=self.headers)
 
         self.app.put(self.source_collection, headers=self.headers)
 
@@ -1598,39 +1521,25 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
         args, kwargs = mocked.call_args_list[0]
         _, fakerequest = args
         assert fakerequest["method"] == "PUT"
-        assert fakerequest["path"] == "/buckets/stage/groups/best-editors"
+        assert fakerequest["path"] == "/buckets/stage/groups/good-reviewers"
         assert kwargs["resource_name"] == "group"
 
     def test_groups_permissions_include_current_user_only(self):
         self.app.put(self.source_collection, headers=self.headers)
 
-        r = self.app.get(self.editors_group, headers=self.headers).json
-        assert r["permissions"]["write"] == [self.userid]
         r = self.app.get(self.reviewers_group, headers=self.headers).json
         assert r["permissions"]["write"] == [self.userid]
 
-    def test_editors_contains_current_user_as_member_by_default(self):
-        self.app.put(self.source_collection, headers=self.headers)
-
-        r = self.app.get(self.editors_group, headers=self.headers).json
-        assert r["data"]["members"] == [self.userid]
-        r = self.app.get(self.reviewers_group, headers=self.headers).json
-        assert r["data"]["members"] == []
-
-    def test_groups_are_not_touched_if_already_exist(self):
-        resp = self.app.put(self.editors_group, headers=self.headers)
-        editors_timetamp = resp.json["data"]["last_modified"]
+    def test_group_is_not_touched_if_already_exist(self):
         resp = self.app.put(self.reviewers_group, headers=self.headers)
         reviewers_timetamp = resp.json["data"]["last_modified"]
 
         self.app.put(self.source_collection, headers=self.headers)
 
-        r = self.app.get(self.editors_group, headers=self.headers).json
-        assert r["data"]["last_modified"] == editors_timetamp
         r = self.app.get(self.reviewers_group, headers=self.headers).json
         assert r["data"]["last_modified"] == reviewers_timetamp
 
-    def test_groups_are_not_created_if_not_allowed(self):
+    def test_group_is_not_created_if_not_allowed(self):
         # Allow this other user to create collections.
         body = {"permissions": {"collection:create": [self.other_userid]}}
         self.app.patch_json(self.source_bucket, body, headers=self.headers)
@@ -1638,11 +1547,10 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
         # Create the collection.
         self.app.put(self.source_collection, headers=self.other_headers)
 
-        # Groups were not created.
-        self.app.get(self.editors_group, headers=self.headers, status=404)
+        # Group is not created.
         self.app.get(self.reviewers_group, headers=self.headers, status=404)
 
-    def test_groups_are_created_if_allowed_via_group_create_perm(self):
+    def test_group_is_created_if_allowed_via_group_create_perm(self):
         # Allow this other user to create collections and groups.
         body = {
             "permissions": {
@@ -1655,5 +1563,4 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
         # Create the collection.
         self.app.put(self.source_collection, headers=self.other_headers)
 
-        self.app.get(self.editors_group, headers=self.headers)
         self.app.get(self.reviewers_group, headers=self.headers)

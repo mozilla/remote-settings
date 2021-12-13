@@ -14,7 +14,6 @@ from .utils import PLUGIN_USERID, STATUS, ensure_resource_exists
 
 REVIEW_SETTINGS = (
     "reviewers_group",
-    "editors_group",
     "to_review_enabled",
 )
 
@@ -248,7 +247,6 @@ def check_collection_status(
     event,
     resources,
     to_review_enabled,
-    editors_group,
     reviewers_group,
 ):
     """Make sure status changes are allowed."""
@@ -279,16 +277,10 @@ def check_collection_status(
 
         # to-review and group checking.
         _to_review_enabled = resource.get("to_review_enabled", to_review_enabled)
-        _editors_group = resource_group(
-            resource, "editors_group", default=editors_group
-        )
         _reviewers_group = resource_group(
             resource, "reviewers_group", default=reviewers_group
         )
-        # Member of groups have their URIs in their principals.
-        editors_group_uri = instance_uri(
-            event.request, "group", bucket_id=payload["bucket_id"], id=_editors_group
-        )
+        # Member of reviewers group have their URIs in their principals.
         reviewers_group_uri = instance_uri(
             event.request, "group", bucket_id=payload["bucket_id"], id=_reviewers_group
         )
@@ -307,8 +299,7 @@ def check_collection_status(
 
         # 2. work-in-progress -> to-review
         elif new_status == STATUS.TO_REVIEW:
-            if editors_group_uri not in user_principals:
-                raise_forbidden(message="Not in %s group" % _editors_group)
+            pass
 
         # 3. to-review -> work-in-progress
         # 3. to-review -> to-sign
@@ -561,7 +552,7 @@ def set_work_in_progress_status(event, resources):
     updater.update_source_status(STATUS.WORK_IN_PROGRESS, event.request)
 
 
-def create_editors_reviewers_groups(event, resources, editors_group, reviewers_group):
+def create_reviewers_groups(event, resources, reviewers_group):
     if event.request.prefixed_userid == PLUGIN_USERID:
         return
 
@@ -586,9 +577,6 @@ def create_editors_reviewers_groups(event, resources, editors_group, reviewers_g
         if resource is None:
             continue
 
-        _editors_group = resource_group(
-            resource, "editors_group", default=editors_group
-        )
         _reviewers_group = resource_group(
             resource, "reviewers_group", default=reviewers_group
         )
@@ -599,20 +587,16 @@ def create_editors_reviewers_groups(event, resources, editors_group, reviewers_g
             return
 
         group_perms = {"write": [current_user_id]}
-        for group, members in (
-            (_editors_group, [current_user_id]),
-            (_reviewers_group, []),
-        ):
-            ensure_resource_exists(
-                request=event.request,
-                resource_name="group",
-                parent_id=bucket_uri,
-                obj={"id": group, "members": members},
-                permissions=group_perms,
-                matchdict={"bucket_id": bid, "id": group},
-            )
+        ensure_resource_exists(
+            request=event.request,
+            resource_name="group",
+            parent_id=bucket_uri,
+            obj={"id": _reviewers_group, "members": []},
+            permissions=group_perms,
+            matchdict={"bucket_id": bid, "id": _reviewers_group},
+        )
 
-        # Allow those groups to write to the source collection.
+        # Allow reviewers to write to the source collection.
         permission = event.request.registry.permission
         collection_uri = instance_uri(
             event.request,
@@ -620,11 +604,10 @@ def create_editors_reviewers_groups(event, resources, editors_group, reviewers_g
             bucket_id=bid,
             id=resource["source"]["collection"],
         )
-        for group in (_editors_group, _reviewers_group):
-            group_principal = instance_uri(
-                event.request, "group", bucket_id=bid, id=group
-            )
-            permission.add_principal_to_ace(collection_uri, "write", group_principal)
+        group_principal = instance_uri(
+            event.request, "group", bucket_id=bid, id=_reviewers_group
+        )
+        permission.add_principal_to_ace(collection_uri, "write", group_principal)
 
 
 def cleanup_preview_destination(event, resources):

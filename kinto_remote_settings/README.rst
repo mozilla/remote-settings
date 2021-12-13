@@ -220,8 +220,7 @@ makes sure that:
 
 * the collection is reviewed before being signed
 * the user asking for review is the not the one approving the review
-* the user asking for review belongs to a group ``editors`` and
-  the one approving the review belongs to ``reviewers``.
+* the user approving the review belongs to ``reviewers``.
 
 +----------------------------------+---------------+--------------------------------------------------------------------------+
 | Setting name                     | Default       | What does it do?                                                         |
@@ -229,17 +228,15 @@ makes sure that:
 | kinto.signer.to_review_enabled   | ``false``     | If ``true``, the collection ``status`` must be set to ``to-review`` by a |
 |                                  |               | different user before being set to ``to-sign``.                          |
 +----------------------------------+---------------+--------------------------------------------------------------------------+
-| kinto.signer.editors_group       | ``editors``   | The group id that is required for changing status to ``to-review``       |
-+----------------------------------+---------------+--------------------------------------------------------------------------+
 | kinto.signer.reviewers_group     | ``reviewers`` | The group id that is required for changing status to ``to-sign``         |
 +----------------------------------+---------------+--------------------------------------------------------------------------+
 
 .. warning::
 
-    The ``editors`` and ``reviewers`` groups are defined in the **source bucket**
-    (e.g. ``/buckets/staging/groups/editors``).
+    The ``reviewers`` group is defined in the **source bucket**
+    (e.g. ``/buckets/staging/groups/reviewers``).
 
-    The ``editors`` and ``reviewers`` groups can have placeholders that are resolved
+    The ``reviewers`` group can have placeholders that are resolved
     with the source **source bucket/collection**
     (e.g. ``group:/buckets/{bucket_id}/groups/{collection_id}-reviewers``).
 
@@ -272,7 +269,7 @@ collection will be enabled.
 .. image:: workflow.png
 
 
-The editors and reviewers groups are automatically created when the source collection is created.
+The reviewers group is automatically created when the source collection is created.
 
 
 Multiple certificates

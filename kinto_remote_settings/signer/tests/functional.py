@@ -106,7 +106,6 @@ class BaseTestFunctional(object):
             user_principal(self.someone_client),
             user_principal(self.source),
         ]
-        create_group(self.source, "editors", members=principals)
         create_group(self.source, "reviewers", members=principals)
 
         # Create some data on the source collection and send it.
@@ -303,7 +302,6 @@ class HistoryTest(unittest.TestCase):
         # Give the permission to write in collection to anybody
         self.source.create_bucket()
         principals = [user_principal(self.editor_client), user_principal(self.source)]
-        create_group(self.source, "editors", members=principals)
         create_group(self.source, "reviewers", members=principals)
 
         perms = {"write": ["system.Authenticated"]}
@@ -377,9 +375,6 @@ class WorkflowTest(unittest.TestCase):
         perms = {"write": ["system.Authenticated"]}
         self.client.create_bucket()
         create_group(
-            self.client, "editors", members=[self.anna_principal, self.client_principal]
-        )
-        create_group(
             self.client,
             "reviewers",
             members=[self.elsa_principal, self.client_principal],
@@ -406,10 +401,6 @@ class WorkflowTest(unittest.TestCase):
         self.elsa_client.patch_collection(data={"status": "to-sign"})
         status = self.client.get_collection()["data"]["status"]
         assert status == "signed"
-
-    def test_only_editors_can_ask_for_review(self):
-        with self.assertRaises(KintoException):
-            self.elsa_client.patch_collection(data={"status": "to-review"})
 
     def test_status_can_be_maintained_as_to_review(self):
         self.anna_client.patch_collection(data={"status": "to-review"})
@@ -562,11 +553,9 @@ class PerBucketTest(unittest.TestCase):
         collection = self.julia_client.create_collection(id="pim")
         assert self.julia_principal in collection["permissions"]["write"]
 
-    def test_editors_and_reviewers_groups_are_created(self):
+    def test_reviewers_group_is_created(self):
         self.julia_client.create_collection(id="pam")
-        editors_group = self.julia_client.get_group(id="editors")
         reviewers_group = self.julia_client.get_group(id="reviewers")
-        assert self.julia_principal in editors_group["data"]["members"]
         assert self.julia_principal not in reviewers_group["data"]["members"]
 
     def test_preview_and_destination_collections_are_signed(self):
@@ -588,7 +577,6 @@ class PerBucketTest(unittest.TestCase):
         # The following objects are still here, thus not raising:
         self.anon_client.get_collection(bucket="preview", id="poum")
         self.anon_client.get_collection(bucket="prod", id="poum")
-        self.julia_client.get_group(id="editors")
         self.julia_client.get_group(id="reviewers")
 
     def test_full_review_test(self):

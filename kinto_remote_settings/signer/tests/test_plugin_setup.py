@@ -38,7 +38,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
             "url": ("https://github.com/Kinto/kinto-signer#kinto-signer"),
             "version": __version__,
             "to_review_enabled": False,
-            "editors_group": "editors",
             "reviewers_group": "{bucket_id}-{collection_id}-reviewers",
             "resources": [
                 {
@@ -232,7 +231,7 @@ class IncludeMeTest(unittest.TestCase):
     def test_includeme_raises_value_error_if_unknown_placeholder(self):
         settings = {
             "signer.resources": "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1",  # noqa: 501
-            "signer.editors_group": "{datetime}_group",
+            "signer.reviewers_group": "{datetime}_group",
             "signer.ecdsa.public_key": "/path/to/key",
             "signer.ecdsa.private_key": "/path/to/private",
         }
@@ -460,7 +459,6 @@ class SourceCollectionDeletion(BaseWebTest, unittest.TestCase):
     def get_app_settings(cls, extras=None):
         settings = super(cls, SourceCollectionDeletion).get_app_settings(extras)
         settings["signer.to_review_enabled"] = "true"
-        settings["signer.stage.editors_group"] = "something"
         return settings
 
     def setUp(self):
@@ -491,11 +489,6 @@ class SourceCollectionDeletion(BaseWebTest, unittest.TestCase):
 
         self.app.put_json("/buckets/stage", headers=self.headers)
 
-        self.app.put_json(
-            "/buckets/stage/groups/something",
-            {"data": {"members": [self.other_userid]}},
-            headers=self.headers,
-        )
         self.app.put_json(
             "/buckets/stage/groups/reviewers",
             {"data": {"members": [self.userid]}},

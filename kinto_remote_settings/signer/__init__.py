@@ -94,7 +94,6 @@ def includeme(config):
     # Determine which are the settings that apply to all buckets/collections.
     defaults = {
         "reviewers_group": "reviewers",
-        "editors_group": "editors",
         "to_review_enabled": False,
     }
     global_settings = {}
@@ -199,9 +198,8 @@ def includeme(config):
 
     config.add_subscriber(
         functools.partial(
-            listeners.create_editors_reviewers_groups,
+            listeners.create_reviewers_groups,
             resources=resources,
-            editors_group=global_settings["editors_group"],
             reviewers_group=global_settings["reviewers_group"],
         ),
         ResourceChanged,

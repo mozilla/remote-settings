@@ -4,6 +4,14 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+28.0.0 (2021-12-10)
+===================
+
+**Breaking Changes**
+
+- Users do not have to belong to the ``editors`` group to request review anymore (#1952).
+  The metadata in the ``signer`` capability does not have the ``editors_group`` fields anymore.
+
 
 27.0.0 (2021-12-10)
 ===================
