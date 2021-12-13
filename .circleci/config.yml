@@ -47,7 +47,7 @@ jobs:
       #     command: |
       #       mkdir mail
       #       sudo chmod 777 mail
-      #       make runkinto
+      #       make run-kinto
 
       # - run:
       #     name: Integration Test
@@ -101,7 +101,7 @@ jobs:
           command: |
             mkdir mail
             sudo chmod 777 mail
-            make runkinto
+            make run-kinto
 
       - run:
           name: Integration Test

@@ -34,9 +34,9 @@ integration-test: $(INSTALL_STAMP) lint need-kinto-running
 	docker-compose run tests
 
 need-kinto-running:
-	@curl http://localhost:8888/v1/ 2>/dev/null 1>&2 || (echo "Run 'make runkinto' before starting tests." && exit 1)
+	@curl http://localhost:8888/v1/ 2>/dev/null 1>&2 || (echo "Run 'make run-kinto' before starting tests." && exit 1)
 
-runkinto: $(INSTALL_STAMP) restart
+run-kinto: $(INSTALL_STAMP) restart
 
 build:
 	./bin/build-images.sh

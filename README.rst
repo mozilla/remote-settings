@@ -43,7 +43,7 @@ all is working as expected is to run:
 
     export DOCKER_BUILDKIT=1 # or add to your shell's profile
     export COMPOSE_DOCKER_CLI_BUILD=1 # or add to your shell's profile
-    make runkinto
+    make run-kinto
     make integration-test
 
 .. note:: The ``run web migrate`` command is only needed once, to prime the
@@ -71,7 +71,7 @@ which is default) in one terminal first:
 
 .. code-block:: shell
 
-    make runkinto
+    make run-kinto
 
 Now, run a suite of tests against the kinto server:
 
@@ -106,7 +106,7 @@ you probably want to start the services:
 
 .. code-block:: shell
 
-    make runkinto
+    make run-kinto
 
 .. code-block:: shell
 
