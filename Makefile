@@ -19,18 +19,18 @@ $(INSTALL_STAMP): requirements.txt requirements-dev.txt
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)
-	$(VENV)/bin/isort --profile=black --lines-after-imports=2 kinto_remote_settings tests --virtual-env=$(VENV)
+	$(VENV)/bin/isort . --virtual-env=$(VENV)
 	$(VENV)/bin/black kinto_remote_settings tests
 
 lint: $(INSTALL_STAMP)
-	$(VENV)/bin/isort --profile=black --lines-after-imports=2 --check-only kinto_remote_settings tests --virtual-env=$(VENV)
+	$(VENV)/bin/isort . --check-only --virtual-env=$(VENV)
 	$(VENV)/bin/black --check kinto_remote_settings tests --diff
-	$(VENV)/bin/flake8 --ignore=W503,E501 kinto_remote_settings tests
+	$(VENV)/bin/flake8 kinto_remote_settings tests
 
 test: $(INSTALL_STAMP) lint
 	PYTHONPATH=. $(VENV)/bin/pytest kinto_remote_settings
 
-int-test: $(INSTALL_STAMP) lint need-kinto-running
+integration-test: $(INSTALL_STAMP) lint need-kinto-running
 	docker-compose run tests
 
 need-kinto-running:

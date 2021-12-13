@@ -44,7 +44,7 @@ all is working as expected is to run:
     export DOCKER_BUILDKIT=1 # or add to your shell's profile
     export COMPOSE_DOCKER_CLI_BUILD=1 # or add to your shell's profile
     make runkinto
-    make int-test
+    make integration-test
 
 .. note:: The ``run web migrate`` command is only needed once, to prime the
           PostgreSQL server. You can flush
@@ -77,7 +77,7 @@ Now, run a suite of tests against the kinto server:
 
 .. code-block:: shell
 
-    make int-test
+    make integration-test
 
 Debugging Locally (advanced)
 ----------------------------

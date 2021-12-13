@@ -51,7 +51,7 @@ jobs:
 
       # - run:
       #     name: Integration Test
-      #     command: make int-test
+      #     command: make integration-test
 
       - run:
           name: Push to Dockerhub
@@ -105,7 +105,7 @@ jobs:
 
       - run:
           name: Integration Test
-          command: make int-test
+          command: make integration-test
 
       - store_artifacts:
           path: integration-test.html
