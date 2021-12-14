@@ -4,7 +4,7 @@ from typing import Tuple
 import pytest
 import requests
 from _pytest.fixtures import FixtureRequest
-from kinto_http import Client
+from kinto_http import AsyncClient
 from requests.adapters import HTTPAdapter
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -101,7 +101,7 @@ def reset(request):
 
 @pytest.fixture
 def make_client(server: str, source_bucket: str, source_collection: str):
-    """Factory as fixture for creating a Kinto Client used for tests.
+    """Factory as fixture for creating a Kinto AsyncClient used for tests.
 
     Args:
         server (str): Kinto server (in form 'http(s)://<host>:<port>/v1')
@@ -109,10 +109,10 @@ def make_client(server: str, source_bucket: str, source_collection: str):
         source_collection (str): Source collection
 
     Returns:
-        Client: Client
+        AsyncClient: AsyncClient
     """
 
-    def _make_client(auth: Tuple[str, str]) -> Client:
+    def _make_client(auth: Tuple[str, str]) -> AsyncClient:
         request_session = requests.Session()
         retries = Retry(
             total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
@@ -123,7 +123,7 @@ def make_client(server: str, source_bucket: str, source_collection: str):
 
         create_user(request_session, server, auth)
 
-        return Client(
+        return AsyncClient(
             server_url=server,
             auth=auth,
             bucket=source_bucket,

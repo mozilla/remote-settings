@@ -4,5 +4,6 @@ httpie
 isort
 kinto-http
 pytest
+pytest-asyncio
 pytest-selenium
 webtest

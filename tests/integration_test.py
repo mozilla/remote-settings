@@ -3,8 +3,9 @@ import random
 from string import hexdigits
 from typing import Callable, Dict, List, Tuple
 
+import pytest
 import requests
-from kinto_http import Client
+from kinto_http import AsyncClient
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -13,15 +14,18 @@ from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
 
 
-def test_history_plugin(
-    make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str]
+pytestmark = pytest.mark.asyncio
+
+
+async def test_history_plugin(
+    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
 ):
     client = make_client(auth)
-    client.create_bucket(id="main-workspace", if_not_exists=True)
-    client.create_collection(
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(
         id="product-integrity", bucket="main-workspace", if_not_exists=True
     )
-    history = client.get_history(bucket="main-workspace")
+    history = await client.get_history(bucket="main-workspace")
 
     assert history
     assert len(history) == 2
@@ -31,8 +35,8 @@ def test_history_plugin(
     assert "main-workspace" in history[1]["bucket_id"]
 
 
-def test_email_plugin(
-    make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str]
+async def test_email_plugin(
+    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
 ):
     # remove any existing .eml files in mail directory
     try:
@@ -42,9 +46,9 @@ def test_email_plugin(
         pass
 
     client = make_client(auth)
-    client.create_bucket(id="source", if_not_exists=True)
-    client.create_collection(id="email", bucket="source", if_not_exists=True)
-    client.patch_bucket(
+    await client.create_bucket(id="source", if_not_exists=True)
+    await client.create_collection(id="email", bucket="source", if_not_exists=True)
+    await client.patch_bucket(
         id="source",
         data={
             "kinto-emailer": {
@@ -62,7 +66,9 @@ def test_email_plugin(
             }
         },
     )
-    client.patch_collection(id="email", bucket="source", data={"status": "to-review"})
+    await client.patch_collection(
+        id="email", bucket="source", data={"status": "to-review"}
+    )
 
     mail = os.listdir("mail")
     assert mail, "No emails created"
@@ -75,12 +81,14 @@ def test_email_plugin(
         assert mail_contents.find("To: me@you.com") >= 0
 
 
-def test_attachment_plugin_new_record(
-    make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str], server: str
+async def test_attachment_plugin_new_record(
+    make_client: Callable[[Tuple[str, str]], AsyncClient],
+    auth: Tuple[str, str],
+    server: str,
 ):
     client = make_client(auth)
-    client.create_bucket(id="main-workspace", if_not_exists=True)
-    client.create_collection(
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(
         id="product-integrity", bucket="main-workspace", if_not_exists=True
     )
 
@@ -91,7 +99,7 @@ def test_attachment_plugin_new_record(
             auth=client.session.auth,
         ), "Issue creating a new record with an attachment"
 
-    record = client.get_record(
+    record = await client.get_record(
         id="logo", bucket="main-workspace", collection="product-integrity"
     )
 
@@ -100,15 +108,17 @@ def test_attachment_plugin_new_record(
     assert "attachment" in record["data"]
 
 
-def test_attachment_plugin_existing_record(
-    make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str], server: str
+async def test_attachment_plugin_existing_record(
+    make_client: Callable[[Tuple[str, str]], AsyncClient],
+    auth: Tuple[str, str],
+    server: str,
 ):
     client = make_client(auth)
-    client.create_bucket(id="main-workspace", if_not_exists=True)
-    client.create_collection(
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(
         id="product-integrity", bucket="main-workspace", if_not_exists=True
     )
-    client.create_record(
+    await client.create_record(
         id="logo",
         bucket="main-workspace",
         collection="product-integrity",
@@ -123,7 +133,7 @@ def test_attachment_plugin_existing_record(
             auth=client.session.auth,
         ), "Issue updating an existing record to include an attachment"
 
-    record = client.get_record(
+    record = await client.get_record(
         id="logo", bucket="main-workspace", collection="product-integrity"
     )
 
@@ -132,8 +142,8 @@ def test_attachment_plugin_existing_record(
     assert "attachment" in record["data"]
 
 
-def test_signer_plugin(
-    make_client: Callable[[Tuple[str, str]], Client],
+async def test_signer_plugin(
+    make_client: Callable[[Tuple[str, str]], AsyncClient],
     auth: Tuple[str, str],
     editor_auth: Tuple[str, str],
     reviewer_auth: Tuple[str, str],
@@ -147,9 +157,9 @@ def test_signer_plugin(
     reviewer_client = make_client(reviewer_auth)
 
     # 0. initialize source bucket/collection (if necessary)
-    server_info = client.server_info()
-    editor_id = editor_client.server_info()["user"]["id"]
-    reviewer_id = reviewer_client.server_info()["user"]["id"]
+    server_info = await client.server_info()
+    editor_id = (await editor_client.server_info())["user"]["id"]
+    reviewer_id = (await reviewer_client.server_info())["user"]["id"]
     print("Server: {0}".format(server))
     print("Author: {user[id]}".format(**server_info))
     print("Editor: {0}".format(editor_id))
@@ -175,13 +185,13 @@ def test_signer_plugin(
     print(msg.format(**resource))
     print("_" * 80)
 
-    client.create_bucket(if_not_exists=True)
-    client.create_bucket(id=resource["preview"]["bucket"], if_not_exists=True)
-    bucket = client.create_bucket(
+    await client.create_bucket(if_not_exists=True)
+    await client.create_bucket(id=resource["preview"]["bucket"], if_not_exists=True)
+    bucket = await client.create_bucket(
         id=resource["destination"]["bucket"], if_not_exists=True
     )
 
-    client.create_collection(
+    await client.create_collection(
         permissions={
             "write": [editor_id, reviewer_id] + bucket["permissions"]["write"]
         },
@@ -192,23 +202,23 @@ def test_signer_plugin(
         resource.get("editors_group") or signer_capabilities["editors_group"]
     )
     editors_group = editors_group.format(collection_id=source_collection)
-    client.patch_group(id=editors_group, data={"members": [editor_id]})
+    await client.patch_group(id=editors_group, data={"members": [editor_id]})
 
     reviewers_group = (
         resource.get("reviewers_group") or signer_capabilities["reviewers_group"]
     )
     reviewers_group = reviewers_group.format(collection_id=source_collection)
-    client.patch_group(id=reviewers_group, data={"members": [reviewer_id]})
+    await client.patch_group(id=reviewers_group, data={"members": [reviewer_id]})
 
     if reset:
-        client.delete_records()
+        await client.delete_records()
         existing = 0
     else:
-        existing_records = client.get_records()
+        existing_records = await client.get_records()
         existing = len(existing_records)
 
     dest_col = resource["destination"].get("collection") or source_collection
-    dest_client = Client(
+    dest_client = AsyncClient(
         server_url=server,
         bucket=resource["destination"]["bucket"],
         collection=dest_col,
@@ -218,47 +228,47 @@ def test_signer_plugin(
     if "preview" in resource:
         preview_bucket = resource["preview"]["bucket"]
         preview_collection = resource["preview"].get("collection") or source_collection
-        preview_client = Client(
+        preview_client = AsyncClient(
             server_url=server, bucket=preview_bucket, collection=preview_collection
         )
 
     # 1. upload data
     print("Author uploads 20 random records")
-    records = upload_records(client, 20)
+    records = await upload_records(client, 20)
 
     # 2. ask for a signature
     # 2.1 ask for review (noop on old versions)
     print("Editor asks for review")
     data = {"status": "to-review"}
-    editor_client.patch_collection(data=data)
+    await editor_client.patch_collection(data=data)
     # 2.2 check the preview collection (if enabled)
     if preview_client:
         print("Check preview collection")
-        preview_records = preview_client.get_records()
+        preview_records = await preview_client.get_records()
         expected = existing + 20
         assert (
             len(preview_records) == expected
         ), f"{len(preview_records)} != {expected} records"
-        metadata = preview_client.get_collection()["data"]
+        metadata = await preview_client.get_collection()["data"]
         preview_signature = metadata.get("signature")
         assert preview_signature, "Preview collection not signed"
-        preview_timestamp = preview_client.get_records_timestamp()
+        preview_timestamp = await preview_client.get_records_timestamp()
     # 2.3 approve the review
     print("Reviewer approves and triggers signature")
     data = {"status": "to-sign"}
-    reviewer_client.patch_collection(data=data)
+    await reviewer_client.patch_collection(data=data)
 
     # 3. upload more data
     print("Author creates 20 others records")
-    upload_records(client, 20)
+    await upload_records(client, 20)
 
     print("Editor updates 5 random records")
     for toupdate in random.sample(records, 5):
-        editor_client.patch_record(data=dict(newkey=_rand(10), **toupdate))
+        await editor_client.patch_record(data=dict(newkey=_rand(10), **toupdate))
 
     print("Author deletes 5 random records")
     for todelete in random.sample(records, 5):
-        client.delete_record(id=todelete["id"])
+        await client.delete_record(id=todelete["id"])
 
     expected = existing + 20 + 20 - 5
 
@@ -266,22 +276,22 @@ def test_signer_plugin(
     # 2.1 ask for review (noop on old versions)
     print("Editor asks for review")
     data = {"status": "to-review"}
-    editor_client.patch_collection(data=data)
+    await editor_client.patch_collection(data=data)
     # 2.2 check the preview collection (if enabled)
     if preview_client:
         print("Check preview collection")
-        preview_records = preview_client.get_records()
+        preview_records = await preview_client.get_records()
         assert (
             len(preview_records) == expected
         ), f"{len(preview_records)} != {expected} records"
         # Diff size is 20 + 5 if updated records are also all deleted,
         # or 30 if deletions and updates apply to different records.
-        diff_since_last = preview_client.get_records(_since=preview_timestamp)
+        diff_since_last = await preview_client.get_records(_since=preview_timestamp)
         assert (
             25 <= len(diff_since_last) <= 30
         ), "Changes since last signature are not consistent"
 
-        metadata = preview_client.get_collection()["data"]
+        metadata = await preview_client.get_collection()["data"]
         assert (
             preview_signature != metadata["signature"]
         ), "Preview collection not updated"
@@ -289,20 +299,20 @@ def test_signer_plugin(
     # 2.3 approve the review
     print("Reviewer approves and triggers signature")
     data = {"status": "to-sign"}
-    reviewer_client.patch_collection(data=data)
+    await reviewer_client.patch_collection(data=data)
 
     # 5. wait for the result
 
     # 6. obtain the destination records and serialize canonically.
 
-    records = list(dest_client.get_records())
+    records = list(await dest_client.get_records())
     assert len(records) == expected, f"{len(records)} != {expected} records"
-    timestamp = dest_client.get_records_timestamp()
+    timestamp = await dest_client.get_records_timestamp()
     serialized = canonical_json(records, timestamp)
 
     # 7. get back the signed hash
 
-    signature = dest_client.get_collection()["data"]["signature"]
+    signature = await dest_client.get_collection()["data"]["signature"]
 
     with open("pub", "w") as f:
         f.write(signature["public_key"])
@@ -317,15 +327,15 @@ def test_signer_plugin(
         raise
 
 
-def test_changes_plugin(
-    make_client: Callable[[Tuple[str, str]], Client], auth: Tuple[str, str]
+async def test_changes_plugin(
+    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
 ):
     client = make_client(auth)
-    client.create_bucket(id="main-workspace", if_not_exists=True)
-    client.create_collection(
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(
         id="product-integrity", bucket="main-workspace", if_not_exists=True
     )
-    records = client.get_records(bucket="monitor", collection="changes")
+    records = await client.get_records(bucket="monitor", collection="changes")
 
     assert records
     assert len(records) == 1
@@ -334,8 +344,8 @@ def test_changes_plugin(
 
     initial_last_modified = records[0]["last_modified"]
 
-    upload_records(client, 10, "main-workspace", "product-integrity")
-    records = client.get_records(bucket="monitor", collection="changes")
+    await upload_records(client, 10, "main-workspace", "product-integrity")
+    records = await client.get_records(bucket="monitor", collection="changes")
 
     updated_last_modified = records[0]["last_modified"]
 
@@ -346,13 +356,15 @@ def _rand(size: int = 10) -> str:
     return "".join(random.choices(hexdigits, k=size))
 
 
-def upload_records(
-    client: Client, num: int, bucket: str = None, collection: str = None
+async def upload_records(
+    client: AsyncClient, num: int, bucket: str = None, collection: str = None
 ) -> List[Dict]:
     records = []
     for _ in range(num):
         data = {"one": _rand(1000)}
-        record = client.create_record(data=data, bucket=bucket, collection=collection)
+        record = await client.create_record(
+            data=data, bucket=bucket, collection=collection
+        )
         records.append(record["data"])
     return records
 
