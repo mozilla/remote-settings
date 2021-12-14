@@ -6,9 +6,6 @@ from typing import Callable, Dict, List, Tuple
 import pytest
 import requests
 from kinto_http import AsyncClient
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.remote.webelement import WebElement
 
 from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
@@ -367,18 +364,3 @@ async def upload_records(
         )
         records.append(record["data"])
     return records
-
-
-def test_admin_login(base_url: str, selenium: WebDriver):
-    selenium.get(base_url)
-    header: WebElement = selenium.find_element(By.CSS_SELECTOR, ".content div > h1")
-    assert "Administration" in header.text
-    assert header.is_displayed()
-
-    sign_in_button: WebElement = selenium.find_element(By.CLASS_NAME, "btn-info")
-    assert sign_in_button.is_displayed()
-    sign_in_button.click()
-
-    title: WebElement = selenium.find_element(By.CSS_SELECTOR, ".content div > h1")
-    assert "Kinto" in title.text
-    assert title.is_displayed()
