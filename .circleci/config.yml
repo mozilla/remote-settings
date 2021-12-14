@@ -6,7 +6,7 @@
 #
 version: 2.1
 jobs:
-  build_test_publish:
+  build_and_publish:
     machine:
       image: ubuntu-2004:202111-01
       docker_layer_caching: true
@@ -41,18 +41,6 @@ jobs:
           name: Build
           command: make build
 
-      # TODO: are these steps even needed if we're testing in another job within the workflow?
-      # - run:
-      #     name: Setup env
-      #     command: |
-      #       mkdir mail
-      #       sudo chmod 777 mail
-      #       make run-kinto
-
-      # - run:
-      #     name: Integration Test
-      #     command: make integration-test
-
       - run:
           name: Push to Dockerhub
           command: |
@@ -62,6 +50,7 @@ jobs:
             if [ -n "${CIRCLE_TAG}" ]; then
               ./bin/deploy-dockerhub.sh "$CIRCLE_TAG"
             fi
+
   integration_test:
     machine:
       image: ubuntu-2004:202111-01
@@ -109,6 +98,7 @@ jobs:
 
       - store_artifacts:
           path: integration-test.html
+
   unit_test:
     docker:
       - image: cimg/python:3.9
@@ -131,11 +121,15 @@ jobs:
       - run:
           name: Check linting and formatting
           command: make lint
+
 workflows:
   version: 2
   main:
     jobs:
-      - build_test_publish:
+      - build_and_publish:
+          requires:
+            - unit_test
+            - integration_test
           filters:
             tags:
               only: /.*/
