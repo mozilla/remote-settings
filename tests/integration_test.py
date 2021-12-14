@@ -28,11 +28,13 @@ async def test_history_plugin(
     history = await client.get_history(bucket="main-workspace")
 
     assert history
-    assert len(history) == 2
-    assert "collection_id" in history[0]
-    assert "product-integrity" in history[0]["collection_id"]
-    assert "bucket_id" in history[1]
-    assert "main-workspace" in history[1]["bucket_id"]
+    assert len(history) == 5
+    assert "user_id" in history[0]
+    assert "plugin:kinto-signer" == history[0]["user_id"]
+    assert "collection_id" in history[-2]
+    assert "product-integrity" == history[-2]["collection_id"]
+    assert "bucket_id" in history[-1]
+    assert "main-workspace" == history[-1]["bucket_id"]
 
 
 async def test_email_plugin(
@@ -46,10 +48,12 @@ async def test_email_plugin(
         pass
 
     client = make_client(auth)
-    await client.create_bucket(id="source", if_not_exists=True)
-    await client.create_collection(id="email", bucket="source", if_not_exists=True)
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(
+        id="product-integrity", bucket="main-workspace", if_not_exists=True
+    )
     await client.patch_bucket(
-        id="source",
+        id="main-workspace",
         data={
             "kinto-emailer": {
                 "hooks": [
@@ -59,7 +63,7 @@ async def test_email_plugin(
                         "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
                         "recipients": [
                             "me@you.com",
-                            "/buckets/source/groups/reviewers",
+                            "/buckets/main-workspace/groups/reviewers",
                         ],
                     }
                 ]
@@ -67,7 +71,7 @@ async def test_email_plugin(
         },
     )
     await client.patch_collection(
-        id="email", bucket="source", data={"status": "to-review"}
+        id="product-integrity", bucket="main-workspace", data={"status": "to-review"}
     )
 
     mail = os.listdir("mail")
@@ -224,13 +228,13 @@ async def test_signer_plugin(
         collection=dest_col,
     )
 
-    preview_client = None
-    if "preview" in resource:
-        preview_bucket = resource["preview"]["bucket"]
-        preview_collection = resource["preview"].get("collection") or source_collection
-        preview_client = AsyncClient(
-            server_url=server, bucket=preview_bucket, collection=preview_collection
-        )
+    preview_bucket = resource["preview"]["bucket"]
+    preview_collection = resource["preview"].get("collection") or source_collection
+    preview_client = AsyncClient(
+        server_url=server,
+        bucket=preview_bucket,
+        collection=preview_collection,
+    )
 
     # 1. upload data
     print("Author uploads 20 random records")
@@ -241,18 +245,17 @@ async def test_signer_plugin(
     print("Editor asks for review")
     data = {"status": "to-review"}
     await editor_client.patch_collection(data=data)
-    # 2.2 check the preview collection (if enabled)
-    if preview_client:
-        print("Check preview collection")
-        preview_records = await preview_client.get_records()
-        expected = existing + 20
-        assert (
-            len(preview_records) == expected
-        ), f"{len(preview_records)} != {expected} records"
-        metadata = await preview_client.get_collection()["data"]
-        preview_signature = metadata.get("signature")
-        assert preview_signature, "Preview collection not signed"
-        preview_timestamp = await preview_client.get_records_timestamp()
+    # 2.2 check the preview collection
+    print("Check preview collection")
+    preview_records = await preview_client.get_records()
+    expected = existing + 20
+    assert (
+        len(preview_records) == expected
+    ), f"{len(preview_records)} != {expected} records"
+    metadata = (await preview_client.get_collection())["data"]
+    preview_signature = metadata.get("signature")
+    assert preview_signature, "Preview collection not signed"
+    preview_timestamp = await preview_client.get_records_timestamp()
     # 2.3 approve the review
     print("Reviewer approves and triggers signature")
     data = {"status": "to-sign"}
@@ -277,24 +280,21 @@ async def test_signer_plugin(
     print("Editor asks for review")
     data = {"status": "to-review"}
     await editor_client.patch_collection(data=data)
-    # 2.2 check the preview collection (if enabled)
-    if preview_client:
-        print("Check preview collection")
-        preview_records = await preview_client.get_records()
-        assert (
-            len(preview_records) == expected
-        ), f"{len(preview_records)} != {expected} records"
-        # Diff size is 20 + 5 if updated records are also all deleted,
-        # or 30 if deletions and updates apply to different records.
-        diff_since_last = await preview_client.get_records(_since=preview_timestamp)
-        assert (
-            25 <= len(diff_since_last) <= 30
-        ), "Changes since last signature are not consistent"
+    # 2.2 check the preview collection
+    print("Check preview collection")
+    preview_records = await preview_client.get_records()
+    assert (
+        len(preview_records) == expected
+    ), f"{len(preview_records)} != {expected} records"
+    # Diff size is 20 + 5 if updated records are also all deleted,
+    # or 30 if deletions and updates apply to different records.
+    diff_since_last = await preview_client.get_records(_since=preview_timestamp)
+    assert (
+        25 <= len(diff_since_last) <= 30
+    ), "Changes since last signature are not consistent"
 
-        metadata = await preview_client.get_collection()["data"]
-        assert (
-            preview_signature != metadata["signature"]
-        ), "Preview collection not updated"
+    metadata = (await preview_client.get_collection())["data"]
+    assert preview_signature != metadata["signature"], "Preview collection not updated"
 
     # 2.3 approve the review
     print("Reviewer approves and triggers signature")
@@ -312,7 +312,7 @@ async def test_signer_plugin(
 
     # 7. get back the signed hash
 
-    signature = await dest_client.get_collection()["data"]["signature"]
+    signature = (await dest_client.get_collection())["data"]["signature"]
 
     with open("pub", "w") as f:
         f.write(signature["public_key"])
