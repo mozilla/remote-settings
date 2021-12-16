@@ -47,7 +47,7 @@ build-db:
 ifdef PSQL_INSTALLED
 	@pg_isready 2>/dev/null 1>&2 || (echo Run PostgreSQL before starting tests. && exit 1)
 	@echo Creating db...
-	@psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
+	@psql -tc "SELECT 1 FROM pg_database WHERE datname = 'testdb'" -U postgres -h localhost | grep -q 1 || psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
 	@psql -c "ALTER DATABASE testdb SET TIMEZONE TO UTC;"
 	@echo Done!
 else
