@@ -1,4 +1,3 @@
-import json
 from typing import Tuple
 
 import pytest
@@ -170,6 +169,5 @@ def create_user(request_session: requests.Session, server: str, auth: Tuple[str,
         create_account_url = f"{server}/accounts/{auth[0]}"
         assert request_session.put(
             create_account_url,
-            data=json.dumps({"data": {"password": auth[1]}}),
-            headers={"Content-Type": "application/json"},
+            json={"data": {"password": auth[1]}},
         )
