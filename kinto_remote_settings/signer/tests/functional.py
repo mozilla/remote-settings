@@ -133,10 +133,6 @@ class BaseTestFunctional(object):
         source_collection = self.source.get_collection()["data"]
         assert source_collection["status"] == "signed"
 
-        assert (
-            self.source.get_records_timestamp() == self.source.get_records_timestamp()
-        )
-
     def test_destination_creation_and_new_records_signature(self):
         # Create some records and trigger another signature.
         self.source.create_record(data={"newdata": "hello"})
