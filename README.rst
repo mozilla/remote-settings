@@ -40,17 +40,16 @@ The simplest way to test that all is working as expected is to run:
 
 .. code-block:: shell
 
-    make run-kinto
     make integration-test
 
 .. note:: The ``run web migrate`` command is only needed once, to prime the
-          PostgreSQL server. You can flush
-          all the Kinto data in your local persistent PostgreSQL with
+          PostgreSQL server (this is done automatically for you in the make command).
+          You can flush all the Kinto data in your local persistent PostgreSQL with
           ``curl -XPOST http://localhost:8888/v1/__flush__``
 
 That will start ``memcached``, ``postgresql``, ``autograph`` and Kinto (at ``web:8888``)
 and lastly the ``tests`` container that primarily
-uses ``curl http://web:8888/v1`` to test various things.
+uses ``pytest`` to test various things against ``http://web:8888/v1``.
 
 When you're done running the above command, the individual servers will still
 be running and occupying those ports on your local network. When you're
@@ -63,14 +62,7 @@ finished, run:
 Debugging Locally (simple)
 --------------------------
 
-The simplest form of debugging is to start the Kinto server (with ``uwsgi``,
-which is default) in one terminal first:
-
-.. code-block:: shell
-
-    make run-kinto
-
-Now, run a suite of tests against the kinto server:
+The simplest form of debugging is to run a suite of tests against the kinto server:
 
 .. code-block:: shell
 
@@ -98,12 +90,7 @@ manually with ``kinto start``:
     kinto start --ini config/example.ini
 
 Another thing you might want to debug is the ``tests`` container that tests
-against the Kinto server. But before you do that,
-you probably want to start the services:
-
-.. code-block:: shell
-
-    make run-kinto
+against the Kinto server.
 
 .. code-block:: shell
 

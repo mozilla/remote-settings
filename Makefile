@@ -31,13 +31,9 @@ lint: $(INSTALL_STAMP)
 test: $(INSTALL_STAMP) lint
 	PYTHONPATH=. $(VENV)/bin/pytest kinto_remote_settings
 
-integration-test: $(INSTALL_STAMP) lint need-kinto-running
+integration-test: $(INSTALL_STAMP) lint
+	docker-compose run web migrate
 	docker-compose run tests
-
-need-kinto-running:
-	@curl http://localhost:8888/v1/ 2>/dev/null 1>&2 || (echo "Run 'make run-kinto' before starting tests." && exit 1)
-
-run-kinto: $(INSTALL_STAMP) restart
 
 build:
 	./bin/build-images.sh
@@ -59,8 +55,3 @@ stop:
 
 down:
 	docker-compose down
-
-restart:
-	docker-compose down
-	docker-compose run web migrate
-	docker-compose up -d web
