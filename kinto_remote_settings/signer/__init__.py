@@ -170,6 +170,8 @@ def includeme(config):
         docs,
         version=__version__,
         resources=exposed_resources,
+        # Backward compatibility with < v26
+        group_check_enabled=True,
         **global_settings,
     )
 

@@ -5,6 +5,15 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+27.0.1 (unreleased)
+===================
+
+**Bug fixes**
+
+- Restore ``group_check_enabled`` field in ``"signer"`` capability for backward
+  compability with previous versions
+
+
 27.0.0 (2021-12-10)
 ===================
 
