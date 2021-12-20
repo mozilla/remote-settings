@@ -2,8 +2,8 @@ from typing import Tuple
 
 import pytest
 import requests
-from _pytest.fixtures import FixtureRequest
 from kinto_http import AsyncClient
+from pytest import FixtureRequest
 from requests.adapters import HTTPAdapter
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.remote.webdriver import WebDriver
