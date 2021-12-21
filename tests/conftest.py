@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Callable, Tuple
 
 import pytest
 import requests
@@ -64,42 +64,44 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope="session")
-def server(request):
+def server(request) -> str:
     return request.config.getoption("--server")
 
 
 @pytest.fixture(scope="session")
-def auth(request):
+def auth(request) -> Tuple[str, str]:
     return tuple(request.config.getoption("--auth").split(":"))
 
 
 @pytest.fixture(scope="session")
-def editor_auth(request):
+def editor_auth(request) -> Tuple[str, str]:
     return tuple(request.config.getoption("--editor-auth").split(":"))
 
 
 @pytest.fixture(scope="session")
-def reviewer_auth(request):
+def reviewer_auth(request) -> Tuple[str, str]:
     return tuple(request.config.getoption("--reviewer-auth").split(":"))
 
 
 @pytest.fixture(scope="session")
-def source_bucket(request):
+def source_bucket(request) -> str:
     return request.config.getoption("--bucket")
 
 
 @pytest.fixture(scope="session")
-def source_collection(request):
+def source_collection(request) -> str:
     return request.config.getoption("--collection")
 
 
 @pytest.fixture(scope="session")
-def reset(request):
+def reset(request) -> bool:
     return request.config.getoption("--reset")
 
 
 @pytest.fixture
-def make_client(server: str, source_bucket: str, source_collection: str):
+def make_client(
+    server: str, source_bucket: str, source_collection: str
+) -> Callable[[Tuple[str, str]], AsyncClient]:
     """Factory as fixture for creating a Kinto AsyncClient used for tests.
 
     Args:
@@ -134,7 +136,7 @@ def make_client(server: str, source_bucket: str, source_collection: str):
 
 
 @pytest.fixture(autouse=True)
-def flush_server(server: str):
+def flush_server(server: str) -> requests.Response:
     assert requests.post(f"{server}/__flush__")
 
 
@@ -150,13 +152,13 @@ def verify_url(request: FixtureRequest, base_url: str):
 
 
 @pytest.fixture
-def firefox_options(firefox_options: Options):
+def firefox_options(firefox_options: Options) -> Options:
     firefox_options.headless = True
     return firefox_options
 
 
 @pytest.fixture
-def selenium(selenium: WebDriver):
+def selenium(selenium: WebDriver) -> WebDriver:
     selenium.set_window_size(1024, 600)
     selenium.maximize_window()
     return selenium
