@@ -161,6 +161,7 @@ def firefox_options(firefox_options: Options) -> Options:
 def selenium(selenium: WebDriver) -> WebDriver:
     selenium.set_window_size(1024, 600)
     selenium.maximize_window()
+    selenium.implicitly_wait(5)
     return selenium
 
 
