@@ -136,7 +136,7 @@ def make_client(
 
 
 @pytest.fixture(autouse=True)
-def flush_server(server: str) -> requests.Response:
+def flush_server(server: str):
     assert requests.post(f"{server}/__flush__")
 
 
