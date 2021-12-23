@@ -8,109 +8,92 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
 
-def test_admin_login(
+pytestmark = pytest.mark.asyncio
+
+
+async def test_review_signoff(
     base_url: str,
     selenium: WebDriver,
     make_client: Callable[[Tuple[str, str]], AsyncClient],
     auth: Tuple[str, str],
+    editor_auth: Tuple[str, str],
+    reviewer_auth: Tuple[str, str],
 ):
-    make_client(auth)
+    client = make_client(auth)
+    editor_client = make_client(editor_auth)
+    reviewer_client = make_client(reviewer_auth)
 
     selenium.get(base_url)
 
-    header: WebElement = selenium.find_element(By.CSS_SELECTOR, ".content div > h1")
-    assert header, "Header element not found"
-    assert "Administration" in header.text
-    assert header.is_displayed()
+    sign_in(selenium, reviewer_auth)
 
-    sign_in(selenium, auth)
+    editor_id = (await editor_client.server_info())["user"]["id"]
+    reviewer_id = (await reviewer_client.server_info())["user"]["id"]
 
-
-def test_create_bucket_and_collection(
-    base_url: str,
-    selenium: WebDriver,
-    make_client: Callable[[Tuple[str, str]], AsyncClient],
-    auth: Tuple[str, str],
-):
-    make_client(auth)
-
-    selenium.get(base_url)
-
-    sign_in(selenium, auth)
-
-    # find and click create bucket button
-    create_bucket_button: WebElement = selenium.find_element(
-        By.XPATH, "//a[@href='#/buckets/create']"
+    bucket = await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(
+        id="product-integrity",
+        bucket="main-workspace",
+        permissions={
+            "write": [editor_id, reviewer_id] + bucket["permissions"]["write"]
+        },
+        if_not_exists=True,
     )
-    assert create_bucket_button, "Create bucket button not found"
-    create_bucket_button.click()
-
-    header: WebElement = selenium.find_element(By.CSS_SELECTOR, ".content div > h1")
-    assert header, "Header element not found"
-    assert header.text == "Create a new bucket"
-    assert header.is_displayed()
-
-    # ensure bucket id field renders and enter bucket id
-    bucket_id: WebElement = selenium.find_element(By.ID, "root_id")
-    assert bucket_id, "Bucket id field not found"
-    assert bucket_id.is_displayed()
-    bucket_id.send_keys("demo_bucket")
-
-    # find and click create bucket button
-    create_bucket_button: WebElement = selenium.find_element(
-        By.XPATH, "//button[@type='submit']"
+    await client.patch_group(
+        id="product-integrity-editors", data={"members": [editor_id]}
     )
-    assert create_bucket_button, "Create bucket button not found"
-    create_bucket_button.click()
-
-    # determine if successfully created new bucket
-    try:
-        bucket: WebElement = selenium.find_element(
-            By.XPATH,
-            "//div[@class='card-header' and contains(., 'demo_bucket')]",
-        )
-        assert bucket, "demo_bucket not found"
-        assert bucket.text == "demo_bucket bucket"
-        assert bucket.is_displayed()
-    except NoSuchElementException:
-        pytest.fail("Create bucket was unsuccessful")
-
-    # find and click create collection button
-    create_collection_button: WebElement = selenium.find_element(
-        By.XPATH, "//a[@href='#/buckets/demo_bucket/collections/create']"
+    await client.patch_group(
+        id="product-integrity-reviewers", data={"members": [reviewer_id]}
     )
-    assert create_collection_button, "Create collection button not found"
-    create_collection_button.click()
-
-    header: WebElement = selenium.find_element(By.CSS_SELECTOR, ".content div > h1")
-    assert header, "Header element not found"
-    assert header.text == "Create a new collection in demo_bucket bucket"
-    assert header.is_displayed()
-
-    # ensure collection id field renders and enter collection id
-    collection_id: WebElement = selenium.find_element(By.ID, "root_id")
-    assert collection_id, "Collection id field not found"
-    assert collection_id.is_displayed()
-    collection_id.send_keys("demo_collection")
-
-    # find and click create collection button
-    create_collection_button: WebElement = selenium.find_element(
-        By.XPATH, "//button[@type='submit']"
+    await client.create_record(
+        bucket="main-workspace", collection="product-integrity", data={"testing": 123}
     )
-    assert create_collection_button, "Create collection button not found"
-    create_collection_button.click()
+    await editor_client.patch_collection(
+        id="product-integrity", bucket="main-workspace", data={"status": "to-review"}
+    )
 
-    # determine if successfully created new collection
-    try:
-        collection: WebElement = selenium.find_element(
-            By.XPATH,
-            "//a[@href='#/buckets/demo_bucket/collections/demo_collection/records' and contains(., 'demo_collection')]",
-        )
-        assert collection, "demo_collection not found"
-        assert collection.text == "demo_collection"
-        assert collection.is_displayed()
-    except NoSuchElementException:
-        pytest.fail("Create collection was unsuccessful")
+    selenium.get(
+        base_url
+        + "/#/buckets/main-workspace/collections/product-integrity/simple-review"
+    )
+    selenium.refresh()
+
+    approve_button: WebElement = selenium.find_element(
+        By.XPATH, "//button[contains(., 'Approve')]"
+    )
+    assert approve_button, "Approve button not found"
+    assert approve_button.text == "Approve"
+    assert approve_button.is_displayed()
+
+    reject_button: WebElement = selenium.find_element(
+        By.XPATH, "//button[contains(., 'Reject')]"
+    )
+    assert reject_button, "Reject button not found"
+    assert reject_button.text == "Reject"
+    assert reject_button.is_displayed()
+
+    approve_button.click()
+
+    # find and click show readonly buckets/collections
+    readonly_checkbox: WebElement = selenium.find_element(By.ID, "read-only-toggle")
+    assert readonly_checkbox, "Readonly checkbox not found"
+    assert readonly_checkbox.is_displayed()
+    readonly_checkbox.click()
+
+    # find and click on main bucket product-integrity collection
+    product_integrity: WebElement = selenium.find_element(
+        By.XPATH,
+        "//a[@href='#/buckets/main/collections/product-integrity/records' and contains(., 'product-integrity')]",
+    )
+    assert product_integrity, "product-integrity collection not found under main bucket"
+    assert product_integrity.is_displayed()
+    product_integrity.click()
+
+    # find and ensure record was properly signed to main bucket
+    data: WebElement = selenium.find_element(By.XPATH, "//code")
+    assert data, "Record not found in product-integrity collection under main bucket"
+    assert data.is_displayed()
+    assert data.text == '{"testing":123}'
 
 
 def sign_in(selenium: WebDriver, auth: Tuple[str, str]):
