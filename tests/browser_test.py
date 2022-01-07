@@ -30,13 +30,11 @@ async def test_review_signoff(
     editor_id = (await editor_client.server_info())["user"]["id"]
     reviewer_id = (await reviewer_client.server_info())["user"]["id"]
 
-    bucket = await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
     await client.create_collection(
         id="product-integrity",
         bucket="main-workspace",
-        permissions={
-            "write": [editor_id, reviewer_id] + bucket["permissions"]["write"]
-        },
+        permissions={"write": [editor_id, reviewer_id]},
         if_not_exists=True,
     )
     await client.patch_group(

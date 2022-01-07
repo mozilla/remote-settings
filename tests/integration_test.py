@@ -161,10 +161,6 @@ async def test_signer_plugin(
     server_info = await client.server_info()
     editor_id = (await editor_client.server_info())["user"]["id"]
     reviewer_id = (await reviewer_client.server_info())["user"]["id"]
-    print("Server: {0}".format(server))
-    print("Author: {user[id]}".format(**server_info))
-    print("Editor: {0}".format(editor_id))
-    print("Reviewer: {0}".format(reviewer_id))
 
     # 0. check that this collection is well configured.
     signer_capabilities = server_info["capabilities"]["signer"]
@@ -178,24 +174,13 @@ async def test_signer_plugin(
     ]
     assert resources, "Specified source not configured to be signed"
     resource = resources[0]
-    msg = (
-        "Signoff: {source[bucket]}/{source[collection]} => "
-        "{preview[bucket]}/{preview[collection]} => "
-        "{destination[bucket]}/{destination[collection]} "
-    )
-    print(msg.format(**resource))
-    print("_" * 80)
 
     await client.create_bucket(if_not_exists=True)
     await client.create_bucket(id=resource["preview"]["bucket"], if_not_exists=True)
-    bucket = await client.create_bucket(
-        id=resource["destination"]["bucket"], if_not_exists=True
-    )
+    await client.create_bucket(id=resource["destination"]["bucket"], if_not_exists=True)
 
     await client.create_collection(
-        permissions={
-            "write": [editor_id, reviewer_id] + bucket["permissions"]["write"]
-        },
+        permissions={"write": [editor_id, reviewer_id]},
         if_not_exists=True,
     )
 
@@ -234,16 +219,13 @@ async def test_signer_plugin(
     )
 
     # 1. upload data
-    print("Author uploads 20 random records")
     records = await upload_records(client, 20)
 
     # 2. ask for a signature
     # 2.1 ask for review (noop on old versions)
-    print("Editor asks for review")
     data = {"status": "to-review"}
     await editor_client.patch_collection(data=data)
     # 2.2 check the preview collection
-    print("Check preview collection")
     preview_records = await preview_client.get_records()
     expected = existing + 20
     assert (
@@ -254,19 +236,15 @@ async def test_signer_plugin(
     assert preview_signature, "Preview collection not signed"
     preview_timestamp = await preview_client.get_records_timestamp()
     # 2.3 approve the review
-    print("Reviewer approves and triggers signature")
     data = {"status": "to-sign"}
     await reviewer_client.patch_collection(data=data)
 
     # 3. upload more data
-    print("Author creates 20 others records")
     await upload_records(client, 20)
 
-    print("Editor updates 5 random records")
     for toupdate in random.sample(records, 5):
         await editor_client.patch_record(data=dict(newkey=_rand(10), **toupdate))
 
-    print("Author deletes 5 random records")
     for todelete in random.sample(records, 5):
         await client.delete_record(id=todelete["id"])
 
@@ -274,11 +252,9 @@ async def test_signer_plugin(
 
     # 4. ask again for a signature
     # 2.1 ask for review (noop on old versions)
-    print("Editor asks for review")
     data = {"status": "to-review"}
     await editor_client.patch_collection(data=data)
     # 2.2 check the preview collection
-    print("Check preview collection")
     preview_records = await preview_client.get_records()
     assert (
         len(preview_records) == expected
@@ -294,7 +270,6 @@ async def test_signer_plugin(
     assert preview_signature != metadata["signature"], "Preview collection not updated"
 
     # 2.3 approve the review
-    print("Reviewer approves and triggers signature")
     data = {"status": "to-sign"}
     await reviewer_client.patch_collection(data=data)
 
@@ -318,7 +293,6 @@ async def test_signer_plugin(
     signer = ECDSASigner(public_key="pub")
     try:
         signer.verify(serialized, signature)
-        print("Signature OK")
     except Exception:
         print("Signature KO")
         raise
