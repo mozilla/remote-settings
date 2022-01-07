@@ -2,6 +2,7 @@ import json
 
 from kinto_remote_settings.signer.serializer import canonical_json
 
+
 #
 # Kinto specific
 #

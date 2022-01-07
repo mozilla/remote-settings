@@ -5,6 +5,7 @@ import re
 from .. import __version__
 from .events import ReviewApproved, ReviewRejected, ReviewRequested
 
+
 DEFAULT_SIGNER = "kinto_remote_settings.signer.backends.local_ecdsa"
 
 

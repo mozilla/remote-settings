@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # minimal profile https://rust-lang.github.io/rustup/concepts/profiles.html
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
 # Add cargo to PATH
-RUN . ~/.cargo/env
+ENV PATH="/root/.cargo/bin:$PATH"
 
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"

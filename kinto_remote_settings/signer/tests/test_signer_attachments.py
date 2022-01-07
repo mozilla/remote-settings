@@ -6,6 +6,7 @@ from unittest import mock
 
 from .support import BaseWebTest, get_user_headers
 
+
 RE_ISO8601 = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00")
 
 

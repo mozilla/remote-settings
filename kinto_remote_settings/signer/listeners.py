@@ -12,6 +12,7 @@ from . import events as signer_events
 from .updater import TRACKING_FIELDS, LocalUpdater
 from .utils import PLUGIN_USERID, STATUS, ensure_resource_exists
 
+
 REVIEW_SETTINGS = (
     "reviewers_group",
     "editors_group",

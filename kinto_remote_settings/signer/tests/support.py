@@ -1,5 +1,6 @@
 import os
 
+
 try:
     import ConfigParser as configparser
 except ImportError:
@@ -8,6 +9,7 @@ except ImportError:
 from kinto import main as kinto_main
 from kinto.core.testing import BaseWebTest as CoreWebTest
 from kinto.core.testing import DummyRequest, get_user_headers
+
 
 __all__ = ["BaseWebTest", "DummyRequest", "get_user_headers"]
 

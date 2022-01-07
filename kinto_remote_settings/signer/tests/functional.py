@@ -10,17 +10,11 @@ from kinto_http.patch_type import JSONPatch
 from kinto_remote_settings.signer.backends import local_ecdsa
 from kinto_remote_settings.signer.serializer import canonical_json
 
+
 __HERE__ = os.path.abspath(os.path.dirname(__file__))
 
 SERVER_URL = "http://localhost:8888/v1"
 DEFAULT_AUTH = ("user", "p4ssw0rd")
-
-
-def collection_timestamp(client, **kwargs):
-    # XXXX Waiting https://github.com/Kinto/kinto-http.py/issues/77
-    endpoint = client.get_endpoint("records", **kwargs)
-    record_resp, headers = client.session.request("get", endpoint)
-    return headers.get("ETag", "").strip('"')
 
 
 def user_principal(client):
@@ -139,8 +133,6 @@ class BaseTestFunctional(object):
         source_collection = self.source.get_collection()["data"]
         assert source_collection["status"] == "signed"
 
-        assert collection_timestamp(self.source) == collection_timestamp(self.source)
-
     def test_destination_creation_and_new_records_signature(self):
         # Create some records and trigger another signature.
         self.source.create_record(data={"newdata": "hello"})
@@ -155,7 +147,7 @@ class BaseTestFunctional(object):
 
         records = self.destination.get_records()
         assert len(records) == 12
-        last_modified = collection_timestamp(self.destination)
+        last_modified = self.destination.get_records_timestamp()
         serialized_records = canonical_json(records, last_modified)
         # This raises when the signature is invalid.
         self.signer.verify(serialized_records, signature)
@@ -178,7 +170,7 @@ class BaseTestFunctional(object):
 
         records = self.destination.get_records()
         assert len(records) == 10
-        last_modified = collection_timestamp(self.destination)
+        last_modified = self.destination.get_records_timestamp()
         serialized_records = canonical_json(records, last_modified)
         # This raises when the signature is invalid.
         self.signer.verify(serialized_records, signature)
@@ -197,7 +189,7 @@ class BaseTestFunctional(object):
         assert signature is not None
 
         records = self.destination.get_records(_since=0)  # obtain deleted too
-        last_modified = collection_timestamp(self.destination)
+        last_modified = self.destination.get_records_timestamp()
         serialized_records = canonical_json(records, last_modified)
 
         assert len(records) == 10  # two of them are deleted.
@@ -221,7 +213,7 @@ class BaseTestFunctional(object):
 
         assert len(source_records) == len(destination_records) == 0
 
-        last_modified = collection_timestamp(self.destination)
+        last_modified = self.destination.get_records_timestamp()
         serialized_records = canonical_json(destination_records, last_modified)
 
         data = self.destination.get_collection()
@@ -422,7 +414,7 @@ class WorkflowTest(unittest.TestCase):
 
         collection = self.client.get_collection(id="preview")
         records = self.client.get_records(collection="preview")
-        last_modified = collection_timestamp(self.client, collection="preview")
+        last_modified = self.client.get_records_timestamp(collection="preview")
         serialized_records = canonical_json(records, last_modified)
 
         signature = collection["data"]["signature"]

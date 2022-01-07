@@ -1,5 +1,0 @@
-pytest
-webtest
-flake8
-black
-isort

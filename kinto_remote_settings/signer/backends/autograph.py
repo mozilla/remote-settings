@@ -9,6 +9,7 @@ from requests_hawk import HawkAuth
 from ..utils import get_first_matching_setting
 from .base import SignerBase
 
+
 SIGNATURE_FIELDS = ["signature", "x5u"]
 EXTRA_SIGNATURE_FIELDS = ["mode", "public_key", "type", "signer_id", "ref"]
 
