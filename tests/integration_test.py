@@ -182,7 +182,16 @@ async def test_attachment_plugin_existing_record(
     assert "attachment" in record["data"]
 
 
-async def test_signer_plugin(
+async def test_signer_plugin_capabilities(
+    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
+):
+    client = make_client(auth)
+    capability = (await client.server_info())["capabilities"]["signer"]
+    assert capability["group_check_enabled"]
+    assert capability["to_review_enabled"]
+
+
+async def test_signer_plugin_full_workflow(
     make_client: Callable[[Tuple[str, str]], AsyncClient],
     auth: Tuple[str, str],
     editor_auth: Tuple[str, str],
