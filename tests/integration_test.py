@@ -2,6 +2,7 @@ import os
 import random
 from string import hexdigits
 from typing import Callable, Dict, List, Tuple
+from urllib.parse import urljoin
 
 import pytest
 import requests
@@ -12,6 +13,12 @@ from kinto_remote_settings.signer.serializer import canonical_json
 
 
 pytestmark = pytest.mark.asyncio
+
+
+def test_heartbeat(server: str):
+    hb_url = urljoin(server, "/__heartbeat__")
+    resp = requests.get(hb_url)
+    resp.raise_for_status()
 
 
 async def test_history_plugin(

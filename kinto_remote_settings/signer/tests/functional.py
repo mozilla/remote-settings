@@ -118,11 +118,6 @@ class BaseTestFunctional(object):
         assert capability["group_check_enabled"]
         assert capability["to_review_enabled"]
 
-    def test_heartbeat_is_successful(self):
-        hb_url = urljoin(self.server_url, "/__heartbeat__")
-        resp = requests.get(hb_url)
-        resp.raise_for_status()
-
     def test_metadata_attributes(self):
         # Ensure the destination data is signed properly.
         destination_collection = self.destination.get_collection()["data"]
