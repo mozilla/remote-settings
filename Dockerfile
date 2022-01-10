@@ -44,7 +44,6 @@ COPY --from=compile /opt/venv /opt/venv
 COPY --from=compile /dogstatsd_plugin.so .
 
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONPATH="/app:$PYTHONPATH" \
     PORT=8888 \
     PATH="/opt/venv/bin:$PATH"
 
@@ -55,6 +54,7 @@ RUN chown 10001:10001 /app && \
     useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
 
 COPY . .
+RUN pip install ./kinto-remote-settings
 
 # Drop down to unprivileged user
 RUN chown -R 10001:10001 /app

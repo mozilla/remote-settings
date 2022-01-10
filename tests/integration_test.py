@@ -6,7 +6,6 @@ from typing import Callable, Dict, List, Tuple
 import pytest
 import requests
 from kinto_http import AsyncClient
-
 from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
 

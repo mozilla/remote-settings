@@ -5,7 +5,6 @@ from base64 import urlsafe_b64decode, urlsafe_b64encode
 from unittest import mock
 
 import pytest
-
 from kinto_remote_settings.signer.backends import (
     autograph,
     base,

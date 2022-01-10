@@ -5,14 +5,13 @@ from unittest import mock
 import pytest
 from kinto import main as kinto_main
 from kinto.core.events import ResourceChanged
-from pyramid import testing
-from pyramid.exceptions import ConfigurationError
-from requests import exceptions as requests_exceptions
-
 from kinto_remote_settings import __version__
 from kinto_remote_settings.signer import includeme, utils
 from kinto_remote_settings.signer.backends.autograph import AutographSigner
 from kinto_remote_settings.signer.listeners import sign_collection_data
+from pyramid import testing
+from pyramid.exceptions import ConfigurationError
+from requests import exceptions as requests_exceptions
 
 from .support import BaseWebTest, get_user_headers
 

@@ -8,6 +8,13 @@ the version control of each dependency.
 27.0.1 (unreleased)
 ===================
 
+**Changed**
+
+- Kinto Remote Settings is now an installable package. This isn't a breaking
+  change and doesn't have many ramifications other than how we build the 
+  ``kinto-dist`` container. Instead of adding the source code to the 
+  ``PYTHONPATH``, we ``pip install`` it.
+
 **Bug fixes**
 
 - Restore ``group_check_enabled`` field in ``"signer"`` capability for backward
