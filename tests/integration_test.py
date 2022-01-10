@@ -223,6 +223,11 @@ async def test_signer_plugin(
     if existing > 0 and keep_existing:
         await client.delete_records()
         existing = 0
+
+        # Status is now WIP.
+        status = (await dest_client.get_collection())["data"]["status"]
+        assert status == "work-in-progress", f"{status} != work-in-progress"
+
         # Re-sign and verify.
         await editor_client.patch_collection(data={"status": "to-review"})
         await reviewer_client.patch_collection(data={"status": "to-sign"})

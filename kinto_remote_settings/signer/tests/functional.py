@@ -288,23 +288,6 @@ class WorkflowTest(unittest.TestCase):
         # Delete all the created objects.
         flush_server(self.server_url)
 
-    def test_status_work_in_progress(self):
-        collection = self.client.get_collection()
-        assert collection["data"]["status"] == "signed"
-
-        create_records(self.client)
-
-        collection = self.client.get_collection()
-        after = collection["data"]["status"]
-        assert after == "work-in-progress"
-
-    def test_whole_workflow(self):
-        create_records(self.client)
-        self.anna_client.patch_collection(data={"status": "to-review"})
-        self.elsa_client.patch_collection(data={"status": "to-sign"})
-        status = self.client.get_collection()["data"]["status"]
-        assert status == "signed"
-
     def test_only_editors_can_ask_for_review(self):
         with self.assertRaises(KintoException):
             self.elsa_client.patch_collection(data={"status": "to-review"})
@@ -393,13 +376,6 @@ class WorkflowTest(unittest.TestCase):
         self.anna_client.patch_collection(data={"status": "to-review"})
         # Client can now review because he is not the last_editor.
         self.client.patch_collection(data={"status": "to-sign"})
-
-    def test_modifying_the_collection_resets_status(self):
-        create_records(self.client)
-        self.anna_client.patch_collection(data={"status": "to-review"})
-        create_records(self.client)
-        status = self.client.get_collection()["data"]["status"]
-        assert status == "work-in-progress"
 
     def test_can_refresh_if_never_signed(self):
         create_records(self.elsa_client)
