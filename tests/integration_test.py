@@ -239,7 +239,7 @@ async def test_signer_plugin(
     records = await upload_records(client, 20)
 
     # 2. ask for a signature
-    # 2.1 ask for review (noop on old versions)
+    # 2.1 ask for review
     data = {"status": "to-review"}
     await editor_client.patch_collection(data=data)
     # 2.2 check the preview collection
@@ -252,6 +252,9 @@ async def test_signer_plugin(
     preview_signature = metadata.get("signature")
     assert preview_signature, "Preview collection not signed"
     preview_timestamp = await preview_client.get_records_timestamp()
+    # Verify the preview collection
+    verify_signature(preview_records, preview_timestamp, preview_signature)
+
     # 2.3 approve the review
     data = {"status": "to-sign"}
     await reviewer_client.patch_collection(data=data)

@@ -5,7 +5,6 @@ from urllib.parse import urljoin
 
 import requests
 from kinto_http import Client, KintoException
-from kinto_http.patch_type import JSONPatch
 
 from kinto_remote_settings.signer.backends import local_ecdsa
 from kinto_remote_settings.signer.serializer import canonical_json
@@ -464,50 +463,3 @@ class PerBucketTest(unittest.TestCase):
         self.anon_client.get_collection(bucket="prod", id="poum")
         self.julia_client.get_group(id="editors")
         self.julia_client.get_group(id="reviewers")
-
-    def test_full_review_test(self):
-        # Create a collection.
-        self.julia_client.create_collection(id="pim")
-
-        # Add Joan to reviewers.
-        data = JSONPatch(
-            [{"op": "add", "path": "/data/members/0", "value": self.joan_principal}]
-        )
-        self.julia_client.patch_group(id="reviewers", changes=data)
-
-        # Create some records.
-        self.julia_client.create_record(id="abc", collection="pim")
-        record = self.julia_client.create_record(id="def", collection="pim")
-        timestamp_before_approval = record["data"]["last_modified"]
-
-        # Preview and prod have no records yet.
-        records = self.anon_client.get_records(bucket="preview", collection="pim")
-        assert len(records) == 0
-        records = self.anon_client.get_records(bucket="prod", collection="pim")
-        assert len(records) == 0
-
-        # Ask for review.
-        self.julia_client.patch_collection(id="pim", data={"status": "to-review"})
-
-        # Preview now has records.
-        records = self.anon_client.get_records(bucket="preview", collection="pim")
-        assert len(records) == 2
-
-        # Approve changes.
-        self.joan_client.patch_collection(id="pim", data={"status": "to-sign"})
-
-        # Prod now has records.
-        records = self.anon_client.get_records(bucket="prod", collection="pim")
-        assert len(records) == 2
-        # Publishing to destination bumped the timestamps.
-        assert records[0]["last_modified"] != timestamp_before_approval
-
-        # Refresh signature
-        self.joan_client.patch_collection(id="pim", data={"status": "to-resign"})
-
-        # Delete source collection.
-        self.julia_client.delete_collection(id="pim")
-        records = self.anon_client.get_records(bucket="preview", collection="pim")
-        assert len(records) == 0
-        records = self.anon_client.get_records(bucket="prod", collection="pim")
-        assert len(records) == 0
