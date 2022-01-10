@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 
 import pytest
 import requests
-from kinto_http import AsyncClient
+from kinto_http import AsyncClient, KintoException
 
 from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
@@ -398,6 +398,51 @@ async def test_signer_plugin_refresh(
 
     assert signature_before != signature
     assert signature_preview_before != signature_preview
+
+
+async def test_signer_plugin_reviewer_verifications(
+    make_client: Callable[[Tuple[str, str]], AsyncClient],
+    auth: Tuple[str, str],
+    reviewer_auth: Tuple[str, str],
+):
+    cid = "product-integrity"
+    client = make_client(auth)
+    client_id = (await client.server_info())["user"]["id"]
+    reviewer_client = make_client(reviewer_auth)
+    reviewer_id = (await reviewer_client.server_info())["user"]["id"]
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(id=cid, bucket="main-workspace", if_not_exists=True)
+    await client.patch_group(
+        id="product-integrity-reviewers", data={"members": [client_id, reviewer_id]}
+    )
+    await upload_records(client, 5)
+
+    # status cannot be set to to-sign
+    with pytest.raises(KintoException):
+        await reviewer_client.patch_collection(data={"status": "to-sign"})
+
+    # reviewer cannot ask review
+    with pytest.raises(KintoException):
+        await reviewer_client.patch_collection(data={"status": "to-review"})
+
+    # Add reviewer to editors
+    await client.patch_group(
+        id="product-integrity-editors", data={"members": [reviewer_id]}
+    )
+    await reviewer_client.patch_collection(data={"status": "to-review"})
+    # same editor cannot review
+    with pytest.raises(KintoException):
+        await reviewer_client.patch_collection(data={"status": "to-sign"})
+
+    # review must be asked after cancelled
+    await client.patch_collection(data={"status": "to-review"})
+    await reviewer_client.patch_collection(data={"status": "work-in-progress"})
+    with pytest.raises(KintoException):
+        await reviewer_client.patch_collection(data={"status": "to-sign"})
+
+    await reviewer_client.patch_collection(data={"status": "to-review"})
+    # Client can now review because he is not the last_editor.
+    await client.patch_collection(data={"status": "to-sign"})
 
 
 def verify_signature(records, timestamp, signature):

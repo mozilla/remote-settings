@@ -226,16 +226,6 @@ class WorkflowTest(unittest.TestCase):
 
         assert len(records) == 10
 
-    def test_same_editor_cannot_review(self):
-        self.anna_client.patch_collection(data={"status": "to-review"})
-        with self.assertRaises(KintoException):
-            self.anna_client.patch_collection(data={"status": "to-sign"})
-
-    def test_status_cannot_be_set_to_sign_without_review(self):
-        create_records(self.client)
-        with self.assertRaises(KintoException):
-            self.elsa_client.patch_collection(data={"status": "to-sign"})
-
     def test_review_can_be_cancelled_by_editor(self):
         create_records(self.client)
         self.anna_client.patch_collection(data={"status": "to-review"})
@@ -250,30 +240,6 @@ class WorkflowTest(unittest.TestCase):
         create_records(self.anna_client)
         self.anna_client.patch_collection(data={"status": "to-review"})
         self.elsa_client.patch_collection(data={"status": "to-sign"})
-
-    def test_must_ask_for_review_after_cancelled(self):
-        create_records(self.client)
-        self.anna_client.patch_collection(data={"status": "to-review"})
-        self.elsa_client.patch_collection(data={"status": "work-in-progress"})
-        with self.assertRaises(KintoException):
-            self.elsa_client.patch_collection(data={"status": "to-sign"})
-
-    def test_editors_can_be_different_after_cancelled(self):
-        create_records(self.client)
-        self.client.patch_collection(data={"status": "to-review"})
-
-        resp = self.client.get_collection()
-        assert resp["data"]["last_review_request_by"] == self.client_principal
-
-        # Client cannot review since he is the last_editor.
-        with self.assertRaises(KintoException):
-            self.client.patch_collection(data={"status": "to-sign"})
-        # Someone rejects the review.
-        self.elsa_client.patch_collection(data={"status": "work-in-progress"})
-        # Anna becomes the last_editor.
-        self.anna_client.patch_collection(data={"status": "to-review"})
-        # Client can now review because he is not the last_editor.
-        self.client.patch_collection(data={"status": "to-sign"})
 
 
 class PerBucketTest(unittest.TestCase):
