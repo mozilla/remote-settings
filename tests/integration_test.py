@@ -367,6 +367,39 @@ async def test_signer_plugin_rollback(
     assert len(records) == len(before_records)
 
 
+async def test_signer_plugin_refresh(
+    make_client: Callable[[Tuple[str, str]], AsyncClient],
+    auth: Tuple[str, str],
+    reviewer_auth: Tuple[str, str],
+):
+    cid = "product-integrity"
+    client = make_client(auth)
+    reviewer_client = make_client(reviewer_auth)
+    reviewer_id = (await reviewer_client.server_info())["user"]["id"]
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(id=cid, bucket="main-workspace", if_not_exists=True)
+    await client.patch_group(
+        id="product-integrity-reviewers", data={"members": [reviewer_id]}
+    )
+    await upload_records(client, 5)
+    await client.patch_collection(data={"status": "to-review"})
+    await reviewer_client.patch_collection(id=cid, data={"status": "to-sign"})
+    signature_preview_before = (await client.get_collection(bucket="main-preview"))[
+        "data"
+    ]["signature"]
+    signature_before = (await client.get_collection(bucket="main"))["data"]["signature"]
+
+    await reviewer_client.patch_collection(id=cid, data={"status": "to-resign"})
+
+    signature = (await client.get_collection(bucket="main"))["data"]["signature"]
+    signature_preview = (await client.get_collection(bucket="main"))["data"][
+        "signature"
+    ]
+
+    assert signature_before != signature
+    assert signature_preview_before != signature_preview
+
+
 def verify_signature(records, timestamp, signature):
     serialized = canonical_json(records, timestamp)
     with open("pub", "w") as f:

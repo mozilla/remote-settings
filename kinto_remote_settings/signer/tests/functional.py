@@ -275,34 +275,6 @@ class WorkflowTest(unittest.TestCase):
         # Client can now review because he is not the last_editor.
         self.client.patch_collection(data={"status": "to-sign"})
 
-    def test_can_refresh_if_never_signed(self):
-        create_records(self.elsa_client)
-        source_data = self.client.get_collection()["data"]
-        assert source_data["status"] == "work-in-progress"
-        destination_data = self.client.get_collection(id="to")["data"]
-        before_signature = destination_data.get("signature")
-
-        self.elsa_client.patch_collection(data={"status": "to-resign"})
-
-        source_data = self.client.get_collection()["data"]
-        assert source_data["status"] == "work-in-progress"
-        assert "last_review_request_date" not in source_data
-        assert "last_signature_date" in source_data
-        destination_data = self.client.get_collection(id="to")["data"]
-        assert destination_data["signature"] != before_signature
-        # Refresh does not copy records.
-        destination_records = self.client.get_records(collection="to")
-        assert len(destination_records) == 0
-
-    def test_refresh_signs_preview_collection(self):
-        preview_data = self.client.get_collection(id="preview")["data"]
-        before_signature = preview_data.get("signature")
-
-        self.elsa_client.patch_collection(data={"status": "to-resign"})
-
-        preview_data = self.client.get_collection(id="preview")["data"]
-        assert preview_data["signature"] != before_signature
-
 
 class PerBucketTest(unittest.TestCase):
     server_url = SERVER_URL
