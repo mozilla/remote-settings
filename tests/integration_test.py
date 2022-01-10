@@ -348,6 +348,25 @@ async def test_signer_plugin_full_workflow(
         raise
 
 
+async def test_signer_plugin_rollback(
+    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
+):
+    client = make_client(auth)
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(
+        id="product-integrity", bucket="main-workspace", if_not_exists=True
+    )
+    before_records = await client.get_records()
+
+    await upload_records(client, 5)
+
+    records = await client.get_records()
+    assert len(records) == len(before_records) + 5
+    await client.patch_collection(data={"status": "to-rollback"})
+    records = await client.get_records()
+    assert len(records) == len(before_records)
+
+
 def verify_signature(records, timestamp, signature):
     serialized = canonical_json(records, timestamp)
     with open("pub", "w") as f:

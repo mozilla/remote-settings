@@ -236,23 +236,6 @@ class WorkflowTest(unittest.TestCase):
         with self.assertRaises(KintoException):
             self.elsa_client.patch_collection(data={"status": "to-sign"})
 
-    def test_changes_can_be_rolledback(self):
-        destination_records = self.client.get_records(collection="to")
-        assert len(destination_records) == 0
-        create_records(self.client)
-        source_records = self.client.get_records(collection="from")
-        assert len(source_records) == 10
-        self.anna_client.patch_collection(data={"status": "to-review"})
-        preview_records = self.client.get_records(collection="preview")
-        assert len(preview_records) == 10
-
-        self.anna_client.patch_collection(data={"status": "to-rollback"})
-
-        source_records = self.client.get_records(collection="from")
-        assert len(source_records) == len(destination_records)
-        preview_records = self.client.get_records(collection="preview")
-        assert len(preview_records) == len(destination_records)
-
     def test_review_can_be_cancelled_by_editor(self):
         create_records(self.client)
         self.anna_client.patch_collection(data={"status": "to-review"})
