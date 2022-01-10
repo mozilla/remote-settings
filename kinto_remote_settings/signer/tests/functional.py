@@ -198,31 +198,6 @@ class BaseTestFunctional(object):
         # This raises when the signature is invalid.
         self.signer.verify(serialized_records, signature)
 
-    def test_records_delete_all_and_signature(self):
-        source_records = self.source.get_records()
-        destination_records = self.destination.get_records()
-
-        assert len(source_records) == len(destination_records)
-
-        self.source.delete_records()
-
-        trigger_signature(editor_client=self.editor_client, reviewer_client=self.source)
-
-        source_records = self.source.get_records()
-        destination_records = self.destination.get_records()
-
-        assert len(source_records) == len(destination_records) == 0
-
-        last_modified = self.destination.get_records_timestamp()
-        serialized_records = canonical_json(destination_records, last_modified)
-
-        data = self.destination.get_collection()
-        signature = data["data"]["signature"]
-        assert signature is not None
-
-        # This raises when the signature is invalid.
-        self.signer.verify(serialized_records, signature)
-
     def test_distinct_users_can_trigger_signatures(self):
         collection = self.destination.get_collection()
         before = collection["data"]["signature"]

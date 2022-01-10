@@ -151,7 +151,7 @@ async def test_signer_plugin(
     server: str,
     source_bucket: str,
     source_collection: str,
-    reset: bool,
+    keep_existing: bool,
 ):
     client = make_client(auth)
     editor_client = make_client(editor_auth)
@@ -196,13 +196,6 @@ async def test_signer_plugin(
     reviewers_group = reviewers_group.format(collection_id=source_collection)
     await client.patch_group(id=reviewers_group, data={"members": [reviewer_id]})
 
-    if reset:
-        await client.delete_records()
-        existing = 0
-    else:
-        existing_records = await client.get_records()
-        existing = len(existing_records)
-
     dest_col = resource["destination"].get("collection") or source_collection
     dest_client = AsyncClient(
         server_url=server,
@@ -217,6 +210,18 @@ async def test_signer_plugin(
         bucket=preview_bucket,
         collection=preview_collection,
     )
+
+    existing_records = await client.get_records()
+    existing = len(existing_records)
+    if existing > 0 and keep_existing:
+        await client.delete_records()
+        existing = 0
+        # Re-sign and verify.
+        await editor_client.patch_collection(data={"status": "to-review"})
+        await reviewer_client.patch_collection(data={"status": "to-sign"})
+        timestamp = await dest_client.get_records_timestamp()
+        signature = (await dest_client.get_collection())["data"]["signature"]
+        verify_signature([], timestamp, signature)
 
     # 1. upload data
     records = await upload_records(client, 20)
@@ -273,29 +278,27 @@ async def test_signer_plugin(
     data = {"status": "to-sign"}
     await reviewer_client.patch_collection(data=data)
 
-    # 5. wait for the result
-
-    # 6. obtain the destination records and serialize canonically.
+    # 5. verify signature
 
     records = list(await dest_client.get_records())
     assert len(records) == expected, f"{len(records)} != {expected} records"
     timestamp = await dest_client.get_records_timestamp()
-    serialized = canonical_json(records, timestamp)
-
-    # 7. get back the signed hash
-
     signature = (await dest_client.get_collection())["data"]["signature"]
 
-    with open("pub", "w") as f:
-        f.write(signature["public_key"])
-
-    # 8. verify the signature matches the hash
-    signer = ECDSASigner(public_key="pub")
     try:
-        signer.verify(serialized, signature)
+        verify_signature(records, timestamp, signature)
     except Exception:
         print("Signature KO")
         raise
+
+
+def verify_signature(records, timestamp, signature):
+    serialized = canonical_json(records, timestamp)
+    with open("pub", "w") as f:
+        f.write(signature["public_key"])
+
+    signer = ECDSASigner(public_key="pub")
+    signer.verify(serialized, signature)
 
 
 async def test_changes_plugin(
