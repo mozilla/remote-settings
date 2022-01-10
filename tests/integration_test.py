@@ -29,16 +29,48 @@ async def test_history_plugin(
     await client.create_collection(
         id="product-integrity", bucket="main-workspace", if_not_exists=True
     )
+    await client.create_record(data={"hola": "mundo"})
+    await client.patch_collection(data={"status": "to-review"})
+
     history = await client.get_history(bucket="main-workspace")
 
-    assert history
-    assert len(history) == 5
-    assert "user_id" in history[0]
-    assert "plugin:kinto-signer" == history[0]["user_id"]
-    assert "collection_id" in history[-2]
-    assert "product-integrity" == history[-2]["collection_id"]
-    assert "bucket_id" in history[-1]
-    assert "main-workspace" == history[-1]["bucket_id"]
+    history.reverse()
+    collection_entries = [
+        e
+        for e in history
+        if e["resource_name"] == "collection"
+        and e["collection_id"] == "product-integrity"
+    ]
+    assert len(collection_entries) == 5
+
+    (
+        event_creation,
+        event_signed,
+        event_wip,
+        event_to_review,
+        event_review_attrs,
+    ) = collection_entries
+
+    assert event_creation["action"] == "create"
+    assert event_creation["user_id"] == "account:user"
+
+    assert event_signed["action"] == "update"
+    assert "kinto-signer" in event_signed["user_id"]
+    assert event_signed["target"]["data"]["status"] == "signed"
+
+    assert event_wip["action"] == "update"
+    assert "kinto-signer" in event_wip["user_id"]
+    assert event_wip["target"]["data"]["status"] == "work-in-progress"
+
+    assert event_to_review["action"] == "update"
+    assert event_to_review["user_id"] == "account:user"
+    assert event_to_review["target"]["data"]["status"] == "to-review"
+
+    assert event_review_attrs["action"] == "update"
+    assert "kinto-signer" in event_review_attrs["user_id"]
+    assert (
+        event_review_attrs["target"]["data"]["last_review_request_by"] == "account:user"
+    )
 
 
 async def test_email_plugin(
