@@ -2,15 +2,22 @@ import os
 import random
 from string import hexdigits
 from typing import Callable, Dict, List, Tuple
+from urllib.parse import urljoin
 
 import pytest
 import requests
-from kinto_http import AsyncClient
+from kinto_http import AsyncClient, KintoException
 from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
 
 
 pytestmark = pytest.mark.asyncio
+
+
+def test_heartbeat(server: str):
+    hb_url = urljoin(server, "/__heartbeat__")
+    resp = requests.get(hb_url)
+    resp.raise_for_status()
 
 
 async def test_history_plugin(
@@ -21,16 +28,48 @@ async def test_history_plugin(
     await client.create_collection(
         id="product-integrity", bucket="main-workspace", if_not_exists=True
     )
+    await client.create_record(data={"hola": "mundo"})
+    await client.patch_collection(data={"status": "to-review"})
+
     history = await client.get_history(bucket="main-workspace")
 
-    assert history
-    assert len(history) == 5
-    assert "user_id" in history[0]
-    assert "plugin:kinto-signer" == history[0]["user_id"]
-    assert "collection_id" in history[-2]
-    assert "product-integrity" == history[-2]["collection_id"]
-    assert "bucket_id" in history[-1]
-    assert "main-workspace" == history[-1]["bucket_id"]
+    history.reverse()
+    collection_entries = [
+        e
+        for e in history
+        if e["resource_name"] == "collection"
+        and e["collection_id"] == "product-integrity"
+    ]
+    assert len(collection_entries) == 5
+
+    (
+        event_creation,
+        event_signed,
+        event_wip,
+        event_to_review,
+        event_review_attrs,
+    ) = collection_entries
+
+    assert event_creation["action"] == "create"
+    assert event_creation["user_id"] == "account:user"
+
+    assert event_signed["action"] == "update"
+    assert "kinto-signer" in event_signed["user_id"]
+    assert event_signed["target"]["data"]["status"] == "signed"
+
+    assert event_wip["action"] == "update"
+    assert "kinto-signer" in event_wip["user_id"]
+    assert event_wip["target"]["data"]["status"] == "work-in-progress"
+
+    assert event_to_review["action"] == "update"
+    assert event_to_review["user_id"] == "account:user"
+    assert event_to_review["target"]["data"]["status"] == "to-review"
+
+    assert event_review_attrs["action"] == "update"
+    assert "kinto-signer" in event_review_attrs["user_id"]
+    assert (
+        event_review_attrs["target"]["data"]["last_review_request_by"] == "account:user"
+    )
 
 
 async def test_email_plugin(
@@ -142,7 +181,16 @@ async def test_attachment_plugin_existing_record(
     assert "attachment" in record["data"]
 
 
-async def test_signer_plugin(
+async def test_signer_plugin_capabilities(
+    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
+):
+    client = make_client(auth)
+    capability = (await client.server_info())["capabilities"]["signer"]
+    assert capability["group_check_enabled"]
+    assert capability["to_review_enabled"]
+
+
+async def test_signer_plugin_full_workflow(
     make_client: Callable[[Tuple[str, str]], AsyncClient],
     auth: Tuple[str, str],
     editor_auth: Tuple[str, str],
@@ -150,7 +198,7 @@ async def test_signer_plugin(
     server: str,
     source_bucket: str,
     source_collection: str,
-    reset: bool,
+    keep_existing: bool,
 ):
     client = make_client(auth)
     editor_client = make_client(editor_auth)
@@ -195,13 +243,6 @@ async def test_signer_plugin(
     reviewers_group = reviewers_group.format(collection_id=source_collection)
     await client.patch_group(id=reviewers_group, data={"members": [reviewer_id]})
 
-    if reset:
-        await client.delete_records()
-        existing = 0
-    else:
-        existing_records = await client.get_records()
-        existing = len(existing_records)
-
     dest_col = resource["destination"].get("collection") or source_collection
     dest_client = AsyncClient(
         server_url=server,
@@ -217,11 +258,28 @@ async def test_signer_plugin(
         collection=preview_collection,
     )
 
+    existing_records = await client.get_records()
+    existing = len(existing_records)
+    if existing > 0 and not keep_existing:
+        await client.delete_records()
+        existing = 0
+
+        # Status is now WIP.
+        status = (await dest_client.get_collection())["data"]["status"]
+        assert status == "work-in-progress", f"{status} != work-in-progress"
+
+        # Re-sign and verify.
+        await editor_client.patch_collection(data={"status": "to-review"})
+        await reviewer_client.patch_collection(data={"status": "to-sign"})
+        timestamp = await dest_client.get_records_timestamp()
+        signature = (await dest_client.get_collection())["data"]["signature"]
+        verify_signature([], timestamp, signature)
+
     # 1. upload data
     records = await upload_records(client, 20)
 
     # 2. ask for a signature
-    # 2.1 ask for review (noop on old versions)
+    # 2.1 ask for review
     data = {"status": "to-review"}
     await editor_client.patch_collection(data=data)
     # 2.2 check the preview collection
@@ -234,6 +292,9 @@ async def test_signer_plugin(
     preview_signature = metadata.get("signature")
     assert preview_signature, "Preview collection not signed"
     preview_timestamp = await preview_client.get_records_timestamp()
+    # Verify the preview collection
+    verify_signature(preview_records, preview_timestamp, preview_signature)
+
     # 2.3 approve the review
     data = {"status": "to-sign"}
     await reviewer_client.patch_collection(data=data)
@@ -272,29 +333,124 @@ async def test_signer_plugin(
     data = {"status": "to-sign"}
     await reviewer_client.patch_collection(data=data)
 
-    # 5. wait for the result
-
-    # 6. obtain the destination records and serialize canonically.
+    # 5. verify signature
 
     records = list(await dest_client.get_records())
     assert len(records) == expected, f"{len(records)} != {expected} records"
     timestamp = await dest_client.get_records_timestamp()
-    serialized = canonical_json(records, timestamp)
-
-    # 7. get back the signed hash
-
     signature = (await dest_client.get_collection())["data"]["signature"]
 
-    with open("pub", "w") as f:
-        f.write(signature["public_key"])
-
-    # 8. verify the signature matches the hash
-    signer = ECDSASigner(public_key="pub")
     try:
-        signer.verify(serialized, signature)
+        verify_signature(records, timestamp, signature)
     except Exception:
         print("Signature KO")
         raise
+
+
+async def test_signer_plugin_rollback(
+    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
+):
+    client = make_client(auth)
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(
+        id="product-integrity", bucket="main-workspace", if_not_exists=True
+    )
+    before_records = await client.get_records()
+
+    await upload_records(client, 5)
+
+    records = await client.get_records()
+    assert len(records) == len(before_records) + 5
+    await client.patch_collection(data={"status": "to-rollback"})
+    records = await client.get_records()
+    assert len(records) == len(before_records)
+
+
+async def test_signer_plugin_refresh(
+    make_client: Callable[[Tuple[str, str]], AsyncClient],
+    auth: Tuple[str, str],
+    reviewer_auth: Tuple[str, str],
+):
+    cid = "product-integrity"
+    client = make_client(auth)
+    reviewer_client = make_client(reviewer_auth)
+    reviewer_id = (await reviewer_client.server_info())["user"]["id"]
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(id=cid, bucket="main-workspace", if_not_exists=True)
+    await client.patch_group(
+        id="product-integrity-reviewers", data={"members": [reviewer_id]}
+    )
+    await upload_records(client, 5)
+    await client.patch_collection(data={"status": "to-review"})
+    await reviewer_client.patch_collection(id=cid, data={"status": "to-sign"})
+    signature_preview_before = (await client.get_collection(bucket="main-preview"))[
+        "data"
+    ]["signature"]
+    signature_before = (await client.get_collection(bucket="main"))["data"]["signature"]
+
+    await reviewer_client.patch_collection(id=cid, data={"status": "to-resign"})
+
+    signature = (await client.get_collection(bucket="main"))["data"]["signature"]
+    signature_preview = (await client.get_collection(bucket="main"))["data"][
+        "signature"
+    ]
+
+    assert signature_before != signature
+    assert signature_preview_before != signature_preview
+
+
+async def test_signer_plugin_reviewer_verifications(
+    make_client: Callable[[Tuple[str, str]], AsyncClient],
+    auth: Tuple[str, str],
+    reviewer_auth: Tuple[str, str],
+):
+    cid = "product-integrity"
+    client = make_client(auth)
+    client_id = (await client.server_info())["user"]["id"]
+    reviewer_client = make_client(reviewer_auth)
+    reviewer_id = (await reviewer_client.server_info())["user"]["id"]
+    await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.create_collection(id=cid, bucket="main-workspace", if_not_exists=True)
+    await client.patch_group(
+        id="product-integrity-reviewers", data={"members": [client_id, reviewer_id]}
+    )
+    await upload_records(client, 5)
+
+    # status cannot be set to to-sign
+    with pytest.raises(KintoException):
+        await reviewer_client.patch_collection(data={"status": "to-sign"})
+
+    # reviewer cannot ask review
+    with pytest.raises(KintoException):
+        await reviewer_client.patch_collection(data={"status": "to-review"})
+
+    # Add reviewer to editors
+    await client.patch_group(
+        id="product-integrity-editors", data={"members": [reviewer_id]}
+    )
+    await reviewer_client.patch_collection(data={"status": "to-review"})
+    # same editor cannot review
+    with pytest.raises(KintoException):
+        await reviewer_client.patch_collection(data={"status": "to-sign"})
+
+    # review must be asked after cancelled
+    await client.patch_collection(data={"status": "to-review"})
+    await reviewer_client.patch_collection(data={"status": "work-in-progress"})
+    with pytest.raises(KintoException):
+        await reviewer_client.patch_collection(data={"status": "to-sign"})
+
+    await reviewer_client.patch_collection(data={"status": "to-review"})
+    # Client can now review because he is not the last_editor.
+    await client.patch_collection(data={"status": "to-sign"})
+
+
+def verify_signature(records, timestamp, signature):
+    serialized = canonical_json(records, timestamp)
+    with open("pub", "w") as f:
+        f.write(signature["public_key"])
+
+    signer = ECDSASigner(public_key="pub")
+    signer.verify(serialized, signature)
 
 
 async def test_changes_plugin(

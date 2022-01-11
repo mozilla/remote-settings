@@ -56,10 +56,10 @@ def pytest_addoption(parser):
         help="Source collection",
     )
     parser.addoption(
-        "--reset",
+        "--keep-existing",
         action="store_true",
         default=False,
-        help="Reset collection data",
+        help="Keep existing collection data",
     )
 
 
@@ -94,8 +94,8 @@ def source_collection(request) -> str:
 
 
 @pytest.fixture(scope="session")
-def reset(request) -> bool:
-    return request.config.getoption("--reset")
+def keep_existing(request) -> bool:
+    return request.config.getoption("--keep-existing")
 
 
 @pytest.fixture
