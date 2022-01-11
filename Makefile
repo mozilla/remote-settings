@@ -16,20 +16,21 @@ $(INSTALL_STAMP): requirements.txt requirements-dev.txt
 	virtualenv $(VENV) --python=python3
 	$(VENV)/bin/python -m pip install --upgrade pip
 	$(VENV)/bin/pip install -r requirements.txt
+	$(VENV)/bin/pip install -e kinto-remote-settings
 	$(VENV)/bin/pip install -r requirements-dev.txt
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)
 	$(VENV)/bin/isort . --virtual-env=$(VENV)
-	$(VENV)/bin/black kinto_remote_settings tests
+	$(VENV)/bin/black kinto-remote-settings tests
 
 lint: $(INSTALL_STAMP)
 	$(VENV)/bin/isort . --check-only --virtual-env=$(VENV)
-	$(VENV)/bin/black --check kinto_remote_settings tests --diff
-	$(VENV)/bin/flake8 kinto_remote_settings tests
+	$(VENV)/bin/black --check kinto-remote-settings tests --diff
+	$(VENV)/bin/flake8 kinto-remote-settings tests
 
 test: $(INSTALL_STAMP) lint
-	PYTHONPATH=. $(VENV)/bin/pytest kinto_remote_settings
+	PYTHONPATH=. $(VENV)/bin/pytest kinto-remote-settings
 
 integration-test: $(INSTALL_STAMP) lint
 	docker-compose run web migrate

@@ -7,7 +7,6 @@ from urllib.parse import urljoin
 import pytest
 import requests
 from kinto_http import AsyncClient, KintoException
-
 from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
 

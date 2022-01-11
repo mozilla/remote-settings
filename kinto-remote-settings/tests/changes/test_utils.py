@@ -1,9 +1,8 @@
 import unittest
 from unittest import mock
 
-from pyramid.request import Request
-
 from kinto_remote_settings.changes.utils import changes_object
+from pyramid.request import Request
 
 
 class ChangesRecordTest(unittest.TestCase):

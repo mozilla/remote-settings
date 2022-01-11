@@ -20,6 +20,6 @@ COPY requirements-dev.txt .
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
 COPY tests .
-COPY kinto_remote_settings ./kinto_remote_settings
+COPY kinto-remote-settings/tests ./kinto-remote-settings/tests
 
 ENTRYPOINT ["/bin/bash", "/app/run.sh"]

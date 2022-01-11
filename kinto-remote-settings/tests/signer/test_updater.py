@@ -4,7 +4,6 @@ from unittest import mock
 
 import pytest
 from kinto.core.storage.exceptions import RecordNotFoundError
-
 from kinto_remote_settings.signer.updater import LocalUpdater
 from kinto_remote_settings.signer.utils import STATUS
 
