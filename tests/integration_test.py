@@ -261,7 +261,7 @@ async def test_signer_plugin_full_workflow(
 
     existing_records = await client.get_records()
     existing = len(existing_records)
-    if existing > 0 and keep_existing:
+    if existing > 0 and not keep_existing:
         await client.delete_records()
         existing = 0
 
