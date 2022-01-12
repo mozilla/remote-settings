@@ -6,6 +6,7 @@ __pycache__/
 kinto-logo.png
 config/kinto.ini
 config/development.ini
+server.ini
 .pytest_cache/
 
 # C extensions
@@ -72,6 +73,8 @@ target/
 tests/pub
 tests/setup.cfg
 mail/*.eml
+attachments/
+.DS_Store
 
 # Visual Studio Code
 .vscode/

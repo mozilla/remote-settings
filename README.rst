@@ -8,9 +8,10 @@ This repository contains:
 
 1. A set requirements file that combines all packages needed to run a Kinto
    server with a known good set of dependencies.
-2. Source code for several Kinto plugins that are specific to remote settings.
-   These are contained in the ``kinto_remote_settings`` package.
+2. Source code for several Kinto plugins that are specific to Remote Settings.
+   These are contained in the ``kinto-remote-settings`` package.
 3. An example configuration file to run it.
+4. Remote Settings documentation
 
 **The most important function of this repository is to build a Docker image
 with a set of known working dependencies and then ship that to DockerHub.**
