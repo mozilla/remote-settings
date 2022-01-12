@@ -5,6 +5,16 @@
 # DOCKER_PASS
 #
 version: 2.1
+aliases:
+  - &restore_deps_cache
+      name: Restoring Python dependency cache
+      key: v1-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+  - &save_deps_cache
+      name: Saving Python dependency cache
+      key: v1-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+      paths:
+        - .venv
 jobs:
   build_and_publish:
     machine:
@@ -106,25 +116,35 @@ jobs:
           POSTGRES_DB: testdb
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-    working_directory: ~/kinto-dist
     steps:
       - checkout
+      - restore_cache: *restore_deps_cache
       - run:
           name: Run kinto_remote_settings plugin unit tests
           command: make test
+      - save_cache: *save_deps_cache
   lint_format:
     docker:
       - image: cimg/python:3.9
     steps:
       - checkout
+      - restore_cache: *restore_deps_cache
       - run:
           name: Check linting and formatting
           command: make lint
+      - save_cache: *save_deps_cache
 
 workflows:
   version: 2
   main:
     jobs:
+      - lint_format
+      - integration_test:
+          requires:
+            - lint_format
+      - unit_test:
+          requires:
+            - lint_format
       - build_and_publish:
           requires:
             - unit_test
@@ -132,6 +152,3 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - integration_test
-      - unit_test
-      - lint_format

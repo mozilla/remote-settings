@@ -29,10 +29,10 @@ lint: $(INSTALL_STAMP)
 	$(VENV)/bin/black --check kinto-remote-settings tests --diff
 	$(VENV)/bin/flake8 kinto-remote-settings tests
 
-test: $(INSTALL_STAMP) lint
+test: $(INSTALL_STAMP)
 	PYTHONPATH=. $(VENV)/bin/pytest kinto-remote-settings
 
-integration-test: $(INSTALL_STAMP) lint
+integration-test:
 	docker-compose run web migrate
 	docker-compose run tests
 
