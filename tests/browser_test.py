@@ -1,11 +1,11 @@
-from typing import Callable, Tuple
-
 import pytest
-from kinto_http import AsyncClient
+from kinto_http.patch_type import JSONPatch
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+
+from .conftest import Auth, ClientFactory
 
 
 pytestmark = pytest.mark.asyncio
@@ -14,10 +14,10 @@ pytestmark = pytest.mark.asyncio
 async def test_review_signoff(
     base_url: str,
     selenium: WebDriver,
-    make_client: Callable[[Tuple[str, str]], AsyncClient],
-    auth: Tuple[str, str],
-    editor_auth: Tuple[str, str],
-    reviewer_auth: Tuple[str, str],
+    make_client: ClientFactory,
+    auth: Auth,
+    editor_auth: Auth,
+    reviewer_auth: Auth,
 ):
     client = make_client(auth)
     editor_client = make_client(editor_auth)
@@ -37,12 +37,10 @@ async def test_review_signoff(
         permissions={"write": [editor_id, reviewer_id]},
         if_not_exists=True,
     )
-    await client.patch_group(
-        id="product-integrity-editors", data={"members": [editor_id]}
-    )
-    await client.patch_group(
-        id="product-integrity-reviewers", data={"members": [reviewer_id]}
-    )
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+    await client.patch_group(id="product-integrity-editors", changes=data)
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
+    await client.patch_group(id="product-integrity-reviewers", changes=data)
     await client.create_record(
         bucket="main-workspace", collection="product-integrity", data={"testing": 123}
     )
@@ -94,7 +92,7 @@ async def test_review_signoff(
     assert data.text == '{"testing":123}'
 
 
-def sign_in(selenium: WebDriver, auth: Tuple[str, str]):
+def sign_in(selenium: WebDriver, auth: Auth):
     # find and select Kinto Account Auth for login
     kinto_auth_radio_button: WebElement = selenium.find_element(
         By.XPATH, "//input[@value='accounts']"

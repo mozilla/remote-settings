@@ -2,7 +2,7 @@ from typing import Callable, Tuple
 
 import pytest
 import requests
-from kinto_http import AsyncClient
+from kinto_http import AsyncClient, KintoException
 from pytest import FixtureRequest
 from requests.adapters import HTTPAdapter
 from selenium.webdriver.firefox.options import Options
@@ -16,6 +16,9 @@ DEFAULT_EDITOR_AUTH = "editor:pass"
 DEFAULT_REVIEWER_AUTH = "reviewer:pass"
 DEFAULT_BUCKET = "main-workspace"
 DEFAULT_COLLECTION = "product-integrity"
+
+Auth = Tuple[str, str]
+ClientFactory = Callable[[Auth], AsyncClient]
 
 
 def pytest_addoption(parser):
@@ -69,17 +72,17 @@ def server(request) -> str:
 
 
 @pytest.fixture(scope="session")
-def auth(request) -> Tuple[str, str]:
+def auth(request) -> Auth:
     return tuple(request.config.getoption("--auth").split(":"))
 
 
 @pytest.fixture(scope="session")
-def editor_auth(request) -> Tuple[str, str]:
+def editor_auth(request) -> Auth:
     return tuple(request.config.getoption("--editor-auth").split(":"))
 
 
 @pytest.fixture(scope="session")
-def reviewer_auth(request) -> Tuple[str, str]:
+def reviewer_auth(request) -> Auth:
     return tuple(request.config.getoption("--reviewer-auth").split(":"))
 
 
@@ -101,7 +104,7 @@ def keep_existing(request) -> bool:
 @pytest.fixture
 def make_client(
     server: str, source_bucket: str, source_collection: str
-) -> Callable[[Tuple[str, str]], AsyncClient]:
+) -> ClientFactory:
     """Factory as fixture for creating a Kinto AsyncClient used for tests.
 
     Args:
@@ -113,7 +116,7 @@ def make_client(
         AsyncClient: AsyncClient
     """
 
-    def _make_client(auth: Tuple[str, str]) -> AsyncClient:
+    def _make_client(auth: Auth) -> AsyncClient:
         request_session = requests.Session()
         retries = Retry(
             total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
@@ -136,8 +139,22 @@ def make_client(
 
 
 @pytest.fixture(autouse=True)
-def flush_server(server: str):
-    assert requests.post(f"{server}/__flush__")
+async def flush_default_collection(
+    make_client: ClientFactory,
+    auth: Auth,
+    source_bucket: str,
+    source_collection: str,
+):
+    yield
+    client = make_client(auth)
+
+    try:
+        await client.delete_collection(
+            id=source_collection, bucket=source_bucket, if_exists=True
+        )
+    except KintoException as e:
+        # in the case where a user doesn't have permissions to delete
+        print(e)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -165,12 +182,11 @@ def selenium(selenium: WebDriver) -> WebDriver:
     return selenium
 
 
-def create_user(request_session: requests.Session, server: str, auth: Tuple[str, str]):
+def create_user(request_session: requests.Session, server: str, auth: Auth):
     # check if user already exists before creating
-    r = request_session.get(f"{server}/", auth=auth)
+    r = request_session.get(server, auth=auth)
     if "user" not in r.json():
-        create_account_url = f"{server}/accounts/{auth[0]}"
         assert request_session.put(
-            create_account_url,
+            f"{server}/accounts/{auth[0]}",
             json={"data": {"password": auth[1]}},
         )

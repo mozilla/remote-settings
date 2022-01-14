@@ -1,33 +1,33 @@
 import os
 import random
 from string import hexdigits
-from typing import Callable, Dict, List, Tuple
-from urllib.parse import urljoin
+from typing import Dict, List
 
 import pytest
 import requests
 from kinto_http import AsyncClient, KintoException
+from kinto_http.patch_type import JSONPatch
 from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
 
-
-pytestmark = pytest.mark.asyncio
+from .conftest import Auth, ClientFactory
 
 
 def test_heartbeat(server: str):
-    hb_url = urljoin(server, "/__heartbeat__")
-    resp = requests.get(hb_url)
+    resp = requests.get(f"{server}/__heartbeat__")
     resp.raise_for_status()
 
 
-async def test_history_plugin(
-    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
-):
+async def test_history_plugin(make_client: ClientFactory, auth: Auth):
     client = make_client(auth)
+    client_id = (await client.server_info())["user"]["id"]
     await client.create_bucket(id="main-workspace", if_not_exists=True)
+    await client.purge_history(bucket="main-workspace")
     await client.create_collection(
         id="product-integrity", bucket="main-workspace", if_not_exists=True
     )
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": client_id}])
+    await client.patch_group(id="product-integrity-editors", changes=data)
     await client.create_record(data={"hola": "mundo"})
     await client.patch_collection(data={"status": "to-review"})
 
@@ -72,9 +72,7 @@ async def test_history_plugin(
     )
 
 
-async def test_email_plugin(
-    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
-):
+async def test_email_plugin(make_client: ClientFactory, auth: Auth):
     # remove any existing .eml files in mail directory
     try:
         for file in os.listdir("mail"):
@@ -121,8 +119,8 @@ async def test_email_plugin(
 
 
 async def test_attachment_plugin_new_record(
-    make_client: Callable[[Tuple[str, str]], AsyncClient],
-    auth: Tuple[str, str],
+    make_client: ClientFactory,
+    auth: Auth,
     server: str,
 ):
     client = make_client(auth)
@@ -133,7 +131,7 @@ async def test_attachment_plugin_new_record(
 
     with open("kinto-logo.svg", "rb") as attachment:
         assert requests.post(
-            f"{server}/buckets/main-workspace/collections/product-integrity/records/logo/attachment",
+            f"{server}{await client.get_endpoint('record', bucket='main-workspace', collection='product-integrity', id='logo')}/attachment",
             files={"attachment": attachment},
             auth=client.session.auth,
         ), "Issue creating a new record with an attachment"
@@ -148,8 +146,8 @@ async def test_attachment_plugin_new_record(
 
 
 async def test_attachment_plugin_existing_record(
-    make_client: Callable[[Tuple[str, str]], AsyncClient],
-    auth: Tuple[str, str],
+    make_client: ClientFactory,
+    auth: Auth,
     server: str,
 ):
     client = make_client(auth)
@@ -167,7 +165,7 @@ async def test_attachment_plugin_existing_record(
 
     with open("kinto-logo.svg", "rb") as attachment:
         assert requests.post(
-            f"{server}/buckets/main-workspace/collections/product-integrity/records/logo/attachment",
+            f"{server}{await client.get_endpoint('record', bucket='main-workspace', collection='product-integrity', id='logo')}/attachment",
             files={"attachment": attachment},
             auth=client.session.auth,
         ), "Issue updating an existing record to include an attachment"
@@ -181,9 +179,7 @@ async def test_attachment_plugin_existing_record(
     assert "attachment" in record["data"]
 
 
-async def test_signer_plugin_capabilities(
-    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
-):
+async def test_signer_plugin_capabilities(make_client: ClientFactory, auth: Auth):
     client = make_client(auth)
     capability = (await client.server_info())["capabilities"]["signer"]
     assert capability["group_check_enabled"]
@@ -191,10 +187,10 @@ async def test_signer_plugin_capabilities(
 
 
 async def test_signer_plugin_full_workflow(
-    make_client: Callable[[Tuple[str, str]], AsyncClient],
-    auth: Tuple[str, str],
-    editor_auth: Tuple[str, str],
-    reviewer_auth: Tuple[str, str],
+    make_client: ClientFactory,
+    auth: Auth,
+    editor_auth: Auth,
+    reviewer_auth: Auth,
     server: str,
     source_bucket: str,
     source_collection: str,
@@ -235,13 +231,15 @@ async def test_signer_plugin_full_workflow(
         resource.get("editors_group") or signer_capabilities["editors_group"]
     )
     editors_group = editors_group.format(collection_id=source_collection)
-    await client.patch_group(id=editors_group, data={"members": [editor_id]})
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+    await client.patch_group(id=editors_group, changes=data)
 
     reviewers_group = (
         resource.get("reviewers_group") or signer_capabilities["reviewers_group"]
     )
     reviewers_group = reviewers_group.format(collection_id=source_collection)
-    await client.patch_group(id=reviewers_group, data={"members": [reviewer_id]})
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
+    await client.patch_group(id=reviewers_group, changes=data)
 
     dest_col = resource["destination"].get("collection") or source_collection
     dest_client = AsyncClient(
@@ -347,9 +345,7 @@ async def test_signer_plugin_full_workflow(
         raise
 
 
-async def test_signer_plugin_rollback(
-    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
-):
+async def test_signer_plugin_rollback(make_client: ClientFactory, auth: Auth):
     client = make_client(auth)
     await client.create_bucket(id="main-workspace", if_not_exists=True)
     await client.create_collection(
@@ -367,9 +363,9 @@ async def test_signer_plugin_rollback(
 
 
 async def test_signer_plugin_refresh(
-    make_client: Callable[[Tuple[str, str]], AsyncClient],
-    auth: Tuple[str, str],
-    reviewer_auth: Tuple[str, str],
+    make_client: ClientFactory,
+    auth: Auth,
+    reviewer_auth: Auth,
 ):
     cid = "product-integrity"
     client = make_client(auth)
@@ -377,9 +373,8 @@ async def test_signer_plugin_refresh(
     reviewer_id = (await reviewer_client.server_info())["user"]["id"]
     await client.create_bucket(id="main-workspace", if_not_exists=True)
     await client.create_collection(id=cid, bucket="main-workspace", if_not_exists=True)
-    await client.patch_group(
-        id="product-integrity-reviewers", data={"members": [reviewer_id]}
-    )
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
+    await client.patch_group(id="product-integrity-reviewers", changes=data)
     await upload_records(client, 5)
     await client.patch_collection(data={"status": "to-review"})
     await reviewer_client.patch_collection(id=cid, data={"status": "to-sign"})
@@ -400,17 +395,21 @@ async def test_signer_plugin_refresh(
 
 
 async def test_signer_plugin_reviewer_verifications(
-    make_client: Callable[[Tuple[str, str]], AsyncClient],
-    auth: Tuple[str, str],
-    reviewer_auth: Tuple[str, str],
+    make_client: ClientFactory,
+    auth: Auth,
+    reviewer_auth: Auth,
 ):
-    cid = "product-integrity"
     client = make_client(auth)
     client_id = (await client.server_info())["user"]["id"]
     reviewer_client = make_client(reviewer_auth)
     reviewer_id = (await reviewer_client.server_info())["user"]["id"]
     await client.create_bucket(id="main-workspace", if_not_exists=True)
-    await client.create_collection(id=cid, bucket="main-workspace", if_not_exists=True)
+    await client.create_collection(
+        id="product-integrity", bucket="main-workspace", if_not_exists=True
+    )
+    await client.patch_group(
+        id="product-integrity-editors", data={"members": [client_id]}
+    )
     await client.patch_group(
         id="product-integrity-reviewers", data={"members": [client_id, reviewer_id]}
     )
@@ -453,9 +452,7 @@ def verify_signature(records, timestamp, signature):
     signer.verify(serialized, signature)
 
 
-async def test_changes_plugin(
-    make_client: Callable[[Tuple[str, str]], AsyncClient], auth: Tuple[str, str]
-):
+async def test_changes_plugin(make_client: ClientFactory, auth: Auth):
     client = make_client(auth)
     await client.create_bucket(id="main-workspace", if_not_exists=True)
     await client.create_collection(
