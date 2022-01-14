@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-27.0.1 (unreleased)
+28.0.0 (unreleased)
 ===================
 
 **Changed**
@@ -15,10 +15,18 @@ the version control of each dependency.
   ``kinto-dist`` container. Instead of adding the source code to the 
   ``PYTHONPATH``, we ``pip install`` it.
 
+
+27.0.1 (2022-01-13)
+===================
+
 **Bug fixes**
 
 - Restore ``group_check_enabled`` field in ``"signer"`` capability for backward
-  compability with previous versions
+  compability with previous versions (#1962)
+
+**Internal Changes**
+
+- Remove known instances file (#1958)
 
 
 27.0.0 (2021-12-10)
