@@ -1,3 +1,4 @@
+import logging
 from collections import OrderedDict
 from enum import Enum
 
@@ -6,6 +7,9 @@ from kinto.core.storage.exceptions import UnicityError
 from kinto.core.utils import build_request, instance_uri
 from kinto.views import NameGenerator
 from pyramid.exceptions import ConfigurationError
+
+
+logger = logging.getLogger(__name__)
 
 
 PLUGIN_USERID = "plugin:kinto-signer"
@@ -176,6 +180,27 @@ def ensure_resource_exists(
         )
     except UnicityError:
         pass
+
+
+def storage_create_raw(
+    storage_backend,
+    permission_backend,
+    resource_name,
+    parent_id,
+    object_uri,
+    object_id,
+    permissions,
+):
+    try:
+        storage_backend.create(
+            resource_name=resource_name, parent_id=parent_id, obj={"id": object_id}
+        )
+        permission_backend.replace_object_permissions(
+            object_id=object_uri, permissions=permissions
+        )
+        logger.debug(f"Created {object_uri} with permissions {permissions}")
+    except UnicityError:
+        logger.warn(f"{object_uri} already exists.")
 
 
 def notify_resource_event(

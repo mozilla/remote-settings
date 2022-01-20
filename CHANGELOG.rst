@@ -15,6 +15,11 @@ the version control of each dependency.
   ``kinto-dist`` container. Instead of adding the source code to the 
   ``PYTHONPATH``, we ``pip install`` it.
 
+**New Features**
+
+- Added ability to automatically create the source buckets and collections defined in the
+  ``kinto.signer.resources`` setting. Enable with ``kinto.signer.auto_create_resources = true``.
+  This is useful for testing or when using disposable containers.
 
 **Bug Fixes**
 

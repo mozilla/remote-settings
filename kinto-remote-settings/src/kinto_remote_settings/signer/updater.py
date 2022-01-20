@@ -4,7 +4,7 @@ from enum import Enum
 
 from kinto.core.events import ACTIONS
 from kinto.core.storage.exceptions import RecordNotFoundError
-from pyramid.security import Everyone
+from pyramid.authorization import Everyone
 
 from .serializer import canonical_json
 from .utils import STATUS, ensure_resource_exists, notify_resource_event, records_diff

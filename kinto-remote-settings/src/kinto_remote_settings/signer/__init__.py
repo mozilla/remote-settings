@@ -2,8 +2,13 @@ import copy
 import functools
 import re
 
+from pyramid.authorization import Authenticated
+from pyramid.events import ApplicationCreated
+from pyramid.settings import aslist
+
 from .. import __version__
 from .events import ReviewApproved, ReviewRejected, ReviewRequested
+from .utils import storage_create_raw
 
 
 DEFAULT_SIGNER = "kinto_remote_settings.signer.backends.local_ecdsa"
@@ -277,3 +282,51 @@ def includeme(config):
         config.add_subscriber(send_notification, ReviewRejected)
     except ImportError:
         pass
+
+    # Automatically create resources on startup if option is enabled.
+    def auto_create_resources(event, resources):
+        storage = event.app.registry.storage
+        permission = event.app.registry.permission
+        write_principals = aslist(
+            event.app.registry.settings.get(
+                "signer.auto_create_resources_principals", []
+            )
+        ) or [Authenticated]
+
+        for resource in resources.values():
+            perms = {"write": write_principals}
+            bucket = resource["source"]["bucket"]
+            collection = resource["source"]["collection"]
+
+            bucket_uri = f"/buckets/{bucket}"
+            storage_create_raw(
+                storage_backend=storage,
+                permission_backend=permission,
+                resource_name="bucket",
+                parent_id="",
+                object_uri=bucket_uri,
+                object_id=bucket,
+                permissions=perms,
+            )
+
+            # If resource is configured for specific collection, create it too.
+            if collection:
+                collection_uri = f"{bucket_uri}/collections/{collection}"
+                storage_create_raw(
+                    storage_backend=storage,
+                    permission_backend=permission,
+                    resource_name="collection",
+                    parent_id=bucket_uri,
+                    object_uri=collection_uri,
+                    object_id=collection,
+                    permissions=perms,
+                )
+
+    if asbool(settings.get("signer.auto_create_resources", False)):
+        config.add_subscriber(
+            functools.partial(
+                auto_create_resources,
+                resources=resources,
+            ),
+            ApplicationCreated,
+        )
