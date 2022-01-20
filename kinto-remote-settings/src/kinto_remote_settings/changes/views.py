@@ -342,6 +342,9 @@ def get_changeset(request):
     # Cache control.
     _handle_cache_expires(request, bid, cid)
 
+    # Set Last-Modified response header (Pyramid takes care of converting).
+    request.response.last_modified = timestamp / 1000.0
+
     data = {
         "metadata": metadata,
         "timestamp": timestamp,

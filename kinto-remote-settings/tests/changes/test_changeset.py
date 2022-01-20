@@ -1,4 +1,5 @@
 import unittest
+from email.utils import parsedate_to_datetime
 from unittest import mock
 
 from kinto.core.storage import exceptions as storage_exceptions
@@ -40,6 +41,14 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
         assert len(data["changes"]) == 1
         assert data["changes"][0]["dev-edition"] is True
         assert data["timestamp"] == records_timestamp
+
+    def test_last_modified_header_is_set(self):
+        resp = self.app.get(self.changeset_uri, headers=self.headers)
+        timestamp = resp.json["timestamp"]
+
+        dt = parsedate_to_datetime(resp.headers["Last-Modified"])
+
+        assert dt.timestamp() == int(timestamp / 1000)
 
     def test_changeset_can_be_filtered(self):
         resp = self.app.post_json(self.records_uri, {}, headers=self.headers)

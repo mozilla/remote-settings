@@ -16,6 +16,11 @@ the version control of each dependency.
   ``PYTHONPATH``, we ``pip install`` it.
 
 
+**Bug Fixes**
+
+- Add missing ``Last-Modified`` response header in ``/changeset`` responses
+
+
 27.0.1 (2022-01-13)
 ===================
 
