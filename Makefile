@@ -12,8 +12,10 @@ distclean: clean
 maintainer-clean: distclean
 	rm -rf .venv/
 
-$(INSTALL_STAMP): requirements.txt requirements-dev.txt
+$(VENV)/bin/python:
 	virtualenv $(VENV) --python=python3
+
+$(INSTALL_STAMP): $(VENV)/bin/python requirements.txt requirements-dev.txt
 	$(VENV)/bin/python -m pip install --upgrade pip
 	$(VENV)/bin/pip install -r requirements.txt
 	$(VENV)/bin/pip install -e kinto-remote-settings

@@ -8,13 +8,14 @@ version: 2.1
 aliases:
   - &restore_deps_cache
       name: Restoring Python dependency cache
-      key: v1-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+      key: v2-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
   - &save_deps_cache
       name: Saving Python dependency cache
-      key: v1-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+      key: v2-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
       paths:
-        - .venv
+        - /home/circleci/.cache/pip
+
 jobs:
   build_and_publish:
     machine:
