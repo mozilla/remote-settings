@@ -2,4 +2,4 @@
 set -eo pipefail
 
 docker build . -t kinto:build
-docker build . --file Testing.Dockerfile -t kinto:tests
+docker build . --file Dockerfile.Testing -t kinto:tests
