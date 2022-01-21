@@ -6,10 +6,10 @@ Kinto Distribution
 
 This repository contains:
 
-1. A set requirements file that combines all packages needed to run a Kinto
+1. A set requirements file that combines all packages needed to run a Remote Settings
    server with a known good set of dependencies.
-2. Source code for several Kinto plugins that are specific to Remote Settings.
-   These are contained in the ``kinto-remote-settings`` package.
+2. Source code for the Kinto plugin specific to Remote Settings.
+   This is contained in the ``kinto-remote-settings`` package.
 3. An example configuration file to run it.
 4. Remote Settings documentation
 
@@ -108,8 +108,7 @@ Now, from that ``bash`` session you can reach the other services like:
 Upgrade Things
 --------------
 
-Most common use-case with ``kinto-dist`` is that you want to upgrade one
-of the dependencies. 
+Most common use-case is that you want to upgrade one of the dependencies.
 
 Top level dependencies are listed in ``requirements.in``.
 
@@ -119,7 +118,7 @@ To upgrade a single package, run:
 
 .. code-block:: shell
 
-    pip-compile --upgrade-package pyramid
+    pip-compile --upgrade-package kinto-attachment
 
 To test that this installs run:
 
@@ -143,38 +142,37 @@ In other words, minor and patch versions are uncomplicated and can be deployed a
 Releasing
 ---------
 
-We recommend using the `zest.releaser <https://github.com/zestsoftware/zest.releaser>`_ tool to automate the ``CHANGELOG.rst`` and ``setup.py`` manipulations.
-
 First:
 
 - Make sure the CHANGELOG is up-to-date and includes details about all the components included in the release
 
 .. code-block:: bash
 
-  git checkout -b prepare-X.Y.Z
-  prerelease
+    git checkout -b prepare-X.Y.Z
+    prerelease
 
-- Bump the ``__version__`` value in ``kinto_remote_settings/__init__.py`` to match the version to be released according to the CHANGELOG
+- At this point, the ``CHANGELOG.rst`` header and version number in ``VERSION`` are set.
 
 .. code-block:: bash
 
-  $ git commit -a --amend
-  $ git push
+    git commit -a --amend
+    git push
 
 - Open a PR, and when the PR is approved:
 
 .. code-block:: bash
 
-   git checkout main
-   git pull
-   release
+    git checkout main
+    git pull
+    git tag -a X.Y.Z
+    git push origin X.Y.Z
 
-- At this point the package is published on Pypi. Now prepare the next version and push the tag to the repo with:
+- Now prepare the next version:
 
 .. code-block:: bash
 
-   git checkout -b start-X.Y.Z
-   postrelease
+    git checkout -b start-X.Y.Z
+    git push
 
 - Draft a release on Github: https://github.com/mozilla-services/kinto-dist/releases
   For release notes, just use the CHANGELOG entry for the release, but change all
@@ -183,7 +181,8 @@ First:
 
 ..notes ::
 
-    The Mozilla Jenkins job will catch the latest Docker container version on Dockerhub
-    and immediately deploy it to Remote Settings STAGE
+    The Mozilla Jenkins job will catch the latest Docker container on Dockerhub
+    and immediately deploy it to Remote Settings DEV. It will deploy the latest tag
+    on Remote Settings STAGE.
     Integration tests will be executed.
     Results are reported in the Mozilla ``#kinto-standup`` Slack channel.

@@ -8,12 +8,12 @@ the version control of each dependency.
 28.0.0 (unreleased)
 ===================
 
-**Changed**
+**Breaking Changes**
 
-- Kinto Remote Settings is now an installable package. This isn't a breaking
-  change and doesn't have many ramifications other than how we build the 
-  ``kinto-dist`` container. Instead of adding the source code to the 
-  ``PYTHONPATH``, we ``pip install`` it.
+- ``kinto-dist`` is not an installable package, and won't be published on PyPi anymore.
+  The Kinto Remote Settings plugin is now an installable package.
+  This doesn't have many ramifications other than how we build the ``kinto-dist``
+  container. Instead of adding the source code to the ``PYTHONPATH``, we ``pip install`` it.
 
 **New Features**
 

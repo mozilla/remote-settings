@@ -21,11 +21,6 @@ boto==2.49.0 \
     --hash=sha256:147758d41ae7240dc989f0039f27da8ca0d53734be0eb869ef16e3adcfa462e8 \
     --hash=sha256:ea0d3b40a2d852767be77ca343b58a9e3a4b00d9db440efb8da74b4e58025e5a
     # via kinto-attachment
-canonicaljson-rs==0.3.0 \
-    --hash=sha256:9d8fb412ba9819190d5d07b1b8b01a1a17705fa0487b5253ec78668f263962cc \
-    --hash=sha256:cf73fa7e041557da507dc2f35277d155d75f0eece57fb1cc76e81bd2ea091e1f \
-    --hash=sha256:e4df74f4e8cbfde079c65c61d67ff0f10da8e0e71593294ad9caf719a3551a04
-    # via -r requirements.in
 certifi==2021.10.8 \
     --hash=sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872 \
     --hash=sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569
@@ -109,14 +104,6 @@ dockerflow==2021.7.0 \
     --hash=sha256:9f309fdf72a897290878f97cc30fd4bb3609b13cf74bfce4268f5e368e466070 \
     --hash=sha256:e47bbca06c261a5c3d97e5e0990aa71dafed41b723d0e0009c32e1d2f9b92db4
     # via kinto
-ec2-metadata==2.6.0 \
-    --hash=sha256:9f73e6298e81508b4f0108ea0cd14ac7663fd5be1cea9c70b7f02d3f14ad3e14 \
-    --hash=sha256:d7058cf6ffa40e88362a924a71305e275c699ce6767ad86518cf613a1949e3c4
-    # via -r requirements.in
-ecdsa==0.17.0 \
-    --hash=sha256:5cf31d5b33743abe0dfc28999036c849a69d548f994b535e527ee3cb7f3ef676 \
-    --hash=sha256:b9f500bb439e4153d0330610f5d26baaf18d17b8ced1bc54410d189385ea68aa
-    # via -r requirements.in
 greenlet==1.1.2 \
     --hash=sha256:00e44c8afdbe5467e4f7b5851be223be68adb4272f44696ee71fe46b7036a711 \
     --hash=sha256:013d61294b6cd8fe3242932c1c5e36e5d1db2c8afb58606c5a67efce62c1f5fd \
@@ -177,6 +164,10 @@ idna==3.3 \
     --hash=sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff \
     --hash=sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d
     # via requests
+importlib-resources==5.4.0 \
+    --hash=sha256:33a95faed5fc19b4bc16b29a6eeae248a3fe69dd55d4d229d2b480e23eeaad45 \
+    --hash=sha256:d756e2f85dd4de2ba89be0b21dba2a3bbec2e871a42a3a16719258a11f87506b
+    # via jsonschema
 iso8601==1.0.0 \
     --hash=sha256:22c7de877cfcbbcf241b4aa3934a1fa1fb6b200b242dbb054e438a9e5af56ce0 \
     --hash=sha256:79ec9749f8bf35ffae77f835e80e96d2f95affa0f79d3d7b25c0fa7e06207a8b
@@ -193,7 +184,7 @@ jsonschema==4.2.1 \
     --hash=sha256:2a0f162822a64d95287990481b45d82f096e99721c86534f48201b64ebca6e8c \
     --hash=sha256:390713469ae64b8a58698bb3cbc3859abe6925b565a973f87323ef21b09a27a8
     # via kinto
-kinto[monitoring,postgresql]==14.6.0 \
+kinto[memcached,monitoring,postgresql]==14.6.0 \
     --hash=sha256:87fedca110444066b2d9b19e0b498e5812fdb87b9dba51ddac4d92dba5705f80
     # via
     #   -r requirements.in
@@ -209,10 +200,6 @@ kinto-emailer==2.1.0 \
 logging-color-formatter==1.0.2 \
     --hash=sha256:a115c04ebd0be5dc511f71a44dbad531e5b7cb91b91d3924982d69dff0333ad4
     # via kinto
-mohawk==1.1.0 \
-    --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
-    --hash=sha256:d2a0e3ab10a209cc79e95e28f2dd54bd4a73fd1998ffe27b7ba0f962b6be9723
-    # via requests-hawk
 newrelic==7.2.3.170 \
     --hash=sha256:214ddc23b744bee59bb30ccf73f3cb58c4861e55bf051a10a50c974b5e50f7dd \
     --hash=sha256:2daa5ae766aa86ace4dfa8983ac909e590cd4c67749c7bdedd8879ed73c7aa4b \
@@ -265,7 +252,6 @@ pyramid==2.0 \
     --hash=sha256:45431b387587ed0fac6213b54d6e9f0936f0cc85238a8f5af7852fc9484c5c77 \
     --hash=sha256:de7f097fa2fa43bead1f690761e56594d24954ae7dc7cbf69a5d84bb75c5a099
     # via
-    #   -r requirements.in
     #   cornice
     #   kinto
     #   pyramid-mailer
@@ -319,7 +305,7 @@ python-dateutil==2.8.2 \
 python-memcached==1.59 \
     --hash=sha256:4dac64916871bd3550263323fc2ce18e1e439080a2d5670c594cf3118d99b594 \
     --hash=sha256:a2e28637be13ee0bf1a8b6843e7490f9456fd3f2a4cb60471733c7b5d5557e4f
-    # via -r requirements.in
+    # via kinto
 python-rapidjson==1.5 \
     --hash=sha256:04323e63cf57f7ed927fd9bcb1861ef5ecb0d4d7213f2755969d4a1ac3c2de6f \
     --hash=sha256:0890330cea15a4e0e48d0257890c2bc4700ffbe4fd3ba3c459bbf0af3a86139d \
@@ -364,22 +350,13 @@ repoze.sendmail==4.4.1 \
 requests==2.26.0 \
     --hash=sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24 \
     --hash=sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7
-    # via
-    #   ec2-metadata
-    #   kinto
-    #   requests-hawk
-requests-hawk==1.1.1 \
-    --hash=sha256:4a5c7135ee2f5f8be70054a8c3874c918dd4dcd355d675f2de8653aab6f94e39 \
-    --hash=sha256:4c74bd31b581f6d2b36d575bb537b1f29469509f560f5050339a48195d48929b
-    # via -r requirements.in
+    # via kinto
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
     # via
     #   bcrypt
     #   cornice-swagger
-    #   ecdsa
-    #   mohawk
     #   python-dateutil
     #   python-memcached
 sqlalchemy==1.4.26 \
@@ -465,9 +442,11 @@ webob==1.8.7 \
 werkzeug==2.0.2 \
     --hash=sha256:63d3dc1cf60e7b7e35e97fa9861f7397283b75d765afcaefd993d6046899de8f \
     --hash=sha256:aa2bb6fc8dee8d6c504c0ac1e7f5f7dc5810a9903e793b6f715a9f015bdadb9a
-    # via
-    #   -r requirements.in
-    #   kinto
+    # via kinto
+zipp==3.7.0 \
+    --hash=sha256:9f50f446828eb9d45b267433fd3e9da8d801f614129124863f9c51ebceafb87d \
+    --hash=sha256:b47250dd24f92b7dd6a0a8fc5244da14608f3ca90a5efcd37a3b1642fac9a375
+    # via importlib-resources
 zope.deprecation==4.4.0 \
     --hash=sha256:0d453338f04bacf91bbfba545d8bcdf529aa829e67b705eac8c1a7fdce66e2df \
     --hash=sha256:f1480b74995958b24ce37b0ef04d3663d2683e5d6debc96726eff18acf4ea113

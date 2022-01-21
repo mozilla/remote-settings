@@ -1,11 +1,4 @@
-pyramid
-kinto[postgresql,monitoring]
+kinto[postgresql,memcached,monitoring]
 kinto-attachment
 kinto-emailer
-python-memcached
-Werkzeug
-ec2-metadata
 uWSGI
-canonicaljson-rs
-ecdsa
-requests_hawk
