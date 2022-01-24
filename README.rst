@@ -1,8 +1,19 @@
-Kinto Distribution
-==================
+Remote Settings
+===============
 
-.. image:: https://circleci.com/gh/mozilla-services/kinto-dist/tree/main.svg?style=svg
-   :target: https://circleci.com/gh/mozilla-services/kinto-dist
+Remote Settings is a Mozilla service that makes it easy to manage evergreen settings data in Firefox. A simple API is available in Firefox for accessing the synchronized data.
+
+https://remote-settings.readthedocs.io
+--------------------------------------
+
+.. image:: https://circleci.com/gh/mozilla/remote-settings/tree/main.svg?style=svg
+   :target: https://circleci.com/gh/mozilla/remote-settings
+
+
+Content
+-------
+
+*
 
 This repository contains:
 
@@ -174,7 +185,7 @@ First:
     git checkout -b start-X.Y.Z
     git push
 
-- Draft a release on Github: https://github.com/mozilla-services/kinto-dist/releases
+- Draft a release on Github: https://github.com/mozilla/remote-settings/releases
   For release notes, just use the CHANGELOG entry for the release, but change all
   the ReST-style section headings to Markdown-style ``##`` headings.
 

@@ -25,7 +25,7 @@ Introduction
 
 The DEV server is different from STAGE and PROD:
 
-- it runs the latest version of `kinto-dist <https://github.com/mozilla-services/kinto-dist/>`_
+- it runs the latest version of `Remote Settings <https://github.com/mozilla/remote-settings/>`_
 - it is accessible without VPN
 - authenticated users are allowed to create collections
 - it does not support push notifications
