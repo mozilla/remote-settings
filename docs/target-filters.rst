@@ -316,7 +316,7 @@ function is the value being transformed.
 
    :param input:
       A value for the sample to be stable over.
-   :param number rate:
+   :param rate:
       A number between ``0`` and ``1`` with the sample rate. For example,
       ``0.5`` would be a 50% sample rate.
 
@@ -356,15 +356,15 @@ function is the value being transformed.
 
    :param input:
       A value for the bucket sampling to be stable over.
-   :param integer start:
+   :param start:
       The bucket at the start of the range to check. Bucket indexes larger than
       the total bucket count wrap to the start of the range, e.g. bucket 110 and
       bucket 10 are the same bucket if the total bucket count is 100.
-   :param integer count:
+   :param count:
       The number of buckets to check, starting at the start bucket. If this is
       large enough to cause the range to exceed the total number of buckets, the
       search will wrap to the start of the range again.
-   :param integer total:
+   :param total:
       The number of buckets you want to group users into.
 
 .. js:function:: date(dateString)
@@ -372,7 +372,7 @@ function is the value being transformed.
    Parses a string as a date and returns a Date object. Date strings should be
    in `ISO 8601`_ format.
 
-   :param string dateString:
+   :param dateString:
       String to parse as a date.
 
    .. code-block:: javascript
@@ -401,7 +401,7 @@ Preference Filters
 ^^^^^^^^^^^^^^^^^^
 .. js:function:: preferenceValue(prefKey, defaultValue)
 
-   :param string prefKey:
+   :param prefKey:
       Full dotted-path name of the preference to read.
    :param defaultValue:
       The value to return if the preference does not have a value. Defaults to
@@ -416,7 +416,7 @@ Preference Filters
 
 .. js:function:: preferenceIsUserSet(prefKey)
 
-   :param string prefKey:
+   :param prefKey:
       Full dotted-path name of the preference to read.
    :returns:
       ``true`` if the preference has a value that is different than its default
@@ -429,7 +429,7 @@ Preference Filters
 
 .. js:function:: preferenceExists(prefKey)
 
-   :param string prefKey:
+   :param prefKey:
       Full dotted-path name of the preference to read.
    :returns:
       ``true`` if the preference has *any* value (whether it is the default
