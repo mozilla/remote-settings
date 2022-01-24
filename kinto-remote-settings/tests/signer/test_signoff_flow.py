@@ -1520,8 +1520,8 @@ class PerBucketTest(SignoffWebTest, unittest.TestCase):
         assert args[0].startswith("http://localhost:8000")  # global.
         assert kwargs["auth"].credentials["id"] == "for-specific"
         assert (
-            kwargs["auth"].credentials["key"].startswith("fs5w")
-        )  # global in signer.ini
+            kwargs["auth"].credentials["key"].startswith("mocked-in-tests")
+        )  # global in config.ini
 
 
 class GroupCreationTest(PostgresWebTest, unittest.TestCase):

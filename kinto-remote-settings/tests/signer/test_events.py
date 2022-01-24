@@ -29,9 +29,7 @@ class ResourceEventsTest(BaseWebTest, unittest.TestCase):
         settings["kinto.signer.signer_backend"] = (
             "kinto_remote_settings.signer.backends." "local_ecdsa"
         )
-        settings["signer.ecdsa.private_key"] = os.path.join(
-            here, "config", "ecdsa.private.pem"
-        )
+        settings["signer.ecdsa.private_key"] = os.path.join(here, "ecdsa.private.pem")
 
         settings["event_listeners"] = "ks"
         settings[
@@ -355,9 +353,7 @@ class SignoffEventsTest(BaseWebTest, unittest.TestCase):
         settings["kinto.signer.signer_backend"] = (
             "kinto_remote_settings.signer.backends." "local_ecdsa"
         )
-        settings["signer.ecdsa.private_key"] = os.path.join(
-            here, "config", "ecdsa.private.pem"
-        )
+        settings["signer.ecdsa.private_key"] = os.path.join(here, "ecdsa.private.pem")
         return settings
 
     @classmethod

@@ -65,6 +65,20 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                     "reviewers_group": "stage-{collection_id}-reviewers",
                 },
                 {
+                    "destination": {"bucket": "main", "collection": None},
+                    "preview": {"bucket": "main-preview", "collection": None},
+                    "reviewers_group": "main-workspace-{collection_id}-reviewers",
+                    "source": {"bucket": "main-workspace", "collection": None},
+                },
+                {
+                    "destination": {"bucket": "security-state", "collection": "onecrl"},
+                    "reviewers_group": "security-state-workspace-onecrl-reviewers",
+                    "source": {
+                        "bucket": "security-state-workspace",
+                        "collection": "onecrl",
+                    },
+                },
+                {
                     "source": {"bucket": "stage", "collection": "normandy"},
                     "preview": {"bucket": "preview", "collection": "normandy"},
                     "destination": {"bucket": "prod", "collection": "normandy"},

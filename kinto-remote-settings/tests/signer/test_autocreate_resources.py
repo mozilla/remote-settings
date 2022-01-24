@@ -4,7 +4,15 @@ from .support import BaseWebTest
 
 
 class AutocreateTest(BaseWebTest, unittest.TestCase):
-    config = "config/autocreate.ini"
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["signer.auto_create_resources"] = True
+        settings["signer.auto_create_resources_principals"] = (
+            "account:admin",
+            "system.Authenticated",
+        )
+        return settings
 
     def test_resources_were_created(self):
         write_perms = sorted(["system.Authenticated", "account:admin"])

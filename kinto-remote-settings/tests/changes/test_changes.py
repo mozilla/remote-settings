@@ -55,9 +55,15 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
     def test_only_collections_specified_in_settings_are_monitored(self):
         resp = self.app.get(self.changes_uri, headers=self.headers)
         change_record = resp.json["data"][0]
-        records_uri = "/buckets/default/collections/certificates/records"
-
-        self.app.post_json(records_uri, SAMPLE_RECORD, headers=self.headers)
+        self.app.put_json("/buckets/other", headers=self.headers)
+        self.app.put_json(
+            "/buckets/other/collections/not-monitored", headers=self.headers
+        )
+        self.app.post_json(
+            "/buckets/other/collections/not-monitored/records",
+            SAMPLE_RECORD,
+            headers=self.headers,
+        )
 
         resp = self.app.get(self.changes_uri, headers=self.headers)
         after = resp.json["data"][0]
