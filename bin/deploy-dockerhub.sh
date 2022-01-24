@@ -30,7 +30,7 @@ docker images
 if [ -n "$1" ]; then
     TAG="$1"
     echo "Tag and push ${DOCKERHUB_REPO}:${TAG} to Dockerhub"
-    docker tag kinto:build "$DOCKERHUB_REPO:$TAG" ||
+    docker tag remotesettings:build "$DOCKERHUB_REPO:$TAG" ||
         (echo "Couldn't tag remote-settings as $DOCKERHUB_REPO:$TAG" && false)
     retry 3 docker push "$DOCKERHUB_REPO:$TAG" ||
         (echo "Couldn't push $DOCKERHUB_REPO:$TAG" && false)
