@@ -13,16 +13,17 @@ https://remote-settings.readthedocs.io
 Content
 -------
 
-*
+This *Remote Settings* repository contains the following:
 
-This repository contains:
-
-1. A set requirements file that combines all packages needed to run a Remote Settings
-   server with a known good set of dependencies.
-2. Source code for the Kinto plugin specific to Remote Settings.
-   This is contained in the ``kinto-remote-settings`` package.
-3. An example configuration file to run it.
-4. Remote Settings documentation
+* ``bin/``: container entry point and script(s)
+* ``config/``: example configuration file(s)
+* ``docs/``: documentation source files
+* ``kinto-remote-settings /``: Kinto plugin specific to Remote Settings (contains code of former ``kinto-changes`` and ``kinto-signer`` plugins)
+* ``tests/``: browser and integration tests
+* ``pyproject.toml``: formatting and tests configuration
+* ``requirements.in``: Python packages for the service (source of truth for ``requirements.txt``)
+* ``requirements-dev.txt``: Python packages for local development and tests
+* ``VERSION``: main version number
 
 **The most important function of this repository is to build a Docker image
 with a set of known working dependencies and then ship that to DockerHub.**
