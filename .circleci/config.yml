@@ -139,10 +139,10 @@ jobs:
       - image: cimg/python:3.9
     steps:
       - checkout
+      - restore_cache: *restore_deps_cache
       - run:
           name: Check documentation build
           command: make docs
-      - restore_cache: *restore_deps_cache
       - save_cache: *save_deps_cache
 
 
