@@ -20,7 +20,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 class BaseWebTest(CoreWebTest):
     api_prefix = "v1"
     entry_point = kinto_main
-    config = "config/signer.ini"
+    config = "config.ini"
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
