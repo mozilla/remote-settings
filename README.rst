@@ -18,7 +18,7 @@ This *Remote Settings* repository contains the following:
 * ``bin/``: container entry point and script(s)
 * ``config/``: example configuration file(s)
 * ``docs/``: documentation source files
-* ``kinto-remote-settings /``: Kinto plugin specific to Remote Settings (contains code of former ``kinto-changes`` and ``kinto-signer`` plugins)
+* ``kinto-remote-settings/``: Kinto plugin specific to Remote Settings (contains code of former ``kinto-changes`` and ``kinto-signer`` plugins)
 * ``tests/``: browser and integration tests
 * ``pyproject.toml``: formatting and tests configuration
 * ``requirements.in``: Python packages for the service (source of truth for ``requirements.txt``)
