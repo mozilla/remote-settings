@@ -2,7 +2,7 @@
 
 # This name comes from the docker-compose yml file that defines a name
 # for the "web" container's image.
-FROM kinto:build
+FROM remotesettings:build
 
 WORKDIR /app
 

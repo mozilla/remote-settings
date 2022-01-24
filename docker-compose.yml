@@ -40,7 +40,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: kinto:build
+    image: remotesettings:build
     depends_on:
       - db
       - memcached

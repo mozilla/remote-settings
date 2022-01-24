@@ -40,7 +40,8 @@ integration-test:
 	docker-compose run tests
 
 build:
-	./bin/build-images.sh
+	docker build . -t remotesettings:build
+	docker build . --file Dockerfile.Testing -t remotesettings:tests
 	docker-compose build
 
 build-db:
