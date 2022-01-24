@@ -1,5 +1,7 @@
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 INSTALL_STAMP := $(VENV)/.install.stamp
+DOC_STAMP := $(VENV)/.doc.install.stamp
+SPHINX_BUILDDIR = docs/_build
 PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
 
 clean:
@@ -60,3 +62,14 @@ stop:
 
 down:
 	docker-compose down
+
+install-docs: $(DOC_STAMP)
+$(DOC_STAMP): $(VENV)/bin/python docs/requirements.txt
+	$(VENV)/bin/pip install -Ur docs/requirements.txt
+	touch $(DOC_STAMP)
+
+docs: install-docs
+	$(VENV)/bin/sphinx-build -a -W -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"
+

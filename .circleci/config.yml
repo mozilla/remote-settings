@@ -134,12 +134,24 @@ jobs:
           name: Check linting and formatting
           command: make lint
       - save_cache: *save_deps_cache
+  docs_test:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - restore_cache: *restore_deps_cache
+      - run:
+          name: Check documentation build
+          command: make docs
+      - save_cache: *save_deps_cache
+
 
 workflows:
   version: 2
   main:
     jobs:
       - lint_format
+      - docs_test
       - integration_test:
           requires:
             - lint_format
@@ -148,6 +160,7 @@ workflows:
             - lint_format
       - build_and_publish:
           requires:
+            - docs_test
             - unit_test
             - integration_test
           filters:
