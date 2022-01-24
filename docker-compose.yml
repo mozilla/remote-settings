@@ -15,10 +15,18 @@ services:
     image: memcached:1
 
   autograph:
-    # Autograph is stuck at 2.7.0 because of mozilla-services/autograph#344
-    image: mozilla/autograph:2.7.0
+    image: mozilla/autograph
     volumes:
-      - ${PWD}/autograph/autograph.yaml:/app/autograph.yaml
+      - $PWD/autograph-certs:/tmp/autograph
+
+  certchains:
+    image: httpd:2
+    volumes:
+      - $PWD/autograph-certs:/usr/local/apache2/htdocs/
+    depends_on:
+      - autograph
+    ports:
+      - 9999:80
 
   selenium:
     image: selenium/standalone-firefox
@@ -32,7 +40,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: kinto:build
+    image: remotesettings:build
     depends_on:
       - db
       - memcached
@@ -52,11 +60,12 @@ services:
   tests:
     build:
       context: .
-      dockerfile: Testing.Dockerfile
+      dockerfile: Dockerfile.Testing
     image: kinto:tests
     depends_on:
       - web
       - selenium
+      - certchains
     environment:
       - SERVER=http://web:8888/v1
       - SELENIUM_HOST=selenium

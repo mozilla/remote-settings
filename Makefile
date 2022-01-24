@@ -35,11 +35,13 @@ test: $(INSTALL_STAMP)
 	PYTHONPATH=. $(VENV)/bin/pytest kinto-remote-settings
 
 integration-test:
+	mkdir -p --mode=777 autograph-certs mail
 	docker-compose run web migrate
 	docker-compose run tests
 
 build:
-	./bin/build-images.sh
+	docker build . -t remotesettings:build
+	docker build . --file Dockerfile.Testing -t remotesettings:tests
 	docker-compose build
 
 build-db:

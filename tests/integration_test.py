@@ -3,11 +3,12 @@ import random
 from string import hexdigits
 from typing import Dict, List
 
+import aiohttp
 import pytest
 import requests
+from autograph_utils import MemoryCache, SignatureVerifier
 from kinto_http import AsyncClient, KintoException
 from kinto_http.patch_type import JSONPatch
-from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
 from kinto_remote_settings.signer.serializer import canonical_json
 
 from .conftest import Auth, ClientFactory
@@ -271,7 +272,7 @@ async def test_signer_plugin_full_workflow(
         await reviewer_client.patch_collection(data={"status": "to-sign"})
         timestamp = await dest_client.get_records_timestamp()
         signature = (await dest_client.get_collection())["data"]["signature"]
-        verify_signature([], timestamp, signature)
+        await verify_signature([], timestamp, signature)
 
     # 1. upload data
     records = await upload_records(client, 20)
@@ -291,7 +292,7 @@ async def test_signer_plugin_full_workflow(
     assert preview_signature, "Preview collection not signed"
     preview_timestamp = await preview_client.get_records_timestamp()
     # Verify the preview collection
-    verify_signature(preview_records, preview_timestamp, preview_signature)
+    await verify_signature(preview_records, preview_timestamp, preview_signature)
 
     # 2.3 approve the review
     data = {"status": "to-sign"}
@@ -339,7 +340,7 @@ async def test_signer_plugin_full_workflow(
     signature = (await dest_client.get_collection())["data"]["signature"]
 
     try:
-        verify_signature(records, timestamp, signature)
+        await verify_signature(records, timestamp, signature)
     except Exception:
         print("Signature KO")
         raise
@@ -443,13 +444,18 @@ async def test_signer_plugin_reviewer_verifications(
     await client.patch_collection(data={"status": "to-sign"})
 
 
-def verify_signature(records, timestamp, signature):
-    serialized = canonical_json(records, timestamp)
-    with open("pub", "w") as f:
-        f.write(signature["public_key"])
+class FakeRootHash:
+    def __eq__(self, val):
+        return True
 
-    signer = ECDSASigner(public_key="pub")
-    signer.verify(serialized, signature)
+
+async def verify_signature(records, timestamp, signature):
+    x5u = signature["x5u"].replace("file:///tmp/autograph/", "http://certchains/")
+    serialized = canonical_json(records, timestamp).encode("utf-8")
+
+    async with aiohttp.ClientSession() as session:
+        verifier = SignatureVerifier(session, MemoryCache(), FakeRootHash())
+        await verifier.verify(serialized, signature["signature"], x5u)
 
 
 async def test_changes_plugin(make_client: ClientFactory, auth: Auth):

@@ -1,3 +1,5 @@
+aiohttp
+autograph-utils
 black
 flake8
 httpie
