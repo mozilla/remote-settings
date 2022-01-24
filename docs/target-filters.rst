@@ -491,7 +491,7 @@ Advanced: Testing Filter Expressions in the Browser Console
         (
           async function () {
             await client.db.clear();
-            await client.db.saveLastModified(42);
+            await client.db.importChanges({}, 42);
 
             const record = await client.db.create({
               id: "68b19efa-1067-401b-b1c1-8d7b4263bb86",  // random uuidgen
