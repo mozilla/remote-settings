@@ -36,7 +36,7 @@ Pull the Docker container:
 
 .. code-block:: bash
 
-    docker pull mozilla/kinto-dist
+    docker pull mozilla/remote-settings
 
 Create a configuration file ``server.ini`` with the following content:
 
@@ -142,7 +142,7 @@ Now, we will run the container with the local configuration file and attachments
                -v `pwd`/attachments:/tmp/attachments \
                -e KINTO_INI=/etc/kinto.ini \
                -p 8888:8888 \
-               mozilla/kinto-dist
+               mozilla/remote-settings
 
 Your local instance should now be running at http://localhost:8888/v1 and the Admin UI available at http://localhost:8888/v1/admin/
 
@@ -211,7 +211,7 @@ And run the Remote Settings server with a link to ``autograph-server`` container
                --link autograph-server:autograph-server \
                -e KINTO_INI=/etc/kinto.ini \
                -p 8888:8888 \
-               mozilla/kinto-dist
+               mozilla/remote-settings
 
 Both containers should be connected, and the heartbeat endpoint should only return positive checks:
 

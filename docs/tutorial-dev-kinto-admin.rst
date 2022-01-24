@@ -152,7 +152,7 @@ The process for a patch to reach Remote Settings is the following:
 * Release a new version of `kinto-admin on NPM <https://www.npmjs.com/package/kinto-admin>`_
 * Upgrade the kinto-admin plugin in Kinto (`example PR <https://github.com/Kinto/kinto/pull/2255>`_)
 * Release a new version of Kinto
-* Upgrade Kinto in `kinto-dist <https://github.com/mozilla-services/kinto-dist/>`_
-* Release a new version of kinto-dist
-* STAGE is deployed automatically when a new tag of kinto-dist is published
+* Upgrade Kinto in `Remote Settings <https://github.com/mozilla/remote-settings/>`_
+* Release a new version of Remote Settings
+* DEV and STAGE are deployed automatically when a new tag is published
 * Request a deployment in PROD on Bugzilla (`example <https://bugzilla.mozilla.org/show_bug.cgi?id=1570037>`_)

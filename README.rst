@@ -1,17 +1,28 @@
-Kinto Distribution
-==================
+Remote Settings
+===============
 
-.. image:: https://circleci.com/gh/mozilla-services/kinto-dist/tree/main.svg?style=svg
-   :target: https://circleci.com/gh/mozilla-services/kinto-dist
+Remote Settings is a Mozilla service that makes it easy to manage evergreen settings data in Firefox. A simple API is available in Firefox for accessing the synchronized data.
 
-This repository contains:
+https://remote-settings.readthedocs.io
+--------------------------------------
 
-1. A set requirements file that combines all packages needed to run a Remote Settings
-   server with a known good set of dependencies.
-2. Source code for the Kinto plugin specific to Remote Settings.
-   This is contained in the ``kinto-remote-settings`` package.
-3. An example configuration file to run it.
-4. Remote Settings documentation
+.. image:: https://circleci.com/gh/mozilla/remote-settings/tree/main.svg?style=svg
+   :target: https://circleci.com/gh/mozilla/remote-settings
+
+
+Content
+-------
+
+This *Remote Settings* repository contains the following:
+
+* ``bin/``: container entry point and script(s)
+* ``config/``: example configuration file(s)
+* ``docs/``: documentation source files
+* ``kinto-remote-settings/``: Kinto plugin specific to Remote Settings
+* ``tests/``: browser and integration tests
+* ``requirements.in``: Python packages for the service (source of truth for ``requirements.txt``)
+* ``requirements-dev.txt``: Python packages for local development and tests
+* ``VERSION``: SemVer version number that serves as both the version of the service and the ``kinto-remote-settings`` plugin
 
 **The most important function of this repository is to build a Docker image
 with a set of known working dependencies and then ship that to DockerHub.**
@@ -174,7 +185,7 @@ First:
     git checkout -b start-X.Y.Z
     git push
 
-- Draft a release on Github: https://github.com/mozilla-services/kinto-dist/releases
+- Draft a release on Github: https://github.com/mozilla/remote-settings/releases
   For release notes, just use the CHANGELOG entry for the release, but change all
   the ReST-style section headings to Markdown-style ``##`` headings.
 
