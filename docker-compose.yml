@@ -23,6 +23,8 @@ services:
     image: httpd:2
     volumes:
       - $PWD/autograph-certs:/usr/local/apache2/htdocs/
+    depends_on:
+      - autograph
     ports:
       - 9999:80
 
