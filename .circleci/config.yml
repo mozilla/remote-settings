@@ -160,6 +160,7 @@ workflows:
             - lint_format
       - build_and_publish:
           requires:
+            - docs_test
             - unit_test
             - integration_test
           filters:
