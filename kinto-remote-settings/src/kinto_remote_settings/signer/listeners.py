@@ -308,7 +308,7 @@ def check_collection_status(
 
         # 2. work-in-progress -> to-review
         elif new_status == STATUS.TO_REVIEW:
-            if editors_group_uri not in user_principals:
+            if editors_group_uri not in user_principals and _to_review_enabled:
                 raise_forbidden(message="Not in %s group" % _editors_group)
 
         # 3. to-review -> work-in-progress
@@ -320,7 +320,7 @@ def check_collection_status(
                 raise_invalid(message="Collection already signed")
 
             # Only allow to-sign from to-review if reviewer and no-editor
-            if reviewers_group_uri not in user_principals:
+            if reviewers_group_uri not in user_principals and _to_review_enabled:
                 raise_forbidden(message="Not in %s group" % _reviewers_group)
 
             if old_status != STATUS.TO_REVIEW and _to_review_enabled:

@@ -873,6 +873,7 @@ class UserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
+        settings["signer.to_review_enabled"] = "true"
         return settings
 
     def setUp(self):
@@ -964,6 +965,8 @@ class SpecificUserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestC
             cls.source_collection2,
             cls.source_collection2.replace("alice", "destination"),
         )
+
+        settings["signer.to_review_enabled"] = "true"
 
         settings["signer.alice.cid1.editors_group"] = "editeurs"
         settings["signer.alice.cid1.reviewers_group"] = "revoyeurs"
