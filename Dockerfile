@@ -56,6 +56,9 @@ RUN chown 10001:10001 /app && \
 COPY . .
 RUN pip install ./kinto-remote-settings
 
+# Generate local key pair to simplify running without Autograph out of the box (see `config/testing.ini`)
+RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.pem /app/ecdsa.public.pem
+
 # Drop down to unprivileged user
 RUN chown -R 10001:10001 /app
 
