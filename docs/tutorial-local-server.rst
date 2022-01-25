@@ -26,8 +26,8 @@ There are several ways to run a local instance of Kinto, the underlying software
 We will use Docker for the sake of simplicity, but you may find more convenient to `install the Python package for example <http://kinto.readthedocs.io/en/stable/tutorials/install.html#using-the-python-package>`_.
 
 
-Quick start
------------
+Simple Mode (testing)
+---------------------
 
 We will run a local container with the minimal configuration. It should be enough to hack on your Remote Settings integration in the plane.
 However if your goal is to setup a local server that has the same signoff features as STAGE and PROD, you can continue into the configuration of the next section.
