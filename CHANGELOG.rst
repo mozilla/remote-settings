@@ -24,6 +24,7 @@ the version control of each dependency.
   This is useful for testing or when using disposable containers.
 - Read settings from environment variables (eg. ``KINTO_SIGNER_RESOURCES="..."``)
 - Default value for ``kinto.signer.resources`` is now ``/buckets/main-workspace -> /buckets/main-preview -> /buckets/main``
+- Now ship default configuration files to run a local instance of Remote Settings out of the box (see the *Setup a Local Server* tutorial)
 
 **Bug Fixes**
 
