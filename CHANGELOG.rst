@@ -14,6 +14,8 @@ the version control of each dependency.
   The Kinto Remote Settings plugin is now an installable package.
   This doesn't have many ramifications other than how we build the ``kinto-dist``
   container. Instead of adding the source code to the ``PYTHONPATH``, we ``pip install`` it.
+- Group names for editors and reviewers are now always ``{collection_id}-editors`` and
+  ``{collection_id}-reviewers`` (fixes #149)
 
 **New Features**
 

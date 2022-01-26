@@ -80,12 +80,12 @@ class SignoffWebTest(PostgresWebTest):
 
         # Editors and reviewers group
         self.app.put_json(
-            self.source_bucket + "/groups/editors",
+            self.source_bucket + "/groups/scid-editors",
             {"data": {"members": [self.userid, self.other_userid]}},
             headers=self.headers,
         )
         self.app.put_json(
-            self.source_bucket + "/groups/reviewers",
+            self.source_bucket + "/groups/scid-reviewers",
             {"data": {"members": [self.userid, self.other_userid]}},
             headers=self.headers,
         )
@@ -890,13 +890,13 @@ class UserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCase):
         self.reviewer = resp.json["user"]["id"]
 
         self.app.put_json(
-            "/buckets/alice/groups/editors",
+            "/buckets/alice/groups/scid-editors",
             {"data": {"members": [self.editor]}},
             headers=self.headers,
         )
 
         self.app.put_json(
-            "/buckets/alice/groups/reviewers",
+            "/buckets/alice/groups/scid-reviewers",
             {"data": {"members": [self.reviewer]}},
             headers=self.headers,
         )
@@ -913,7 +913,7 @@ class UserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCase):
             code=403,
             errno=ERRORS.FORBIDDEN,
             error="Forbidden",
-            message="Not in editors group",
+            message="Not in scid-editors group",
         )
 
         self.app.patch_json(
@@ -940,101 +940,13 @@ class UserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCase):
             code=403,
             errno=ERRORS.FORBIDDEN,
             error="Forbidden",
-            message="Not in reviewers group",
+            message="Not in scid-reviewers group",
         )
 
         self.app.patch_json(
             self.source_collection,
             {"data": {"status": "to-sign"}},
             headers=self.reviewer_headers,
-        )
-
-
-class SpecificUserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCase):
-    @classmethod
-    def get_app_settings(cls, extras=None):
-        settings = super().get_app_settings(extras)
-
-        cls.source_collection1 = "/buckets/alice/collections/cid1"
-        cls.source_collection2 = "/buckets/alice/collections/cid2"
-
-        settings["kinto.signer.resources"] = "%s -> %s\n%s -> %s" % (
-            cls.source_collection1,
-            cls.source_collection1.replace("alice", "destination"),
-            cls.source_collection2,
-            cls.source_collection2.replace("alice", "destination"),
-        )
-
-        settings["signer.alice.cid1.editors_group"] = "editeurs"
-        settings["signer.alice.cid1.reviewers_group"] = "revoyeurs"
-        return settings
-
-    def setUp(self):
-        super(SpecificUserGroupsTest, self).setUp()
-
-        self.app.put_json(self.source_collection1, headers=self.headers)
-        self.app.put_json(self.source_collection2, headers=self.headers)
-
-        self.someone_headers = get_user_headers("sam:wan")
-
-        self.editor_headers = get_user_headers("emo:billier")
-        resp = self.app.get("/", headers=self.editor_headers)
-        self.editor = resp.json["user"]["id"]
-
-        self.app.put_json(
-            "/buckets/alice/groups/editeurs",
-            {"data": {"members": [self.editor]}},
-            headers=self.headers,
-        )
-
-    def test_editors_cannot_ask_to_review_if_not_specifically_configured(self):
-        resp = self.app.patch_json(
-            self.source_collection2,
-            {"data": {"status": "to-review"}},
-            headers=self.someone_headers,
-            status=403,
-        )
-        self.assertFormattedError(
-            response=resp,
-            code=403,
-            errno=ERRORS.FORBIDDEN,
-            error="Forbidden",
-            message="Not in editors group",
-        )
-
-    def test_only_specific_editors_can_ask_to_review(self):
-        resp = self.app.patch_json(
-            self.source_collection1,
-            {"data": {"status": "to-review"}},
-            headers=self.someone_headers,
-            status=403,
-        )
-        self.assertFormattedError(
-            response=resp,
-            code=403,
-            errno=ERRORS.FORBIDDEN,
-            error="Forbidden",
-            message="Not in editeurs group",
-        )
-
-    def test_only_reviewers_can_ask_to_sign(self):
-        self.app.patch_json(
-            self.source_collection1,
-            {"data": {"status": "to-review"}},
-            headers=self.editor_headers,
-        )
-        resp = self.app.patch_json(
-            self.source_collection1,
-            {"data": {"status": "to-sign"}},
-            headers=self.editor_headers,
-            status=403,
-        )
-        self.assertFormattedError(
-            response=resp,
-            code=403,
-            errno=ERRORS.FORBIDDEN,
-            error="Forbidden",
-            message="Not in revoyeurs group",
         )
 
 
@@ -1297,6 +1209,11 @@ class NoReviewTest(SignoffWebTest, unittest.TestCase):
         )
         self.app.put(self.source_bucket + "/collections/onecrl", headers=self.headers)
         self.app.put(self.source_collection, headers=self.headers)
+        self.app.put_json(
+            self.source_bucket + "/groups/normandy-reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
 
     def test_the_preview_collection_is_created_when_review_enabled(self):
         self.app.get(self.preview_bucket + "/collections/onecrl", headers=self.headers)
@@ -1389,6 +1306,11 @@ class NoPreviewTest(SignoffWebTest, unittest.TestCase):
         self.app.put(self.preview_bucket, headers=self.headers)
         self.app.put(self.source_bucket + "/collections/onecrl", headers=self.headers)
         self.app.put_json(self.source_collection, headers=self.headers)
+        self.app.put_json(
+            self.source_bucket + "/groups/normandy-reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
 
     def test_the_preview_collection_is_not_created_when_review_enabled(self):
         self.app.get(
@@ -1480,6 +1402,14 @@ class PerBucketTest(SignoffWebTest, unittest.TestCase):
         settings["signer.stage.specific.autograph.hawk_id"] = "for-specific"
         return settings
 
+    def setUp(self):
+        super(PerBucketTest, self).setUp()
+        self.app.put_json(
+            self.source_bucket + "/groups/specific-reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
+
     def test_destination_and_preview_collections_are_created_and_signed(self):
         col_uri = "/collections/pim"
         self.app.put(self.source_bucket + col_uri, headers=self.headers)
@@ -1535,13 +1465,11 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
 
         settings["signer.to_review_enabled"] = "true"
 
-        settings["kinto.signer.editors_group"] = "best-editors"
-        settings["kinto.signer.reviewers_group"] = "{collection_id}-reviewers"
         settings["kinto.signer.resources"] = ";".join(
             [cls.source_bucket, cls.preview_bucket, cls.destination_bucket]
         )
 
-        cls.editors_group = cls.source_bucket + "/groups/best-editors"
+        cls.editors_group = cls.source_bucket + "/groups/good-editors"
         cls.reviewers_group = cls.source_bucket + "/groups/good-reviewers"
         cls.source_collection = cls.source_bucket + "/collections/good"
 
@@ -1599,7 +1527,7 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
         args, kwargs = mocked.call_args_list[0]
         _, fakerequest = args
         assert fakerequest["method"] == "PUT"
-        assert fakerequest["path"] == "/buckets/stage/groups/best-editors"
+        assert fakerequest["path"] == "/buckets/stage/groups/good-editors"
         assert kwargs["resource_name"] == "group"
 
     def test_groups_permissions_include_current_user_only(self):

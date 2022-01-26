@@ -44,7 +44,7 @@ class SignerAttachmentsTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(self.source_bucket, headers=self.headers)
         self.app.put_json(self.source_collection, headers=self.headers)
         self.app.put_json(
-            self.source_bucket + "/groups/reviewers",
+            self.source_bucket + "/groups/scid-reviewers",
             {"data": {"members": [self.other_userid]}},
             headers=self.headers,
         )
