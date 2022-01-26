@@ -328,7 +328,9 @@ def check_collection_status(
                     raise_invalid(message="Collection not under review")
 
                 field_last_requester = TRACKING_FIELDS.LAST_REVIEW_REQUEST_BY.value
-                is_same_editor = old_collection.get(field_last_requester) == current_user_id
+                is_same_editor = (
+                    old_collection.get(field_last_requester) == current_user_id
+                )
                 if is_same_editor:
                     raise_forbidden(message="Last editor cannot review")
 
