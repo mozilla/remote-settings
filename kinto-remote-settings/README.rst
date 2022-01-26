@@ -227,8 +227,8 @@ makes sure that:
 
 * the collection is reviewed before being signed
 * the user asking for review is the not the one approving the review
-* the user asking for review belongs to a group ``editors`` and
-  the one approving the review belongs to ``reviewers``.
+* the user asking for review belongs to a group ``{collection_id}-editors`` and
+  the one approving the review belongs to ``{collection_id}-reviewers``.
 
 +----------------------------------+---------------+--------------------------------------------------------------------------+
 | Setting name                     | Default       | What does it do?                                                         |
@@ -236,19 +236,11 @@ makes sure that:
 | kinto.signer.to_review_enabled   | ``false``     | If ``true``, the collection ``status`` must be set to ``to-review`` by a |
 |                                  |               | different user before being set to ``to-sign``.                          |
 +----------------------------------+---------------+--------------------------------------------------------------------------+
-| kinto.signer.editors_group       | ``editors``   | The group id that is required for changing status to ``to-review``       |
-+----------------------------------+---------------+--------------------------------------------------------------------------+
-| kinto.signer.reviewers_group     | ``reviewers`` | The group id that is required for changing status to ``to-sign``         |
-+----------------------------------+---------------+--------------------------------------------------------------------------+
 
 .. warning::
 
-    The ``editors`` and ``reviewers`` groups are defined in the **source bucket**
-    (e.g. ``/buckets/staging/groups/editors``).
-
-    The ``editors`` and ``reviewers`` groups can have placeholders that are resolved
-    with the source **source bucket/collection**
-    (e.g. ``group:/buckets/{bucket_id}/groups/{collection_id}-reviewers``).
+    The ``{collection_id}-editors`` and ``{collection_id}-reviewers`` groups are defined in the **source bucket**
+    (e.g. ``/buckets/staging/groups/onecrl-editors``).
 
 See `Kinto groups API <http://kinto.readthedocs.io/en/stable/api/1.x/groups.html>`_ for more details about how to define groups.
 
@@ -259,7 +251,6 @@ For example:
 
     kinto.signer.staging.to_review_enabled = true
     kinto.signer.staging.certificates.to_review_enabled = false
-    kinto.signer.staging.certificates.reviewers_group = certificates-reviewers
 
 If the review process is enabled, it is possible to configure a *preview*
 collection, that will be updated and signed when the status is set to ``to-review``.
