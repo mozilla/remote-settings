@@ -1,8 +1,8 @@
+import os
 import unittest
 import uuid
 from unittest import mock
 
-import pytest
 from kinto import main as kinto_main
 from kinto.core.events import ResourceChanged
 from kinto_remote_settings import __version__
@@ -10,7 +10,6 @@ from kinto_remote_settings.signer import includeme, utils
 from kinto_remote_settings.signer.backends.autograph import AutographSigner
 from kinto_remote_settings.signer.listeners import sign_collection_data
 from pyramid import testing
-from pyramid.exceptions import ConfigurationError
 from requests import exceptions as requests_exceptions
 
 from .support import BaseWebTest, get_user_headers
@@ -110,12 +109,6 @@ class IncludeMeTest(unittest.TestCase):
         kinto_main(None, config=config)
         includeme(config)
         return config
-
-    def test_includeme_raises_value_error_if_no_resource_defined(self):
-        with pytest.raises(ConfigurationError):
-            self.includeme(
-                settings={"signer.ecdsa.private_key": "", "signer.ecdsa.public_key": ""}
-            )
 
     def test_defines_a_signer_per_bucket(self):
         settings = {
@@ -232,6 +225,32 @@ class IncludeMeTest(unittest.TestCase):
             config.registry.notify(event)
             timers = set(c[0][0] for c in mocked.call_args_list)
             assert "plugins.signer" in timers
+
+
+class ConfigFromEnvironment(BaseWebTest, unittest.TestCase):
+    def test_settings_are_read_from_environment_variables(self):
+        with mock.patch.dict(
+            os.environ,
+            {
+                "KINTO_SIGNER_RESOURCES": "/buckets/ready -> /buckets/steady -> /buckets/go",
+                "KINTO_SIGNER_READY_TO_REVIEW_ENABLED": "true",
+            },
+        ):
+            app = self.make_app()
+
+        resp = app.get("/")
+        signer_caps = resp.json["capabilities"]["signer"]
+
+        assert not signer_caps["to_review_enabled"]
+        assert signer_caps["resources"][0] == {
+            "to_review_enabled": True,
+            "source": {
+                "bucket": "ready",
+                "collection": None,
+            },
+            "preview": {"bucket": "steady", "collection": None},
+            "destination": {"bucket": "go", "collection": None},
+        }
 
 
 class OnCollectionChangedTest(unittest.TestCase):

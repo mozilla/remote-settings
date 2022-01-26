@@ -106,6 +106,7 @@ class ECDSASignerTest(unittest.TestCase):
     def test_load_from_settings(self, mocked_signer):
         local_ecdsa.load_from_settings(
             {
+                "settings_prefix": "kinto",
                 "signer.ecdsa.private_key": mock.sentinel.private_key,
                 "signer.ecdsa.public_key": mock.sentinel.public_key,
             },
@@ -118,7 +119,7 @@ class ECDSASignerTest(unittest.TestCase):
 
     def test_load_from_settings_fails_if_no_public_or_private_key(self):
         with pytest.raises(ValueError) as excinfo:
-            local_ecdsa.load_from_settings({}, "")
+            local_ecdsa.load_from_settings({"settings_prefix": "kinto"}, "")
         msg = (
             "Please specify either kinto.signer.ecdsa.private_key or "
             "kinto.signer.ecdsa.public_key in the settings."
@@ -151,6 +152,7 @@ class AutographSignerTest(unittest.TestCase):
     def test_load_from_settings(self, mocked_signer):
         autograph.load_from_settings(
             {
+                "settings_prefix": "kinto",
                 "signer.autograph.server_url": mock.sentinel.server_url,
                 "signer.autograph.hawk_id": mock.sentinel.hawk_id,
                 "signer.autograph.hawk_secret": mock.sentinel.hawk_secret,
