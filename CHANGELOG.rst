@@ -24,6 +24,7 @@ the version control of each dependency.
 **Bug Fixes**
 
 - Add missing ``Last-Modified`` response header in ``/changeset`` responses
+- Don't check groups when review is disabled (#157)
 
 
 27.0.1 (2022-01-13)
