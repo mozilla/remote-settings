@@ -151,9 +151,17 @@ def parse_resources(raw_resources):
 
 
 def get_first_matching_setting(setting_name, settings, prefixes, default=None):
+    """Helper to look up the `setting_name` key in the provided `settings`, with
+    different `prefixes`. The first encountered value is returned, and if none
+    is found, `default` is returned.
+    """
     for prefix in prefixes:
         prefixed_setting_name = prefix + setting_name
 
+        # Prefix `setting_name` with global «settings prefix» to lookup env vars.
+        # It is forced to `kinto.` in Kinto main(), and allows to read
+        # `signer.resources` from the `KINTO_SIGNER_RESOURCES` env var.
+        # https://github.com/Kinto/kinto/blob/9c322f2adc/kinto/__init__.py#L48-L49
         full_prefixed_setting = (
             settings["settings_prefix"] + f".{prefixed_setting_name}"
         )
