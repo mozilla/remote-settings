@@ -22,6 +22,8 @@ the version control of each dependency.
 - Added ability to automatically create the source buckets and collections defined in the
   ``kinto.signer.resources`` setting. Enable with ``kinto.signer.auto_create_resources = true``.
   This is useful for testing or when using disposable containers.
+- Read settings from environment variables (eg. ``KINTO_SIGNER_RESOURCES="..."``)
+- Default value for ``kinto.signer.resources`` is now ``/buckets/main-workspace -> /buckets/main-preview -> /buckets/main``
 
 **Bug Fixes**
 

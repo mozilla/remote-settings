@@ -146,7 +146,6 @@ References:
 Settings
 ========
 
-
 The main setting configures the list of buckets/collections where multi-signoff will be enabled:
 
 .. code-block:: ini
@@ -185,6 +184,13 @@ The main setting configures the list of buckets/collections where multi-signoff 
 | kinto.signer.auto_create_resources_principals | What principals should be given on resources created automatically,      |
 |                                               | comma separated (Default: ``system.Authenticated``)                      |
 +-----------------------------------------------+--------------------------------------------------------------------------+
+
+.. note::
+
+    Like for other Kinto settings, the signer settings can be read from environment variables. For example, the
+    ``kinto.signer.resources`` setting is read from ``KINTO_SIGNER_RESOURCES``, or ``kinto.signer.main-workspace.blocklist.ecdsa.public_key``
+    from ``KINTO_SIGNER_MAIN_WORKSPACE_BLOCKLIST_ECDSA_PUBLIC_KEY``.
+
 
 Configuration for the (default) ECDSA local signer
 --------------------------------------------------

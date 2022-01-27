@@ -12,7 +12,14 @@ from .events import ReviewApproved, ReviewRejected, ReviewRequested
 from .utils import storage_create_raw
 
 
-DEFAULT_SIGNER = "kinto_remote_settings.signer.backends.local_ecdsa"
+DEFAULT_SETTINGS = {
+    "allow_floats": False,
+    "auto_create_resources": False,
+    "auto_create_resources_principals": [Authenticated],
+    "resources": "/buckets/main-workspace -> /buckets/main-preview -> /buckets/main",
+    "signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
+    "to_review_enabled": False,
+}
 
 
 def on_review_approved(event):
@@ -34,7 +41,6 @@ def includeme(config):
     import transaction
     from kinto.core.events import ACTIONS, ResourceChanged
     from pyramid.events import NewRequest
-    from pyramid.exceptions import ConfigurationError
     from pyramid.settings import asbool
 
     from . import listeners, utils
@@ -43,14 +49,18 @@ def includeme(config):
     # Register heartbeat to check signer integration.
     config.registry.heartbeats["signer"] = heartbeat
 
+    # Load settings from KINTO_SIGNER_* environment variables.
     settings = config.get_settings()
+    for setting, default_value in DEFAULT_SETTINGS.items():
+        settings[f"signer.{setting}"] = utils.get_first_matching_setting(
+            setting_name=setting,
+            settings=settings,
+            prefixes=["signer."],
+            default=default_value,
+        )
 
     # Check source and destination resources are configured.
-    raw_resources = settings.get("signer.resources")
-    if raw_resources is None:
-        error_msg = "Please specify the kinto.signer.resources setting."
-        raise ConfigurationError(error_msg)
-    resources = utils.parse_resources(raw_resources)
+    resources = utils.parse_resources(settings["signer.resources"])
 
     # Expand the resources with the ones that come from per-bucket resources
     # and have specific settings.
@@ -86,7 +96,7 @@ def includeme(config):
     global_settings = {
         "editors_group": "{collection_id}-editors",
         "reviewers_group": "{collection_id}-reviewers",
-        "to_review_enabled": asbool(settings.get("signer.to_review_enabled", False)),
+        "to_review_enabled": asbool(settings["signer.to_review_enabled"]),
     }
 
     # For each resource that is configured, we determine what signer is
@@ -109,7 +119,10 @@ def includeme(config):
 
         # Instantiates the signers associated to this resource.
         dotted_location = utils.get_first_matching_setting(
-            "signer_backend", settings, prefixes, default=DEFAULT_SIGNER
+            "signer_backend",
+            settings,
+            prefixes,
+            default=DEFAULT_SETTINGS["signer_backend"],
         )
         signer_module = config.maybe_dotted(dotted_location)
         backend = signer_module.load_from_settings(settings, prefixes=prefixes)
@@ -203,7 +216,7 @@ def includeme(config):
         for_resources=("collection",),
     )
 
-    if not asbool(settings.get("signer.allow_floats", False)):
+    if not asbool(settings["signer.allow_floats"]):
         config.add_subscriber(
             functools.partial(listeners.prevent_float_value, resources=resources),
             ResourceChanged,
@@ -260,10 +273,8 @@ def includeme(config):
         storage = event.app.registry.storage
         permission = event.app.registry.permission
         write_principals = aslist(
-            event.app.registry.settings.get(
-                "signer.auto_create_resources_principals", []
-            )
-        ) or [Authenticated]
+            event.app.registry.settings["signer.auto_create_resources_principals"]
+        )
 
         for resource in resources.values():
             perms = {"write": write_principals}
@@ -294,7 +305,7 @@ def includeme(config):
                     permissions=perms,
                 )
 
-    if asbool(settings.get("signer.auto_create_resources", False)):
+    if asbool(settings["signer.auto_create_resources"]):
         config.add_subscriber(
             functools.partial(
                 auto_create_resources,
