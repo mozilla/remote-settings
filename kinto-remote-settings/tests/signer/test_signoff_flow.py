@@ -873,6 +873,7 @@ class UserGroupsTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
+        settings["signer.to_review_enabled"] = "true"
         return settings
 
     def setUp(self):

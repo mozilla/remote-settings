@@ -294,7 +294,7 @@ def check_collection_status(
 
         # 2. work-in-progress -> to-review
         elif new_status == STATUS.TO_REVIEW:
-            if editors_group_uri not in user_principals:
+            if editors_group_uri not in user_principals and _to_review_enabled:
                 raise_forbidden(message="Not in %s group" % _editors_group)
 
         # 3. to-review -> work-in-progress
@@ -305,17 +305,20 @@ def check_collection_status(
             if old_status == STATUS.SIGNED:
                 raise_invalid(message="Collection already signed")
 
-            # Only allow to-sign from to-review if reviewer and no-editor
-            if reviewers_group_uri not in user_principals:
-                raise_forbidden(message="Not in %s group" % _reviewers_group)
+            if _to_review_enabled:
+                # Only allow to-sign from to-review if reviewer and no-editor
+                if reviewers_group_uri not in user_principals:
+                    raise_forbidden(message="Not in %s group" % _reviewers_group)
 
-            if old_status != STATUS.TO_REVIEW and _to_review_enabled:
-                raise_invalid(message="Collection not under review")
+                if old_status != STATUS.TO_REVIEW:
+                    raise_invalid(message="Collection not under review")
 
-            field_last_requester = TRACKING_FIELDS.LAST_REVIEW_REQUEST_BY.value
-            is_same_editor = old_collection.get(field_last_requester) == current_user_id
-            if _to_review_enabled and is_same_editor:
-                raise_forbidden(message="Last editor cannot review")
+                field_last_requester = TRACKING_FIELDS.LAST_REVIEW_REQUEST_BY.value
+                is_same_editor = (
+                    old_collection.get(field_last_requester) == current_user_id
+                )
+                if is_same_editor:
+                    raise_forbidden(message="Last editor cannot review")
 
         # 4. to-sign -> signed
         elif new_status == STATUS.SIGNED:
