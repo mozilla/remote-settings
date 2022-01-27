@@ -44,7 +44,7 @@ class ResourceEventsTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get("/", headers=self.headers)
         self.userid = resp.json["user"]["id"]
         self.app.put_json(
-            "/buckets/alice/groups/reviewers",
+            "/buckets/alice/groups/scid-reviewers",
             {"data": {"members": [self.userid]}},
             headers=self.headers,
         )
@@ -384,7 +384,7 @@ class SignoffEventsTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get("/", headers=self.headers)
         self.userid = resp.json["user"]["id"]
         self.app.put_json(
-            "/buckets/alice/groups/reviewers",
+            "/buckets/alice/groups/scid-reviewers",
             {"data": {"members": [self.userid]}},
             headers=self.headers,
         )

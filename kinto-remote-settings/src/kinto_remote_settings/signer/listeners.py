@@ -13,13 +13,6 @@ from .updater import TRACKING_FIELDS, LocalUpdater
 from .utils import PLUGIN_USERID, STATUS, ensure_resource_exists
 
 
-REVIEW_SETTINGS = (
-    "reviewers_group",
-    "editors_group",
-    "to_review_enabled",
-)
-
-
 def raise_invalid(**kwargs):
     kwargs.update(errno=ERRORS.INVALID_POSTED_DATA)
     raise errors.http_error(httpexceptions.HTTPBadRequest(), **kwargs)
@@ -58,13 +51,6 @@ def pick_resource_and_signer(request, resources, bucket_id, collection_id):
         signer = request.registry.signers[bucket_key]
 
     return resource, signer
-
-
-def resource_group(resource, name, default):
-    group = resource.get(name, default)
-    # If review is configured per-bucket, the group patterns have to be replaced
-    # with the source collection id.
-    return group.format(collection_id=resource["source"]["collection"])
 
 
 def sign_collection_data(event, resources, **kwargs):
@@ -278,14 +264,12 @@ def check_collection_status(
         if resource is None:
             continue
 
-        # to-review and group checking.
+        # Is review enabled for this resource?
         _to_review_enabled = resource.get("to_review_enabled", to_review_enabled)
-        _editors_group = resource_group(
-            resource, "editors_group", default=editors_group
-        )
-        _reviewers_group = resource_group(
-            resource, "reviewers_group", default=reviewers_group
-        )
+        # Determine its related groups names.
+        source_collection = resource["source"]["collection"]
+        _editors_group = editors_group.format(collection_id=source_collection)
+        _reviewers_group = reviewers_group.format(collection_id=source_collection)
         # Member of groups have their URIs in their principals.
         editors_group_uri = instance_uri(
             event.request, "group", bucket_id=payload["bucket_id"], id=_editors_group
@@ -590,12 +574,9 @@ def create_editors_reviewers_groups(event, resources, editors_group, reviewers_g
         if resource is None:
             continue
 
-        _editors_group = resource_group(
-            resource, "editors_group", default=editors_group
-        )
-        _reviewers_group = resource_group(
-            resource, "reviewers_group", default=reviewers_group
-        )
+        source_collection = resource["source"]["collection"]
+        _editors_group = editors_group.format(collection_id=source_collection)
+        _reviewers_group = reviewers_group.format(collection_id=source_collection)
 
         required_perms = authz.get_bound_permissions(bucket_uri, "group:create")
         permission = event.request.registry.permission

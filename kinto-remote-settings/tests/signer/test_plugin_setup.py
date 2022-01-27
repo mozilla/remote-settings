@@ -20,10 +20,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
-        settings["signer.reviewers_group"] = "{bucket_id}-{collection_id}-reviewers"
-        settings["signer.alice.reviewers_group"] = "revoyeurs"
         settings["signer.alice.source.to_review_enabled"] = "true"
-
         settings["signer.stage.normandy.to_review_enabled"] = "false"
         return settings
 
@@ -38,41 +35,35 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
             "version": __version__,
             "group_check_enabled": True,
             "to_review_enabled": False,
-            "editors_group": "editors",
-            "reviewers_group": "{bucket_id}-{collection_id}-reviewers",
+            "editors_group": "{collection_id}-editors",
+            "reviewers_group": "{collection_id}-reviewers",
             "resources": [
                 {
                     "destination": {"bucket": "alice", "collection": "destination"},
                     "source": {"bucket": "alice", "collection": "source"},
-                    "reviewers_group": "revoyeurs",
                     "to_review_enabled": True,
                 },
                 {
                     "destination": {"bucket": "alice", "collection": "to"},
                     "preview": {"bucket": "alice", "collection": "preview"},
                     "source": {"bucket": "alice", "collection": "from"},
-                    "reviewers_group": "revoyeurs",
                 },
                 {
                     "destination": {"bucket": "bob", "collection": "destination"},
                     "source": {"bucket": "bob", "collection": "source"},
-                    "reviewers_group": "bob-source-reviewers",
                 },
                 {
                     "source": {"bucket": "stage", "collection": None},
                     "preview": {"bucket": "preview", "collection": None},
                     "destination": {"bucket": "prod", "collection": None},
-                    "reviewers_group": "stage-{collection_id}-reviewers",
                 },
                 {
                     "destination": {"bucket": "main", "collection": None},
                     "preview": {"bucket": "main-preview", "collection": None},
-                    "reviewers_group": "main-workspace-{collection_id}-reviewers",
                     "source": {"bucket": "main-workspace", "collection": None},
                 },
                 {
                     "destination": {"bucket": "security-state", "collection": "onecrl"},
-                    "reviewers_group": "security-state-workspace-onecrl-reviewers",
                     "source": {
                         "bucket": "security-state-workspace",
                         "collection": "onecrl",
@@ -82,7 +73,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                     "source": {"bucket": "stage", "collection": "normandy"},
                     "preview": {"bucket": "preview", "collection": "normandy"},
                     "destination": {"bucket": "prod", "collection": "normandy"},
-                    "reviewers_group": "stage-normandy-reviewers",
                 },
             ],
         }
@@ -243,17 +233,6 @@ class IncludeMeTest(unittest.TestCase):
             timers = set(c[0][0] for c in mocked.call_args_list)
             assert "plugins.signer" in timers
 
-    def test_includeme_raises_value_error_if_unknown_placeholder(self):
-        settings = {
-            "signer.resources": "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1",  # noqa: 501
-            "signer.editors_group": "{datetime}_group",
-            "signer.ecdsa.public_key": "/path/to/key",
-            "signer.ecdsa.private_key": "/path/to/private",
-        }
-        with pytest.raises(ConfigurationError) as excinfo:
-            self.includeme(settings=settings)
-        assert "Unknown group placeholder 'datetime'" in repr(excinfo.value)
-
 
 class OnCollectionChangedTest(unittest.TestCase):
     def setUp(self):
@@ -343,12 +322,17 @@ class BatchTest(BaseWebTest, unittest.TestCase):
         self.app.put_json("/buckets/bob", headers=self.headers)
 
         self.app.put_json(
-            "/buckets/alice/groups/reviewers",
+            "/buckets/alice/groups/source-reviewers",
             {"data": {"members": [self.userid]}},
             headers=self.headers,
         )
         self.app.put_json(
-            "/buckets/bob/groups/reviewers",
+            "/buckets/alice/groups/from-reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
+        self.app.put_json(
+            "/buckets/bob/groups/source-reviewers",
             {"data": {"members": [self.userid]}},
             headers=self.headers,
         )
@@ -428,7 +412,7 @@ class SigningErrorTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get("/", headers=self.headers)
         self.userid = resp.json["user"]["id"]
         self.app.put_json(
-            "/buckets/alice/groups/reviewers",
+            "/buckets/alice/groups/source-reviewers",
             {"data": {"members": [self.userid]}},
             headers=self.headers,
         )
@@ -474,7 +458,6 @@ class SourceCollectionDeletion(BaseWebTest, unittest.TestCase):
     def get_app_settings(cls, extras=None):
         settings = super(cls, SourceCollectionDeletion).get_app_settings(extras)
         settings["signer.to_review_enabled"] = "true"
-        settings["signer.stage.editors_group"] = "something"
         return settings
 
     def setUp(self):
@@ -506,12 +489,12 @@ class SourceCollectionDeletion(BaseWebTest, unittest.TestCase):
         self.app.put_json("/buckets/stage", headers=self.headers)
 
         self.app.put_json(
-            "/buckets/stage/groups/something",
+            "/buckets/stage/groups/a-editors",
             {"data": {"members": [self.other_userid]}},
             headers=self.headers,
         )
         self.app.put_json(
-            "/buckets/stage/groups/reviewers",
+            "/buckets/stage/groups/a-reviewers",
             {"data": {"members": [self.userid]}},
             headers=self.headers,
         )

@@ -2,6 +2,7 @@ import copy
 import functools
 import re
 
+from kinto.core import utils as core_utils
 from pyramid.authorization import Authenticated
 from pyramid.events import ApplicationCreated
 from pyramid.settings import aslist
@@ -12,22 +13,6 @@ from .utils import storage_create_raw
 
 
 DEFAULT_SIGNER = "kinto_remote_settings.signer.backends.local_ecdsa"
-
-
-def get_exposed_resources(resource_dict, review_settings):
-    """Compute a set of resources to be shown as part of the server's capabilities.
-
-    This should include review settings for each resource but nothing
-    related to the actual signing parameters for those resources."""
-    out = []
-    for resource in resource_dict.values():
-        sanitized = {}
-        for setting in ["source", "destination", "preview"] + list(review_settings):
-            if setting in resource:
-                sanitized[setting] = resource[setting]
-        out.append(sanitized)
-
-    return out
 
 
 def on_review_approved(event):
@@ -98,17 +83,11 @@ def includeme(config):
     resources = output_resources
 
     # Determine which are the settings that apply to all buckets/collections.
-    defaults = {
-        "reviewers_group": "reviewers",
-        "editors_group": "editors",
-        "to_review_enabled": False,
+    global_settings = {
+        "editors_group": "{collection_id}-editors",
+        "reviewers_group": "{collection_id}-reviewers",
+        "to_review_enabled": asbool(settings.get("signer.to_review_enabled", False)),
     }
-    global_settings = {}
-    for setting in listeners.REVIEW_SETTINGS:
-        value = settings.get("signer.%s" % setting, defaults[setting])
-        if setting.endswith("_enabled"):
-            value = asbool(value)
-        global_settings[setting] = value
 
     # For each resource that is configured, we determine what signer is
     # configured and what are the review settings.
@@ -136,38 +115,31 @@ def includeme(config):
         backend = signer_module.load_from_settings(settings, prefixes=prefixes)
         config.registry.signers[signer_key] = backend
 
-        # Load the setttings associated to each resource.
-        for setting in listeners.REVIEW_SETTINGS:
-            # Per collection/bucket:
-            value = utils.get_first_matching_setting(
-                setting, settings, prefixes, default=global_settings[setting]
+        # Check if review enabled/disabled for this particular resources.
+        resource_to_review_enabled = asbool(
+            utils.get_first_matching_setting(
+                "to_review_enabled",
+                settings,
+                prefixes,
+                default=global_settings["to_review_enabled"],
             )
-
-            if setting.endswith("_enabled"):
-                value = asbool(value)
-
-            # Resolve placeholder with source info.
-            if setting.endswith("_group"):
-                # If configured per bucket, then we leave the placeholder.
-                # It will be resolved in listeners during group checking and
-                # by Kinto-Admin when matching user groups with info from capabilities.
-                collection_id = resource["source"]["collection"] or "{collection_id}"
-                try:
-                    value = value.format(
-                        bucket_id=resource["source"]["bucket"],
-                        collection_id=collection_id,
-                    )
-                except KeyError as e:
-                    raise ConfigurationError("Unknown group placeholder %s" % e)
-
-            # Only expose if relevant.
-            if value != global_settings[setting]:
-                resource[setting] = value
-            else:
-                resource.pop(setting, None)
+        )
+        # Keep the `to_review_enabled` field in the resource object
+        # only if it was overriden. In other words, this will be exposed in
+        # the capabilities if the resource's review setting is different from
+        # the global server setting.
+        if resource_to_review_enabled != global_settings["to_review_enabled"]:
+            resource["to_review_enabled"] = resource_to_review_enabled
+        else:
+            resource.pop("to_review_enabled", None)
 
     # Expose the capabilities in the root endpoint.
-    exposed_resources = get_exposed_resources(resources, listeners.REVIEW_SETTINGS)
+    exposed_resources = [
+        core_utils.dict_subset(
+            r, ["source", "destination", "preview", "to_review_enabled"]
+        )
+        for r in resources.values()
+    ]
     message = "Digital signatures for integrity and authenticity of records."
     docs = "https://github.com/Kinto/kinto-signer#kinto-signer"
     config.add_api_capability(
