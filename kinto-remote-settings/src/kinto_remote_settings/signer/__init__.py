@@ -116,7 +116,7 @@ def includeme(config):
         config.registry.signers[signer_key] = backend
 
         # Check if review enabled/disabled for this particular resources.
-        value = asbool(
+        resource_to_review_enabled = asbool(
             utils.get_first_matching_setting(
                 "to_review_enabled",
                 settings,
@@ -124,9 +124,12 @@ def includeme(config):
                 default=global_settings["to_review_enabled"],
             )
         )
-        # Only expose if relevant.
-        if value != global_settings["to_review_enabled"]:
-            resource["to_review_enabled"] = value
+        # Keep the `to_review_enabled` field in the resource object
+        # only if it was overriden. In other words, this will be exposed in
+        # the capabilities if the resource's review setting is different from
+        # the global server setting.
+        if resource_to_review_enabled != global_settings["to_review_enabled"]:
+            resource["to_review_enabled"] = resource_to_review_enabled
         else:
             resource.pop("to_review_enabled", None)
 
