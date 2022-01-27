@@ -53,10 +53,6 @@ def pick_resource_and_signer(request, resources, bucket_id, collection_id):
     return resource, signer
 
 
-def resource_group(resource, group):
-    return group.format(collection_id=resource["source"]["collection"])
-
-
 def sign_collection_data(event, resources, **kwargs):
     """
     Listen to resource change events, to check if a new signature is
@@ -268,10 +264,12 @@ def check_collection_status(
         if resource is None:
             continue
 
-        # to-review and group checking.
+        # Is review enabled for this resource?
         _to_review_enabled = resource.get("to_review_enabled", to_review_enabled)
-        _editors_group = resource_group(resource, editors_group)
-        _reviewers_group = resource_group(resource, reviewers_group)
+        # Determine its related groups names.
+        source_collection = resource["source"]["collection"]
+        _editors_group = editors_group.format(collection_id=source_collection)
+        _reviewers_group = reviewers_group.format(collection_id=source_collection)
         # Member of groups have their URIs in their principals.
         editors_group_uri = instance_uri(
             event.request, "group", bucket_id=payload["bucket_id"], id=_editors_group
@@ -576,8 +574,9 @@ def create_editors_reviewers_groups(event, resources, editors_group, reviewers_g
         if resource is None:
             continue
 
-        _editors_group = resource_group(resource, editors_group)
-        _reviewers_group = resource_group(resource, reviewers_group)
+        source_collection = resource["source"]["collection"]
+        _editors_group = editors_group.format(collection_id=source_collection)
+        _reviewers_group = reviewers_group.format(collection_id=source_collection)
 
         required_perms = authz.get_bound_permissions(bucket_uri, "group:create")
         permission = event.request.registry.permission
