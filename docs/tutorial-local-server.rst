@@ -66,7 +66,7 @@ With Multi-signoff (advanced)
 
 Using a different configuration, we can obtain a local instance that has proper authentication and multi-signoff that interacts with an `Autograph instance <https://github.com/mozilla-services/autograph/>`_ in order to sign the data, roughly like the STAGE server.
 
-We will run the Autograph container in a separate terminal. Since Autograph generates the ``x5u`` certificate chains on startup, we will use a volume mounted on the same location, so that Firefox can download them at the same location as the native ``x5u`` URLs.
+We will run the Autograph container in a separate terminal. Since Autograph generates the ``x5u`` certificate chains on startup, we will use a volume mounted on the same location, so that Firefox can download them at the same location as the native ``x5u`` URLs (Autograph will point ``x5u`` URLs to ``file:///tmp/attachments``).
 
 .. code-block:: bash
 
