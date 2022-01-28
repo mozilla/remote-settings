@@ -51,8 +51,7 @@ Now, we will run the container with the local configuration file and attachments
     docker run -v `pwd`/attachments:/tmp/attachments \
                -e KINTO_INI=config/testing.ini \
                -p 8888:8888 \
-               mozilla/remote-settings \
-               uwsgistart
+               mozilla/remote-settings
 
 Your local instance should now be running at http://localhost:8888/v1 and the Admin UI available at http://localhost:8888/v1/admin/
 
@@ -84,8 +83,7 @@ And run the Remote Settings server with a link to ``autograph-server`` container
     docker run --link autograph-server:autograph-server \
                -e KINTO_INI=config/local.ini \
                -p 8888:8888 \
-               mozilla/remote-settings \
-               uwsgistart
+               mozilla/remote-settings
 
 Both containers should be connected, and the heartbeat endpoint should only return positive checks:
 

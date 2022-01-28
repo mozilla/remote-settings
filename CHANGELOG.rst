@@ -25,6 +25,7 @@ the version control of each dependency.
 - Read settings from environment variables (eg. ``KINTO_SIGNER_RESOURCES="..."``)
 - Default value for ``kinto.signer.resources`` is now ``/buckets/main-workspace -> /buckets/main-preview -> /buckets/main``
 - Now ship default configuration files to run a local instance of Remote Settings out of the box (see the *Setup a Local Server* tutorial)
+- The container can now run by just setting the ``KINTO_INI`` environment variable ``docker run -e KINTO_INI=config/testing.ini mozilla/remote-settings``
 
 **Bug Fixes**
 

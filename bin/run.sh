@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-: "${KINTO_INI:=config/example.ini}"
-
 usage() {
   echo "usage: ./bin/run.sh migrate|start|uwsgistart|bash|whatevercommandyouwant"
   exit 1
@@ -18,7 +16,7 @@ case $1 in
     kinto start --ini $KINTO_INI
     ;;
   uwsgistart)
-    KINTO_INI=$KINTO_INI uwsgi --http :8888 --ini $KINTO_INI
+    uwsgi --http :$PORT --ini $KINTO_INI
     ;;
   *)
     exec "$@"
