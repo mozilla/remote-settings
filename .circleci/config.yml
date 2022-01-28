@@ -94,12 +94,6 @@ jobs:
           command: make build
 
       - run:
-          name: Setup env
-          command: |
-            mkdir mail
-            sudo chmod 777 mail
-
-      - run:
           name: Integration Test
           command: make integration-test
 
