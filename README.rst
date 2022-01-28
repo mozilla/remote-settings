@@ -54,10 +54,12 @@ The simplest way to test that all is working as expected is to run:
 
     make integration-test
 
-.. note:: The ``run web migrate`` command is only needed once, to prime the
-          PostgreSQL server (this is done automatically for you in the make command).
-          You can flush all the Kinto data in your local persistent PostgreSQL with
-          ``curl -XPOST http://localhost:8888/v1/__flush__``
+.. note::
+
+    The ``run web migrate`` command is only needed once, to prime the
+    PostgreSQL server (this is done automatically for you in the make command).
+    You can flush all the Kinto data in your local persistent PostgreSQL with
+    ``curl -XPOST http://localhost:8888/v1/__flush__``
 
 That will start ``memcached``, ``postgresql``, ``autograph`` and Kinto (at ``web:8888``)
 and lastly the ``tests`` container that primarily
@@ -190,7 +192,7 @@ First:
   the ReST-style section headings to Markdown-style ``##`` headings.
 
 
-..notes ::
+.. note::
 
     The Mozilla Jenkins job will catch the latest Docker container on Dockerhub
     and immediately deploy it to Remote Settings DEV. It will deploy the latest tag
