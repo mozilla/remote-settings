@@ -162,4 +162,7 @@ workflows:
             - integration_test
           filters:
             tags:
-              only: /.*/
+              only: /.+/
+            branches:
+              only: main
+              
