@@ -50,7 +50,6 @@ services:
       - KINTO_CACHE_HOSTS=memcached:11211 memcached:11212
       - KINTO_STORAGE_URL=postgresql://postgres@db/postgres
       - KINTO_PERMISSION_URL=postgresql://postgres@db/postgres
-      - KINTO_SIGNER_AUTOGRAPH_SERVER_URL=http://autograph:8000
     ports:
       - 8888:8888
     volumes:
