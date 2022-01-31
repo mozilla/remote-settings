@@ -27,6 +27,19 @@ This *Remote Settings* repository contains the following:
 **The most important function of this repository is to build a Docker image
 with a set of known working dependencies and then ship that to DockerHub.**
 
+
+Run
+---
+
+You need Docker and ``docker-compose``. Ensure `buildkit <https://docs.docker.com/develop/develop-images/build_enhancements/>`_ is enabled on your Docker engine.
+
+.. code-block:: shell
+
+    make start
+
+Your *Remote Settings* instance is now ready at http://localhost:8888. See the `*Setup a Local Server* <https://remote-settings.readthedocs.io/en/latest/tutorial-local-server.html>`_ tutorial for more details.
+
+
 Test Locally
 ------------
 
@@ -47,8 +60,7 @@ After this setup is complete, tests can be run with ``pytest`` using ``make``:
 
 **Integration Tests**
 
-You need Docker and ``docker-compose``. Ensure `buildkit <https://docs.docker.com/develop/develop-images/build_enhancements/>`_ is enabled on your Docker engine.
-The simplest way to test that all is working as expected is to run:
+With Docker and docker-compose, test that all components are working as expected with:
 
 .. code-block:: shell
 
@@ -56,7 +68,7 @@ The simplest way to test that all is working as expected is to run:
 
 .. note::
 
-    The ``run web migrate`` command is only needed once, to prime the
+    The ``docker-compose run web migrate`` command is only needed once, to prime the
     PostgreSQL server (this is done automatically for you in the make command).
     You can flush all the Kinto data in your local persistent PostgreSQL with
     ``curl -XPOST http://localhost:8888/v1/__flush__``

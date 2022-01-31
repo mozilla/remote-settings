@@ -4,9 +4,6 @@ __pycache__/
 *$py.class
 .venv/
 kinto-logo.png
-config/kinto.ini
-config/development.ini
-server.ini
 .pytest_cache/
 
 # C extensions

@@ -16,6 +16,7 @@ the version control of each dependency.
   container. Instead of adding the source code to the ``PYTHONPATH``, we ``pip install`` it.
 - Group names for editors and reviewers are now always ``{collection_id}-editors`` and
   ``{collection_id}-reviewers`` (fixes #149)
+- The container loads the ``.ini`` file from ``config./example.ini`` instead of ``/etc/kinto.ini`` by default.
 
 **New Features**
 
@@ -24,6 +25,9 @@ the version control of each dependency.
   This is useful for testing or when using disposable containers.
 - Read settings from environment variables (eg. ``KINTO_SIGNER_RESOURCES="..."``)
 - Default value for ``kinto.signer.resources`` is now ``/buckets/main-workspace -> /buckets/main-preview -> /buckets/main``
+- Now ship default configuration files to run a local instance of Remote Settings out of the box (see the *Setup a Local Server* tutorial)
+- The container can now run by just setting the ``KINTO_INI`` environment variable ``docker run -e KINTO_INI=config/testing.ini mozilla/remote-settings``
+- The container now runs without custom configuration with ``docker run mozilla/remote-settings``
 
 **Bug Fixes**
 
