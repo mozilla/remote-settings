@@ -1,6 +1,7 @@
 import copy
 import functools
 import re
+import sys
 
 from kinto.core import utils as core_utils
 from pyramid.authorization import Authenticated
@@ -305,7 +306,11 @@ def includeme(config):
                     permissions=perms,
                 )
 
-    if asbool(settings["signer.auto_create_resources"]):
+    # Create resources on startup (except when executing `migrate`).
+    if (
+        asbool(settings.get("signer.auto_create_resources", False))
+        and "migrate" not in sys.argv
+    ):
         config.add_subscriber(
             functools.partial(
                 auto_create_resources,
