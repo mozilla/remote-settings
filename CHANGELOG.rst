@@ -16,6 +16,7 @@ the version control of each dependency.
   container. Instead of adding the source code to the ``PYTHONPATH``, we ``pip install`` it.
 - Group names for editors and reviewers are now always ``{collection_id}-editors`` and
   ``{collection_id}-reviewers`` (fixes #149)
+- The container loads the ``.ini`` file from ``config./example.ini`` instead of ``/etc/kinto.ini`` by default.
 
 **New Features**
 
