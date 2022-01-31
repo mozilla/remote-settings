@@ -57,6 +57,10 @@ else
 	@echo PostgreSQL not installed. Please install PostgreSQL to use this command.
 endif
 
+start:
+	make build
+	docker-compose up
+
 stop:
 	docker-compose stop
 

@@ -103,7 +103,7 @@ Unlike with *Simple Mode*, we'll need an ``admin`` user:
 
 .. note::
 
-    Another option is to use ``docker-compose`` with a cloned repository of https://github.com/mozilla/remote-settings
+    Another option is to clone the `mozilla/remote-settings <https://github.com/mozilla/remote-settings>`_ repository and run ``make start``
 
 
 Prepare the client
