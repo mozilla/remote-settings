@@ -155,7 +155,7 @@ def make_client(
             f"{server.split('://')[0]}://", HTTPAdapter(max_retries=retries)
         )
 
-        if not skip_server_setup:
+        if not skip_server_setup and auth:
             create_user(request_session, server, auth)
 
         return AsyncClient(

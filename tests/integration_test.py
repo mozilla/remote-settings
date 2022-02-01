@@ -92,13 +92,13 @@ async def test_history_plugin(
     assert event_wip["target"]["data"]["status"] == "work-in-progress"
 
     assert event_to_review["action"] == "update"
-    assert event_to_review["user_id"] == "account:user"
+    assert event_to_review["user_id"] == "account:editor"
     assert event_to_review["target"]["data"]["status"] == "to-review"
 
     assert event_review_attrs["action"] == "update"
     assert "kinto-signer" in event_review_attrs["user_id"]
     assert (
-        event_review_attrs["target"]["data"]["last_review_request_by"] == "account:user"
+        event_review_attrs["target"]["data"]["last_review_request_by"] == "account:editor"
     )
 
 
@@ -113,6 +113,8 @@ async def test_email_plugin(
         # Skip test if mail dir is empty (eg. testing remote server)
         return
 
+    mail_dir = os.path.abspath(mail_dir)
+    print(f"Read emails from {mail_dir}")
     # remove any existing .eml files in mail directory
     try:
         for file in os.listdir(mail_dir):
@@ -150,7 +152,9 @@ async def test_email_plugin(
             },
         )
 
-    editor_client = make_client(editor_auth)
+    # Create record, will set status to "work-in-progress"
+    await editor_client.create_record(data={"hola": "mundo"})
+    # Request review!
     await editor_client.patch_collection(
         id="product-integrity", bucket="main-workspace", data={"status": "to-review"}
     )
@@ -160,7 +164,7 @@ async def test_email_plugin(
     assert len(mail) == 1
     assert mail[0].endswith(".eml")
 
-    with open(f"mail/{mail[0]}", "r") as f:
+    with open(os.path.join(mail_dir, mail[0]), "r") as f:
         mail_contents = f.read()
         assert mail_contents.find("Subject: account") >= 0
         assert mail_contents.find("To: me@you.com") >= 0
@@ -235,7 +239,7 @@ async def test_attachment_plugin_existing_record(
 
 
 async def test_signer_plugin_capabilities(make_client: ClientFactory):
-    anonymous_client = make_client(":")
+    anonymous_client = make_client(tuple())
     capability = (await anonymous_client.server_info())["capabilities"]["signer"]
     assert capability["group_check_enabled"]
     assert capability["to_review_enabled"]
@@ -326,7 +330,7 @@ async def test_signer_plugin_full_workflow(
         existing = 0
 
         # Status is now WIP.
-        status = (await dest_client.get_collection())["data"]["status"]
+        status = (await editor_client.get_collection())["data"]["status"]
         assert status == "work-in-progress", f"{status} != work-in-progress"
 
         # Re-sign and verify.
@@ -457,7 +461,7 @@ async def test_signer_plugin_refresh(
 
     editor_client = make_client(editor_auth)
     await upload_records(editor_client, 5)
-    await editor_auth.patch_collection(data={"status": "to-review"})
+    await editor_client.patch_collection(data={"status": "to-review"})
     await reviewer_client.patch_collection(id=cid, data={"status": "to-sign"})
     signature_preview_before = (
         await editor_client.get_collection(bucket="main-preview")
@@ -508,14 +512,6 @@ async def test_signer_plugin_reviewer_verifications(
     with pytest.raises(KintoException):
         await reviewer_client.patch_collection(data={"status": "to-sign"})
 
-    # reviewer cannot ask review
-    with pytest.raises(KintoException):
-        await reviewer_client.patch_collection(data={"status": "to-review"})
-
-    # Add reviewer to editors
-    await setup_client.patch_group(
-        id="product-integrity-editors", data={"members": [reviewer_id]}
-    )
     await reviewer_client.patch_collection(data={"status": "to-review"})
     # same editor cannot review
     with pytest.raises(KintoException):
@@ -559,7 +555,7 @@ async def test_changes_plugin(
             id="product-integrity", bucket="main-workspace", if_not_exists=True
         )
 
-    anonymous_client = make_client(":")
+    anonymous_client = make_client(tuple())
     records = await anonymous_client.get_records(bucket="monitor", collection="changes")
 
     assert records
