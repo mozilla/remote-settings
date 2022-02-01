@@ -57,7 +57,14 @@ async def test_history_plugin(
         data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
         await setup_client.patch_group(id="product-integrity-editors", changes=data)
 
+    # Reset collection status.
+    collection = await editor_client.get_collection()
+    if collection["data"]["status"] != "signed":
+        await editor_client.patch_collection(data={"status": "to-rollback"})
+
+    # Create record, will set status to "work-in-progress"
     await editor_client.create_record(data={"hola": "mundo"})
+    # Request review, will set status and update collection attributes.
     await editor_client.patch_collection(data={"status": "to-review"})
 
     history = await editor_client.get_history(bucket="main-workspace")
@@ -69,23 +76,12 @@ async def test_history_plugin(
         if e["resource_name"] == "collection"
         and e["collection_id"] == "product-integrity"
     ]
-    if not keep_existing:
-        assert len(collection_entries) == 5
-
+    assert len(collection_entries) >= 3, "History does not contain expected events"
     (
-        event_creation,
-        event_signed,
         event_wip,
         event_to_review,
         event_review_attrs,
-    ) = collection_entries[:5]
-
-    assert event_creation["action"] == "create"
-    assert event_creation["user_id"] == "account:user"
-
-    assert event_signed["action"] == "update"
-    assert "kinto-signer" in event_signed["user_id"]
-    assert event_signed["target"]["data"]["status"] == "signed"
+    ) = collection_entries[-3:]
 
     assert event_wip["action"] == "update"
     assert "kinto-signer" in event_wip["user_id"]
@@ -98,7 +94,8 @@ async def test_history_plugin(
     assert event_review_attrs["action"] == "update"
     assert "kinto-signer" in event_review_attrs["user_id"]
     assert (
-        event_review_attrs["target"]["data"]["last_review_request_by"] == "account:editor"
+        event_review_attrs["target"]["data"]["last_review_request_by"]
+        == "account:editor"
     )
 
 
