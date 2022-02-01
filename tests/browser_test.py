@@ -18,8 +18,8 @@ async def test_review_signoff(
     setup_auth: Auth,
     editor_auth: Auth,
     reviewer_auth: Auth,
+    skip_server_setup: bool,
 ):
-    setup_client = make_client(setup_auth)
     editor_client = make_client(editor_auth)
     reviewer_client = make_client(reviewer_auth)
 
@@ -27,17 +27,21 @@ async def test_review_signoff(
     reviewer_id = (await reviewer_client.server_info())["user"]["id"]
 
     # Setup remote server.
-    await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-    await setup_client.create_collection(
-        id="product-integrity",
-        bucket="main-workspace",
-        permissions={"write": [editor_id, reviewer_id]},
-        if_not_exists=True,
-    )
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-    await setup_client.patch_group(id="product-integrity-editors", changes=data)
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
-    await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        await setup_client.create_collection(
+            id="product-integrity",
+            bucket="main-workspace",
+            permissions={"write": [editor_id, reviewer_id]},
+            if_not_exists=True,
+        )
+        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+        await setup_client.patch_group(id="product-integrity-editors", changes=data)
+        data = JSONPatch(
+            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
+        )
+        await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
 
     # Sample data.
     await editor_client.create_record(

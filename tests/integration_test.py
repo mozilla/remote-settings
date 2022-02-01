@@ -20,20 +20,25 @@ def test_heartbeat(server: str):
 
 
 async def test_history_plugin(
-    make_client: ClientFactory, setup_auth: Auth, editor_auth: Auth, keep_existing: bool
+    make_client: ClientFactory,
+    setup_auth: Auth,
+    editor_auth: Auth,
+    keep_existing: bool,
+    skip_server_setup: bool,
 ):
-    setup_client = make_client(setup_auth)
-    await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-    if not keep_existing:
-        await setup_client.purge_history(bucket="main-workspace")
-    await setup_client.create_collection(
-        id="product-integrity", bucket="main-workspace", if_not_exists=True
-    )
-
     editor_client = make_client(editor_auth)
     editor_id = (await editor_client.server_info())["user"]["id"]
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-    await client.patch_group(id="product-integrity-editors", changes=data)
+
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        if not keep_existing:
+            await setup_client.purge_history(bucket="main-workspace")
+        await setup_client.create_collection(
+            id="product-integrity", bucket="main-workspace", if_not_exists=True
+        )
+        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+        await setup_client.patch_group(id="product-integrity-editors", changes=data)
 
     await editor_client.create_record(data={"hola": "mundo"})
     await editor_client.patch_collection(data={"status": "to-review"})
@@ -81,7 +86,10 @@ async def test_history_plugin(
 
 
 async def test_email_plugin(
-    make_client: ClientFactory, setup_auth: Auth, editor_auth: Auth
+    make_client: ClientFactory,
+    setup_auth: Auth,
+    editor_auth: Auth,
+    skip_server_setup: bool,
 ):
     # remove any existing .eml files in mail directory
     try:
@@ -90,29 +98,35 @@ async def test_email_plugin(
     except FileNotFoundError:
         pass
 
-    setup_client = make_client(setup_auth)
-    await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-    await setup_client.create_collection(
-        id="product-integrity", bucket="main-workspace", if_not_exists=True
-    )
-    await setup_client.patch_bucket(
-        id="main-workspace",
-        data={
-            "kinto-emailer": {
-                "hooks": [
-                    {
-                        "event": "kinto_remote_settings.signer.events.ReviewRequested",
-                        "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
-                        "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
-                        "recipients": [
-                            "me@you.com",
-                            "/buckets/main-workspace/groups/reviewers",
-                        ],
-                    }
-                ]
-            }
-        },
-    )
+    editor_client = make_client(editor_auth)
+    editor_id = (await editor_client.server_info())["user"]["id"]
+
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        await setup_client.create_collection(
+            id="product-integrity", bucket="main-workspace", if_not_exists=True
+        )
+        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+        await setup_client.patch_group(id="product-integrity-editors", changes=data)
+        await setup_client.patch_bucket(
+            id="main-workspace",
+            data={
+                "kinto-emailer": {
+                    "hooks": [
+                        {
+                            "event": "kinto_remote_settings.signer.events.ReviewRequested",
+                            "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
+                            "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
+                            "recipients": [
+                                "me@you.com",
+                                "/buckets/main-workspace/groups/reviewers",
+                            ],
+                        }
+                    ]
+                }
+            },
+        )
 
     editor_client = make_client(editor_auth)
     await editor_client.patch_collection(
@@ -131,13 +145,17 @@ async def test_email_plugin(
 
 
 async def test_attachment_plugin_new_record(
-    make_client: ClientFactory, setup_auth: Auth, editor_auth: Auth
+    make_client: ClientFactory,
+    setup_auth: Auth,
+    editor_auth: Auth,
+    skip_server_setup: bool,
 ):
-    setup_client = make_client(setup_auth)
-    await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-    await setup_client.create_collection(
-        id="product-integrity", bucket="main-workspace", if_not_exists=True
-    )
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        await setup_client.create_collection(
+            id="product-integrity", bucket="main-workspace", if_not_exists=True
+        )
 
     editor_client = make_client(editor_auth)
     with open("kinto-logo.svg", "rb") as attachment:
@@ -157,13 +175,18 @@ async def test_attachment_plugin_new_record(
 
 
 async def test_attachment_plugin_existing_record(
-    make_client: ClientFactory, setup_auth: Auth, editor_auth: Auth
+    make_client: ClientFactory,
+    setup_auth: Auth,
+    editor_auth: Auth,
+    skip_server_setup: bool,
 ):
-    setup_client = make_client(setup_auth)
-    await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-    await setup_client.create_collection(
-        id="product-integrity", bucket="main-workspace", if_not_exists=True
-    )
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        await setup_client.create_collection(
+            id="product-integrity", bucket="main-workspace", if_not_exists=True
+        )
+
     editor_client = make_client(editor_auth)
     await editor_client.create_record(
         id="logo",
@@ -205,13 +228,13 @@ async def test_signer_plugin_full_workflow(
     source_bucket: str,
     source_collection: str,
     keep_existing: bool,
+    skip_server_setup: bool,
 ):
-    setup_client = make_client(setup_auth)
     editor_client = make_client(editor_auth)
     reviewer_client = make_client(reviewer_auth)
 
     # 0. initialize source bucket/collection (if necessary)
-    server_info = await setup_client.server_info()
+    server_info = await editor_client.server_info()
     editor_id = (await editor_client.server_info())["user"]["id"]
     reviewer_id = (await reviewer_client.server_info())["user"]["id"]
 
@@ -228,32 +251,36 @@ async def test_signer_plugin_full_workflow(
     assert resources, "Specified source not configured to be signed"
     resource = resources[0]
 
-    await setup_client.create_bucket(if_not_exists=True)
-    await setup_client.create_bucket(
-        id=resource["preview"]["bucket"], if_not_exists=True
-    )
-    await setup_client.create_bucket(
-        id=resource["destination"]["bucket"], if_not_exists=True
-    )
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_client.create_bucket(if_not_exists=True)
+        await setup_client.create_bucket(
+            id=resource["preview"]["bucket"], if_not_exists=True
+        )
+        await setup_client.create_bucket(
+            id=resource["destination"]["bucket"], if_not_exists=True
+        )
 
-    await setup_client.create_collection(
-        permissions={"write": [editor_id, reviewer_id]},
-        if_not_exists=True,
-    )
+        await setup_client.create_collection(
+            permissions={"write": [editor_id, reviewer_id]},
+            if_not_exists=True,
+        )
 
-    editors_group = (
-        resource.get("editors_group") or signer_capabilities["editors_group"]
-    )
-    editors_group = editors_group.format(collection_id=source_collection)
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-    await setup_client.patch_group(id=editors_group, changes=data)
+        editors_group = (
+            resource.get("editors_group") or signer_capabilities["editors_group"]
+        )
+        editors_group = editors_group.format(collection_id=source_collection)
+        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+        await setup_client.patch_group(id=editors_group, changes=data)
 
-    reviewers_group = (
-        resource.get("reviewers_group") or signer_capabilities["reviewers_group"]
-    )
-    reviewers_group = reviewers_group.format(collection_id=source_collection)
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
-    await setup_client.patch_group(id=reviewers_group, changes=data)
+        reviewers_group = (
+            resource.get("reviewers_group") or signer_capabilities["reviewers_group"]
+        )
+        reviewers_group = reviewers_group.format(collection_id=source_collection)
+        data = JSONPatch(
+            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
+        )
+        await setup_client.patch_group(id=reviewers_group, changes=data)
 
     dest_col = resource["destination"].get("collection") or source_collection
     dest_client = AsyncClient(
@@ -360,16 +387,20 @@ async def test_signer_plugin_full_workflow(
 
 
 async def test_signer_plugin_rollback(
-    make_client: ClientFactory, setup_auth: Auth, editor_auth: Auth
+    make_client: ClientFactory,
+    setup_auth: Auth,
+    editor_auth: Auth,
+    skip_server_setup: bool,
 ):
-    setup_client = make_client(setup_auth)
-    await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-    await setup_client.create_collection(
-        id="product-integrity", bucket="main-workspace", if_not_exists=True
-    )
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        await setup_client.create_collection(
+            id="product-integrity", bucket="main-workspace", if_not_exists=True
+        )
 
     editor_client = make_client(editor_auth)
-    before_records = await client.get_records()
+    before_records = await editor_client.get_records()
 
     await upload_records(editor_client, 5)
 
@@ -385,17 +416,22 @@ async def test_signer_plugin_refresh(
     setup_auth: Auth,
     editor_auth: Auth,
     reviewer_auth: Auth,
+    skip_server_setup: bool,
 ):
     cid = "product-integrity"
-    setup_client = make_client(setup_auth)
     reviewer_client = make_client(reviewer_auth)
     reviewer_id = (await reviewer_client.server_info())["user"]["id"]
-    await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-    await setup_client.create_collection(
-        id=cid, bucket="main-workspace", if_not_exists=True
-    )
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
-    await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
+
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        await setup_client.create_collection(
+            id=cid, bucket="main-workspace", if_not_exists=True
+        )
+        data = JSONPatch(
+            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
+        )
+        await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
 
     editor_client = make_client(editor_auth)
     await upload_records(editor_client, 5)
@@ -424,22 +460,26 @@ async def test_signer_plugin_reviewer_verifications(
     setup_auth: Auth,
     editor_auth: Auth,
     reviewer_auth: Auth,
+    skip_server_setup: bool,
 ):
     editor_client = make_client(editor_auth)
     editor_id = (await editor_client.server_info())["user"]["id"]
     reviewer_client = make_client(reviewer_auth)
     reviewer_id = (await reviewer_client.server_info())["user"]["id"]
-    setup_client = make_client(setup_auth)
-    await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-    await setup_client.create_collection(
-        id="product-integrity", bucket="main-workspace", if_not_exists=True
-    )
-    await setup_client.patch_group(
-        id="product-integrity-editors", data={"members": [editor_id]}
-    )
-    await setup_client.patch_group(
-        id="product-integrity-reviewers", data={"members": [editor_id, reviewer_id]}
-    )
+
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        await setup_client.create_collection(
+            id="product-integrity", bucket="main-workspace", if_not_exists=True
+        )
+        await setup_client.patch_group(
+            id="product-integrity-editors", data={"members": [editor_id]}
+        )
+        await setup_client.patch_group(
+            id="product-integrity-reviewers", data={"members": [editor_id, reviewer_id]}
+        )
+
     await upload_records(editor_client, 5)
 
     # status cannot be set to to-sign
@@ -485,13 +525,17 @@ async def verify_signature(records, timestamp, signature):
 
 
 async def test_changes_plugin(
-    make_client: ClientFactory, setup_auth: Auth, editor_auth: Auth
+    make_client: ClientFactory,
+    setup_auth: Auth,
+    editor_auth: Auth,
+    skip_server_setup: bool,
 ):
-    setup_client = make_client(setup_auth)
-    await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-    await setup_client.create_collection(
-        id="product-integrity", bucket="main-workspace", if_not_exists=True
-    )
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        await setup_client.create_collection(
+            id="product-integrity", bucket="main-workspace", if_not_exists=True
+        )
 
     anonymous_client = make_client(":")
     records = await anonymous_client.get_records(bucket="monitor", collection="changes")

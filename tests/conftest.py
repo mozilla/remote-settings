@@ -3,8 +3,8 @@ from typing import Callable, Tuple
 
 import pytest
 import requests
-from pyramid.settings import asbool
 from kinto_http import AsyncClient, KintoException
+from pyramid.settings import asbool
 from pytest import FixtureRequest
 from requests.adapters import HTTPAdapter
 from selenium.webdriver.firefox.options import Options
@@ -19,6 +19,7 @@ DEFAULT_REVIEWER_AUTH = os.getenv("REVIEWER_AUTH", "reviewer:pass")
 DEFAULT_BUCKET = os.getenv("BUCKET", "main-workspace")
 DEFAULT_COLLECTION = os.getenv("COLLECTION", "product-integrity")
 DEFAULT_KEEP_EXISTING = asbool(os.getenv("KEEP_EXISTING", False))
+DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", False))
 
 Auth = Tuple[str, str]
 ClientFactory = Callable[[Auth], AsyncClient]
@@ -67,6 +68,12 @@ def pytest_addoption(parser):
         default=DEFAULT_KEEP_EXISTING,
         help="Keep existing collection data",
     )
+    parser.addoption(
+        "--skip-server-setup",
+        action="store_true",
+        default=DEFAULT_SKIP_SERVER_SETUP,
+        help="Skip server setup operations",
+    )
 
 
 @pytest.fixture(scope="session")
@@ -104,9 +111,14 @@ def keep_existing(request) -> bool:
     return request.config.getoption("--keep-existing")
 
 
+@pytest.fixture(scope="session")
+def skip_server_setup(request) -> bool:
+    return request.config.getoption("--skip-server-setup")
+
+
 @pytest.fixture
 def make_client(
-    server: str, source_bucket: str, source_collection: str
+    server: str, source_bucket: str, source_collection: str, skip_server_setup: bool
 ) -> ClientFactory:
     """Factory as fixture for creating a Kinto AsyncClient used for tests.
 
@@ -128,7 +140,8 @@ def make_client(
             f"{server.split('://')[0]}://", HTTPAdapter(max_retries=retries)
         )
 
-        create_user(request_session, server, auth)
+        if not skip_server_setup:
+            create_user(request_session, server, auth)
 
         return AsyncClient(
             server_url=server,
