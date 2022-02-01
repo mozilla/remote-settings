@@ -1,8 +1,10 @@
+import os
 from typing import Callable, Tuple
 
 import pytest
 import requests
 from kinto_http import AsyncClient, KintoException
+from pyramid.settings import asbool
 from pytest import FixtureRequest
 from requests.adapters import HTTPAdapter
 from selenium.webdriver.firefox.options import Options
@@ -10,12 +12,15 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from urllib3.util.retry import Retry
 
 
-DEFAULT_SERVER = "http://localhost:8888/v1"
-DEFAULT_AUTH = "user:pass"
-DEFAULT_EDITOR_AUTH = "editor:pass"
-DEFAULT_REVIEWER_AUTH = "reviewer:pass"
-DEFAULT_BUCKET = "main-workspace"
-DEFAULT_COLLECTION = "product-integrity"
+DEFAULT_SERVER = os.getenv("SERVER", "http://localhost:8888/v1")
+DEFAULT_SETUP_AUTH = os.getenv("SETUP_AUTH", "user:pass")
+DEFAULT_EDITOR_AUTH = os.getenv("EDITOR_AUTH", "editor:pass")
+DEFAULT_REVIEWER_AUTH = os.getenv("REVIEWER_AUTH", "reviewer:pass")
+DEFAULT_BUCKET = os.getenv("BUCKET", "main-workspace")
+DEFAULT_COLLECTION = os.getenv("COLLECTION", "product-integrity")
+DEFAULT_MAIL_DIR = os.getenv("MAIL_DIR", "mail")
+DEFAULT_KEEP_EXISTING = asbool(os.getenv("KEEP_EXISTING", False))
+DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", False))
 
 Auth = Tuple[str, str]
 ClientFactory = Callable[[Auth], AsyncClient]
@@ -29,10 +34,10 @@ def pytest_addoption(parser):
         help="Kinto server (in form 'http(s)://<host>:<port>/v1')",
     )
     parser.addoption(
-        "--auth",
+        "--setup-auth",
         action="store",
-        default=DEFAULT_AUTH,
-        help="Basic authentication",
+        default=DEFAULT_SETUP_AUTH,
+        help="Basic authentication for server setup",
     )
     parser.addoption(
         "--editor-auth",
@@ -59,10 +64,22 @@ def pytest_addoption(parser):
         help="Source collection",
     )
     parser.addoption(
+        "--mail-dir",
+        action="store",
+        default=DEFAULT_MAIL_DIR,
+        help="Directory of debug email files (from server)",
+    )
+    parser.addoption(
         "--keep-existing",
         action="store_true",
-        default=False,
+        default=DEFAULT_KEEP_EXISTING,
         help="Keep existing collection data",
+    )
+    parser.addoption(
+        "--skip-server-setup",
+        action="store_true",
+        default=DEFAULT_SKIP_SERVER_SETUP,
+        help="Skip server setup operations",
     )
 
 
@@ -72,8 +89,8 @@ def server(request) -> str:
 
 
 @pytest.fixture(scope="session")
-def auth(request) -> Auth:
-    return tuple(request.config.getoption("--auth").split(":"))
+def setup_auth(request) -> Auth:
+    return tuple(request.config.getoption("--setup-auth").split(":"))
 
 
 @pytest.fixture(scope="session")
@@ -97,13 +114,23 @@ def source_collection(request) -> str:
 
 
 @pytest.fixture(scope="session")
+def mail_dir(request) -> str:
+    return request.config.getoption("--mail-dir")
+
+
+@pytest.fixture(scope="session")
 def keep_existing(request) -> bool:
     return request.config.getoption("--keep-existing")
 
 
+@pytest.fixture(scope="session")
+def skip_server_setup(request) -> bool:
+    return request.config.getoption("--skip-server-setup")
+
+
 @pytest.fixture
 def make_client(
-    server: str, source_bucket: str, source_collection: str
+    server: str, source_bucket: str, source_collection: str, skip_server_setup: bool
 ) -> ClientFactory:
     """Factory as fixture for creating a Kinto AsyncClient used for tests.
 
@@ -125,7 +152,8 @@ def make_client(
             f"{server.split('://')[0]}://", HTTPAdapter(max_retries=retries)
         )
 
-        create_user(request_session, server, auth)
+        if not skip_server_setup:
+            create_user(request_session, server, auth)
 
         return AsyncClient(
             server_url=server,
@@ -141,15 +169,15 @@ def make_client(
 @pytest.fixture(autouse=True)
 async def flush_default_collection(
     make_client: ClientFactory,
-    auth: Auth,
+    setup_auth: Auth,
     source_bucket: str,
     source_collection: str,
 ):
     yield
-    client = make_client(auth)
+    setup_client = make_client(setup_auth)
 
     try:
-        await client.delete_collection(
+        await setup_client.delete_collection(
             id=source_collection, bucket=source_bucket, if_exists=True
         )
     except KintoException as e:
