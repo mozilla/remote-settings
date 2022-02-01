@@ -67,8 +67,9 @@ target/
 .python_history
 
 # misc
+autograph-certs/chains
 tests/pub
-tests/setup.cfg
+tests/pyproject.toml
 mail/*.eml
 attachments/
 .DS_Store

@@ -28,6 +28,9 @@ def canonical_json(records, last_modified):
     return dump
 
 
+pytestmark = pytest.mark.asyncio
+
+
 def test_heartbeat(server: str):
     resp = requests.get(f"{server}/__heartbeat__")
     resp.raise_for_status()

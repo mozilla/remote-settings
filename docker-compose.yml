@@ -73,4 +73,5 @@ services:
     volumes:
       - $PWD/tests:/app
       - $PWD/mail:/app/mail/
+      - $PWD/pyproject.toml:/app/pyproject.toml
     command: tests
