@@ -85,6 +85,26 @@ finished, run:
 
     make stop
 
+
+Test Remote Server
+------------------
+
+Integration tests can be executed on a remote server.
+
+.. code-block:: shell
+
+    docker-compose build tests
+
+.. code-block:: shell
+
+    docker-compose run remotesettings:tests \
+        -e SERVER=http://settings.dev.mozaws.net \
+        -e MAIL_DIR="" \
+        -e SKIP_SERVER_SETUP=true \
+        -e EDITOR_AUTH=editor:azerty123" \
+        -e REVIEWER_AUTH=reviwer:s3cr3t"
+
+
 Debugging Locally (simple)
 --------------------------
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-: "${SERVER:=http://web:8888/v1}"
+: "${SERVER:=http://localhost:8888/v1}"
 
 usage() {
     echo "usage: ./run.sh start"
