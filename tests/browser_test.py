@@ -15,38 +15,42 @@ async def test_review_signoff(
     base_url: str,
     selenium: WebDriver,
     make_client: ClientFactory,
-    auth: Auth,
+    setup_auth: Auth,
     editor_auth: Auth,
     reviewer_auth: Auth,
 ):
-    client = make_client(auth)
+    setup_client = make_client(setup_auth)
     editor_client = make_client(editor_auth)
     reviewer_client = make_client(reviewer_auth)
-
-    selenium.get(base_url)
-
-    sign_in(selenium, reviewer_auth)
 
     editor_id = (await editor_client.server_info())["user"]["id"]
     reviewer_id = (await reviewer_client.server_info())["user"]["id"]
 
-    await client.create_bucket(id="main-workspace", if_not_exists=True)
-    await client.create_collection(
+    # Setup remote server.
+    await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+    await setup_client.create_collection(
         id="product-integrity",
         bucket="main-workspace",
         permissions={"write": [editor_id, reviewer_id]},
         if_not_exists=True,
     )
     data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-    await client.patch_group(id="product-integrity-editors", changes=data)
+    await setup_client.patch_group(id="product-integrity-editors", changes=data)
     data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
-    await client.patch_group(id="product-integrity-reviewers", changes=data)
-    await client.create_record(
+    await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
+
+    # Sample data.
+    await editor_client.create_record(
         bucket="main-workspace", collection="product-integrity", data={"testing": 123}
     )
     await editor_client.patch_collection(
         id="product-integrity", bucket="main-workspace", data={"status": "to-review"}
     )
+
+    # Start browsing.
+    selenium.get(base_url)
+
+    sign_in(selenium, reviewer_auth)
 
     selenium.get(
         base_url

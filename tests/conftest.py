@@ -11,7 +11,7 @@ from urllib3.util.retry import Retry
 
 
 DEFAULT_SERVER = "http://localhost:8888/v1"
-DEFAULT_AUTH = "user:pass"
+DEFAULT_SETUP_AUTH = "user:pass"
 DEFAULT_EDITOR_AUTH = "editor:pass"
 DEFAULT_REVIEWER_AUTH = "reviewer:pass"
 DEFAULT_BUCKET = "main-workspace"
@@ -29,10 +29,10 @@ def pytest_addoption(parser):
         help="Kinto server (in form 'http(s)://<host>:<port>/v1')",
     )
     parser.addoption(
-        "--auth",
+        "--setup-auth",
         action="store",
-        default=DEFAULT_AUTH,
-        help="Basic authentication",
+        default=DEFAULT_SETUP_AUTH,
+        help="Basic authentication for server setup",
     )
     parser.addoption(
         "--editor-auth",
@@ -72,8 +72,8 @@ def server(request) -> str:
 
 
 @pytest.fixture(scope="session")
-def auth(request) -> Auth:
-    return tuple(request.config.getoption("--auth").split(":"))
+def setup_auth(request) -> Auth:
+    return tuple(request.config.getoption("--setup-auth").split(":"))
 
 
 @pytest.fixture(scope="session")
