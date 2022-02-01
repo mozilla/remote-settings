@@ -15,6 +15,7 @@ usage() {
 
 case $1 in
 start)
+    shift
     wget -q --tries=180 --retry-connrefused --waitretry=1 -O /dev/null $SERVER || (echo "Can't reach $SERVER" && exit 1)
     http -q --check-status $SERVER/__heartbeat__
     pytest integration_test.py $@
