@@ -521,18 +521,21 @@ async def test_changes_plugin(
     records = await anonymous_client.get_records(bucket="monitor", collection="changes")
 
     assert records
-    assert len(records) == 1
+    assert len(records) == 2
     assert "bucket" in records[0]
-    assert records[0]["bucket"] == "main-workspace"
+    assert records[0]["bucket"] == "main"
+    assert records[1]["bucket"] == "main-preview"
 
     initial_last_modified = records[0]["last_modified"]
 
     editor_client = make_client(editor_auth)
     await upload_records(editor_client, 10, "main-workspace", "product-integrity")
+    await editor_client.patch_collection(data={"status": "to-review"})
 
     records = await anonymous_client.get_records(bucket="monitor", collection="changes")
 
     updated_last_modified = records[0]["last_modified"]
+    assert records[0]["bucket"] == "main-preview"
 
     assert updated_last_modified > initial_last_modified
 
