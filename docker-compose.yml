@@ -61,7 +61,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.Testing
-    image: kinto:tests
+    image: remotesettings:tests
     depends_on:
       - web
       - selenium
@@ -73,6 +73,4 @@ services:
     volumes:
       - $PWD/tests:/app
       - $PWD/mail:/app/mail/
-      - $PWD/kinto-remote-settings:/app/kinto-remote-settings
-      - $PWD/setup.cfg:/app/setup.cfg
-    command: start
+    command: tests

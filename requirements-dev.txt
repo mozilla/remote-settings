@@ -1,6 +1,7 @@
 aiohttp
 autograph-utils
 black
+canonicaljson
 flake8
 httpie
 isort
