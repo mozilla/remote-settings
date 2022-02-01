@@ -40,7 +40,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: remotesettings:build
+    image: remotesettings:server
     depends_on:
       - db
       - memcached
