@@ -18,6 +18,7 @@ DEFAULT_EDITOR_AUTH = os.getenv("EDITOR_AUTH", "editor:pass")
 DEFAULT_REVIEWER_AUTH = os.getenv("REVIEWER_AUTH", "reviewer:pass")
 DEFAULT_BUCKET = os.getenv("BUCKET", "main-workspace")
 DEFAULT_COLLECTION = os.getenv("COLLECTION", "product-integrity")
+DEFAULT_MAIL_DIR = os.getenv("MAIL_DIR", "mail")
 DEFAULT_KEEP_EXISTING = asbool(os.getenv("KEEP_EXISTING", False))
 DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", False))
 
@@ -63,6 +64,12 @@ def pytest_addoption(parser):
         help="Source collection",
     )
     parser.addoption(
+        "--mail-dir",
+        action="store",
+        default=DEFAULT_MAIL_DIR,
+        help="Directory of debug email files (from server)",
+    )
+    parser.addoption(
         "--keep-existing",
         action="store_true",
         default=DEFAULT_KEEP_EXISTING,
@@ -104,6 +111,11 @@ def source_bucket(request) -> str:
 @pytest.fixture(scope="session")
 def source_collection(request) -> str:
     return request.config.getoption("--collection")
+
+
+@pytest.fixture(scope="session")
+def mail_dir(request) -> str:
+    return request.config.getoption("--mail-dir")
 
 
 @pytest.fixture(scope="session")

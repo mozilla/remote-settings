@@ -89,12 +89,17 @@ async def test_email_plugin(
     make_client: ClientFactory,
     setup_auth: Auth,
     editor_auth: Auth,
+    mail_dir: str,
     skip_server_setup: bool,
 ):
+    if not mail_dir:
+        # Skip test if mail dir is empty (eg. testing remote server)
+        return
+
     # remove any existing .eml files in mail directory
     try:
-        for file in os.listdir("mail"):
-            os.remove(f"mail/{file}")
+        for file in os.listdir(mail_dir):
+            os.remove(f"{mail_dir}/{file}")
     except FileNotFoundError:
         pass
 
@@ -133,7 +138,7 @@ async def test_email_plugin(
         id="product-integrity", bucket="main-workspace", data={"status": "to-review"}
     )
 
-    mail = os.listdir("mail")
+    mail = os.listdir(mail_dir)
     assert mail, "No emails created"
     assert len(mail) == 1
     assert mail[0].endswith(".eml")
