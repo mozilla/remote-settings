@@ -4,12 +4,15 @@ from typing import Callable, Tuple
 import pytest
 import requests
 from kinto_http import AsyncClient, KintoException
-from pyramid.settings import asbool
 from pytest import FixtureRequest
 from requests.adapters import HTTPAdapter
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.remote.webdriver import WebDriver
 from urllib3.util.retry import Retry
+
+
+def asbool(s):
+    return s.strip().lower() in ("true", "yes", "on", "1")
 
 
 DEFAULT_SERVER = os.getenv("SERVER", "http://localhost:8888/v1")
@@ -19,8 +22,8 @@ DEFAULT_REVIEWER_AUTH = os.getenv("REVIEWER_AUTH", "reviewer:pass")
 DEFAULT_BUCKET = os.getenv("BUCKET", "main-workspace")
 DEFAULT_COLLECTION = os.getenv("COLLECTION", "product-integrity")
 DEFAULT_MAIL_DIR = os.getenv("MAIL_DIR", "mail")
-DEFAULT_KEEP_EXISTING = asbool(os.getenv("KEEP_EXISTING", False))
-DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", False))
+DEFAULT_KEEP_EXISTING = asbool(os.getenv("KEEP_EXISTING", "false"))
+DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", "false"))
 
 Auth = Tuple[str, str]
 ClientFactory = Callable[[Auth], AsyncClient]
