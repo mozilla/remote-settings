@@ -1,7 +1,9 @@
+import os
 from typing import Callable, Tuple
 
 import pytest
 import requests
+from pyramid.settings import asbool
 from kinto_http import AsyncClient, KintoException
 from pytest import FixtureRequest
 from requests.adapters import HTTPAdapter
@@ -10,12 +12,13 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from urllib3.util.retry import Retry
 
 
-DEFAULT_SERVER = "http://localhost:8888/v1"
-DEFAULT_SETUP_AUTH = "user:pass"
-DEFAULT_EDITOR_AUTH = "editor:pass"
-DEFAULT_REVIEWER_AUTH = "reviewer:pass"
-DEFAULT_BUCKET = "main-workspace"
-DEFAULT_COLLECTION = "product-integrity"
+DEFAULT_SERVER = os.getenv("SERVER", "http://localhost:8888/v1")
+DEFAULT_SETUP_AUTH = os.getenv("SETUP_AUTH", "user:pass")
+DEFAULT_EDITOR_AUTH = os.getenv("EDITOR_AUTH", "editor:pass")
+DEFAULT_REVIEWER_AUTH = os.getenv("REVIEWER_AUTH", "reviewer:pass")
+DEFAULT_BUCKET = os.getenv("BUCKET", "main-workspace")
+DEFAULT_COLLECTION = os.getenv("COLLECTION", "product-integrity")
+DEFAULT_KEEP_EXISTING = asbool(os.getenv("KEEP_EXISTING", False))
 
 Auth = Tuple[str, str]
 ClientFactory = Callable[[Auth], AsyncClient]
@@ -61,7 +64,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--keep-existing",
         action="store_true",
-        default=False,
+        default=DEFAULT_KEEP_EXISTING,
         help="Keep existing collection data",
     )
 
