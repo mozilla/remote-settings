@@ -1,17 +1,31 @@
+import operator
 import os
 import random
 from string import hexdigits
 from typing import Dict, List
 
 import aiohttp
+import canonicaljson
 import pytest
 import requests
 from autograph_utils import MemoryCache, SignatureVerifier
 from kinto_http import AsyncClient, KintoException
 from kinto_http.patch_type import JSONPatch
-from kinto_remote_settings.signer.serializer import canonical_json
 
 from .conftest import Auth, ClientFactory
+
+
+def canonical_json(records, last_modified):
+    # This code is import from `kinto_remote_settings.signer.serializer`.
+    # Duplicating it here prevents us from installing the plugin and the
+    # whole Kinto / Pyramid chain of dependance.
+    # Note that this serialization code won't change since millions of
+    # clients depend on it.
+    records = (r for r in records if not r.get("deleted", False))
+    records = sorted(records, key=operator.itemgetter("id"))
+    payload = {"data": records, "last_modified": "%s" % last_modified}
+    dump = canonicaljson.dumps(payload)
+    return dump
 
 
 def test_heartbeat(server: str):
