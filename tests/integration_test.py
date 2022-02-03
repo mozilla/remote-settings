@@ -152,6 +152,12 @@ async def test_email_plugin(
             },
         )
 
+    bucket_metadata = await editor_client.get_bucket(id="main-workspace")
+    email_hooks = bucket_metadata["data"]["kinto-emailer"]["hooks"]
+    assert [
+        h for h in email_hooks if "ReviewRequested" in h["event"]
+    ], "Email hook not found"
+
     # Create record, will set status to "work-in-progress"
     await editor_client.create_record(data={"hola": "mundo"})
     # Request review!
