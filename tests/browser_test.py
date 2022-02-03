@@ -19,6 +19,7 @@ async def test_review_signoff(
     editor_auth: Auth,
     reviewer_auth: Auth,
     skip_server_setup: bool,
+    keep_existing: bool,
 ):
     editor_client = make_client(editor_auth)
     reviewer_client = make_client(reviewer_auth)
@@ -42,6 +43,8 @@ async def test_review_signoff(
             [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
         )
         await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
+        if not keep_existing:
+            await setup_client.delete_records()
 
     # Sample data.
     await editor_client.create_record(

@@ -173,16 +173,12 @@ def make_client(
 async def flush_default_collection(
     make_client: ClientFactory,
     setup_auth: Auth,
-    source_bucket: str,
-    source_collection: str,
 ):
     yield
     setup_client = make_client(setup_auth)
 
     try:
-        await setup_client.delete_collection(
-            id=source_collection, bucket=source_bucket, if_exists=True
-        )
+        await setup_client.delete_records()
     except KintoException as e:
         # in the case where a user doesn't have permissions to delete
         print(e)
