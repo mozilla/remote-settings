@@ -34,6 +34,16 @@ the version control of each dependency.
 - Add missing ``Last-Modified`` response header in ``/changeset`` responses
 - Don't check groups when review is disabled (#157)
 
+kinto
+-----
+
+**kinto 14.6.0 → 14.6.1**: https://github.com/Kinto/kinto/releases/tag/14.6.1
+
+**Bug Fixes**
+
+- Fix crash in ``/permissions`` endpoint when a setting is misinterpreted as resource permission (e.g. ``signer.auto_create_resources_principals``) (Kinto/kinto#2949)
+
+
 
 27.0.1 (2022-01-13)
 ===================
