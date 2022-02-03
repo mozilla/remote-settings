@@ -114,13 +114,8 @@ async def test_email_plugin(
         return
 
     mail_dir = os.path.abspath(mail_dir)
-    print(f"Read emails from {mail_dir}")
-    # remove any existing .eml files in mail directory
-    try:
-        for file in os.listdir(mail_dir):
-            os.remove(f"{mail_dir}/{file}")
-    except FileNotFoundError:
-        pass
+    existing_email_files = set(os.listdir(mail_dir))
+    print(f"Read emails from {mail_dir} ({len(existing_email_files)} file(s) present)")
 
     editor_client = make_client(editor_auth)
     editor_id = (await editor_client.server_info())["user"]["id"]
@@ -165,12 +160,13 @@ async def test_email_plugin(
         id="product-integrity", bucket="main-workspace", data={"status": "to-review"}
     )
 
-    mail = os.listdir(mail_dir)
-    assert mail, "No emails created"
-    assert len(mail) == 1
-    assert mail[0].endswith(".eml")
+    email_files_created = set(os.listdir(mail_dir)) - existing_email_files
+    assert email_files_created, "No emails created"
+    assert len(email_files_created) == 1, "Too many emails created"
+    email_file = email_files_created.pop()
+    assert email_file.endswith(".eml")
 
-    with open(os.path.join(mail_dir, mail[0]), "r") as f:
+    with open(os.path.join(mail_dir, email_file), "r") as f:
         mail_contents = f.read()
         assert mail_contents.find("Subject: account") >= 0
         assert mail_contents.find("To: me@you.com") >= 0
