@@ -133,7 +133,7 @@ manually with ``kinto start``:
 
 .. code-block:: shell
 
-    kinto start --ini config/example.ini
+    kinto start --ini config/local.ini
 
 Another thing you might want to debug is the ``tests`` container that tests
 against the Kinto server.
