@@ -68,7 +68,6 @@ target/
 
 # misc
 autograph-certs/chains
-tests/pub
 tests/pyproject.toml
 mail/*.eml
 attachments/

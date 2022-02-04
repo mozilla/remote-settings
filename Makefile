@@ -3,6 +3,7 @@ INSTALL_STAMP := $(VENV)/.install.stamp
 DOC_STAMP := $(VENV)/.doc.install.stamp
 SPHINX_BUILDDIR = docs/_build
 PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
+VOLUMES_FOLDERS := autograph-certs mail
 
 clean:
 	find . -name '*.pyc' -delete
@@ -12,7 +13,13 @@ distclean: clean
 	rm -rf *.egg *.egg-info/ dist/ build/
 
 maintainer-clean: distclean
-	rm -rf .venv/
+	deactivate ; rm -rf .venv/
+	rm -rf .pytest_cache
+	rm -rf tests/.pytest_cache
+	find . -name '*.orig' -delete
+	docker-compose stop
+	docker-compose rm -f
+	rm -rf $(VOLUMES_FOLDERS)
 
 $(VENV)/bin/python:
 	virtualenv $(VENV) --python=python3
@@ -37,7 +44,7 @@ test: $(INSTALL_STAMP)
 	PYTHONPATH=. $(VENV)/bin/pytest kinto-remote-settings
 
 integration-test:
-	mkdir -p -m 777 autograph-certs mail
+	mkdir -p -m 777 $(VOLUMES_FOLDERS)
 	docker-compose run web migrate
 	docker-compose run tests
 
