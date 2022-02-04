@@ -37,7 +37,7 @@ test: $(INSTALL_STAMP)
 	PYTHONPATH=. $(VENV)/bin/pytest kinto-remote-settings
 
 integration-test:
-	mkdir -p --mode=777 autograph-certs mail
+	mkdir -p -m 777 autograph-certs mail
 	docker-compose run web migrate
 	docker-compose run tests
 

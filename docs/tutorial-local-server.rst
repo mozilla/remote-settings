@@ -42,7 +42,7 @@ Create a local folder to receive the potential records attachments, Docker shoul
 
 .. code-block:: bash
 
-    mkdir --mode=777 attachments  # world writable
+    mkdir -m 777 attachments  # world writable
 
 Now, we will run the container with the local configuration file and attachments folder mounted:
 
@@ -69,7 +69,7 @@ We will run the Autograph container in a separate terminal. Since Autograph gene
 
 .. code-block:: bash
 
-    mkdir --mode=777 /tmp/attachments  # world writable
+    mkdir -m 777 /tmp/attachments  # world writable
 
 .. code-block:: bash
 
