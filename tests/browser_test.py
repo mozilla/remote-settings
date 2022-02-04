@@ -65,9 +65,14 @@ async def test_review_signoff(
     )
     selenium.refresh()
 
-    approve_button: WebElement = selenium.find_element(
-        By.XPATH, "//button[contains(., 'Approve')]"
-    )
+    try:
+        approve_button: WebElement = selenium.find_element(
+            By.XPATH, "//button[contains(., 'Approve')]"
+        )
+    except NoSuchElementException:
+        print(selenium.page_source)  # CI debugging.
+        raise
+
     assert approve_button, "Approve button not found"
     assert approve_button.text == "Approve"
     assert approve_button.is_displayed()
