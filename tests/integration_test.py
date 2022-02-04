@@ -12,7 +12,7 @@ from autograph_utils import MemoryCache, SignatureVerifier
 from kinto_http import AsyncClient, KintoException
 from kinto_http.patch_type import JSONPatch
 
-from .conftest import Auth, ClientFactory
+from .conftest import Auth, ClientFactory, signed_resource
 
 
 def canonical_json(records, last_modified):
@@ -267,21 +267,7 @@ async def test_signer_plugin_full_workflow(
     editor_client = make_client(editor_auth)
     reviewer_client = make_client(reviewer_auth)
 
-    # 0. initialize source bucket/collection (if necessary)
-    server_info = await editor_client.server_info()
-
-    # 0. check that this collection is well configured.
-    signer_capabilities = server_info["capabilities"]["signer"]
-
-    resources = [
-        r
-        for r in signer_capabilities["resources"]
-        if (source_bucket, source_collection)
-        == (r["source"]["bucket"], r["source"]["collection"])
-        or (source_bucket, None) == (r["source"]["bucket"], r["source"]["collection"])
-    ]
-    assert resources, "Specified source not configured to be signed"
-    resource = resources[0]
+    resource = await signed_resource(editor_client, source_bucket, source_collection)
 
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
