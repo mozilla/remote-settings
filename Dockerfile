@@ -45,7 +45,7 @@ COPY --from=compile /dogstatsd_plugin.so .
 
 ENV PYTHONUNBUFFERED=1 \
     PORT=8888 \
-    KINTO_INI=config/example.ini \
+    KINTO_INI=config/local.ini \
     PATH="/opt/venv/bin:$PATH"
 
 # add a non-privileged user for installing and running

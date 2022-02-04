@@ -74,13 +74,13 @@ We will run the Autograph container in a separate terminal. Since Autograph gene
 .. code-block:: bash
 
     docker run -v /tmp/attachments:/tmp/attachments \
-               --rm --name autograph-server mozilla/autograph
+               --rm --name autograph mozilla/autograph
 
-And run the Remote Settings server with a link to ``autograph-server`` container:
+And run the Remote Settings server with a link to ``autograph`` container:
 
 .. code-block:: bash
 
-    docker run --link autograph-server:autograph-server \
+    docker run --link autograph:autograph \
                -e KINTO_INI=config/local.ini \
                -p 8888:8888 \
                mozilla/remote-settings

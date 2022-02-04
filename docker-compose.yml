@@ -48,9 +48,10 @@ services:
     environment:
       - KINTO_CACHE_BACKEND=kinto.core.cache.memcached
       - KINTO_CACHE_HOSTS=memcached:11211 memcached:11212
+      - KINTO_STORAGE_BACKEND=kinto.core.storage.postgresql
       - KINTO_STORAGE_URL=postgresql://postgres@db/postgres
+      - KINTO_PERMISSION_BACKEND=kinto.core.permission.postgresql
       - KINTO_PERMISSION_URL=postgresql://postgres@db/postgres
-      - KINTO_SIGNER_AUTOGRAPH_SERVER_URL=http://autograph:8000
     ports:
       - 8888:8888
     volumes:
