@@ -217,3 +217,28 @@ def create_user(request_session: requests.Session, server: str, auth: Auth):
             f"{server}/accounts/{auth[0]}",
             json={"data": {"password": auth[1]}},
         )
+
+
+async def signed_resource(client, source_bucket, source_collection):
+    signer_resources = (await client.server_info())["capabilities"]["signer"][
+        "resources"
+    ]
+    signed_resource = [
+        r
+        for r in signer_resources
+        if r["source"]["bucket"] == source_bucket
+        and r["source"]["collection"] == source_collection
+    ]
+    if len(signed_resource) == 0:
+        # Not explicitly configured. Check if configured at bucket level.
+        signed_resource = [
+            r
+            for r in signer_resources
+            if r["source"]["bucket"] == source_bucket
+            and r["source"]["collection"] is None
+        ]
+
+    assert (
+        signed_resource
+    ), f"{source_bucket}/{source_collection} not configured to be signed"
+    return signed_resource[0]

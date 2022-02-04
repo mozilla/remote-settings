@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
-from .conftest import Auth, ClientFactory
+from .conftest import Auth, ClientFactory, signed_resource
 
 
 pytestmark = pytest.mark.asyncio
@@ -18,6 +18,8 @@ async def test_review_signoff(
     setup_auth: Auth,
     editor_auth: Auth,
     reviewer_auth: Auth,
+    source_bucket: str,
+    source_collection: str,
     skip_server_setup: bool,
     keep_existing: bool,
 ):
@@ -30,28 +32,34 @@ async def test_review_signoff(
     # Setup remote server.
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        await setup_client.create_bucket(id=source_bucket, if_not_exists=True)
         await setup_client.create_collection(
-            id="product-integrity",
-            bucket="main-workspace",
+            id=source_collection,
+            bucket=source_bucket,
             permissions={"write": [editor_id, reviewer_id]},
             if_not_exists=True,
         )
         data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-        await setup_client.patch_group(id="product-integrity-editors", changes=data)
+        await setup_client.patch_group(id=f"{source_collection}-editors", changes=data)
         data = JSONPatch(
             [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
         )
-        await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
+        await setup_client.patch_group(
+            id=f"{source_collection}-reviewers", changes=data
+        )
         if not keep_existing:
             await setup_client.delete_records()
 
+    dest_bucket = (
+        await signed_resource(editor_client, source_bucket, source_collection)
+    )["destination"]["bucket"]
+
     # Sample data.
     await editor_client.create_record(
-        bucket="main-workspace", collection="product-integrity", data={"testing": 123}
+        bucket=source_bucket, collection=source_collection, data={"testing": 123}
     )
     await editor_client.patch_collection(
-        id="product-integrity", bucket="main-workspace", data={"status": "to-review"}
+        id=source_collection, bucket=source_bucket, data={"status": "to-review"}
     )
 
     # Start browsing.
@@ -61,7 +69,7 @@ async def test_review_signoff(
 
     selenium.get(
         base_url
-        + "/#/buckets/main-workspace/collections/product-integrity/simple-review"
+        + f"#/buckets/{source_bucket}/collections/{source_collection}/simple-review"
     )
     selenium.refresh()
 
@@ -95,15 +103,19 @@ async def test_review_signoff(
     # find and click on main bucket product-integrity collection
     product_integrity: WebElement = selenium.find_element(
         By.XPATH,
-        "//a[@href='#/buckets/main/collections/product-integrity/records' and contains(., 'product-integrity')]",
+        f"//a[@href='#/buckets/{dest_bucket}/collections/{source_collection}/records' and contains(., '{source_collection}')]",
     )
-    assert product_integrity, "product-integrity collection not found under main bucket"
+    assert (
+        product_integrity
+    ), f"{source_collection} collection not found under {dest_bucket} bucket"
     assert product_integrity.is_displayed()
     product_integrity.click()
 
-    # find and ensure record was properly signed to main bucket
+    # find and ensure record was properly signed to destination bucket
     data: WebElement = selenium.find_element(By.XPATH, "//code")
-    assert data, "Record not found in product-integrity collection under main bucket"
+    assert (
+        data
+    ), f"Record not found in {source_collection} collection under {dest_bucket} bucket"
     assert data.is_displayed()
     assert data.text == '{"testing":123}'
 
