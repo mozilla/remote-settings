@@ -28,6 +28,34 @@ def canonical_json(records, last_modified):
     return dump
 
 
+pytestmark = pytest.mark.asyncio
+
+
+async def setup_server(setup_client, editor_client=None, reviewer_client=None):
+    await setup_client.create_bucket(
+        id="main-workspace",
+        permissions={
+            "collection:create": ["system.Authenticated"],
+        },
+        if_not_exists=True,
+    )
+    await setup_client.create_collection(
+        id="product-integrity", bucket="main-workspace", if_not_exists=True
+    )
+
+    if editor_client:
+        editor_id = (await editor_client.server_info())["user"]["id"]
+        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+        await setup_client.patch_group(id="product-integrity-editors", changes=data)
+
+    if reviewer_client:
+        reviewer_id = (await reviewer_client.server_info())["user"]["id"]
+        data = JSONPatch(
+            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
+        )
+        await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
+
+
 def test_heartbeat(server: str):
     resp = requests.get(f"{server}/__heartbeat__")
     resp.raise_for_status()
@@ -41,20 +69,22 @@ async def test_history_plugin(
     skip_server_setup: bool,
 ):
     editor_client = make_client(editor_auth)
-    editor_id = (await editor_client.server_info())["user"]["id"]
 
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
+        await setup_server(setup_client, editor_client)
+
         if not keep_existing:
             await setup_client.purge_history(bucket="main-workspace")
-        await setup_client.create_collection(
-            id="product-integrity", bucket="main-workspace", if_not_exists=True
-        )
-        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-        await setup_client.patch_group(id="product-integrity-editors", changes=data)
 
+    # Reset collection status.
+    collection = await editor_client.get_collection()
+    if collection["data"]["status"] != "signed":
+        await editor_client.patch_collection(data={"status": "to-rollback"})
+
+    # Create record, will set status to "work-in-progress"
     await editor_client.create_record(data={"hola": "mundo"})
+    # Request review, will set status and update collection attributes.
     await editor_client.patch_collection(data={"status": "to-review"})
 
     history = await editor_client.get_history(bucket="main-workspace")
@@ -66,36 +96,26 @@ async def test_history_plugin(
         if e["resource_name"] == "collection"
         and e["collection_id"] == "product-integrity"
     ]
-    if not keep_existing:
-        assert len(collection_entries) == 5
-
+    assert len(collection_entries) >= 3, "History does not contain expected events"
     (
-        event_creation,
-        event_signed,
         event_wip,
         event_to_review,
         event_review_attrs,
-    ) = collection_entries[:5]
-
-    assert event_creation["action"] == "create"
-    assert event_creation["user_id"] == "account:user"
-
-    assert event_signed["action"] == "update"
-    assert "kinto-signer" in event_signed["user_id"]
-    assert event_signed["target"]["data"]["status"] == "signed"
+    ) = collection_entries[-3:]
 
     assert event_wip["action"] == "update"
     assert "kinto-signer" in event_wip["user_id"]
     assert event_wip["target"]["data"]["status"] == "work-in-progress"
 
     assert event_to_review["action"] == "update"
-    assert event_to_review["user_id"] == "account:user"
+    assert event_to_review["user_id"] == "account:editor"
     assert event_to_review["target"]["data"]["status"] == "to-review"
 
     assert event_review_attrs["action"] == "update"
     assert "kinto-signer" in event_review_attrs["user_id"]
     assert (
-        event_review_attrs["target"]["data"]["last_review_request_by"] == "account:user"
+        event_review_attrs["target"]["data"]["last_review_request_by"]
+        == "account:editor"
     )
 
 
@@ -110,24 +130,16 @@ async def test_email_plugin(
         # Skip test if mail dir is empty (eg. testing remote server)
         return
 
-    # remove any existing .eml files in mail directory
-    try:
-        for file in os.listdir(mail_dir):
-            os.remove(f"{mail_dir}/{file}")
-    except FileNotFoundError:
-        pass
+    mail_dir = os.path.abspath(mail_dir)
+    existing_email_files = set(os.listdir(mail_dir))
+    print(f"Read emails from {mail_dir} ({len(existing_email_files)} file(s) present)")
 
     editor_client = make_client(editor_auth)
-    editor_id = (await editor_client.server_info())["user"]["id"]
 
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-        await setup_client.create_collection(
-            id="product-integrity", bucket="main-workspace", if_not_exists=True
-        )
-        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-        await setup_client.patch_group(id="product-integrity-editors", changes=data)
+        await setup_server(setup_client, editor_client)
+
         await setup_client.patch_bucket(
             id="main-workspace",
             data={
@@ -147,17 +159,26 @@ async def test_email_plugin(
             },
         )
 
-    editor_client = make_client(editor_auth)
+    bucket_metadata = await editor_client.get_bucket(id="main-workspace")
+    email_hooks = bucket_metadata["data"]["kinto-emailer"]["hooks"]
+    assert [
+        h for h in email_hooks if "ReviewRequested" in h["event"]
+    ], "Email hook not found"
+
+    # Create record, will set status to "work-in-progress"
+    await editor_client.create_record(data={"hola": "mundo"})
+    # Request review!
     await editor_client.patch_collection(
         id="product-integrity", bucket="main-workspace", data={"status": "to-review"}
     )
 
-    mail = os.listdir(mail_dir)
-    assert mail, "No emails created"
-    assert len(mail) == 1
-    assert mail[0].endswith(".eml")
+    email_files_created = set(os.listdir(mail_dir)) - existing_email_files
+    assert email_files_created, "No emails created"
+    assert len(email_files_created) == 1, "Too many emails created"
+    email_file = email_files_created.pop()
+    assert email_file.endswith(".eml")
 
-    with open(f"mail/{mail[0]}", "r") as f:
+    with open(os.path.join(mail_dir, email_file), "r") as f:
         mail_contents = f.read()
         assert mail_contents.find("Subject: account") >= 0
         assert mail_contents.find("To: me@you.com") >= 0
@@ -171,10 +192,7 @@ async def test_attachment_plugin_new_record(
 ):
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-        await setup_client.create_collection(
-            id="product-integrity", bucket="main-workspace", if_not_exists=True
-        )
+        await setup_server(setup_client)
 
     editor_client = make_client(editor_auth)
     with open("kinto-logo.svg", "rb") as attachment:
@@ -201,10 +219,7 @@ async def test_attachment_plugin_existing_record(
 ):
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-        await setup_client.create_collection(
-            id="product-integrity", bucket="main-workspace", if_not_exists=True
-        )
+        await setup_server(setup_client)
 
     editor_client = make_client(editor_auth)
     await editor_client.create_record(
@@ -232,7 +247,7 @@ async def test_attachment_plugin_existing_record(
 
 
 async def test_signer_plugin_capabilities(make_client: ClientFactory):
-    anonymous_client = make_client(":")
+    anonymous_client = make_client(tuple())
     capability = (await anonymous_client.server_info())["capabilities"]["signer"]
     assert capability["group_check_enabled"]
     assert capability["to_review_enabled"]
@@ -254,8 +269,6 @@ async def test_signer_plugin_full_workflow(
 
     # 0. initialize source bucket/collection (if necessary)
     server_info = await editor_client.server_info()
-    editor_id = (await editor_client.server_info())["user"]["id"]
-    reviewer_id = (await reviewer_client.server_info())["user"]["id"]
 
     # 0. check that this collection is well configured.
     signer_capabilities = server_info["capabilities"]["signer"]
@@ -272,34 +285,7 @@ async def test_signer_plugin_full_workflow(
 
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(if_not_exists=True)
-        await setup_client.create_bucket(
-            id=resource["preview"]["bucket"], if_not_exists=True
-        )
-        await setup_client.create_bucket(
-            id=resource["destination"]["bucket"], if_not_exists=True
-        )
-
-        await setup_client.create_collection(
-            permissions={"write": [editor_id, reviewer_id]},
-            if_not_exists=True,
-        )
-
-        editors_group = (
-            resource.get("editors_group") or signer_capabilities["editors_group"]
-        )
-        editors_group = editors_group.format(collection_id=source_collection)
-        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-        await setup_client.patch_group(id=editors_group, changes=data)
-
-        reviewers_group = (
-            resource.get("reviewers_group") or signer_capabilities["reviewers_group"]
-        )
-        reviewers_group = reviewers_group.format(collection_id=source_collection)
-        data = JSONPatch(
-            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
-        )
-        await setup_client.patch_group(id=reviewers_group, changes=data)
+        await setup_server(setup_client, editor_client, reviewer_client)
 
     dest_col = resource["destination"].get("collection") or source_collection
     dest_client = AsyncClient(
@@ -323,7 +309,7 @@ async def test_signer_plugin_full_workflow(
         existing = 0
 
         # Status is now WIP.
-        status = (await dest_client.get_collection())["data"]["status"]
+        status = (await editor_client.get_collection())["data"]["status"]
         assert status == "work-in-progress", f"{status} != work-in-progress"
 
         # Re-sign and verify.
@@ -413,10 +399,7 @@ async def test_signer_plugin_rollback(
 ):
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-        await setup_client.create_collection(
-            id="product-integrity", bucket="main-workspace", if_not_exists=True
-        )
+        await setup_server(setup_client)
 
     editor_client = make_client(editor_auth)
     before_records = await editor_client.get_records()
@@ -439,22 +422,13 @@ async def test_signer_plugin_refresh(
 ):
     cid = "product-integrity"
     reviewer_client = make_client(reviewer_auth)
-    reviewer_id = (await reviewer_client.server_info())["user"]["id"]
-
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-        await setup_client.create_collection(
-            id=cid, bucket="main-workspace", if_not_exists=True
-        )
-        data = JSONPatch(
-            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
-        )
-        await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
+        await setup_server(setup_client, reviewer_client=reviewer_client)
 
     editor_client = make_client(editor_auth)
     await upload_records(editor_client, 5)
-    await editor_auth.patch_collection(data={"status": "to-review"})
+    await editor_client.patch_collection(data={"status": "to-review"})
     await reviewer_client.patch_collection(id=cid, data={"status": "to-sign"})
     signature_preview_before = (
         await editor_client.get_collection(bucket="main-preview")
@@ -482,22 +456,20 @@ async def test_signer_plugin_reviewer_verifications(
     skip_server_setup: bool,
 ):
     editor_client = make_client(editor_auth)
-    editor_id = (await editor_client.server_info())["user"]["id"]
     reviewer_client = make_client(reviewer_auth)
-    reviewer_id = (await reviewer_client.server_info())["user"]["id"]
 
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-        await setup_client.create_collection(
-            id="product-integrity", bucket="main-workspace", if_not_exists=True
+        await setup_server(setup_client, editor_client, reviewer_client)
+        # Add reviewer to editors, and vice-versa.
+        reviewer_id = (await reviewer_client.server_info())["user"]["id"]
+        data = JSONPatch(
+            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
         )
-        await setup_client.patch_group(
-            id="product-integrity-editors", data={"members": [editor_id]}
-        )
-        await setup_client.patch_group(
-            id="product-integrity-reviewers", data={"members": [editor_id, reviewer_id]}
-        )
+        await setup_client.patch_group(id="product-integrity-editors", changes=data)
+        editor_id = (await editor_client.server_info())["user"]["id"]
+        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+        await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
 
     await upload_records(editor_client, 5)
 
@@ -505,14 +477,6 @@ async def test_signer_plugin_reviewer_verifications(
     with pytest.raises(KintoException):
         await reviewer_client.patch_collection(data={"status": "to-sign"})
 
-    # reviewer cannot ask review
-    with pytest.raises(KintoException):
-        await reviewer_client.patch_collection(data={"status": "to-review"})
-
-    # Add reviewer to editors
-    await setup_client.patch_group(
-        id="product-integrity-editors", data={"members": [reviewer_id]}
-    )
     await reviewer_client.patch_collection(data={"status": "to-review"})
     # same editor cannot review
     with pytest.raises(KintoException):
@@ -551,12 +515,9 @@ async def test_changes_plugin(
 ):
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(id="main-workspace", if_not_exists=True)
-        await setup_client.create_collection(
-            id="product-integrity", bucket="main-workspace", if_not_exists=True
-        )
+        await setup_server(setup_client)
 
-    anonymous_client = make_client(":")
+    anonymous_client = make_client(tuple())
     records = await anonymous_client.get_records(bucket="monitor", collection="changes")
 
     assert records

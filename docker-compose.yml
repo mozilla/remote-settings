@@ -70,7 +70,9 @@ services:
       - SERVER=http://web:8888/v1
       - SELENIUM_HOST=selenium
       - SELENIUM_PORT=4444
+      - MAIL_DIR=/var/debug-mail/
     volumes:
       - $PWD/tests:/app
-      - $PWD/mail:/app/mail/
+      - $PWD/mail:/var/debug-mail/
+      - $PWD/pyproject.toml:/app/pyproject.toml
     command: tests

@@ -19,6 +19,7 @@ async def test_review_signoff(
     editor_auth: Auth,
     reviewer_auth: Auth,
     skip_server_setup: bool,
+    keep_existing: bool,
 ):
     editor_client = make_client(editor_auth)
     reviewer_client = make_client(reviewer_auth)
@@ -42,6 +43,8 @@ async def test_review_signoff(
             [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
         )
         await setup_client.patch_group(id="product-integrity-reviewers", changes=data)
+        if not keep_existing:
+            await setup_client.delete_records()
 
     # Sample data.
     await editor_client.create_record(
@@ -62,9 +65,14 @@ async def test_review_signoff(
     )
     selenium.refresh()
 
-    approve_button: WebElement = selenium.find_element(
-        By.XPATH, "//button[contains(., 'Approve')]"
-    )
+    try:
+        approve_button: WebElement = selenium.find_element(
+            By.XPATH, "//button[contains(., 'Approve')]"
+        )
+    except NoSuchElementException:
+        print(selenium.page_source)  # CI debugging.
+        raise
+
     assert approve_button, "Approve button not found"
     assert approve_button.text == "Approve"
     assert approve_button.is_displayed()
