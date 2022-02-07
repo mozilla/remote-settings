@@ -16,6 +16,80 @@ aliases:
       paths:
         - /home/circleci/.cache/pip
 
+workflows:
+  version: 2
+
+  pr-workflow:
+    jobs:
+      - lint_format: &pr-filters
+          filters:
+            branches:
+              ignore: main
+      - docs_test:
+          <<: *pr-filters
+      - integration_test:
+          <<: *pr-filters
+          requires:
+            - lint_format
+      - unit_test:
+          <<: *pr-filters
+          requires:
+            - lint_format
+      - build_and_publish:
+          <<: *pr-filters
+          requires:
+            - docs_test
+            - unit_test
+            - integration_test
+
+  main-workflow:
+    jobs:
+      - lint_format: &main-filters
+          filters:
+            branches:
+              only: main
+      - docs_test:
+          <<: *main-filters
+      - integration_test:
+          <<: *main-filters
+          requires:
+            - lint_format
+      - unit_test:
+          <<: *main-filters
+          requires:
+            - lint_format
+      - build_and_publish:
+          <<: *main-filters
+          requires:
+            - docs_test
+            - unit_test
+            - integration_test
+
+  tag-workflow:
+    jobs:
+      - lint_format: &tag-filters
+          filters:
+            tags:
+              only: /\d+\..*/
+            branches:
+              ignore: /.*/
+      - docs_test:
+          <<: *tag-filters
+      - integration_test:
+          <<: *tag-filters
+          requires:
+            - lint_format
+      - unit_test:
+          <<: *tag-filters
+          requires:
+            - lint_format
+      - build_and_publish:
+          <<: *tag-filters
+          requires:
+            - docs_test
+            - unit_test
+            - integration_test
+
 jobs:
   build_and_publish:
     machine:
@@ -119,6 +193,7 @@ jobs:
           name: Run kinto_remote_settings plugin unit tests
           command: make test
       - save_cache: *save_deps_cache
+
   lint_format:
     docker:
       - image: cimg/python:3.9
@@ -129,6 +204,7 @@ jobs:
           name: Check linting and formatting
           command: make lint
       - save_cache: *save_deps_cache
+
   docs_test:
     docker:
       - image: cimg/python:3.9
@@ -139,28 +215,3 @@ jobs:
           name: Check documentation build
           command: make docs
       - save_cache: *save_deps_cache
-
-
-workflows:
-  version: 2
-  main:
-    jobs:
-      - lint_format
-      - docs_test
-      - integration_test:
-          requires:
-            - lint_format
-      - unit_test:
-          requires:
-            - lint_format
-      - build_and_publish:
-          requires:
-            - docs_test
-            - unit_test
-            - integration_test
-          filters:
-            tags:
-              only: /.+/
-            branches:
-              only: main
-              
