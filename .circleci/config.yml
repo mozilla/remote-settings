@@ -55,9 +55,13 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "main" ]; then
               ./bin/deploy-dockerhub.sh latest
+            else
+              echo "CIRCLE_BRANCH=${CIRCLE_BRANCH} empty. Not pushing to dockerhub."
             fi
             if [ -n "${CIRCLE_TAG}" ]; then
               ./bin/deploy-dockerhub.sh "$CIRCLE_TAG"
+            else
+              echo "CIRCLE_TAG empty. Not pushing to dockerhub."
             fi
 
   integration_test:
