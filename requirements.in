@@ -1,4 +1,7 @@
+canonicaljson-rs
+ecdsa
 kinto[postgresql,memcached,monitoring]
 kinto-attachment
 kinto-emailer
+requests_hawk
 uWSGI
