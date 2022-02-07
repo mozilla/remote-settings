@@ -24,9 +24,6 @@ This *Remote Settings* repository contains the following:
 * ``requirements-dev.txt``: Python packages for local development and tests
 * ``VERSION``: SemVer version number that serves as both the version of the service and the ``kinto-remote-settings`` plugin
 
-**The most important function of this repository is to build a Docker image
-with a set of known working dependencies and then ship that to DockerHub.**
-
 
 Run
 ---
@@ -64,6 +61,7 @@ With Docker and docker-compose, test that all components are working as expected
 
 .. code-block:: shell
 
+    make build
     make integration-test
 
 .. note::
@@ -99,7 +97,7 @@ Integration tests can be executed on a remote server.
 
     docker-compose run remotesettings:tests \
         -e SERVER=http://settings.dev.mozaws.net \
-        -e MAIL_DIR="" \
+        -e MAIL_DIR="" \  # disable tests about emails.
         -e SKIP_SERVER_SETUP=true \
         -e EDITOR_AUTH=editor:azerty123" \
         -e REVIEWER_AUTH=reviwer:s3cr3t"

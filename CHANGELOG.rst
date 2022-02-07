@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-28.0.0 (unreleased)
+28.0.0 (2022-02-04)
 ===================
 
 **Breaking Changes**
@@ -13,11 +13,23 @@ the version control of each dependency.
 - ``kinto-dist`` is not an installable package, and won't be published on PyPi anymore.
   The Kinto Remote Settings plugin is now an installable package.
   This doesn't have many ramifications other than how we build the ``kinto-dist``
-  container. Instead of adding the source code to the ``PYTHONPATH``, we ``pip install`` it.
-- Group names for editors and reviewers are now always ``{collection_id}-editors`` and
-  ``{collection_id}-reviewers`` (fixes #149)
+  container.
 - The container loads the ``.ini`` file from ``config/local.ini`` instead of ``/etc/kinto.ini`` by default.
 - Container does not ship ``config/example.ini`` anymore
+
+**New Features**
+
+- Now ship default configuration files to run a local instance of Remote Settings out of the box (see the *Setup a Local Server* tutorial)
+- The container can now run without custom configuration using ``docker run mozilla/remote-settings``.
+- The container can now run by just setting the ``KINTO_INI`` environment variable ``docker run -e KINTO_INI=config/testing.ini mozilla/remote-settings``
+
+kinto-remote-settings
+---------------------
+
+**Breaking Changes**
+
+- Group names for editors and reviewers are now always ``{collection_id}-editors`` and
+  ``{collection_id}-reviewers`` (fixes #149)
 
 **New Features**
 
@@ -26,14 +38,6 @@ the version control of each dependency.
   This is useful for testing or when using disposable containers.
 - Read settings from environment variables (eg. ``KINTO_SIGNER_RESOURCES="..."``)
 - Default value for ``kinto.signer.resources`` is now ``/buckets/main-workspace -> /buckets/main-preview -> /buckets/main``
-- Now ship default configuration files to run a local instance of Remote Settings out of the box (see the *Setup a Local Server* tutorial)
-- The container can now run by just setting the ``KINTO_INI`` environment variable ``docker run -e KINTO_INI=config/testing.ini mozilla/remote-settings``
-- The container now runs without custom configuration with ``docker run mozilla/remote-settings``
-
-**Bug Fixes**
-
-- Add missing ``Last-Modified`` response header in ``/changeset`` responses
-- Don't check groups when review is disabled (#157)
 
 kinto
 -----
@@ -44,6 +48,14 @@ kinto
 
 - Fix crash in ``/permissions`` endpoint when a setting is misinterpreted as resource permission (e.g. ``signer.auto_create_resources_principals``) (Kinto/kinto#2949)
 
+
+27.0.2 (2022-01-26)
+===================
+
+**Bug Fixes**
+
+- Add missing ``Last-Modified`` response header in ``/changeset`` responses
+- Don't check groups when review is disabled (backport of mozilla/remote-settings#157)
 
 
 27.0.1 (2022-01-13)
