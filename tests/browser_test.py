@@ -32,10 +32,8 @@ async def test_review_signoff(
     # Setup remote server.
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_client.create_bucket(id=source_bucket, if_not_exists=True)
+        await setup_client.create_bucket(if_not_exists=True)
         await setup_client.create_collection(
-            id=source_collection,
-            bucket=source_bucket,
             permissions={"write": [editor_id, reviewer_id]},
             if_not_exists=True,
         )
@@ -50,9 +48,7 @@ async def test_review_signoff(
         if not keep_existing:
             await setup_client.delete_records()
 
-    dest_bucket = (
-        await signed_resource(editor_client, source_bucket, source_collection)
-    )["destination"]["bucket"]
+    dest_bucket = (await signed_resource(editor_client))["destination"]["bucket"]
 
     # Sample data.
     await editor_client.create_record(

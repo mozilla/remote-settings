@@ -5,7 +5,7 @@ canonicaljson-rs
 flake8
 httpie
 isort
-kinto-http
+kinto-http>=10.9.0
 pytest
 pytest-asyncio
 pytest-selenium
