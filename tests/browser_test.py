@@ -51,12 +51,8 @@ async def test_review_signoff(
     dest_bucket = (await signed_resource(editor_client))["destination"]["bucket"]
 
     # Sample data.
-    await editor_client.create_record(
-        bucket=source_bucket, collection=source_collection, data={"testing": 123}
-    )
-    await editor_client.patch_collection(
-        id=source_collection, bucket=source_bucket, data={"status": "to-review"}
-    )
+    await editor_client.create_record(data={"testing": 123})
+    await editor_client.patch_collection(data={"status": "to-review"})
 
     # Start browsing.
     selenium.get(base_url)

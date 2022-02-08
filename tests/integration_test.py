@@ -109,7 +109,7 @@ async def test_history_plugin(
         await setup_server(setup_client, editor_client)
 
         if not keep_existing:
-            await setup_client.purge_history(bucket=setup_client.bucket_name)
+            await setup_client.purge_history()
 
     # Reset collection status.
     collection = await editor_client.get_collection()
@@ -121,7 +121,7 @@ async def test_history_plugin(
     # Request review, will set status and update collection attributes.
     await editor_client.patch_collection(data={"status": "to-review"})
 
-    history = await editor_client.get_history(bucket=editor_client.bucket_name)
+    history = await editor_client.get_history()
 
     history.reverse()
     collection_entries = [
