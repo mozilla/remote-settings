@@ -2,6 +2,7 @@ import os
 from typing import Callable, Tuple
 
 import pytest
+import pytest_asyncio
 import requests
 from kinto_http import AsyncClient, KintoException
 from pytest import FixtureRequest
@@ -169,7 +170,7 @@ def make_client(
     return _make_client
 
 
-@pytest.fixture(autouse=True)
+@pytest_asyncio.fixture(autouse=True)
 async def flush_default_collection(
     make_client: ClientFactory,
     setup_auth: Auth,
