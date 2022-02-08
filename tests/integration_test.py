@@ -421,6 +421,7 @@ async def test_signer_plugin_rollback(
         await setup_server(setup_client)
 
     editor_client = make_client(editor_auth)
+    await editor_client.patch_collection(data={"status": "to-rollback"})
     before_records = await editor_client.get_records()
 
     await upload_records(editor_client, 5)
