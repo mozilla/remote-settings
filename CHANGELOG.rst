@@ -4,6 +4,13 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+28.0.1 (unreleased)
+===================
+
+**Bug Fixes**
+
+- Fix port mapping with ``uwsgi`` when running container without parameter
+
 
 28.0.0 (2022-02-04)
 ===================

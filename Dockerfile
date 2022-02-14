@@ -69,4 +69,4 @@ EXPOSE $PORT
 
 # Run uwsgi by default
 ENTRYPOINT ["/bin/bash", "/app/bin/run.sh"]
-CMD uwsgi --ini ${KINTO_INI}
+CMD uwsgi --http :${PORT} --ini ${KINTO_INI}
