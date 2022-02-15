@@ -75,3 +75,7 @@ attachments/
 
 # Visual Studio Code
 .vscode/
+
+# diagramming
+.structurizr
+workspace.json
