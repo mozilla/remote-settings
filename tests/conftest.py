@@ -220,23 +220,22 @@ def create_user(request_session: requests.Session, server: str, auth: Auth):
         )
 
 
-async def signed_resource(client, source_bucket, source_collection):
+async def signed_resource(client):
+    bid, cid = client.bucket_name, client.collection_name
     signer_resources = (await client.server_info())["capabilities"]["signer"][
         "resources"
     ]
     signed_resource = [
         r
         for r in signer_resources
-        if r["source"]["bucket"] == source_bucket
-        and r["source"]["collection"] == source_collection
+        if r["source"]["bucket"] == bid and r["source"]["collection"] == cid
     ]
     if len(signed_resource) == 0:
         # Not explicitly configured. Check if configured at bucket level.
         signed_resource = [
             r
             for r in signer_resources
-            if r["source"]["bucket"] == source_bucket
-            and r["source"]["collection"] is None
+            if r["source"]["bucket"] == bid and r["source"]["collection"] is None
         ]
 
     assert (
