@@ -10,6 +10,7 @@ the version control of each dependency.
 **Bug Fixes**
 
 - Fix port mapping with ``uwsgi`` when running container without parameter
+- Fix signing workflow of blocklists in example configs (preview bucket should be ``blocklists-preview``)
 - Monitor all buckets in default config
 
 
