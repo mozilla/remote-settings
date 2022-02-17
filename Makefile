@@ -46,7 +46,12 @@ test: $(INSTALL_STAMP)
 integration-test:
 	mkdir -p -m 777 $(VOLUMES_FOLDERS)
 	docker-compose run --rm web migrate
-	docker-compose run --rm tests
+	docker-compose run --rm tests integration-test
+
+browser-test:
+	mkdir -p -m 777 $(VOLUMES_FOLDERS)
+	docker-compose run --rm web migrate
+	docker-compose run --rm tests browser-test
 
 build:
 	docker-compose build

@@ -31,6 +31,10 @@ workflows:
           <<: *pr-filters
           requires:
             - lint_format
+      - browser_test:
+          <<: *pr-filters
+          requires:
+            - lint_format
       - unit_test:
           <<: *pr-filters
           requires:
@@ -49,6 +53,10 @@ workflows:
           <<: *main-filters
           requires:
             - lint_format
+      - browser_test:
+          <<: *main-filters
+          requires:
+            - lint_format
       - unit_test:
           <<: *main-filters
           requires:
@@ -59,6 +67,7 @@ workflows:
             - docs_test
             - unit_test
             - integration_test
+            - browser_test
 
   tag-workflow:
     jobs:
@@ -74,6 +83,10 @@ workflows:
           <<: *tag-filters
           requires:
             - lint_format
+      - browser_test:
+          <<: *tag-filters
+          requires:
+            - lint_format
       - unit_test:
           <<: *tag-filters
           requires:
@@ -84,6 +97,7 @@ workflows:
             - docs_test
             - unit_test
             - integration_test
+            - browser_test
 
 jobs:
   build_and_publish:
@@ -170,8 +184,42 @@ jobs:
           name: Integration Test
           command: make integration-test
 
-      - store_artifacts:
-          path: integration-test.html
+  browser_test:
+    machine:
+      image: ubuntu-2004:202111-01
+      docker_layer_caching: true
+    environment:
+      DOCKER_BUILDKIT: 1
+      COMPOSE_DOCKER_CLI_BUILD: 1
+      BUILDKIT_PROGRESS: plain
+    steps:
+      - run:
+          name: Install essential packages
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y libpq-dev
+
+      - checkout
+
+      - run:
+          name: Set Python Version
+          command: |
+            python3 --version
+            pyenv global 3.9.7
+
+      - run:
+          name: Set hosts
+          command: |
+            echo 127.0.0.1 localhost | sudo tee -a /etc/hosts
+            cat /etc/hosts
+
+      - run:
+          name: Build
+          command: make build
+
+      - run:
+          name: Browser Test
+          command: make browser-test
 
   unit_test:
     docker:
