@@ -95,6 +95,10 @@ workspace "Remote Settings" "Remote Settings Service" {
             tags "Amazon Web Services - CloudFront"
             attachmentsCDNInstance = containerInstance attachmentsCDN
           }
+          deploymentNode "Amazon S3 Bucket - Attachments" {
+            tags "Amazon Web Services - Simple Storage Service S3 Bucket with Objects"
+            containerInstance attachmentsBucket
+          }
           deploymentNode "Amazon Virtual Private Cloud"{
             tags "Amazon Web Services - VPC"
             deploymentNode "Amazon EC2 - Writer" {
@@ -107,10 +111,6 @@ workspace "Remote Settings" "Remote Settings Service" {
                 tags "Amazon Web Services - RDS PostgreSQL instance"
                 containerInstance database
               }
-            }
-            deploymentNode "Amazon S3 Bucket - Attachments" {
-              tags "Amazon Web Services - Simple Storage Service S3 Bucket with Objects"
-              containerInstance attachmentsBucket
             }
             deploymentNode "Amazon Lambdas" {
               containerInstance lambdas
