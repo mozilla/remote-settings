@@ -35,12 +35,7 @@ workflows:
           <<: *pr-filters
           requires:
             - lint_format
-      - build_and_publish:
-          <<: *pr-filters
-          requires:
-            - docs_test
-            - unit_test
-            - integration_test
+
 
   main-workflow:
     jobs:
