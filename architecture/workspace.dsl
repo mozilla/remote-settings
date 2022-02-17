@@ -147,11 +147,13 @@ workspace "Remote Settings" "Remote Settings Service" {
         autolayout lr
       }
       deployment remoteSettings "Live" "CurrentDeployment" {
+        autolayout lr
         include *
         exclude sentry
         exclude stackdriver
       }
       deployment remoteSettings "Live" "CurrentDeploymentLogging" {
+        autolayout lr
         include "element.tag==Logging"
       }
       themes https://static.structurizr.com/themes/amazon-web-services-2020.04.30/theme.json https://static.structurizr.com/themes/google-cloud-platform-v1.5/theme.json default
