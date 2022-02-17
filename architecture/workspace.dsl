@@ -22,7 +22,7 @@ workspace "Remote Settings" "Remote Settings Service" {
       autograph = softwaresystem "Autograph" "cryptographic signature service that implements Content-Signature, XPI Signing for Firefox web extensions, MAR Signing for Firefox updates, APK V1 Signing for Android, PGP, GPG2 and RSA." "External System"
       megaphone = softwaresystem "Megaphone" "Provides global broadcasts for Firefox" "External System"
       remoteSettings = softwaresystem "Remote Settings" "Manages evergreen settings data in Firefox" {
-        remoteSettingsPublic = container "Remote Settings Public" "" "Python, Kinto Server" "Logging"
+        remoteSettingsReader = container "Remote Settings Reader" "" "Python, Kinto Server" "Logging"
         remoteSettingsWriter = container "Remote Settings Writer" "" "Python, Kinto Server" "Logging"
         lambdas = container "Remote Settings Lambdas" "" "AWS Lambda" "Logging" {
           # Backport records config
@@ -40,21 +40,21 @@ workspace "Remote Settings" "Remote Settings Service" {
 
       normandy -> remoteSettingsWriter "" "HTTPS"
       megaphone -> firefox "Pushes RS data"
-      mainCDN -> remoteSettingsPublic ""
+      mainCDN -> remoteSettingsReader ""
       attachmentsCDN -> attachmentsBucket ""
-      remoteSettingsPublic -> database "Reads collections. Read permissions only."
+      remoteSettingsReader -> database "Reads collections. Read permissions only."
       remoteSettingsWriter -> database "Reads from and writes to" "Postgres Protocol/SSL"
       remoteSettingsWriter -> attachmentsBucket "Writes attachments" "HTTPS"
       remoteSettingsWriter -> autograph "Send serialized collection data to receive content signature" "HTTPS"
 
       # Sentry
       remoteSettingsWriter -> sentry "Write logs" "HTTPS" "Logging"
-      remoteSettingsPublic -> sentry "Write logs" "HTTPS" "Logging"
+      remoteSettingsReader -> sentry "Write logs" "HTTPS" "Logging"
       lambdas -> sentry "Write logs" "HTTPS" "Logging"
 
       # Application Logs
       remoteSettingsWriter -> stackdriver "Write logs" "HTTPS" "Logging"
-      remoteSettingsPublic -> stackdriver "Write logs" "HTTPS" "Logging"
+      remoteSettingsReader -> stackdriver "Write logs" "HTTPS" "Logging"
       lambdas -> stackdriver "Write logs" "HTTPS" "Logging"
 
       # Lambdas
@@ -101,9 +101,9 @@ workspace "Remote Settings" "Remote Settings Service" {
               tags "Amazon Web Services - EC2"
               remoteSettingsWriterInstance = containerInstance remoteSettingsWriter
             }
-            deploymentNode "Amazon EC2 - Public" {
+            deploymentNode "Amazon EC2 - Reader" {
               tags "Amazon Web Services - EC2"
-              containerInstance remoteSettingsPublic
+              containerInstance remoteSettingsReader
             }
             deploymentNode "Amazon RDS" {
               tags "Amazon Web Services - RDS"
