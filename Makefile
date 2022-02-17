@@ -45,12 +45,10 @@ test: $(INSTALL_STAMP)
 
 integration-test:
 	mkdir -p -m 777 $(VOLUMES_FOLDERS)
-	docker-compose run web migrate
-	docker-compose run tests
+	docker-compose run --rm web migrate
+	docker-compose run --rm tests
 
 build:
-	docker build . -t remotesettings:server
-	docker build . --file Dockerfile.Testing -t remotesettings:tests
 	docker-compose build
 
 build-db:

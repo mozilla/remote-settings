@@ -5,7 +5,7 @@ FROM python:3.9-slim-bullseye@sha256:daf74cd7c4a6d420c2979b1fc74a3000489b69a330c
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Needed to download Rust
     curl \
-    # Needed to build psycopg and uWSGI 
+    # Needed to build psycopg and uWSGI
     build-essential \
     python-dev \
     libpq-dev \

@@ -1,8 +1,12 @@
 version: "3"
 
+volumes:
+  db-data:
 services:
   db:
     image: postgres:12
+    volumes:
+      - db-data:/var/lib/postgresql/data
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
     healthcheck:
@@ -39,7 +43,6 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile
     image: remotesettings:server
     depends_on:
       - db
@@ -60,8 +63,7 @@ services:
 
   tests:
     build:
-      context: .
-      dockerfile: Dockerfile.Testing
+      context: tests
     image: remotesettings:tests
     depends_on:
       - web

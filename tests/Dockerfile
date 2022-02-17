@@ -10,13 +10,12 @@ ENV PYTHONUNBUFFERED=1 \
 USER root
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    curl wget
+    apt-get install -y --no-install-recommends wget
 
 RUN pip install --upgrade pip
-COPY requirements-dev.txt .
-RUN pip install --no-cache-dir -r requirements-dev.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY tests .
+COPY . .
 
 ENTRYPOINT ["/bin/bash", "/app/run.sh"]
