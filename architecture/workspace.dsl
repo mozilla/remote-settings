@@ -3,7 +3,6 @@
 # fluentd, which pushes to bigquery
 # Stackdriver?
 # Public, Writer,
-# CDN Logs stay in cloudfront
 # Statsd sends metrics to influxdb. Grafana instance
 # S3 bucket for lambda(s)?
 
@@ -33,9 +32,11 @@ workspace "Remote Settings" "Remote Settings Service" {
           refresh_signature = component "refresh_signature" "Rotate signature and certificates of collections." "AWS Lambda / cron job"
         }
         database = container "Remote Settings Database" "Storage, cache, and permissions" "Postgres Database" "Database"
-        mainCDN = container "Main CDN" "" "AWS Cloudfront" "Database"
-        attachmentsCDN = container "Attachments CDN" "" "AWS Cloudfront" "Database"
+        mainCDN = container "Main CDN" "" "AWS Cloudfront" "Database,Logging"
+        attachmentsCDN = container "Attachments CDN" "" "AWS Cloudfront" "Database,Logging"
+        blocklistCDN = container "Blocklist CDN" "" "AWS Cloudfront" "Database,Logging"
         attachmentsBucket = container "Attachments Bucket" "" "S3 Bucket" "Storage"
+        loggingBucket = container "Logging Bucket" "" "S3 Bucket" "Storage,Logging"
       }
 
       normandy -> remoteSettingsWriter "" "HTTPS"
@@ -55,7 +56,10 @@ workspace "Remote Settings" "Remote Settings Service" {
       # Application Logs
       remoteSettingsWriter -> stackdriver "Write logs" "HTTPS" "Logging"
       remoteSettingsReader -> stackdriver "Write logs" "HTTPS" "Logging"
-      lambdas -> stackdriver "Write logs" "HTTPS" "Logging"
+      ## CDNs
+      mainCDN -> loggingBucket "Write Logs" "HTTPS" "Logging"
+      attachmentsCDN -> loggingBucket "Write Logs" "HTTPS" "Logging"
+      blocklistCDN -> loggingBucket "Write Logs" "HTTPS" "Logging"
 
       # Lambdas
       lambdas -> remoteSettingsWriter ""
@@ -91,9 +95,17 @@ workspace "Remote Settings" "Remote Settings Service" {
             tags "Amazon Web Services - CloudFront"
             attachmentsCDNInstance = containerInstance attachmentsCDN
           }
+          deploymentNode "Amazon Cloudfront - Blocklist" {
+            tags "Amazon Web Services - CloudFront"
+            containerInstance blocklistCDN
+          }
           deploymentNode "Amazon S3 Bucket - Attachments" {
             tags "Amazon Web Services - Simple Storage Service S3 Bucket with Objects"
             containerInstance attachmentsBucket
+          }
+          deploymentNode "Amazon S3 Bucket - Cloudfront Logs" {
+            tags "Amazon Web Services - Simple Storage Service S3 Bucket with Objects"
+            containerInstance loggingBucket
           }
           deploymentNode "Amazon Virtual Private Cloud"{
             tags "Amazon Web Services - VPC"
