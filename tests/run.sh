@@ -6,7 +6,7 @@ set -eo pipefail
 usage() {
     echo "usage: ./run.sh integration-test|browser-test"
     echo ""
-    echo "    integration-test    Start integration tests"
+    echo "    integration-test        Start integration tests"
     echo "    browser-test            Start browser tests"
     echo ""
     exit 1
