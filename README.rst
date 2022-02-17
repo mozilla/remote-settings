@@ -55,7 +55,7 @@ After this setup is complete, tests can be run with ``pytest`` using ``make``:
     make test
 
 
-**Integration Tests**
+**Integration & Browser Tests**
 
 With Docker and docker-compose, test that all components are working as expected with:
 
@@ -63,6 +63,7 @@ With Docker and docker-compose, test that all components are working as expected
 
     make build
     make integration-test
+    make browser-test
 
 .. note::
 
@@ -111,6 +112,7 @@ The simplest form of debugging is to run a suite of tests against the kinto serv
 .. code-block:: shell
 
     make integration-test
+    make browser-test
 
 Debugging Locally (advanced)
 ----------------------------
