@@ -210,8 +210,14 @@ jobs:
       - image: cimg/python:3.9
     steps:
       - checkout
-      - restore_cache: *restore_deps_cache
+      - restore_cache:
+          name: Restoring Python docs dependency cache
+          key: v1-requirements-{{ checksum "docs/requirements.txt" }}
       - run:
           name: Check documentation build
           command: make docs
-      - save_cache: *save_deps_cache
+      - save_cache:
+          name: Saving Python docs dependency cache
+          key: v1-requirements-{{ checksum "docs/requirements.txt" }}
+          paths:
+            - /home/circleci/.cache/pip
