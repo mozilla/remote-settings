@@ -1,0 +1,9 @@
+aiohttp
+autograph-utils
+canonicaljson-rs
+httpie
+kinto-http>=10.9.0
+pytest
+pytest-asyncio
+pytest-selenium
+webtest

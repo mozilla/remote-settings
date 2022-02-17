@@ -49,8 +49,6 @@ integration-test:
 	docker-compose run tests
 
 build:
-	docker build . -t remotesettings:server
-	docker build . --file Dockerfile.Testing -t remotesettings:tests
 	docker-compose build
 
 build-db:
