@@ -83,10 +83,6 @@ workspace "Remote Settings" "Remote Settings Service" {
           route53 = infrastructureNode "Route 53" {
             tags "Amazon Web Services - Route 53"
           }
-          deploymentNode "Amazon EC2 - Public" {
-            tags "Amazon Web Services - EC2"
-            containerInstance remoteSettingsPublic
-          }
           deploymentNode "Amazon Cloudfront - Main" {
             tags "Amazon Web Services - CloudFront"
             mainCDNInstance = containerInstance mainCDN
@@ -104,6 +100,10 @@ workspace "Remote Settings" "Remote Settings Service" {
             deploymentNode "Amazon EC2 - Writer" {
               tags "Amazon Web Services - EC2"
               remoteSettingsWriterInstance = containerInstance remoteSettingsWriter
+            }
+            deploymentNode "Amazon EC2 - Public" {
+              tags "Amazon Web Services - EC2"
+              containerInstance remoteSettingsPublic
             }
             deploymentNode "Amazon RDS" {
               tags "Amazon Web Services - RDS"
