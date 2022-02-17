@@ -37,6 +37,7 @@ workspace "Remote Settings" "Remote Settings Service" {
         blocklistCDN = container "Blocklist CDN" "" "AWS Cloudfront" "Database,Logging"
         attachmentsBucket = container "Attachments Bucket" "" "S3 Bucket" "Storage"
         loggingBucket = container "Logging Bucket" "" "S3 Bucket" "Storage,Logging"
+        cloudwatch = container "Cloudwatch" "" "AWS Cloudwatch" "Logging"
       }
 
       normandy -> remoteSettingsWriter "" "HTTPS"
@@ -48,14 +49,15 @@ workspace "Remote Settings" "Remote Settings Service" {
       remoteSettingsWriter -> attachmentsBucket "Writes attachments" "HTTPS"
       remoteSettingsWriter -> autograph "Send serialized collection data to receive content signature" "HTTPS"
 
-      # Sentry
+      # Logging
+      ## Reader / Writer
       remoteSettingsWriter -> sentry "Write logs" "HTTPS" "Logging"
       remoteSettingsReader -> sentry "Write logs" "HTTPS" "Logging"
-      lambdas -> sentry "Write logs" "HTTPS" "Logging"
-
-      # Application Logs
       remoteSettingsWriter -> stackdriver "Write logs" "HTTPS" "Logging"
       remoteSettingsReader -> stackdriver "Write logs" "HTTPS" "Logging"
+      ## lambdas
+      lambdas -> sentry "Write logs" "HTTPS" "Logging"
+      lambdas -> cloudwatch "Write logs" "HTTPS" "Logging"
       ## CDNs
       mainCDN -> loggingBucket "Write Logs" "HTTPS" "Logging"
       attachmentsCDN -> loggingBucket "Write Logs" "HTTPS" "Logging"
@@ -127,6 +129,10 @@ workspace "Remote Settings" "Remote Settings Service" {
             deploymentNode "Amazon Lambdas" {
               containerInstance lambdas
             }
+          }
+          deploymentNode "Amazon Cloudwatch"{
+            tags "Amazon Web Services - CloudWatch"
+            containerInstance cloudwatch
           }
         }
         firefoxInstance -> route53 "Requests" "HTTPS"
