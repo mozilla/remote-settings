@@ -75,11 +75,11 @@ workspace "Remote Settings" "Remote Settings Service" {
           tags "Google Cloud Platform - Cloud"
           megaphoneInstance = softwareSystemInstance megaphone
           stackdriverInstance = softwareSystemInstance stackdriver
+          softwareSystemInstance normandy
         }
         deploymentNode "Amazon Web Services" {
           tags "Amazon Web Services - Cloud"
           softwareSystemInstance autograph
-          softwareSystemInstance normandy
           route53 = infrastructureNode "Route 53" {
             tags "Amazon Web Services - Route 53"
           }
