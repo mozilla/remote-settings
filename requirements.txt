@@ -21,10 +21,11 @@ boto==2.49.0 \
     --hash=sha256:147758d41ae7240dc989f0039f27da8ca0d53734be0eb869ef16e3adcfa462e8 \
     --hash=sha256:ea0d3b40a2d852767be77ca343b58a9e3a4b00d9db440efb8da74b4e58025e5a
     # via kinto-attachment
-canonicaljson-rs==0.3.0 \
-    --hash=sha256:9d8fb412ba9819190d5d07b1b8b01a1a17705fa0487b5253ec78668f263962cc \
-    --hash=sha256:cf73fa7e041557da507dc2f35277d155d75f0eece57fb1cc76e81bd2ea091e1f \
-    --hash=sha256:e4df74f4e8cbfde079c65c61d67ff0f10da8e0e71593294ad9caf719a3551a04
+canonicaljson-rs==0.4.0 \
+    --hash=sha256:66cd77489f50b754d68f884852c30c5ee3993ac7e53151a511d5e1446d20a189 \
+    --hash=sha256:d08e0028747092018570bfde6c094f08d193cdf0fc47175527282d2e48af1b86 \
+    --hash=sha256:debede426c9c3c4a4ee9e8e647e37e8031169ec9e1eed73b12bb94b0198a383d \
+    --hash=sha256:e935be49906478f9e3a9a37ae87ba15344d560b65c9ed1c22fcbdb4d57316fec
     # via -r requirements.in
 certifi==2021.10.8 \
     --hash=sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872 \
@@ -173,10 +174,6 @@ idna==3.3 \
     --hash=sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff \
     --hash=sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d
     # via requests
-importlib-resources==5.4.0 \
-    --hash=sha256:33a95faed5fc19b4bc16b29a6eeae248a3fe69dd55d4d229d2b480e23eeaad45 \
-    --hash=sha256:d756e2f85dd4de2ba89be0b21dba2a3bbec2e871a42a3a16719258a11f87506b
-    # via jsonschema
 iso8601==1.0.0 \
     --hash=sha256:22c7de877cfcbbcf241b4aa3934a1fa1fb6b200b242dbb054e438a9e5af56ce0 \
     --hash=sha256:79ec9749f8bf35ffae77f835e80e96d2f95affa0f79d3d7b25c0fa7e06207a8b
@@ -419,7 +416,7 @@ sqlalchemy==1.4.26 \
     --hash=sha256:ff8f91a7b1c4a1c7772caa9efe640f2768828897044748f2458b708f1026e2d4
     # via
     #   kinto
-    #   zope.sqlalchemy
+    #   zope-sqlalchemy
 statsd==3.3.0 \
     --hash=sha256:c610fb80347fca0ef62666d241bce64184bd7cc1efe582f9690e045c25535eaa \
     --hash=sha256:e3e6db4c246f7c59003e51c9720a51a7f39a396541cb9b147ff4b14d15b5dd1f
@@ -431,8 +428,8 @@ transaction==3.0.1 \
     #   kinto
     #   pyramid-mailer
     #   pyramid-tm
-    #   repoze.sendmail
-    #   zope.sqlalchemy
+    #   repoze-sendmail
+    #   zope-sqlalchemy
 translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3
@@ -464,15 +461,11 @@ werkzeug==2.0.2 \
     --hash=sha256:63d3dc1cf60e7b7e35e97fa9861f7397283b75d765afcaefd993d6046899de8f \
     --hash=sha256:aa2bb6fc8dee8d6c504c0ac1e7f5f7dc5810a9903e793b6f715a9f015bdadb9a
     # via kinto
-zipp==3.7.0 \
-    --hash=sha256:9f50f446828eb9d45b267433fd3e9da8d801f614129124863f9c51ebceafb87d \
-    --hash=sha256:b47250dd24f92b7dd6a0a8fc5244da14608f3ca90a5efcd37a3b1642fac9a375
-    # via importlib-resources
-zope.deprecation==4.4.0 \
+zope-deprecation==4.4.0 \
     --hash=sha256:0d453338f04bacf91bbfba545d8bcdf529aa829e67b705eac8c1a7fdce66e2df \
     --hash=sha256:f1480b74995958b24ce37b0ef04d3663d2683e5d6debc96726eff18acf4ea113
     # via pyramid
-zope.interface==5.4.0 \
+zope-interface==5.4.0 \
     --hash=sha256:08f9636e99a9d5410181ba0729e0408d3d8748026ea938f3b970a0249daa8192 \
     --hash=sha256:0b465ae0962d49c68aa9733ba92a001b2a0933c317780435f00be7ecb959c702 \
     --hash=sha256:0cba8477e300d64a11a9789ed40ee8932b59f9ee05f85276dbb4b59acee5dd09 \
@@ -526,10 +519,10 @@ zope.interface==5.4.0 \
     --hash=sha256:f7ee479e96f7ee350db1cf24afa5685a5899e2b34992fb99e1f7c1b0b758d263
     # via
     #   pyramid
-    #   repoze.sendmail
+    #   repoze-sendmail
     #   transaction
-    #   zope.sqlalchemy
-zope.sqlalchemy==1.6 \
+    #   zope-sqlalchemy
+zope-sqlalchemy==1.6 \
     --hash=sha256:63c4560fdd2d55c6e5658a22f6835a3c12eac1a3af8140a01400f7367aac91ed \
     --hash=sha256:9c53be9a57275566595ada79bdffcd624a12fcf6435f6e6807416541b912f5ab
     # via kinto
