@@ -1,0 +1,1553 @@
+{
+  "id" : 1,
+  "name" : "Remote Settings",
+  "description" : "Remote Settings Service",
+  "revision" : 0,
+  "lastModifiedDate" : "2022-02-23T17:08:31Z",
+  "lastModifiedAgent" : "structurizr-web/2655/diagram",
+  "properties" : {
+    "structurizr.dsl" : "IyBUT0RPOgojIFdoYXQgbG9nZ2luZyBpcyBub3QgY2FwdHVyZWQgaW4gdGhpcyBkaWFncmFtCiMgZmx1ZW50ZCwgd2hpY2ggcHVzaGVzIHRvIGJpZ3F1ZXJ5CiMgU3RhY2tkcml2ZXI/CiMgUHVibGljLCBXcml0ZXIsCiMgU3RhdHNkIHNlbmRzIG1ldHJpY3MgdG8gaW5mbHV4ZGIuIEdyYWZhbmEgaW5zdGFuY2UKIyBTMyBidWNrZXQgZm9yIGxhbWJkYShzKT8KCndvcmtzcGFjZSAiUmVtb3RlIFNldHRpbmdzIiAiUmVtb3RlIFNldHRpbmdzIFNlcnZpY2UiIHsKICAgIG1vZGVsIHsKICAgICAgZmlyZWZveCA9IHNvZnR3YXJlc3lzdGVtICJGaXJlZm94IiAiIiAiV2ViIEJyb3dzZXIiCiAgICAgIHNlbnRyeSA9IHNvZnR3YXJlc3lzdGVtICJTZW50cnkiICIzcmQgcGFydHkgbG9nZ2luZyBzZXJ2aWNlIiAiRXh0ZXJuYWwgU3lzdGVtLCBMb2dnaW5nIgogICAgICBzdGFja2RyaXZlciA9IHNvZnR3YXJlc3lzdGVtICJTdGFja2RyaXZlciIgIkdDUCBMb2dnaW5nIFNlcnZpY2UiICJFeHRlcm5hbCBTeXN0ZW0sIExvZ2dpbmciCiAgICAgIG5vcm1hbmR5ID0gc29mdHdhcmVzeXN0ZW0gIk5vcm1hbmR5IiAibWFuYWdlcyByZWNpcGVzIG9mIGNoYW5nZXMgdG8gbWFrZSB0byBGaXJlZm94IiAiRXh0ZXJuYWwgU3lzdGVtIgogICAgICBhdXRvZ3JhcGggPSBzb2Z0d2FyZXN5c3RlbSAiQXV0b2dyYXBoIiAiY3J5cHRvZ3JhcGhpYyBzaWduYXR1cmUgc2VydmljZSB0aGF0IGltcGxlbWVudHMgQ29udGVudC1TaWduYXR1cmUsIFhQSSBTaWduaW5nIGZvciBGaXJlZm94IHdlYiBleHRlbnNpb25zLCBNQVIgU2lnbmluZyBmb3IgRmlyZWZveCB1cGRhdGVzLCBBUEsgVjEgU2lnbmluZyBmb3IgQW5kcm9pZCwgUEdQLCBHUEcyIGFuZCBSU0EuIiAiRXh0ZXJuYWwgU3lzdGVtIgogICAgICBtZWdhcGhvbmUgPSBzb2Z0d2FyZXN5c3RlbSAiTWVnYXBob25lIiAiUHJvdmlkZXMgZ2xvYmFsIGJyb2FkY2FzdHMgZm9yIEZpcmVmb3giICJFeHRlcm5hbCBTeXN0ZW0iCiAgICAgIHJlbW90ZVNldHRpbmdzID0gc29mdHdhcmVzeXN0ZW0gIlJlbW90ZSBTZXR0aW5ncyIgIk1hbmFnZXMgZXZlcmdyZWVuIHNldHRpbmdzIGRhdGEgaW4gRmlyZWZveCIgewogICAgICAgIHJlbW90ZVNldHRpbmdzUmVhZGVyID0gY29udGFpbmVyICJSZW1vdGUgU2V0dGluZ3MgUmVhZGVyIiAiIiAiUHl0aG9uLCBLaW50byBTZXJ2ZXIiICJMb2dnaW5nIgogICAgICAgIHJlbW90ZVNldHRpbmdzV3JpdGVyID0gY29udGFpbmVyICJSZW1vdGUgU2V0dGluZ3MgV3JpdGVyIiAiIiAiUHl0aG9uLCBLaW50byBTZXJ2ZXIiICJMb2dnaW5nIgogICAgICAgIGxhbWJkYXMgPSBjb250YWluZXIgIlJlbW90ZSBTZXR0aW5ncyBMYW1iZGFzIiAiIiAiQVdTIExhbWJkYSIgIkxvZ2dpbmciIHsKICAgICAgICAgICMgQmFja3BvcnQgcmVjb3JkcyBjb25maWcKICAgICAgICAgICMgaHR0cHM6Ly9naXRodWIuY29tL21vemlsbGEtc2VydmljZXMvY2xvdWRvcHMtZGVwbG95bWVudC9ibG9iL2RiYjE5YTgzNzNmZTA2MWJhNjVmZTk2MTA4NDVhOTAxYTM1MzU5NDMvcHJvamVjdHMva2ludG8tbGFtYmRhL2Fuc2libGUvZW52cy9kZWZhdWx0LnltbAogICAgICAgICAgIyBhcmJpdHJhcnkgbnVtYmVyIG9mIHRoaXMgbGFtYmRhLiBIb3cgZG8gd2UgcmVwcmVzZW50IHRoaXM/CiAgICAgICAgICBiYWNrcG9ydF9yZWNvcmRzID0gY29tcG9uZW50ICJiYWNrcG9ydF9yZWNvcmRzIiAiQmFja3BvcnQgcmVjb3JkcyBjcmVhdGlvbnMsIHVwZGF0ZXMgYW5kIGRlbGV0aW9ucyBmcm9tIG9uZSBjb2xsZWN0aW9uIHRvIGFub3RoZXIiICJBV1MgTGFtYmRhLyBjcm9uIGpvYiIKICAgICAgICAgIHN5bmNfbWVnYXBob25lID0gY29tcG9uZW50ICJzeW5jX21lZ2FwaG9uZSIgIlJlYWQgbGF0ZXN0IHRpbWVzdGFtcCBmcm9tIG1vbml0b3IvY2hhbmdlcyAmIHVwZGF0ZXMgaXQgaW4gTWVnYXBob25lIGlmIG91dGRhdGVkLiIgIkFXUyBMYW1iZGEgLyBjcm9uIGpvYiIKICAgICAgICAgIHJlZnJlc2hfc2lnbmF0dXJlID0gY29tcG9uZW50ICJyZWZyZXNoX3NpZ25hdHVyZSIgIlJvdGF0ZSBzaWduYXR1cmUgYW5kIGNlcnRpZmljYXRlcyBvZiBjb2xsZWN0aW9ucy4iICJBV1MgTGFtYmRhIC8gY3JvbiBqb2IiCiAgICAgICAgfQogICAgICAgIGRhdGFiYXNlID0gY29udGFpbmVyICJSZW1vdGUgU2V0dGluZ3MgRGF0YWJhc2UiICJTdG9yYWdlLCBjYWNoZSwgYW5kIHBlcm1pc3Npb25zIiAiUG9zdGdyZXMgRGF0YWJhc2UiICJEYXRhYmFzZSwgTG9nZ2luZyIKICAgICAgICBtYWluQ0ROID0gY29udGFpbmVyICJNYWluIENETiIgIiIgIkFXUyBDbG91ZGZyb250IiAiRGF0YWJhc2UsIExvZ2dpbmciCiAgICAgICAgYXR0YWNobWVudHNDRE4gPSBjb250YWluZXIgIkF0dGFjaG1lbnRzIENETiIgIiIgIkFXUyBDbG91ZGZyb250IiAiRGF0YWJhc2UsIExvZ2dpbmciCiAgICAgICAgYmxvY2tsaXN0Q0ROID0gY29udGFpbmVyICJCbG9ja2xpc3QgQ0ROIiAiIiAiQVdTIENsb3VkZnJvbnQiICJEYXRhYmFzZSwgTG9nZ2luZyIKICAgICAgICBhdHRhY2htZW50c0J1Y2tldCA9IGNvbnRhaW5lciAiQXR0YWNobWVudHMgQnVja2V0IiAiIiAiUzMgQnVja2V0IiAiU3RvcmFnZSIKICAgICAgICBibG9ja2xpc3REdW1teUJ1Y2tldCA9IGNvbnRhaW5lciAiQmxvY2tsaXN0IER1bW15IEJ1Y2tldCIgIkJ1Y2tldCByZXF1aXJlZCBieSBibG9ja2xpc3RDRE4iICJTMyBCdWNrZXQiICJTdG9yYWdlIgogICAgICAgIGxvZ2dpbmdCdWNrZXQgPSBjb250YWluZXIgIkxvZ2dpbmcgQnVja2V0IiAiIiAiUzMgQnVja2V0IiAiU3RvcmFnZSwgTG9nZ2luZyIKICAgICAgICBjbG91ZHdhdGNoID0gY29udGFpbmVyICJDbG91ZHdhdGNoIiAiIiAiQVdTIENsb3Vkd2F0Y2giICJMb2dnaW5nIgogICAgICB9CgogICAgICAjIG5vcm1hbmR5IC0+IHJlbW90ZVNldHRpbmdzV3JpdGVyICJQdWJsaXNoZXMgY29sbGVjdGlvbnMiICJIVFRQUyIKICAgICAgbWVnYXBob25lIC0+IGZpcmVmb3ggIlB1c2hlcyBSUyBkYXRhIiAiSFRUUFMiCiAgICAgIG1haW5DRE4gLT4gcmVtb3RlU2V0dGluZ3NSZWFkZXIgIkZvcndhcmRzIHJlcXVlc3RzIiAiSFRUUFMiCiAgICAgIGF0dGFjaG1lbnRzQ0ROIC0+IGF0dGFjaG1lbnRzQnVja2V0ICJGb3J3YXJkcyByZXF1ZXN0cyIgIkhUVFBTIgogICAgICBibG9ja2xpc3RDRE4gLT4gYmxvY2tsaXN0RHVtbXlCdWNrZXQgIiIgIiIKICAgICAgcmVtb3RlU2V0dGluZ3NSZWFkZXIgLT4gZGF0YWJhc2UgIlJlYWRzIGNvbGxlY3Rpb25zIiAiUG9zdGdyZXMgUHJvdG9jb2wvU1NMIgogICAgICByZW1vdGVTZXR0aW5nc1dyaXRlciAtPiBkYXRhYmFzZSAiUmVhZHMgZnJvbSBhbmQgd3JpdGVzIHRvIiAiUG9zdGdyZXMgUHJvdG9jb2wvU1NMIgogICAgICByZW1vdGVTZXR0aW5nc1dyaXRlciAtPiBhdHRhY2htZW50c0J1Y2tldCAiV3JpdGVzIGF0dGFjaG1lbnRzIiAiSFRUUFMiCiAgICAgIHJlbW90ZVNldHRpbmdzV3JpdGVyIC0+IGF1dG9ncmFwaCAiU2VuZCBzZXJpYWxpemVkIGNvbGxlY3Rpb24gZGF0YSB0byByZWNlaXZlIGNvbnRlbnQgc2lnbmF0dXJlIiAiSFRUUFMiCgogICAgICAjIExvZ2dpbmcKICAgICAgIyMgUmVhZGVyIC8gV3JpdGVyCiAgICAgIHJlbW90ZVNldHRpbmdzV3JpdGVyIC0+IHNlbnRyeSAiV3JpdGVzIGxvZ3MiICJIVFRQUyIgIkxvZ2dpbmciCiAgICAgIHJlbW90ZVNldHRpbmdzUmVhZGVyIC0+IHNlbnRyeSAiV3JpdGVzIGxvZ3MiICJIVFRQUyIgIkxvZ2dpbmciCiAgICAgIHJlbW90ZVNldHRpbmdzV3JpdGVyIC0+IHN0YWNrZHJpdmVyICJXcml0ZXMgbG9ncyIgIkhUVFBTIiAiTG9nZ2luZyIKICAgICAgcmVtb3RlU2V0dGluZ3NSZWFkZXIgLT4gc3RhY2tkcml2ZXIgIldyaXRlcyBsb2dzIiAiSFRUUFMiICJMb2dnaW5nIgogICAgICAjIyBsYW1iZGFzCiAgICAgIGxhbWJkYXMgLT4gc2VudHJ5ICJXcml0ZXMgbG9ncyIgIkhUVFBTIiAiTG9nZ2luZyIKICAgICAgbGFtYmRhcyAtPiBjbG91ZHdhdGNoICJXcml0ZXMgbG9ncyIgIkhUVFBTIiAiTG9nZ2luZyIKICAgICAgIyMgQ0ROcwogICAgICBtYWluQ0ROIC0+IGxvZ2dpbmdCdWNrZXQgIldyaXRlcyBMb2dzIiAiSFRUUFMiICJMb2dnaW5nIgogICAgICBhdHRhY2htZW50c0NETiAtPiBsb2dnaW5nQnVja2V0ICJXcml0ZXMgTG9ncyIgIkhUVFBTIiAiTG9nZ2luZyIKICAgICAgYmxvY2tsaXN0Q0ROIC0+IGxvZ2dpbmdCdWNrZXQgIldyaXRlcyBMb2dzIiAiSFRUUFMiICJMb2dnaW5nIgoKICAgICAgIyBMYW1iZGFzCiAgICAgIGxhbWJkYXMgLT4gcmVtb3RlU2V0dGluZ3NXcml0ZXIgIlJ1biByZWZyZXNoX3NpZ25hdHVyZSAmIGJhY2twb3J0X3JlY29yZHMgam9icyIKICAgICAgbGFtYmRhcyAtPiBtYWluQ0ROICJHRVQgdGltZXN0YW1wIGZyb20gbW9uaXRvci9jaGFuZ2VzIgogICAgICBsYW1iZGFzIC0+IG1lZ2FwaG9uZSAiUFVUIGJyb2FkY2FzdCB0aW1lc3RhbXAgaWYgb3V0ZGF0ZWQiCgogICAgICBzeW5jX21lZ2FwaG9uZSAtPiBtYWluQ0ROICJHRVQgdGltZXN0YW1wIGZyb20gbW9uaXRvci9jaGFuZ2VzIgogICAgICBzeW5jX21lZ2FwaG9uZSAtPiBtZWdhcGhvbmUgIlBVVCBicm9hZGNhc3QgdGltZXN0YW1wIGlmIG91dGRhdGVkIgogICAgICByZWZyZXNoX3NpZ25hdHVyZSAtPiByZW1vdGVTZXR0aW5nc1dyaXRlciAiUEFUQ0ggY29sbGVjdGlvbnMgd2l0aCBzdGF0dXM9dG8tcmVmcmVzaCIKICAgICAgYmFja3BvcnRfcmVjb3JkcyAtPiByZW1vdGVTZXR0aW5nc1dyaXRlciAiR0VUIHNvdXJjZSByZWNvcmRzLCBQVVQvREVMRVRFIGRlc3RpbmF0aW9uIHJlY29yZHMiCgogICAgICBsaXZlID0gZGVwbG95bWVudEVudmlyb25tZW50ICJMaXZlIiB7CiAgICAgICAgZGVwbG95bWVudE5vZGUgIkNsaWVudCBEZXZpY2UiIHsKICAgICAgICAgIGZpcmVmb3hJbnN0YW5jZSA9IHNvZnR3YXJlU3lzdGVtSW5zdGFuY2UgZmlyZWZveAogICAgICAgIH0KICAgICAgICBkZXBsb3ltZW50Tm9kZSAiU2VudHJ5IiB7CiAgICAgICAgICBzb2Z0d2FyZVN5c3RlbUluc3RhbmNlIHNlbnRyeQogICAgICAgIH0KICAgICAgICBkZXBsb3ltZW50Tm9kZSAiR29vZ2xlIENsb3VkIFBsYXRmb3JtInsKICAgICAgICAgIHRhZ3MgIkdvb2dsZSBDbG91ZCBQbGF0Zm9ybSAtIENsb3VkIgogICAgICAgICAgc29mdHdhcmVTeXN0ZW1JbnN0YW5jZSBtZWdhcGhvbmUKICAgICAgICAgIHNvZnR3YXJlU3lzdGVtSW5zdGFuY2Ugc3RhY2tkcml2ZXIKICAgICAgICAgIG5vcm1hbmR5SW5zdGFuY2UgPSBzb2Z0d2FyZVN5c3RlbUluc3RhbmNlIG5vcm1hbmR5CiAgICAgICAgfQogICAgICAgIGRlcGxveW1lbnROb2RlICJBbWF6b24gV2ViIFNlcnZpY2VzIiB7CiAgICAgICAgICB0YWdzICJBbWF6b24gV2ViIFNlcnZpY2VzIC0gQ2xvdWQiCiAgICAgICAgICBzb2Z0d2FyZVN5c3RlbUluc3RhbmNlIGF1dG9ncmFwaAogICAgICAgICAgcm91dGU1MyA9IGluZnJhc3RydWN0dXJlTm9kZSAiUm91dGUgNTMiIHsKICAgICAgICAgICAgdGFncyAiQW1hem9uIFdlYiBTZXJ2aWNlcyAtIFJvdXRlIDUzIgogICAgICAgICAgfQogICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBDbG91ZGZyb250IC0gTWFpbiIgewogICAgICAgICAgICB0YWdzICJBbWF6b24gV2ViIFNlcnZpY2VzIC0gQ2xvdWRGcm9udCIKICAgICAgICAgICAgbWFpbkNETkluc3RhbmNlID0gY29udGFpbmVySW5zdGFuY2UgbWFpbkNETgogICAgICAgICAgfQogICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBDbG91ZGZyb250IC0gQXR0YWNobWVudHMiIHsKICAgICAgICAgICAgdGFncyAiQW1hem9uIFdlYiBTZXJ2aWNlcyAtIENsb3VkRnJvbnQiCiAgICAgICAgICAgIGF0dGFjaG1lbnRzQ0ROSW5zdGFuY2UgPSBjb250YWluZXJJbnN0YW5jZSBhdHRhY2htZW50c0NETgogICAgICAgICAgfQogICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBDbG91ZGZyb250IC0gQmxvY2tsaXN0IiB7CiAgICAgICAgICAgIHRhZ3MgIkFtYXpvbiBXZWIgU2VydmljZXMgLSBDbG91ZEZyb250IgogICAgICAgICAgICBibG9ja2xpc3RDRE5JbnN0YW5jZSA9IGNvbnRhaW5lckluc3RhbmNlIGJsb2NrbGlzdENETgogICAgICAgICAgfQogICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBTMyBCdWNrZXQgLSBBdHRhY2htZW50cyIgewogICAgICAgICAgICB0YWdzICJBbWF6b24gV2ViIFNlcnZpY2VzIC0gU2ltcGxlIFN0b3JhZ2UgU2VydmljZSBTMyBCdWNrZXQgd2l0aCBPYmplY3RzIgogICAgICAgICAgICBjb250YWluZXJJbnN0YW5jZSBhdHRhY2htZW50c0J1Y2tldAogICAgICAgICAgfQogICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBTMyBCdWNrZXQgLSBDbG91ZGZyb250IExvZ3MiIHsKICAgICAgICAgICAgdGFncyAiQW1hem9uIFdlYiBTZXJ2aWNlcyAtIFNpbXBsZSBTdG9yYWdlIFNlcnZpY2UgUzMgQnVja2V0IHdpdGggT2JqZWN0cyIKICAgICAgICAgICAgY29udGFpbmVySW5zdGFuY2UgbG9nZ2luZ0J1Y2tldAogICAgICAgICAgfQogICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBTMyBCdWNrZXQgLSBCbG9ja2xpc3QgRHVtbXkiIHsKICAgICAgICAgICAgdGFncyAiQW1hem9uIFdlYiBTZXJ2aWNlcyAtIFNpbXBsZSBTdG9yYWdlIFNlcnZpY2UgUzMgQnVja2V0IHdpdGggT2JqZWN0cyIKICAgICAgICAgICAgY29udGFpbmVySW5zdGFuY2UgYmxvY2tsaXN0RHVtbXlCdWNrZXQKICAgICAgICAgIH0KICAgICAgICAgIGRlcGxveW1lbnROb2RlICJBbWF6b24gVmlydHVhbCBQcml2YXRlIENsb3VkInsKICAgICAgICAgICAgdGFncyAiQW1hem9uIFdlYiBTZXJ2aWNlcyAtIFZQQyIKICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBFQzIgLSBXcml0ZXIiIHsKICAgICAgICAgICAgICB0YWdzICJBbWF6b24gV2ViIFNlcnZpY2VzIC0gRUMyIgogICAgICAgICAgICAgIGNvbnRhaW5lckluc3RhbmNlIHJlbW90ZVNldHRpbmdzV3JpdGVyCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBFQzIgLSBSZWFkZXIiIHsKICAgICAgICAgICAgICB0YWdzICJBbWF6b24gV2ViIFNlcnZpY2VzIC0gRUMyIgogICAgICAgICAgICAgIGNvbnRhaW5lckluc3RhbmNlIHJlbW90ZVNldHRpbmdzUmVhZGVyCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBSRFMiIHsKICAgICAgICAgICAgICB0YWdzICJBbWF6b24gV2ViIFNlcnZpY2VzIC0gUkRTIgogICAgICAgICAgICAgIGRlcGxveW1lbnROb2RlICJBV1MgUG9zdGdyZXMiIHsKICAgICAgICAgICAgICAgIHRhZ3MgIkFtYXpvbiBXZWIgU2VydmljZXMgLSBSRFMgUG9zdGdyZVNRTCBpbnN0YW5jZSIKICAgICAgICAgICAgICAgIGNvbnRhaW5lckluc3RhbmNlIGRhdGFiYXNlCiAgICAgICAgICAgICAgfQogICAgICAgICAgICB9CiAgICAgICAgICAgIGRlcGxveW1lbnROb2RlICJBbWF6b24gTGFtYmRhcyIgewogICAgICAgICAgICAgIGNvbnRhaW5lckluc3RhbmNlIGxhbWJkYXMKICAgICAgICAgICAgfQogICAgICAgICAgfQogICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBDbG91ZHdhdGNoInsKICAgICAgICAgICAgdGFncyAiQW1hem9uIFdlYiBTZXJ2aWNlcyAtIENsb3VkV2F0Y2giCiAgICAgICAgICAgIGNvbnRhaW5lckluc3RhbmNlIGNsb3Vkd2F0Y2gKICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgZmlyZWZveEluc3RhbmNlIC0+IHJvdXRlNTMgIlJlcXVlc3RzIiAiSFRUUFMiCiAgICAgICAgcm91dGU1MyAtPiBtYWluQ0ROSW5zdGFuY2UgIkZvcndhcmRzIHJlcXVlc3RzIHRvIgogICAgICAgIHJvdXRlNTMgLT4gYXR0YWNobWVudHNDRE5JbnN0YW5jZSAiRm9yd2FyZHMgcmVxdWVzdHMgdG8iCiAgICAgICAgcm91dGU1MyAtPiBibG9ja2xpc3RDRE5JbnN0YW5jZSAiRm9yd2FyZHMgcmVxdWVzdHMgdG8iCiAgICAgICAgbm9ybWFuZHlJbnN0YW5jZSAtPiByb3V0ZTUzICJTZW5kcyByZXF1ZXN0cyB0byBXcml0ZXIgdG8gQ1JVRCBjb2xsZWN0aW9ucyIKICAgICAgfQogICAgfQoKICAgIHZpZXdzIHsKICAgICAgY29tcG9uZW50IGxhbWJkYXMgIlJlbW90ZVNldHRpbmdzTGFtYmRhcyJ7CiAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgYXV0b2xheW91dCBscgogICAgICB9CiAgICAgIGRlcGxveW1lbnQgcmVtb3RlU2V0dGluZ3MgIkxpdmUiICJDdXJyZW50RGVwbG95bWVudCIgewogICAgICAgIGluY2x1ZGUgKgogICAgICAgIGF1dG9sYXlvdXQgdGIKICAgICAgfQogICAgICBkZXBsb3ltZW50IHJlbW90ZVNldHRpbmdzICJMaXZlIiAiQ3VycmVudERlcGxveW1lbnROb0xvZ2dpbmciIHsKICAgICAgICBpbmNsdWRlICoKICAgICAgICBleGNsdWRlICJyZWxhdGlvbnNoaXAudGFnPT1Mb2dnaW5nIgogICAgICAgICFzY3JpcHQgc2NyaXB0Lmdyb292eQogICAgICB9CiAgICAgIGRlcGxveW1lbnQgcmVtb3RlU2V0dGluZ3MgIkxpdmUiICJDdXJyZW50RGVwbG95bWVudExvZ2dpbmciIHsKICAgICAgICBpbmNsdWRlICoKICAgICAgICBleGNsdWRlICJyZWxhdGlvbnNoaXAudGFnIT1Mb2dnaW5nIgogICAgICAgICFzY3JpcHQgc2NyaXB0Lmdyb292eQogICAgICB9CgogICAgICB0aGVtZXMgaHR0cHM6Ly9zdGF0aWMuc3RydWN0dXJpenIuY29tL3RoZW1lcy9hbWF6b24td2ViLXNlcnZpY2VzLTIwMjAuMDQuMzAvdGhlbWUuanNvbiBodHRwczovL3N0YXRpYy5zdHJ1Y3R1cml6ci5jb20vdGhlbWVzL2dvb2dsZS1jbG91ZC1wbGF0Zm9ybS12MS41L3RoZW1lLmpzb24gZGVmYXVsdAogICAgICBzdHlsZXMgewogICAgICAgIGVsZW1lbnQgIkdvb2dsZSBDbG91ZCBQbGF0Zm9ybSAtIENsb3VkIiB7CiAgICAgICAgICBpY29uIGh0dHBzOi8vd3d3LmdlbmQuY28vaHMtZnMvaHViZnMvZ2NwLWxvZ28tY2xvdWQucG5nP3dpZHRoPTczMCZuYW1lPWdjcC1sb2dvLWNsb3VkLnBuZwogICAgICAgIH0KICAgICAgICBlbGVtZW50ICJFeHRlcm5hbCBTeXN0ZW0iIHsKICAgICAgICAgIGJhY2tncm91bmQgIzk5OTk5OQogICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgIH0KICAgICAgICBlbGVtZW50ICJEYXRhYmFzZSIgewogICAgICAgICAgc2hhcGUgY3lsaW5kZXIKICAgICAgICB9CiAgICAgICAgZWxlbWVudCAiU3RvcmFnZSIgewogICAgICAgICAgc2hhcGUgZm9sZGVyCiAgICAgICAgfQogICAgICAgIGVsZW1lbnQgIldlYiBCcm93c2VyIiB7CiAgICAgICAgICBzaGFwZSBXZWJCcm93c2VyCiAgICAgICAgfQogICAgICB9CiAgICB9Cgp9Cg=="
+  },
+  "configuration" : { },
+  "model" : {
+    "softwareSystems" : [ {
+      "id" : "3",
+      "tags" : "Element,Software System,External System,Logging",
+      "name" : "Stackdriver",
+      "description" : "GCP Logging Service",
+      "location" : "Unspecified",
+      "defaultTags" : [ "Element", "Software System" ]
+    }, {
+      "id" : "1",
+      "tags" : "Element,Software System,Web Browser",
+      "name" : "Firefox",
+      "location" : "Unspecified",
+      "defaultTags" : [ "Element", "Software System" ]
+    }, {
+      "id" : "6",
+      "tags" : "Element,Software System,External System",
+      "name" : "Megaphone",
+      "description" : "Provides global broadcasts for Firefox",
+      "relationships" : [ {
+        "id" : "22",
+        "tags" : "Relationship",
+        "sourceId" : "6",
+        "destinationId" : "1",
+        "description" : "Pushes RS data",
+        "technology" : "HTTPS",
+        "defaultTags" : [ "Relationship" ]
+      } ],
+      "location" : "Unspecified",
+      "defaultTags" : [ "Element", "Software System" ]
+    }, {
+      "id" : "2",
+      "tags" : "Element,Software System,External System,Logging",
+      "name" : "Sentry",
+      "description" : "3rd party logging service",
+      "location" : "Unspecified",
+      "defaultTags" : [ "Element", "Software System" ]
+    }, {
+      "id" : "4",
+      "tags" : "Element,Software System,External System",
+      "name" : "Normandy",
+      "description" : "manages recipes of changes to make to Firefox",
+      "location" : "Unspecified",
+      "defaultTags" : [ "Element", "Software System" ]
+    }, {
+      "id" : "5",
+      "tags" : "Element,Software System,External System",
+      "name" : "Autograph",
+      "description" : "cryptographic signature service that implements Content-Signature, XPI Signing for Firefox web extensions, MAR Signing for Firefox updates, APK V1 Signing for Android, PGP, GPG2 and RSA.",
+      "location" : "Unspecified",
+      "defaultTags" : [ "Element", "Software System" ]
+    }, {
+      "id" : "7",
+      "tags" : "Element,Software System",
+      "name" : "Remote Settings",
+      "description" : "Manages evergreen settings data in Firefox",
+      "relationships" : [ {
+        "id" : "32",
+        "tags" : "Relationship,Logging",
+        "sourceId" : "7",
+        "destinationId" : "2",
+        "description" : "Writes logs",
+        "technology" : "HTTPS",
+        "defaultTags" : [ "Relationship" ]
+      }, {
+        "id" : "45",
+        "tags" : "Relationship",
+        "sourceId" : "7",
+        "destinationId" : "6",
+        "description" : "PUT broadcast timestamp if outdated",
+        "defaultTags" : [ "Relationship" ]
+      }, {
+        "id" : "30",
+        "tags" : "Relationship",
+        "sourceId" : "7",
+        "destinationId" : "5",
+        "description" : "Send serialized collection data to receive content signature",
+        "technology" : "HTTPS",
+        "defaultTags" : [ "Relationship" ]
+      }, {
+        "id" : "35",
+        "tags" : "Relationship,Logging",
+        "sourceId" : "7",
+        "destinationId" : "3",
+        "description" : "Writes logs",
+        "technology" : "HTTPS",
+        "defaultTags" : [ "Relationship" ]
+      } ],
+      "location" : "Unspecified",
+      "containers" : [ {
+        "id" : "19",
+        "tags" : "Element,Container,Storage",
+        "name" : "Blocklist Dummy Bucket",
+        "description" : "Bucket required by blocklistCDN",
+        "technology" : "S3 Bucket",
+        "defaultTags" : [ "Element", "Container" ]
+      }, {
+        "id" : "18",
+        "tags" : "Element,Container,Storage",
+        "name" : "Attachments Bucket",
+        "technology" : "S3 Bucket",
+        "defaultTags" : [ "Element", "Container" ]
+      }, {
+        "id" : "17",
+        "tags" : "Element,Container,Database,Logging",
+        "name" : "Blocklist CDN",
+        "relationships" : [ {
+          "id" : "41",
+          "tags" : "Relationship,Logging",
+          "sourceId" : "17",
+          "destinationId" : "20",
+          "description" : "Writes Logs",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "25",
+          "tags" : "Relationship",
+          "sourceId" : "17",
+          "destinationId" : "19",
+          "defaultTags" : [ "Relationship" ]
+        } ],
+        "technology" : "AWS Cloudfront",
+        "defaultTags" : [ "Element", "Container" ]
+      }, {
+        "id" : "21",
+        "tags" : "Element,Container,Logging",
+        "name" : "Cloudwatch",
+        "technology" : "AWS Cloudwatch",
+        "defaultTags" : [ "Element", "Container" ]
+      }, {
+        "id" : "14",
+        "tags" : "Element,Container,Database,Logging",
+        "name" : "Remote Settings Database",
+        "description" : "Storage, cache, and permissions",
+        "technology" : "Postgres Database",
+        "defaultTags" : [ "Element", "Container" ]
+      }, {
+        "id" : "16",
+        "tags" : "Element,Container,Database,Logging",
+        "name" : "Attachments CDN",
+        "relationships" : [ {
+          "id" : "40",
+          "tags" : "Relationship,Logging",
+          "sourceId" : "16",
+          "destinationId" : "20",
+          "description" : "Writes Logs",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "24",
+          "tags" : "Relationship",
+          "sourceId" : "16",
+          "destinationId" : "18",
+          "description" : "Forwards requests",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        } ],
+        "technology" : "AWS Cloudfront",
+        "defaultTags" : [ "Element", "Container" ]
+      }, {
+        "id" : "15",
+        "tags" : "Element,Container,Database,Logging",
+        "name" : "Main CDN",
+        "relationships" : [ {
+          "id" : "23",
+          "tags" : "Relationship",
+          "sourceId" : "15",
+          "destinationId" : "8",
+          "description" : "Forwards requests",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "39",
+          "tags" : "Relationship,Logging",
+          "sourceId" : "15",
+          "destinationId" : "20",
+          "description" : "Writes Logs",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        } ],
+        "technology" : "AWS Cloudfront",
+        "defaultTags" : [ "Element", "Container" ]
+      }, {
+        "id" : "8",
+        "tags" : "Element,Container,Logging",
+        "name" : "Remote Settings Reader",
+        "relationships" : [ {
+          "id" : "36",
+          "tags" : "Relationship,Logging",
+          "sourceId" : "8",
+          "destinationId" : "3",
+          "description" : "Writes logs",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "26",
+          "tags" : "Relationship",
+          "sourceId" : "8",
+          "destinationId" : "14",
+          "description" : "Reads collections",
+          "technology" : "Postgres Protocol/SSL",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "33",
+          "tags" : "Relationship,Logging",
+          "sourceId" : "8",
+          "destinationId" : "2",
+          "description" : "Writes logs",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        } ],
+        "technology" : "Python, Kinto Server",
+        "defaultTags" : [ "Element", "Container" ]
+      }, {
+        "id" : "20",
+        "tags" : "Element,Container,Storage,Logging",
+        "name" : "Logging Bucket",
+        "technology" : "S3 Bucket",
+        "defaultTags" : [ "Element", "Container" ]
+      }, {
+        "id" : "9",
+        "tags" : "Element,Container,Logging",
+        "name" : "Remote Settings Writer",
+        "relationships" : [ {
+          "id" : "29",
+          "tags" : "Relationship",
+          "sourceId" : "9",
+          "destinationId" : "5",
+          "description" : "Send serialized collection data to receive content signature",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "28",
+          "tags" : "Relationship",
+          "sourceId" : "9",
+          "destinationId" : "18",
+          "description" : "Writes attachments",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "34",
+          "tags" : "Relationship,Logging",
+          "sourceId" : "9",
+          "destinationId" : "3",
+          "description" : "Writes logs",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "27",
+          "tags" : "Relationship",
+          "sourceId" : "9",
+          "destinationId" : "14",
+          "description" : "Reads from and writes to",
+          "technology" : "Postgres Protocol/SSL",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "31",
+          "tags" : "Relationship,Logging",
+          "sourceId" : "9",
+          "destinationId" : "2",
+          "description" : "Writes logs",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        } ],
+        "technology" : "Python, Kinto Server",
+        "defaultTags" : [ "Element", "Container" ]
+      }, {
+        "id" : "10",
+        "tags" : "Element,Container,Logging",
+        "name" : "Remote Settings Lambdas",
+        "relationships" : [ {
+          "id" : "43",
+          "tags" : "Relationship",
+          "sourceId" : "10",
+          "destinationId" : "15",
+          "description" : "GET timestamp from monitor/changes",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "37",
+          "tags" : "Relationship,Logging",
+          "sourceId" : "10",
+          "destinationId" : "2",
+          "description" : "Writes logs",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "38",
+          "tags" : "Relationship,Logging",
+          "sourceId" : "10",
+          "destinationId" : "21",
+          "description" : "Writes logs",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "42",
+          "tags" : "Relationship",
+          "sourceId" : "10",
+          "destinationId" : "9",
+          "description" : "Run refresh_signature & backport_records jobs",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "44",
+          "tags" : "Relationship",
+          "sourceId" : "10",
+          "destinationId" : "6",
+          "description" : "PUT broadcast timestamp if outdated",
+          "defaultTags" : [ "Relationship" ]
+        } ],
+        "technology" : "AWS Lambda",
+        "components" : [ {
+          "id" : "11",
+          "tags" : "Element,Component",
+          "name" : "backport_records",
+          "description" : "Backport records creations, updates and deletions from one collection to another",
+          "relationships" : [ {
+            "id" : "49",
+            "tags" : "Relationship",
+            "sourceId" : "11",
+            "destinationId" : "9",
+            "description" : "GET source records, PUT/DELETE destination records",
+            "defaultTags" : [ "Relationship" ]
+          } ],
+          "technology" : "AWS Lambda/ cron job",
+          "size" : 0,
+          "defaultTags" : [ "Element", "Component" ]
+        }, {
+          "id" : "13",
+          "tags" : "Element,Component",
+          "name" : "refresh_signature",
+          "description" : "Rotate signature and certificates of collections.",
+          "relationships" : [ {
+            "id" : "48",
+            "tags" : "Relationship",
+            "sourceId" : "13",
+            "destinationId" : "9",
+            "description" : "PATCH collections with status=to-refresh",
+            "defaultTags" : [ "Relationship" ]
+          } ],
+          "technology" : "AWS Lambda / cron job",
+          "size" : 0,
+          "defaultTags" : [ "Element", "Component" ]
+        }, {
+          "id" : "12",
+          "tags" : "Element,Component",
+          "name" : "sync_megaphone",
+          "description" : "Read latest timestamp from monitor/changes & updates it in Megaphone if outdated.",
+          "relationships" : [ {
+            "id" : "47",
+            "tags" : "Relationship",
+            "sourceId" : "12",
+            "destinationId" : "6",
+            "description" : "PUT broadcast timestamp if outdated",
+            "defaultTags" : [ "Relationship" ]
+          }, {
+            "id" : "46",
+            "tags" : "Relationship",
+            "sourceId" : "12",
+            "destinationId" : "15",
+            "description" : "GET timestamp from monitor/changes",
+            "defaultTags" : [ "Relationship" ]
+          } ],
+          "technology" : "AWS Lambda / cron job",
+          "size" : 0,
+          "defaultTags" : [ "Element", "Component" ]
+        } ],
+        "defaultTags" : [ "Element", "Container" ]
+      } ],
+      "defaultTags" : [ "Element", "Software System" ]
+    } ],
+    "deploymentNodes" : [ {
+      "id" : "54",
+      "tags" : "Element,Deployment Node,Google Cloud Platform - Cloud",
+      "name" : "Google Cloud Platform",
+      "environment" : "Live",
+      "instances" : 1,
+      "softwareSystemInstances" : [ {
+        "id" : "57",
+        "tags" : "Software System Instance",
+        "environment" : "Live",
+        "deploymentGroups" : [ "Default" ],
+        "instanceId" : 1,
+        "softwareSystemId" : "3"
+      }, {
+        "id" : "58",
+        "tags" : "Software System Instance",
+        "relationships" : [ {
+          "id" : "109",
+          "tags" : "Relationship",
+          "sourceId" : "58",
+          "destinationId" : "61",
+          "description" : "Sends requests to Writer to CRUD collections",
+          "defaultTags" : [ "Relationship" ]
+        } ],
+        "environment" : "Live",
+        "deploymentGroups" : [ "Default" ],
+        "instanceId" : 1,
+        "softwareSystemId" : "4"
+      }, {
+        "id" : "55",
+        "tags" : "Software System Instance",
+        "relationships" : [ {
+          "id" : "56",
+          "sourceId" : "55",
+          "destinationId" : "51",
+          "description" : "Pushes RS data",
+          "technology" : "HTTPS",
+          "linkedRelationshipId" : "22"
+        } ],
+        "environment" : "Live",
+        "deploymentGroups" : [ "Default" ],
+        "instanceId" : 1,
+        "softwareSystemId" : "6"
+      } ]
+    }, {
+      "id" : "52",
+      "tags" : "Element,Deployment Node",
+      "name" : "Sentry",
+      "environment" : "Live",
+      "instances" : 1,
+      "softwareSystemInstances" : [ {
+        "id" : "53",
+        "tags" : "Software System Instance",
+        "environment" : "Live",
+        "deploymentGroups" : [ "Default" ],
+        "instanceId" : 1,
+        "softwareSystemId" : "2"
+      } ]
+    }, {
+      "id" : "59",
+      "tags" : "Element,Deployment Node,Amazon Web Services - Cloud",
+      "name" : "Amazon Web Services",
+      "environment" : "Live",
+      "instances" : 1,
+      "children" : [ {
+        "id" : "62",
+        "tags" : "Element,Deployment Node,Amazon Web Services - CloudFront",
+        "name" : "Amazon Cloudfront - Main",
+        "environment" : "Live",
+        "instances" : 1,
+        "containerInstances" : [ {
+          "id" : "63",
+          "tags" : "Container Instance",
+          "relationships" : [ {
+            "id" : "75",
+            "sourceId" : "63",
+            "destinationId" : "72",
+            "description" : "Writes Logs",
+            "technology" : "HTTPS",
+            "linkedRelationshipId" : "39"
+          }, {
+            "id" : "89",
+            "sourceId" : "63",
+            "destinationId" : "87",
+            "description" : "Forwards requests",
+            "technology" : "HTTPS",
+            "linkedRelationshipId" : "23"
+          } ],
+          "environment" : "Live",
+          "deploymentGroups" : [ "Default" ],
+          "instanceId" : 1,
+          "containerId" : "15"
+        } ]
+      }, {
+        "id" : "71",
+        "tags" : "Element,Deployment Node,Amazon Web Services - Simple Storage Service S3 Bucket with Objects",
+        "name" : "Amazon S3 Bucket - Cloudfront Logs",
+        "environment" : "Live",
+        "instances" : 1,
+        "containerInstances" : [ {
+          "id" : "72",
+          "tags" : "Container Instance",
+          "environment" : "Live",
+          "deploymentGroups" : [ "Default" ],
+          "instanceId" : 1,
+          "containerId" : "20"
+        } ]
+      }, {
+        "id" : "76",
+        "tags" : "Element,Deployment Node,Amazon Web Services - Simple Storage Service S3 Bucket with Objects",
+        "name" : "Amazon S3 Bucket - Blocklist Dummy",
+        "environment" : "Live",
+        "instances" : 1,
+        "containerInstances" : [ {
+          "id" : "77",
+          "tags" : "Container Instance",
+          "environment" : "Live",
+          "deploymentGroups" : [ "Default" ],
+          "instanceId" : 1,
+          "containerId" : "19"
+        } ]
+      }, {
+        "id" : "64",
+        "tags" : "Element,Deployment Node,Amazon Web Services - CloudFront",
+        "name" : "Amazon Cloudfront - Attachments",
+        "environment" : "Live",
+        "instances" : 1,
+        "containerInstances" : [ {
+          "id" : "65",
+          "tags" : "Container Instance",
+          "relationships" : [ {
+            "id" : "70",
+            "sourceId" : "65",
+            "destinationId" : "69",
+            "description" : "Forwards requests",
+            "technology" : "HTTPS",
+            "linkedRelationshipId" : "24"
+          }, {
+            "id" : "74",
+            "sourceId" : "65",
+            "destinationId" : "72",
+            "description" : "Writes Logs",
+            "technology" : "HTTPS",
+            "linkedRelationshipId" : "40"
+          } ],
+          "environment" : "Live",
+          "deploymentGroups" : [ "Default" ],
+          "instanceId" : 1,
+          "containerId" : "16"
+        } ]
+      }, {
+        "id" : "66",
+        "tags" : "Element,Deployment Node,Amazon Web Services - CloudFront",
+        "name" : "Amazon Cloudfront - Blocklist",
+        "environment" : "Live",
+        "instances" : 1,
+        "containerInstances" : [ {
+          "id" : "67",
+          "tags" : "Container Instance",
+          "relationships" : [ {
+            "id" : "73",
+            "sourceId" : "67",
+            "destinationId" : "72",
+            "description" : "Writes Logs",
+            "technology" : "HTTPS",
+            "linkedRelationshipId" : "41"
+          }, {
+            "id" : "78",
+            "sourceId" : "67",
+            "destinationId" : "77",
+            "linkedRelationshipId" : "25"
+          } ],
+          "environment" : "Live",
+          "deploymentGroups" : [ "Default" ],
+          "instanceId" : 1,
+          "containerId" : "17"
+        } ]
+      }, {
+        "id" : "68",
+        "tags" : "Element,Deployment Node,Amazon Web Services - Simple Storage Service S3 Bucket with Objects",
+        "name" : "Amazon S3 Bucket - Attachments",
+        "environment" : "Live",
+        "instances" : 1,
+        "containerInstances" : [ {
+          "id" : "69",
+          "tags" : "Container Instance",
+          "environment" : "Live",
+          "deploymentGroups" : [ "Default" ],
+          "instanceId" : 1,
+          "containerId" : "18"
+        } ]
+      }, {
+        "id" : "79",
+        "tags" : "Element,Deployment Node,Amazon Web Services - VPC",
+        "name" : "Amazon Virtual Private Cloud",
+        "environment" : "Live",
+        "instances" : 1,
+        "children" : [ {
+          "id" : "96",
+          "tags" : "Element,Deployment Node",
+          "name" : "Amazon Lambdas",
+          "environment" : "Live",
+          "instances" : 1,
+          "containerInstances" : [ {
+            "id" : "97",
+            "tags" : "Container Instance",
+            "relationships" : [ {
+              "id" : "99",
+              "sourceId" : "97",
+              "destinationId" : "63",
+              "description" : "GET timestamp from monitor/changes",
+              "linkedRelationshipId" : "43"
+            }, {
+              "id" : "104",
+              "sourceId" : "97",
+              "destinationId" : "103",
+              "description" : "Writes logs",
+              "technology" : "HTTPS",
+              "linkedRelationshipId" : "38"
+            }, {
+              "id" : "101",
+              "sourceId" : "97",
+              "destinationId" : "55",
+              "description" : "PUT broadcast timestamp if outdated",
+              "linkedRelationshipId" : "44"
+            }, {
+              "id" : "100",
+              "sourceId" : "97",
+              "destinationId" : "81",
+              "description" : "Run refresh_signature & backport_records jobs",
+              "linkedRelationshipId" : "42"
+            }, {
+              "id" : "98",
+              "sourceId" : "97",
+              "destinationId" : "53",
+              "description" : "Writes logs",
+              "technology" : "HTTPS",
+              "linkedRelationshipId" : "37"
+            } ],
+            "environment" : "Live",
+            "deploymentGroups" : [ "Default" ],
+            "instanceId" : 1,
+            "containerId" : "10"
+          } ]
+        }, {
+          "id" : "91",
+          "tags" : "Element,Deployment Node,Amazon Web Services - RDS",
+          "name" : "Amazon RDS",
+          "environment" : "Live",
+          "instances" : 1,
+          "children" : [ {
+            "id" : "92",
+            "tags" : "Element,Deployment Node,Amazon Web Services - RDS PostgreSQL instance",
+            "name" : "AWS Postgres",
+            "environment" : "Live",
+            "instances" : 1,
+            "containerInstances" : [ {
+              "id" : "93",
+              "tags" : "Container Instance",
+              "environment" : "Live",
+              "deploymentGroups" : [ "Default" ],
+              "instanceId" : 1,
+              "containerId" : "14"
+            } ]
+          } ]
+        }, {
+          "id" : "80",
+          "tags" : "Element,Deployment Node,Amazon Web Services - EC2",
+          "name" : "Amazon EC2 - Writer",
+          "environment" : "Live",
+          "instances" : 1,
+          "containerInstances" : [ {
+            "id" : "81",
+            "tags" : "Container Instance",
+            "relationships" : [ {
+              "id" : "83",
+              "sourceId" : "81",
+              "destinationId" : "53",
+              "description" : "Writes logs",
+              "technology" : "HTTPS",
+              "linkedRelationshipId" : "31"
+            }, {
+              "id" : "84",
+              "sourceId" : "81",
+              "destinationId" : "57",
+              "description" : "Writes logs",
+              "technology" : "HTTPS",
+              "linkedRelationshipId" : "34"
+            }, {
+              "id" : "95",
+              "sourceId" : "81",
+              "destinationId" : "93",
+              "description" : "Reads from and writes to",
+              "technology" : "Postgres Protocol/SSL",
+              "linkedRelationshipId" : "27"
+            }, {
+              "id" : "85",
+              "sourceId" : "81",
+              "destinationId" : "60",
+              "description" : "Send serialized collection data to receive content signature",
+              "technology" : "HTTPS",
+              "linkedRelationshipId" : "29"
+            }, {
+              "id" : "82",
+              "sourceId" : "81",
+              "destinationId" : "69",
+              "description" : "Writes attachments",
+              "technology" : "HTTPS",
+              "linkedRelationshipId" : "28"
+            } ],
+            "environment" : "Live",
+            "deploymentGroups" : [ "Default" ],
+            "instanceId" : 1,
+            "containerId" : "9"
+          } ]
+        }, {
+          "id" : "86",
+          "tags" : "Element,Deployment Node,Amazon Web Services - EC2",
+          "name" : "Amazon EC2 - Reader",
+          "environment" : "Live",
+          "instances" : 1,
+          "containerInstances" : [ {
+            "id" : "87",
+            "tags" : "Container Instance",
+            "relationships" : [ {
+              "id" : "88",
+              "sourceId" : "87",
+              "destinationId" : "53",
+              "description" : "Writes logs",
+              "technology" : "HTTPS",
+              "linkedRelationshipId" : "33"
+            }, {
+              "id" : "90",
+              "sourceId" : "87",
+              "destinationId" : "57",
+              "description" : "Writes logs",
+              "technology" : "HTTPS",
+              "linkedRelationshipId" : "36"
+            }, {
+              "id" : "94",
+              "sourceId" : "87",
+              "destinationId" : "93",
+              "description" : "Reads collections",
+              "technology" : "Postgres Protocol/SSL",
+              "linkedRelationshipId" : "26"
+            } ],
+            "environment" : "Live",
+            "deploymentGroups" : [ "Default" ],
+            "instanceId" : 1,
+            "containerId" : "8"
+          } ]
+        } ]
+      }, {
+        "id" : "102",
+        "tags" : "Element,Deployment Node,Amazon Web Services - CloudWatch",
+        "name" : "Amazon Cloudwatch",
+        "environment" : "Live",
+        "instances" : 1,
+        "containerInstances" : [ {
+          "id" : "103",
+          "tags" : "Container Instance",
+          "environment" : "Live",
+          "deploymentGroups" : [ "Default" ],
+          "instanceId" : 1,
+          "containerId" : "21"
+        } ]
+      } ],
+      "infrastructureNodes" : [ {
+        "id" : "61",
+        "tags" : "Element,Infrastructure Node,Amazon Web Services - Route 53",
+        "name" : "Route 53",
+        "relationships" : [ {
+          "id" : "106",
+          "tags" : "Relationship",
+          "sourceId" : "61",
+          "destinationId" : "63",
+          "description" : "Forwards requests to",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "108",
+          "tags" : "Relationship",
+          "sourceId" : "61",
+          "destinationId" : "67",
+          "description" : "Forwards requests to",
+          "defaultTags" : [ "Relationship" ]
+        }, {
+          "id" : "107",
+          "tags" : "Relationship",
+          "sourceId" : "61",
+          "destinationId" : "65",
+          "description" : "Forwards requests to",
+          "defaultTags" : [ "Relationship" ]
+        } ],
+        "environment" : "Live"
+      } ],
+      "softwareSystemInstances" : [ {
+        "id" : "60",
+        "tags" : "Software System Instance",
+        "environment" : "Live",
+        "deploymentGroups" : [ "Default" ],
+        "instanceId" : 1,
+        "softwareSystemId" : "5"
+      } ]
+    }, {
+      "id" : "50",
+      "tags" : "Element,Deployment Node",
+      "name" : "Client Device",
+      "environment" : "Live",
+      "instances" : 1,
+      "softwareSystemInstances" : [ {
+        "id" : "51",
+        "tags" : "Software System Instance",
+        "relationships" : [ {
+          "id" : "105",
+          "tags" : "Relationship",
+          "sourceId" : "51",
+          "destinationId" : "61",
+          "description" : "Requests",
+          "technology" : "HTTPS",
+          "defaultTags" : [ "Relationship" ]
+        } ],
+        "environment" : "Live",
+        "deploymentGroups" : [ "Default" ],
+        "instanceId" : 1,
+        "softwareSystemId" : "1"
+      } ]
+    } ]
+  },
+  "documentation" : { },
+  "views" : {
+    "componentViews" : [ {
+      "key" : "RemoteSettingsLambdas",
+      "paperSize" : "A4_Portrait",
+      "dimensions" : {
+        "width" : 1754,
+        "height" : 2504
+      },
+      "automaticLayout" : {
+        "implementation" : "Graphviz",
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 300,
+        "nodeSeparation" : 300,
+        "edgeSeparation" : 0,
+        "vertices" : false
+      },
+      "containerId" : "10",
+      "externalContainerBoundariesVisible" : true,
+      "elements" : [ {
+        "id" : "11",
+        "x" : 329,
+        "y" : 929
+      }, {
+        "id" : "12",
+        "x" : 329,
+        "y" : 1529
+      }, {
+        "id" : "13",
+        "x" : 329,
+        "y" : 329
+      }, {
+        "id" : "15",
+        "x" : 1079,
+        "y" : 1379
+      }, {
+        "id" : "6",
+        "x" : 1079,
+        "y" : 1979
+      }, {
+        "id" : "9",
+        "x" : 1079,
+        "y" : 479
+      } ],
+      "relationships" : [ {
+        "id" : "46"
+      }, {
+        "id" : "47"
+      }, {
+        "id" : "48"
+      }, {
+        "id" : "49"
+      } ]
+    } ],
+    "deploymentViews" : [ {
+      "softwareSystemId" : "7",
+      "key" : "CurrentDeployment",
+      "paperSize" : "A1_Landscape",
+      "dimensions" : {
+        "width" : 8091,
+        "height" : 3616
+      },
+      "automaticLayout" : {
+        "implementation" : "Graphviz",
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "nodeSeparation" : 300,
+        "edgeSeparation" : 0,
+        "vertices" : false
+      },
+      "environment" : "Live",
+      "elements" : [ {
+        "id" : "66",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "67",
+        "x" : 405,
+        "y" : 1878
+      }, {
+        "id" : "68",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "69",
+        "x" : 1930,
+        "y" : 2641
+      }, {
+        "id" : "91",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "92",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "71",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "93",
+        "x" : 3176,
+        "y" : 2641
+      }, {
+        "id" : "50",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "72",
+        "x" : 1167,
+        "y" : 2641
+      }, {
+        "id" : "51",
+        "x" : 3522,
+        "y" : 353
+      }, {
+        "id" : "52",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "96",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "53",
+        "x" : 5222,
+        "y" : 2641
+      }, {
+        "id" : "97",
+        "x" : 3559,
+        "y" : 1278
+      }, {
+        "id" : "54",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "76",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "55",
+        "x" : 7284,
+        "y" : 1878
+      }, {
+        "id" : "77",
+        "x" : 405,
+        "y" : 2641
+      }, {
+        "id" : "57",
+        "x" : 6534,
+        "y" : 1878
+      }, {
+        "id" : "79",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "58",
+        "x" : 5784,
+        "y" : 1878
+      }, {
+        "id" : "59",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "102",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "103",
+        "x" : 4426,
+        "y" : 1878
+      }, {
+        "id" : "80",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "81",
+        "x" : 2797,
+        "y" : 1878
+      }, {
+        "id" : "60",
+        "x" : 4322,
+        "y" : 2641
+      }, {
+        "id" : "61",
+        "x" : 1930,
+        "y" : 1278
+      }, {
+        "id" : "62",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "63",
+        "x" : 1930,
+        "y" : 1878
+      }, {
+        "id" : "64",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "86",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "65",
+        "x" : 1167,
+        "y" : 1878
+      }, {
+        "id" : "87",
+        "x" : 3559,
+        "y" : 1878
+      } ],
+      "relationships" : [ {
+        "id" : "70",
+        "vertices" : [ {
+          "x" : 1797,
+          "y" : 2316
+        } ]
+      }, {
+        "id" : "94"
+      }, {
+        "id" : "74"
+      }, {
+        "id" : "73",
+        "vertices" : [ {
+          "x" : 1034,
+          "y" : 2316
+        } ]
+      }, {
+        "id" : "98",
+        "vertices" : [ {
+          "x" : 5055,
+          "y" : 1716
+        } ]
+      }, {
+        "id" : "95"
+      }, {
+        "id" : "75",
+        "vertices" : [ {
+          "x" : 1751,
+          "y" : 2316
+        } ]
+      }, {
+        "id" : "90",
+        "vertices" : [ {
+          "x" : 4247,
+          "y" : 1716
+        }, {
+          "x" : 4397,
+          "y" : 1699
+        }, {
+          "x" : 6234,
+          "y" : 1699
+        }, {
+          "x" : 6384,
+          "y" : 1716
+        } ]
+      }, {
+        "id" : "88",
+        "vertices" : [ {
+          "x" : 4247,
+          "y" : 2282
+        }, {
+          "x" : 5159,
+          "y" : 2316
+        } ]
+      }, {
+        "id" : "89",
+        "vertices" : [ {
+          "x" : 2617,
+          "y" : 1716
+        }, {
+          "x" : 2767,
+          "y" : 1699
+        }, {
+          "x" : 3276,
+          "y" : 1699
+        }, {
+          "x" : 3426,
+          "y" : 1716
+        } ]
+      }, {
+        "id" : "82"
+      }, {
+        "id" : "83",
+        "vertices" : [ {
+          "x" : 3380,
+          "y" : 2282
+        }, {
+          "x" : 5159,
+          "y" : 2316
+        } ]
+      }, {
+        "id" : "84",
+        "vertices" : [ {
+          "x" : 3380,
+          "y" : 1716
+        }, {
+          "x" : 3530,
+          "y" : 1699
+        }, {
+          "x" : 6234,
+          "y" : 1699
+        }, {
+          "x" : 6384,
+          "y" : 1716
+        } ]
+      }, {
+        "id" : "85",
+        "vertices" : [ {
+          "x" : 3380,
+          "y" : 2282
+        }, {
+          "x" : 3805,
+          "y" : 2316
+        } ]
+      }, {
+        "id" : "108",
+        "vertices" : [ {
+          "x" : 988,
+          "y" : 1716
+        } ]
+      }, {
+        "id" : "107",
+        "vertices" : [ {
+          "x" : 1751,
+          "y" : 1716
+        } ]
+      }, {
+        "id" : "109",
+        "vertices" : [ {
+          "x" : 5055,
+          "y" : 1716
+        }, {
+          "x" : 3380,
+          "y" : 1682
+        } ]
+      }, {
+        "id" : "100",
+        "vertices" : [ {
+          "x" : 3542,
+          "y" : 1682
+        }, {
+          "x" : 3380,
+          "y" : 1716
+        } ]
+      }, {
+        "id" : "78"
+      }, {
+        "id" : "56",
+        "vertices" : [ {
+          "x" : 7134,
+          "y" : 1716
+        } ]
+      }, {
+        "id" : "99",
+        "vertices" : [ {
+          "x" : 3542,
+          "y" : 1682
+        }, {
+          "x" : 2617,
+          "y" : 1716
+        } ]
+      }, {
+        "id" : "101",
+        "vertices" : [ {
+          "x" : 6197,
+          "y" : 1682
+        }, {
+          "x" : 7134,
+          "y" : 1716
+        } ]
+      }, {
+        "id" : "104"
+      }, {
+        "id" : "106"
+      }, {
+        "id" : "105"
+      } ]
+    }, {
+      "softwareSystemId" : "7",
+      "key" : "CurrentDeploymentLogging",
+      "dimensions" : {
+        "width" : 3855,
+        "height" : 2854
+      },
+      "environment" : "Live",
+      "elements" : [ {
+        "id" : "66",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "67",
+        "x" : 995,
+        "y" : 1900
+      }, {
+        "id" : "68",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "91",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "92",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "71",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "50",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "72",
+        "x" : 995,
+        "y" : 1270
+      }, {
+        "id" : "52",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "96",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "53",
+        "x" : 3155,
+        "y" : 1365
+      }, {
+        "id" : "97",
+        "x" : 1710,
+        "y" : 958
+      }, {
+        "id" : "54",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "76",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "57",
+        "x" : 3155,
+        "y" : 1995
+      }, {
+        "id" : "79",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "59",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "102",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "103",
+        "x" : 2445,
+        "y" : 750
+      }, {
+        "id" : "80",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "81",
+        "x" : 1710,
+        "y" : 1516
+      }, {
+        "id" : "62",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "63",
+        "x" : 300,
+        "y" : 1270
+      }, {
+        "id" : "64",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "86",
+        "x" : 575,
+        "y" : 575
+      }, {
+        "id" : "65",
+        "x" : 995,
+        "y" : 605
+      }, {
+        "id" : "87",
+        "x" : 1710,
+        "y" : 2075
+      } ],
+      "relationships" : [ {
+        "id" : "83"
+      }, {
+        "id" : "74"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "98"
+      }, {
+        "id" : "84"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "88"
+      }, {
+        "id" : "104"
+      }, {
+        "id" : "90"
+      } ]
+    }, {
+      "softwareSystemId" : "7",
+      "key" : "CurrentDeploymentNoLogging",
+      "dimensions" : {
+        "width" : 3595,
+        "height" : 3709
+      },
+      "environment" : "Live",
+      "elements" : [ {
+        "id" : "66",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "67",
+        "x" : 1905,
+        "y" : 299
+      }, {
+        "id" : "68",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "69",
+        "x" : 2725,
+        "y" : 849
+      }, {
+        "id" : "91",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "92",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "71",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "93",
+        "x" : 2745,
+        "y" : 2837
+      }, {
+        "id" : "50",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "51",
+        "x" : 490,
+        "y" : 1139
+      }, {
+        "id" : "52",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "96",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "97",
+        "x" : 1405,
+        "y" : 2162
+      }, {
+        "id" : "54",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "76",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "55",
+        "x" : 490,
+        "y" : 2239
+      }, {
+        "id" : "77",
+        "x" : 2725,
+        "y" : 299
+      }, {
+        "id" : "79",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "58",
+        "x" : 490,
+        "y" : 1739
+      }, {
+        "id" : "59",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "102",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "80",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "81",
+        "x" : 2745,
+        "y" : 2149
+      }, {
+        "id" : "60",
+        "x" : 2725,
+        "y" : 1369
+      }, {
+        "id" : "61",
+        "x" : 1230,
+        "y" : 1139
+      }, {
+        "id" : "62",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "63",
+        "x" : 1935,
+        "y" : 1369
+      }, {
+        "id" : "64",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "86",
+        "x" : 1168,
+        "y" : 1100
+      }, {
+        "id" : "65",
+        "x" : 1920,
+        "y" : 849
+      }, {
+        "id" : "87",
+        "x" : 1905,
+        "y" : 2844
+      } ],
+      "relationships" : [ {
+        "id" : "70"
+      }, {
+        "id" : "82",
+        "vertices" : [ {
+          "x" : 2620,
+          "y" : 2044
+        }, {
+          "x" : 2625,
+          "y" : 1404
+        } ]
+      }, {
+        "id" : "94"
+      }, {
+        "id" : "95"
+      }, {
+        "id" : "85"
+      }, {
+        "id" : "108",
+        "vertices" : [ {
+          "x" : 1776,
+          "y" : 721
+        } ]
+      }, {
+        "id" : "107"
+      }, {
+        "id" : "109"
+      }, {
+        "id" : "100",
+        "vertices" : [ {
+          "x" : 2185,
+          "y" : 2417
+        } ]
+      }, {
+        "id" : "78"
+      }, {
+        "id" : "56",
+        "vertices" : [ {
+          "x" : 386,
+          "y" : 2139
+        }, {
+          "x" : 286,
+          "y" : 2039
+        }, {
+          "x" : 286,
+          "y" : 1626
+        }, {
+          "x" : 386,
+          "y" : 1526
+        } ]
+      }, {
+        "id" : "99",
+        "vertices" : [ {
+          "x" : 1620,
+          "y" : 2074
+        } ]
+      }, {
+        "id" : "101"
+      }, {
+        "id" : "89",
+        "vertices" : [ {
+          "x" : 2045,
+          "y" : 2439
+        } ]
+      }, {
+        "id" : "106"
+      }, {
+        "id" : "105"
+      } ]
+    } ],
+    "configuration" : {
+      "branding" : { },
+      "styles" : {
+        "elements" : [ {
+          "tag" : "Google Cloud Platform - Cloud",
+          "icon" : "https://www.gend.co/hs-fs/hubfs/gcp-logo-cloud.png?width=730&name=gcp-logo-cloud.png"
+        }, {
+          "tag" : "External System",
+          "background" : "#999999",
+          "color" : "#ffffff"
+        }, {
+          "tag" : "Database",
+          "shape" : "Cylinder"
+        }, {
+          "tag" : "Storage",
+          "shape" : "Folder"
+        }, {
+          "tag" : "Web Browser",
+          "shape" : "WebBrowser"
+        } ]
+      },
+      "themes" : [ "https://static.structurizr.com/themes/amazon-web-services-2020.04.30/theme.json", "https://static.structurizr.com/themes/google-cloud-platform-v1.5/theme.json", "https://static.structurizr.com/themes/default/theme.json" ],
+      "terminology" : { },
+      "lastSavedView" : "CurrentDeployment"
+    }
+  }
+}
