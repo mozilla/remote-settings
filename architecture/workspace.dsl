@@ -7,14 +7,8 @@
 # S3 bucket for lambda(s)?
 
 workspace "Remote Settings" "Remote Settings Service" {
-
     model {
-      firefox = softwaresystem "Firefox" "" "Web Browser" {
-        browser = container "Browser" "" {
-          remoteSettingsClient = component "Remote Settings Client" ""
-          normandyClient = component "Normandy Client" ""
-        }
-      }
+      firefox = softwaresystem "Firefox" "" "Web Browser"
       sentry = softwaresystem "Sentry" "3rd party logging service" "External System, Logging"
       stackdriver = softwaresystem "Stackdriver" "GCP Logging Service" "External System, Logging"
       normandy = softwaresystem "Normandy" "manages recipes of changes to make to Firefox" "External System"
@@ -32,39 +26,44 @@ workspace "Remote Settings" "Remote Settings Service" {
           refresh_signature = component "refresh_signature" "Rotate signature and certificates of collections." "AWS Lambda / cron job"
         }
         database = container "Remote Settings Database" "Storage, cache, and permissions" "Postgres Database" "Database"
-        mainCDN = container "Main CDN" "" "AWS Cloudfront" "Database,Logging"
-        attachmentsCDN = container "Attachments CDN" "" "AWS Cloudfront" "Database,Logging"
-        blocklistCDN = container "Blocklist CDN" "" "AWS Cloudfront" "Database,Logging"
+        mainCDN = container "Main CDN" "" "AWS Cloudfront" "Database"
+        attachmentsCDN = container "Attachments CDN" "" "AWS Cloudfront" "Database"
+        blocklistCDN = container "Blocklist CDN" "" "AWS Cloudfront" "Database"
         attachmentsBucket = container "Attachments Bucket" "" "S3 Bucket" "Storage"
-        loggingBucket = container "Logging Bucket" "" "S3 Bucket" "Storage,Logging"
-        cloudwatch = container "Cloudwatch" "" "AWS Cloudwatch" "Logging"
+        blocklistDummyBucket = container "Blocklist Dummy Bucket" "Bucket required by blocklistCDN" "S3 Bucket" "Storage"
+        loggingBucket = container "Logging Bucket" "" "S3 Bucket" "Storage"
+        cloudwatch = container "Cloudwatch" "" "AWS Cloudwatch"
       }
 
-      normandy -> remoteSettingsWriter "" "HTTPS"
-      megaphone -> firefox "Pushes RS data"
-      mainCDN -> remoteSettingsReader ""
-      attachmentsCDN -> attachmentsBucket ""
-      remoteSettingsReader -> database "Reads collections. Read permissions only."
+      # normandy -> remoteSettingsWriter "Publishes collections" "HTTPS"
+      megaphone -> firefox "Pushes RS data" "HTTPS"
+      mainCDN -> remoteSettingsReader "Forwards requests" "HTTPS"
+      attachmentsCDN -> attachmentsBucket "Forwards requests" "HTTPS"
+      blocklistCDN -> blocklistDummyBucket "" ""
+      remoteSettingsReader -> database "Reads collections" "Postgres Protocol/SSL"
       remoteSettingsWriter -> database "Reads from and writes to" "Postgres Protocol/SSL"
       remoteSettingsWriter -> attachmentsBucket "Writes attachments" "HTTPS"
       remoteSettingsWriter -> autograph "Send serialized collection data to receive content signature" "HTTPS"
 
       # Logging
       ## Reader / Writer
-      remoteSettingsWriter -> sentry "Write logs" "HTTPS" "Logging"
-      remoteSettingsReader -> sentry "Write logs" "HTTPS" "Logging"
-      remoteSettingsWriter -> stackdriver "Write logs" "HTTPS" "Logging"
-      remoteSettingsReader -> stackdriver "Write logs" "HTTPS" "Logging"
+      remoteSettingsWriter -> sentry "Writes logs" "HTTPS" "Logging"
+      remoteSettingsReader -> sentry "Writes logs" "HTTPS" "Logging"
+      remoteSettingsWriter -> stackdriver "Writes logs" "HTTPS" "Logging"
+      remoteSettingsReader -> stackdriver "Writes logs" "HTTPS" "Logging"
       ## lambdas
-      lambdas -> sentry "Write logs" "HTTPS" "Logging"
-      lambdas -> cloudwatch "Write logs" "HTTPS" "Logging"
+      lambdas -> sentry "Writes logs" "HTTPS" "Logging"
+      lambdas -> cloudwatch "Writes logs" "HTTPS" "Logging"
       ## CDNs
-      mainCDN -> loggingBucket "Write Logs" "HTTPS" "Logging"
-      attachmentsCDN -> loggingBucket "Write Logs" "HTTPS" "Logging"
-      blocklistCDN -> loggingBucket "Write Logs" "HTTPS" "Logging"
+      mainCDN -> loggingBucket "Writes Logs" "HTTPS" "Logging"
+      attachmentsCDN -> loggingBucket "Writes Logs" "HTTPS" "Logging"
+      blocklistCDN -> loggingBucket "Writes Logs" "HTTPS" "Logging"
 
       # Lambdas
-      lambdas -> remoteSettingsWriter ""
+      lambdas -> remoteSettingsWriter "Run refresh_signature & backport_records jobs"
+      lambdas -> mainCDN "GET timestamp from monitor/changes"
+      lambdas -> megaphone "PUT broadcast timestamp if outdated"
+
       sync_megaphone -> mainCDN "GET timestamp from monitor/changes"
       sync_megaphone -> megaphone "PUT broadcast timestamp if outdated"
       refresh_signature -> remoteSettingsWriter "PATCH collections with status=to-refresh"
@@ -75,13 +74,13 @@ workspace "Remote Settings" "Remote Settings Service" {
           firefoxInstance = softwareSystemInstance firefox
         }
         deploymentNode "Sentry" {
-          sentryInstance = softwareSystemInstance sentry
+          softwareSystemInstance sentry
         }
         deploymentNode "Google Cloud Platform"{
           tags "Google Cloud Platform - Cloud"
-          megaphoneInstance = softwareSystemInstance megaphone
-          stackdriverInstance = softwareSystemInstance stackdriver
-          softwareSystemInstance normandy
+          softwareSystemInstance megaphone
+          softwareSystemInstance stackdriver
+          normandyInstance = softwareSystemInstance normandy
         }
         deploymentNode "Amazon Web Services" {
           tags "Amazon Web Services - Cloud"
@@ -99,7 +98,7 @@ workspace "Remote Settings" "Remote Settings Service" {
           }
           deploymentNode "Amazon Cloudfront - Blocklist" {
             tags "Amazon Web Services - CloudFront"
-            containerInstance blocklistCDN
+            blocklistCDNInstance = containerInstance blocklistCDN
           }
           deploymentNode "Amazon S3 Bucket - Attachments" {
             tags "Amazon Web Services - Simple Storage Service S3 Bucket with Objects"
@@ -108,6 +107,10 @@ workspace "Remote Settings" "Remote Settings Service" {
           deploymentNode "Amazon S3 Bucket - Cloudfront Logs" {
             tags "Amazon Web Services - Simple Storage Service S3 Bucket with Objects"
             containerInstance loggingBucket
+          }
+          deploymentNode "Amazon S3 Bucket - Blocklist Dummy" {
+            tags "Amazon Web Services - Simple Storage Service S3 Bucket with Objects"
+            containerInstance blocklistDummyBucket
           }
           deploymentNode "Amazon Virtual Private Cloud"{
             tags "Amazon Web Services - VPC"
@@ -138,6 +141,8 @@ workspace "Remote Settings" "Remote Settings Service" {
         firefoxInstance -> route53 "Requests" "HTTPS"
         route53 -> mainCDNInstance "Forwards requests to"
         route53 -> attachmentsCDNInstance "Forwards requests to"
+        route53 -> blocklistCDNInstance "Forwards requests to"
+        normandyInstance -> route53 "Sends requests to Writer to CRUD collections"
       }
     }
 
@@ -147,15 +152,20 @@ workspace "Remote Settings" "Remote Settings Service" {
         autolayout lr
       }
       deployment remoteSettings "Live" "CurrentDeployment" {
-        autolayout lr
         include *
-        exclude sentry
-        exclude stackdriver
+        autolayout tb
+      }
+      deployment remoteSettings "Live" "CurrentDeploymentNoLogging" {
+        include *
+        exclude "relationship.tag==Logging"
+        !script script.groovy
       }
       deployment remoteSettings "Live" "CurrentDeploymentLogging" {
-        autolayout lr
-        include "element.tag==Logging"
+        include *
+        exclude "relationship.tag!=Logging"
+        !script script.groovy
       }
+
       themes https://static.structurizr.com/themes/amazon-web-services-2020.04.30/theme.json https://static.structurizr.com/themes/google-cloud-platform-v1.5/theme.json default
       styles {
         element "Google Cloud Platform - Cloud" {
