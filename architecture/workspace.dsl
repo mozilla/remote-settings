@@ -117,7 +117,7 @@ workspace "Remote Settings" "Remote Settings Service" {
             tags "Amazon Web Services - VPC"
             deploymentNode "Amazon EC2 - Writer" {
               tags "Amazon Web Services - EC2"
-              containerInstance remoteSettingsWriter
+              remoteSettingsWriterInstance = containerInstance remoteSettingsWriter
             }
             deploymentNode "Amazon EC2 - Reader" {
               tags "Amazon Web Services - EC2"
@@ -141,6 +141,7 @@ workspace "Remote Settings" "Remote Settings Service" {
         }
         firefoxInstance -> route53 "Requests" "HTTPS"
         route53 -> mainCDNInstance "Forwards requests to"
+        route53 -> remoteSettingsWriterInstance "Forwards requests to"
         route53 -> attachmentsCDNInstance "Forwards requests to"
         route53 -> blocklistCDNInstance "Forwards requests to"
         normandyInstance -> route53 "Sends requests to Writer to CRUD collections"
