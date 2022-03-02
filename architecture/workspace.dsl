@@ -11,6 +11,7 @@ workspace "Remote Settings" "Remote Settings Service" {
       firefox = softwaresystem "Firefox" "" "Web Browser"
       sentry = softwaresystem "Sentry" "3rd party logging service" "External System, Logging"
       stackdriver = softwaresystem "Stackdriver" "GCP Logging Service" "External System, Logging"
+      experimenter = softwaresystem "Experimenter" "" "External System"
       normandy = softwaresystem "Normandy" "manages recipes of changes to make to Firefox" "External System"
       autograph = softwaresystem "Autograph" "cryptographic signature service that implements Content-Signature, XPI Signing for Firefox web extensions, MAR Signing for Firefox updates, APK V1 Signing for Android, PGP, GPG2 and RSA." "External System"
       megaphone = softwaresystem "Megaphone" "Provides global broadcasts for Firefox" "External System"
@@ -35,7 +36,6 @@ workspace "Remote Settings" "Remote Settings Service" {
         cloudwatch = container "Cloudwatch" "" "AWS Cloudwatch"
       }
 
-      # normandy -> remoteSettingsWriter "Publishes collections" "HTTPS"
       megaphone -> firefox "Pushes RS data" "HTTPS"
       mainCDN -> remoteSettingsReader "Forwards requests" "HTTPS"
       attachmentsCDN -> attachmentsBucket "Forwards requests" "HTTPS"
@@ -81,6 +81,7 @@ workspace "Remote Settings" "Remote Settings Service" {
           softwareSystemInstance megaphone
           softwareSystemInstance stackdriver
           normandyInstance = softwareSystemInstance normandy
+          experimenterInstance = softwareSystemInstance experimenter
         }
         deploymentNode "Amazon Web Services" {
           tags "Amazon Web Services - Cloud"
@@ -143,6 +144,7 @@ workspace "Remote Settings" "Remote Settings Service" {
         route53 -> attachmentsCDNInstance "Forwards requests to"
         route53 -> blocklistCDNInstance "Forwards requests to"
         normandyInstance -> route53 "Sends requests to Writer to CRUD collections"
+        experimenterInstance -> route53 "Sends requests to Writer to CRUD collections"
       }
     }
 
