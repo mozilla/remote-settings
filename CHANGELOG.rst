@@ -13,6 +13,10 @@ the version control of each dependency.
 - Fix signing workflow of blocklists in example configs (preview bucket should be ``blocklists-preview``)
 - Monitor all buckets in default config
 
+**New Features**
+
+- Add ``metadata_timestamp`` field in the monitor/changes response, so that clients can use it in the ``?_expected={}`` query parameter and bust the CDN cache when signatures are refreshed (fixes #186)
+
 
 28.0.0 (2022-02-04)
 ===================

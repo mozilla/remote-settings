@@ -155,6 +155,7 @@ class ReadonlyTest(BaseWebTest, unittest.TestCase):
 
 
 class MonitorChangesetViewTest(BaseWebTest, unittest.TestCase):
+    collection_uri = "/buckets/blocklists/collections/{cid}"
     records_uri = "/buckets/blocklists/collections/{cid}/records"
     changeset_uri = "/buckets/monitor/collections/changes/changeset?_expected=42"
 
@@ -188,6 +189,31 @@ class MonitorChangesetViewTest(BaseWebTest, unittest.TestCase):
         assert data["timestamp"] == records_timestamp
         assert len(data["changes"]) == 2
         assert data["changes"][0]["collection"] == "certificates"
+
+    def test_changeset_timestamps_for_both_data_and_metadata(self):
+        resp = self.app.get(
+            self.collection_uri.format(cid="certificates"), headers=self.headers
+        )
+        metadata_timestamp = resp.json["data"]["last_modified"]
+
+        data = self.app.get(
+            "/buckets/blocklists/collections/certificates/changeset?_expected=42",
+            headers=self.headers,
+        ).json
+        print(data)
+
+        resp = self.app.get(
+            self.records_uri.format(cid="certificates"), headers=self.headers
+        )
+        records_timestamp = int(resp.headers["ETag"].strip('"'))
+
+        resp = self.app.get(self.changeset_uri)
+        data = resp.json
+
+        assert data["changes"][0]["bucket"] == "blocklists"
+        assert data["changes"][0]["collection"] == "certificates"
+        assert data["changes"][0]["metadata_timestamp"] == metadata_timestamp
+        assert data["changes"][0]["last_modified"] == records_timestamp
 
     def test_changeset_redirects_if_since_is_too_old(self):
         resp = self.app.get(self.changeset_uri + '&_since="42"')

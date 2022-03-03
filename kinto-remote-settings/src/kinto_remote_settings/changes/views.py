@@ -68,14 +68,27 @@ class ChangesModel(object):
             for (bucket_id, collection_id) in monitored_collections(
                 self.request.registry
             ):
+                bucket_uri = core_utils.instance_uri(
+                    self.request, "bucket", id=bucket_id
+                )
                 collection_uri = core_utils.instance_uri(
                     self.request, "collection", bucket_id=bucket_id, id=collection_id
                 )
-                timestamp = self.storage.resource_timestamp(
+                data_timestamp = self.storage.resource_timestamp(
                     parent_id=collection_uri, resource_name="record"
                 )
+                metadata_timestamp = self.storage.get(
+                    parent_id=bucket_uri,
+                    resource_name="collection",
+                    object_id=collection_id,
+                )[self.modified_field]
+
                 entry = changes_object(
-                    self.request, bucket_id, collection_id, timestamp
+                    self.request,
+                    bucket_id,
+                    collection_id,
+                    data_timestamp,
+                    metadata_timestamp,
                 )
                 self.__entries[entry[self.id_field]] = entry
 
