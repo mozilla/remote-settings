@@ -67,7 +67,6 @@ For example:
 1. Client retries, clears local data, pulls full changeset again with `_expected=42`
 1. Client signature fails again.
 
-
 ## Decision Drivers
 
 In order to choose our solution we considered the following criteria:
@@ -84,16 +83,45 @@ In order to choose our solution we considered the following criteria:
 
 ## Decision Outcome
 
-Chosen option: option 2, because it has the less impact on the service. We accept the slow rollout and would aim for an uplift in Beta at least, and maybe Release.
+Chosen option: option X because
 
 
 ## Pros and Cons of the Options
 
+### Option 0 - Do nothing
+
+**Complexity**: N/A
+
+**Impact**
+
+High. For collections which don't ship data dumps, the synchronization process will fail and clear the local database (see [bug 1712108](https://bugzilla.mozilla.org/show_bug.cgi?id=1712108)). This can have a significant impact on users.
+
+![](adr_001_sign_retry_errors.png)
+
+**Efforts**
+
+Medium. We may have users reporting indirect misbehaviours because of this.
+
+**Rollout**: N/A
+
 ### Option 1 - Bump data timestamp on signature refresh
 
-On signature refresh, the timestamps in the monitor/changes response will be bumped. The highest timestamp in the list will also be bumped, which will lead to a push notification being sent to all clients.
+This option consists in changing the server code when a request to refresh the collection signature is received.
+Currently, when a signature is refreshed, since the data itself isn't modified, we only refresh the collection metadata timestamp.
 
-Clients will fetch the changeset with a fresh cache bust and always obtain the latest version.
+With this option, we will bump the data timestamp, to pretend there was data change.
+
+The timestamp in the monitor/changes response will thus be updated. The highest data timestamp in the list will then also be bumped, which will lead to a push notification being sent to all clients.
+
+Clients will fetch the list of latest changed collections from monitor/changes, and since they will use the bumped timestamp in the `?_expected={}` query param, they will bust the CDN cache and obtain the latest version.
+
+When iterating the list of collections and their respective data timestamp, they will compare their local data timestamp and the remote one, and will issue a synchronization if they differ.
+
+Clients will fetch the changesets using the bumped timestamp:
+
+`GET /buckets/main/collections/{cid}/changeset?_since={last-data-timestamp)&_expected={bumped-timestamp}`
+
+The response will contain the refreshed signature, and an empty list of changes give that the data itself wasn't changed since the last synchronization.
 
 **Complexity**
 
@@ -103,11 +131,19 @@ Low. The overall architecture would not be modified.
 
 High.
 
-Even if no data is changed, clients will fetch a changeset response containing zero new change, only refreshed metadata. This will thus force synchronization of all collections on all clients (every 7 days at most). The client will apply the empty delta and revalidate the signature of their local data.
+Bumping the data timestamp on signature refresh will have a significant impact both on servers and on clients.
 
-Impact is high since this will increase trafic on our servers and will force signature re-verification on clients.
+We refresh the signature of all collections that haven't been updated in the last 7 days. With this option, we will force synchronization on all clients for these collections every at most 7 days.
+
+This will increase trafic on our servers, although the impact will be relatively low on the origins.
 
 > Note: traffic on origin shouldn't be too affected. And we are very likely to refresh signatures of several collections are once, therefore grouping them in one push notification.
+
+During synchronization, the clients will apply the empty list of changes (delta since last sync), and revalidate the signature of their local data.
+
+This will have an impact on clients CPUs on every signature refresh. But this will indirectly fix [bug 1640126](https://bugzilla.mozilla.org/show_bug.cgi?id=1640126), which consists in verifying local data when up-to-date.
+
+> Note: We could adjust the [behaviour of the lambda](https://github.com/mozilla-services/remote-settings-lambdas/blob/443117cb16cc9d720c59341c6c811e7bf127b289/commands/refresh_signature.py#L78-L93) to control the number of refreshed collections in one run.
 
 **Efforts**
 
@@ -118,6 +154,8 @@ Low. This would be a one-liner in the `kinto-remote-settings` server plugin. Tag
 Fast. The code change can be rolled out immediately. Effects would be visible after first signature refresh.
 
 This would cover both Desktop and Rust clients.
+
+And this option is easy to rollback.
 
 
 ### Option 2 - Use metadata timestamp as cache bust
@@ -150,7 +188,9 @@ Low. The overall architecture would not be modified.
 
 **Impact**
 
-Mid-Low. This will slightly increase trafic on our servers, since we would have a population of clients that would bust the cache with one timestamp value, and the rest with another value.
+High. This will **multiply by 2 the trafic on our origin servers**, since we would have a population of clients that would bust the cache with one timestamp value, and the rest with another value.
+
+This increase of trafic is likely to remain forever, given that legacy clients will keep on polling changes for a very long time. And only one distinct request on the CDN is enough to lead to a request on the origin server.
 
 **Efforts**
 
@@ -168,6 +208,7 @@ But we would have to ride trains for the Desktop client.
 
 However, the change is reasonable and we would have a chance to be accepted in uplifts for Beta. Maybe Release too.
 
+Note that the clients changes are relatively difficult to rollback.
 
 ```diff
 --- a/services/settings/remote-settings.js
