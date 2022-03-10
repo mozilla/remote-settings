@@ -80,6 +80,7 @@ In order to choose our solution we considered the following criteria:
 
 1. Bump data timestamp on signature refresh
 1. Use metadata timestamp as cache bust
+1. Use metadata timestamp as cache bust only if signature fails
 
 ## Decision Outcome
 
@@ -197,6 +198,8 @@ High. This will **multiply by 2 the trafic on our origin servers**, since we wou
 
 This increase of trafic is likely to remain forever, given that legacy clients will keep on polling changes for a very long time. And only one distinct request on the CDN is enough to lead to a request on the origin server.
 
+*However*, we could compensate the DB activity increase of this change by reducing the window of accepted sync deltas. Currently, we redirect all clients coming with a `?_since=` query parameter that is older than 30 days. We could reduce this to 15 days, which would divide the amount of DB hits by 2.
+
 **Efforts**
 
 Mid-Low. Adding the new field is a one-liner on the server. Tagging and deploying is relatively cheap.
@@ -296,3 +299,24 @@ Note that the clients changes are relatively difficult to rollback.
 
 
 ```
+
+
+### Option 3 - Use metadata timestamp as cache bust only if signature fails
+
+This option would globally be the same as *Option 2*, except that we would use the metadata timestamp as cache busting only if signature fails.
+
+**Complexity**
+
+Medium. Using different value of cache busting depending on the code path increases the complexity.
+
+**Impact**
+
+Low. When the clients retry after a signature failure, they fetch the whole changeset (without ``?_since=`` value). The CDN will cache the URL and the traffic on our origin servers won't be affected.
+
+**Efforts**
+
+Mid-Low. Same as *Option 2*.
+
+**Rollout**
+
+Slow. Same as *Option 2*.
