@@ -90,7 +90,7 @@ Both options 1 and 2 have a significant impact.
 
 Option 1 will cause more traffic, but globally absorbed by the CDN. It will force reverification of up-to-date data on clients, solving [bug 1640126](https://bugzilla.mozilla.org/show_bug.cgi?id=1640126). Rolling out is immediate and affect all versions.
 
-Option 2 will double trafic on the origins, but have no impact on clients. Rollout will take time.
+Option 2 will double traffic on the origins, but have no impact on clients. Rollout will take time.
 
 ## Pros and Cons of the Options
 
