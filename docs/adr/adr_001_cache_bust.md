@@ -78,9 +78,10 @@ In order to choose our solution we considered the following criteria:
 
 ## Considered Options
 
-1. Bump data timestamp on signature refresh
-1. Use metadata timestamp as cache bust
-1. Use metadata timestamp as cache bust only if signature fails
+0. [Option 0 - Do nothing](#option-0---do-nothing)
+1. [Option 1 - Bump data timestamp on signature refresh](#option-1---bump-data-timestamp-on-signature-refresh)
+1. [Option 2 - Use metadata timestamp as cache bust](#option-2---use-metadata-timestamp-as-cache-bust)
+1. [Option 3 - Use metadata timestamp as cache bust only if signature fails](#option-3---use-metadata-timestamp-as-cache-bust-only-if-signature-fails)
 
 ## Decision Outcome
 
