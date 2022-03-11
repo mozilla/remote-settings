@@ -141,7 +141,7 @@ Bumping the data timestamp on signature refresh will have a significant impact b
 
 We refresh the signature of all collections that haven't been updated in the last 7 days. With this option, we will force synchronization on all clients for these collections every at most 7 days.
 
-This will increase trafic on our servers, although the impact will be relatively low on the origins.
+This will increase traffic on our servers, although the impact will be relatively low on the origins.
 
 > Note: traffic on origin shouldn't be too affected. And we are very likely to refresh signatures of several collections are once, therefore grouping them in one push notification.
 
