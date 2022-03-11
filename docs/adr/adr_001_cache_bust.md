@@ -194,7 +194,7 @@ Low. The overall architecture would not be modified.
 
 **Impact**
 
-High. This will **multiply by 2 the trafic on our origin servers**, since we would have a population of clients that would bust the cache with one timestamp value, and the rest with another value.
+High. This will **multiply by 2 the traffic on our origin servers**, since we would have a population of clients that would bust the cache with one timestamp value, and the rest with another value.
 
 This increase of trafic is likely to remain forever, given that legacy clients will keep on polling changes for a very long time. And only one distinct request on the CDN is enough to lead to a request on the origin server.
 
