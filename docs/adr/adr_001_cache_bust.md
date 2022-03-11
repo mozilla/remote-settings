@@ -196,7 +196,7 @@ Low. The overall architecture would not be modified.
 
 High. This will **multiply by 2 the traffic on our origin servers**, since we would have a population of clients that would bust the cache with one timestamp value, and the rest with another value.
 
-This increase of trafic is likely to remain forever, given that legacy clients will keep on polling changes for a very long time. And only one distinct request on the CDN is enough to lead to a request on the origin server.
+This increase of traffic is likely to remain forever, given that legacy clients will keep on polling changes for a very long time. And only one distinct request on the CDN is enough to lead to a request on the origin server.
 
 *However*, we could compensate the DB activity increase of this change by reducing the window of accepted sync deltas. Currently, we redirect all clients coming with a `?_since=` query parameter that is older than 30 days. We could reduce this to 15 days, which would divide the amount of DB hits by 2.
 
