@@ -449,9 +449,9 @@ venusian==3.0.0 \
     # via
     #   cornice
     #   pyramid
-waitress==2.0.0 \
-    --hash=sha256:29af5a53e9fb4e158f525367678b50053808ca6c21ba585754c77d790008c746 \
-    --hash=sha256:69e1f242c7f80273490d3403c3976f3ac3b26e289856936d1f620ed48f321897
+waitress==2.1.1 \
+    --hash=sha256:c549f5b2b4afd44d9d97d7cec79f3ef581e25d832827f415dc175327af674aa8 \
+    --hash=sha256:e2e60576cf14a1539da79f7b7ee1e79a71e64f366a0b47db54a15e971f57bb16
     # via kinto
 webob==1.8.7 \
     --hash=sha256:73aae30359291c14fa3b956f8b5ca31960e420c28c1bec002547fb04928cf89b \
