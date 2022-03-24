@@ -1,12 +1,12 @@
 version: "3"
 
 volumes:
-  db-data:
+  rs-db-data:
 services:
   db:
     image: postgres:12
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - rs-db-data:/var/lib/postgresql/data
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
     healthcheck:

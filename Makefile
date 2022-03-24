@@ -19,6 +19,7 @@ maintainer-clean: distclean
 	find . -name '*.orig' -delete
 	docker-compose stop
 	docker-compose rm -f
+	docker volume rm -f $(docker volume ls -q -f name="rs-db-data")
 	rm -rf $(VOLUMES_FOLDERS)
 
 $(VENV)/bin/python:
