@@ -78,4 +78,4 @@ services:
       - $PWD/tests:/app
       - $PWD/mail:/var/debug-mail/
       - $PWD/pyproject.toml:/app/pyproject.toml
-    command: tests
+
