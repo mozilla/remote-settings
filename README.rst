@@ -96,12 +96,13 @@ Integration tests can be executed on a remote server.
 
 .. code-block:: shell
 
-    docker-compose run remotesettings:tests \
-        -e SERVER=http://settings.dev.mozaws.net \
-        -e MAIL_DIR="" \  # disable tests about emails.
-        -e SKIP_SERVER_SETUP=true \
-        -e EDITOR_AUTH=editor:azerty123" \
-        -e REVIEWER_AUTH=reviwer:s3cr3t"
+    docker-compose run \
+        --env SERVER=https://settings.dev.mozaws.net/v1 \
+        --env MAIL_DIR="" `# disable tests about emails.` \
+        --env SKIP_SERVER_SETUP=true \
+        --env EDITOR_AUTH=editor:azerty123 \
+        --env REVIEWER_AUTH=reviwer:s3cr3t \
+        tests integration-test
 
 
 Debugging Locally (simple)
