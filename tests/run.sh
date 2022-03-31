@@ -23,7 +23,7 @@ case $1 in
 integration-test)
     shift
     wait_for_server
-    pytest integration_test.py $@
+    pytest integration $@
     ;;
 browser-test)
     shift
