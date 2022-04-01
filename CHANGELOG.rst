@@ -13,6 +13,11 @@ the version control of each dependency.
 - Fix signing workflow of blocklists in example configs (preview bucket should be ``blocklists-preview``)
 - Monitor all buckets in default config
 
+kinto
+-----
+
+**kinto 14.6.0 → 14.7.1**: https://github.com/Kinto/kinto/releases/tag/14.7.1
+
 
 28.0.0 (2022-02-04)
 ===================
