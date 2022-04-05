@@ -27,7 +27,7 @@ $(VENV)/bin/python:
 	virtualenv $(VENV) --python=python3
 
 $(INSTALL_STAMP): $(VENV)/bin/python requirements.txt requirements-dev.txt
-	$(VENV)/bin/python -m pip install --upgrade pip
+	$(VENV)/bin/python -m pip install --upgrade pip wheel setuptools
 	$(VENV)/bin/pip install -r requirements.txt
 	$(VENV)/bin/pip install -e kinto-remote-settings
 	$(VENV)/bin/pip install -r requirements-dev.txt
