@@ -17,8 +17,6 @@ aliases:
         - /home/circleci/.cache/pip
 
 workflows:
-  version: 2
-
   pr-workflow:
     jobs:
       - lint_format: &pr-filters
@@ -27,19 +25,22 @@ workflows:
               ignore: main
       - docs_test:
           <<: *pr-filters
+      - build_containers:
+          <<: *pr-filters
+          requires:
+            - lint_format
       - integration_test:
           <<: *pr-filters
           requires:
-            - lint_format
+            - build_containers
       - browser_test:
           <<: *pr-filters
           requires:
-            - lint_format
+            - build_containers
       - unit_test:
           <<: *pr-filters
           requires:
             - lint_format
-
 
   main-workflow:
     jobs:
@@ -49,14 +50,18 @@ workflows:
               only: main
       - docs_test:
           <<: *main-filters
+      - build_containers:
+          <<: *main-filters
+          requires:
+            - lint_format
       - integration_test:
           <<: *main-filters
           requires:
-            - lint_format
+            - build_containers
       - browser_test:
           <<: *main-filters
           requires:
-            - lint_format
+            - build_containers
       - unit_test:
           <<: *main-filters
           requires:
@@ -79,14 +84,18 @@ workflows:
               ignore: /.*/
       - docs_test:
           <<: *tag-filters
+      - build_containers:
+          <<: *tag-filters
+          requires:
+            - lint_format
       - integration_test:
           <<: *tag-filters
           requires:
-            - lint_format
+            - build_containers
       - browser_test:
           <<: *tag-filters
           requires:
-            - lint_format
+            - build_containers
       - unit_test:
           <<: *tag-filters
           requires:
@@ -147,6 +156,31 @@ jobs:
               echo "CIRCLE_TAG empty. Not pushing to dockerhub."
             fi
 
+  build_containers:
+    machine:
+      image: ubuntu-2004:202111-01
+      docker_layer_caching: true
+    environment:
+      DOCKER_BUILDKIT: 1
+      COMPOSE_DOCKER_CLI_BUILD: 1
+      BUILDKIT_PROGRESS: plain
+    steps:
+      - checkout
+      - run: mkdir -p /tmp/workspace
+      - run:
+          name: Build
+          command: make build
+      - run:
+          name: Save containers
+          command: |
+            docker save -o /tmp/workspace/rs_server_container.tar.gz remotesettings:server
+            docker save -o /tmp/workspace/rs_test_container.tar.gz remotesettings:tests
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - rs_server_container.tar.gz
+            - rs_test_container.tar.gz
+
   integration_test:
     machine:
       image: ubuntu-2004:202111-01
@@ -156,30 +190,19 @@ jobs:
       COMPOSE_DOCKER_CLI_BUILD: 1
       BUILDKIT_PROGRESS: plain
     steps:
-      - run:
-          name: Install essential packages
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y libpq-dev
-
       - checkout
-
-      - run:
-          name: Set Python Version
-          command: |
-            python3 --version
-            pyenv global 3.9.7
-
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Set hosts
           command: |
             echo 127.0.0.1 localhost | sudo tee -a /etc/hosts
             cat /etc/hosts
-
       - run:
-          name: Build
-          command: make build
-
+          name: Load containers
+          command: |
+            docker load -i /tmp/workspace/rs_server_container.tar.gz
+            docker load -i /tmp/workspace/rs_test_container.tar.gz
       - run:
           name: Integration Test
           command: make integration-test
@@ -193,30 +216,19 @@ jobs:
       COMPOSE_DOCKER_CLI_BUILD: 1
       BUILDKIT_PROGRESS: plain
     steps:
-      - run:
-          name: Install essential packages
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y libpq-dev
-
       - checkout
-
-      - run:
-          name: Set Python Version
-          command: |
-            python3 --version
-            pyenv global 3.9.7
-
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Set hosts
           command: |
             echo 127.0.0.1 localhost | sudo tee -a /etc/hosts
             cat /etc/hosts
-
       - run:
-          name: Build
-          command: make build
-
+          name: Load containers
+          command: |
+            docker load -i /tmp/workspace/rs_server_container.tar.gz
+            docker load -i /tmp/workspace/rs_test_container.tar.gz
       - run:
           name: Browser Test
           command: make browser-test
