@@ -119,7 +119,7 @@ jobs:
           name: Install essential packages
           command: |
             sudo apt-get update
-            sudo apt-get install -y ca-certificates curl git openssh-client
+            DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ca-certificates curl git openssh-client
       - attach_workspace:
           at: /tmp/workspace
       - checkout
