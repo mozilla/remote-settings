@@ -231,7 +231,7 @@ jobs:
   unit_test:
     docker:
       - image: cimg/python:3.9
-      - image: circleci/postgres:12.8-bullseye-ram
+      - image: cimg/postgres:12.8
         environment:
           POSTGRES_DB: testdb
           POSTGRES_USER: postgres
