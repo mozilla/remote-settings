@@ -1587,3 +1587,58 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
 
         self.app.get(self.editors_group, headers=self.headers)
         self.app.get(self.reviewers_group, headers=self.headers)
+
+
+class BatchCreationTest(PostgresWebTest, unittest.TestCase):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+
+        settings[
+            "kinto.signer.resources"
+        ] = "/buckets/main-workspace -> /buckets/main-preview -> /buckets/main"
+
+        return settings
+
+    def setUp(self):
+        super().setUp()
+        self.app.put_json("/buckets/main-workspace", headers=self.headers)
+        self.app.put_json("/buckets/main-preview", headers=self.headers)
+        self.app.put_json("/buckets/main", headers=self.headers)
+
+        self.app.post_json(
+            "/batch",
+            {
+                "requests": [
+                    {
+                        "method": "PUT",
+                        "path": "/buckets/main-workspace/collections/a",
+                    }
+                ],
+            },
+            headers=self.headers,
+        )
+        self.app.get("/buckets/main-preview/collections/a", status=200)
+        self.app.get("/buckets/main/collections/a", status=200)
+
+    def test_batch_creation(self):
+        resp = self.app.post_json(
+            "/batch",
+            {
+                "requests": [
+                    {
+                        "method": "PUT",
+                        "path": "/buckets/main-workspace/collections/b",
+                    },
+                    {
+                        "method": "PATCH",
+                        "path": "/buckets/main-workspace/collections/a",
+                        "body": {"data": {"foo": 42}},
+                    },
+                ],
+            },
+            headers=self.headers,
+        )
+
+        self.app.get("/buckets/main-preview/collections/b", status=200)
+        self.app.get("/buckets/main/collections/b", status=200)
