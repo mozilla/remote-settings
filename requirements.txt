@@ -190,9 +190,9 @@ jsonschema==4.2.1 \
     --hash=sha256:2a0f162822a64d95287990481b45d82f096e99721c86534f48201b64ebca6e8c \
     --hash=sha256:390713469ae64b8a58698bb3cbc3859abe6925b565a973f87323ef21b09a27a8
     # via kinto
-kinto[memcached,monitoring,postgresql]==14.7.1 \
-    --hash=sha256:5727633afe69f56e0c1b07587f1a4d192aa4a1db2233b262e11b5b9c8146b33d \
-    --hash=sha256:74430b0b9208b81a75fa83c857d31748cc40294789674480073e64a5bdf86bf7
+kinto[memcached,monitoring,postgresql]==14.7.2 \
+    --hash=sha256:98b77227a2b0a57f57186863a9b787143974e6877d6e3388442fe7686f08a247 \
+    --hash=sha256:da304af43a156728a28055015378e3e98e7979fa039b1a70d3c27421c4d03170
     # via
     #   -r requirements.in
     #   kinto-attachment

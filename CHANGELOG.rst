@@ -16,7 +16,12 @@ the version control of each dependency.
 kinto
 -----
 
-**kinto 14.6.0 → 14.7.1**: https://github.com/Kinto/kinto/releases/tag/14.7.1
+**kinto 14.6.1 → 14.7.2**: https://github.com/Kinto/kinto/releases/tag/14.7.2
+
+**Bug Fixes**
+
+- Prevents merging of `ResourceChanged` events if they were triggered from
+  events listeners (cascade) (see mozilla/remote-settings#203)
 
 
 28.0.0 (2022-02-04)
