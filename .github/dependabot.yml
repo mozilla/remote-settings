@@ -1,6 +1,13 @@
 version: 2
 updates:
 - package-ecosystem: pip
+  directory: "/tests"
+  schedule:
+    interval: weekly
+    day: sunday
+    timezone: UCT
+  open-pull-requests-limit: 99
+- package-ecosystem: pip
   directory: "/"
   schedule:
     interval: weekly
