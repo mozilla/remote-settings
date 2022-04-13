@@ -22,7 +22,7 @@ ENV PATH="/root/.cargo/bin:$PATH"
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-RUN pip install --upgrade pip setuptools wheel
+RUN pip install --upgrade pip setuptools wheel virtualenv
 
 COPY requirements.txt .
 
