@@ -1622,7 +1622,7 @@ class BatchCreationTest(PostgresWebTest, unittest.TestCase):
         self.app.get("/buckets/main/collections/a", status=200)
 
     def test_batch_creation(self):
-        resp = self.app.post_json(
+        self.app.post_json(
             "/batch",
             {
                 "requests": [
