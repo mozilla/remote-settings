@@ -39,3 +39,9 @@ updates:
     interval: daily
     timezone: UCT
   open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/tests"
+  schedule:
+    interval: daily
+    timezone: UCT
+  open-pull-requests-limit: 99
