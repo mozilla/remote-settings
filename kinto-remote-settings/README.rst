@@ -25,7 +25,7 @@ Settings
                               /buckets/blocklists/collections/certificates
 
 Cache Control
-'''''''''''''
+-------------
 
 Like `cache control in Kinto collections <https://kinto.readthedocs.io/en/stable/api/1.x/collections.html#collection-caching>`_, it is possible to configure ``Cache-Control`` headers via some settings:
 
@@ -42,7 +42,7 @@ If the setting below is set then a different cache control expiration will be se
 
 
 Advanced options
-''''''''''''''''
+----------------
 
 **host**
 

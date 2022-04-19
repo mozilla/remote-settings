@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-28.0.1 (unreleased)
+29.0.0 (unreleased)
 ===================
 
 **Bug Fixes**
@@ -13,6 +13,10 @@ the version control of each dependency.
 - Fix signing workflow of blocklists in example configs (preview bucket should be ``blocklists-preview``)
 - Monitor all buckets in default config
 
+**Internal Changes**
+
+- Bump Python version to 3.10
+
 kinto
 -----
 
@@ -20,8 +24,18 @@ kinto
 
 **Bug Fixes**
 
-- Prevents merging of `ResourceChanged` events if they were triggered from
+- Prevents merging of ``ResourceChanged`` events if they were triggered from
   events listeners (cascade) (see mozilla/remote-settings#203)
+
+kinto-admin
+-----------
+
+**kinto-admin 1.30.2 → 2.0.0**: https://github.com/Kinto/kinto-admin/releases/tag/v2.0.0
+
+**Bug fixes**
+
+- Downgrade to history v4 (Kinto/kinto-admin#2180)
+- Fix crash on incorrect auth credentials (Kinto/kinto-admin#2119)
 
 
 28.0.0 (2022-02-04)
