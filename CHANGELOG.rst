@@ -4,7 +4,13 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-29.0.0 (unreleased)
+29.0.1 (unreleased)
+===================
+
+- Nothing changed yet
+
+
+29.0.0 (2020-04-19)
 ===================
 
 **Bug Fixes**
