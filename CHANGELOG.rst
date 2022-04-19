@@ -13,6 +13,10 @@ the version control of each dependency.
 - Fix signing workflow of blocklists in example configs (preview bucket should be ``blocklists-preview``)
 - Monitor all buckets in default config
 
+**Internal Changes**
+
+- Bump Python version to 3.10
+
 kinto
 -----
 
