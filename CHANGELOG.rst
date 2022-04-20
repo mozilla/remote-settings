@@ -7,8 +7,16 @@ the version control of each dependency.
 29.0.1 (unreleased)
 ===================
 
-- Nothing changed yet
+kinto-attachment
+----------------
 
+**kinto-attachment 6.2.0 -> 6.3.0**: https://github.com/Kinto/kinto-attachment/releases/tag/6.3.0
+
+**New features**
+
+- Include the Google Cloud backend automatically when kinto.attachment.gcloud.* settings are used.
+
+Full changelog: https://github.com/Kinto/kinto-attachment/compare/6.2.0...6.3.0
 
 29.0.0 (2020-04-19)
 ===================
