@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.3
 
-FROM python:3.10.4-slim-bullseye@sha256:f5586131a316c3857cac0e2bfd8e3c19a08f1c0efa9dc8ebfcbe4d726e224ce0
+FROM python:3.10.4-slim-bullseye@sha256:ad719a882ac0594bdc92abccff22e5b6713bbf9893320264fd9e8affd8a6f470
 
 WORKDIR /app
 
