@@ -463,6 +463,7 @@ class RecordChangedTest(BaseWebTest, unittest.TestCase):
         parameters = [
             ({"a": 3.14}, "a"),
             ({"a": {"b": 41.0}}, "a.b"),
+            ({"a": [{"b": 41.0}]}, "a.0.b"),
         ]
         for data, path in parameters:
             body = {"data": data}

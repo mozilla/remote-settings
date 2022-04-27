@@ -7,6 +7,9 @@ the version control of each dependency.
 29.0.1 (unreleased)
 ===================
 
+**Bug Fixes**
+
+- Prevent users to submit records with floats in nested arrays (fixes #218)
 
 `kinto-attachment <https://github.com/Kinto/kinto-attachment/compare/6.2.0...6.3.0>`_
 ----------------
