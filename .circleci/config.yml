@@ -168,8 +168,8 @@ jobs:
       - run:
           name: Save containers
           command: |
-            docker save -o /tmp/workspace/rs_server_container.tar.gz remotesettings:server
-            docker save -o /tmp/workspace/rs_test_container.tar.gz remotesettings:tests
+            docker save -o /tmp/workspace/rs_server_container.tar.gz remotesettings/server
+            docker save -o /tmp/workspace/rs_test_container.tar.gz remotesettings/tests
       - persist_to_workspace:
           root: /tmp/workspace
           paths:

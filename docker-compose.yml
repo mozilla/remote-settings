@@ -43,7 +43,7 @@ services:
   web:
     build:
       context: .
-    image: remotesettings:server
+    image: remotesettings/server
     depends_on:
       - db
       - memcached
@@ -64,7 +64,7 @@ services:
   tests:
     build:
       context: tests
-    image: remotesettings:tests
+    image: remotesettings/tests
     depends_on:
       - web
       - selenium
