@@ -127,6 +127,7 @@ jobs:
           name: Load container
           command: |
             docker load -i /tmp/workspace/rs_server_container.tar.gz
+            docker load -i /tmp/workspace/rs_test_container.tar.gz
       - run:
           name: Push to Dockerhub
           command: |
