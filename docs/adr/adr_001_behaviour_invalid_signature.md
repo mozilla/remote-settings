@@ -100,6 +100,8 @@ Modifying the Normandy recipe runner to use it is straightforward:
 
 If synchronization failed, the recipe runner exits instead of receiving an empty list from the Remote Settings client.
 
+The [Nimbus Experiment Loader](https://searchfox.org/mozilla-central/rev/408eac3ccaea2d35b00706925d4d944803e19aba/toolkit/components/nimbus/lib/RemoteSettingsExperimentLoader.jsm#205-212) would behave the exact same way.
+
 - **Complexity**: Medium. We introduce an additional option and a new state for each collection (ie. last sync status).
 - **Cost of implementation**: Low
 - **Generalization**: Specific. It only affects collections that enabled the option. Some consumers may not be aware of this behavior on sync error.
