@@ -78,7 +78,7 @@ With this solution, we distinguish an empty collection from a collection that wa
 
 This way, consumers like Normandy can distinguish a situation where no experiments is available from a situation where the collection could not be synced successfully. We would let consumers handle this situation themselves.
 
-In order to avoid breakage of all consumers, we could introduce a new flag (eg. `throwIfInvalidSignature`). If the last synchronization failed, and no dump was found, and the flag is set, then `.get()` will throw.
+In order to avoid breakage of all consumers, we don't change the default behaviour and introduce a new flag (eg. `throwIfSyncFailed`). If the last synchronization failed, and no dump was found, and the flag is set, then `.get()` will throw.
 
 Modifying the Normandy recipe runner to use it is straightforward:
 
@@ -91,7 +91,7 @@ Modifying the Normandy recipe runner to use it is straightforward:
        try {
 -        recipesAndSignatures = await gRemoteSettingsClient.get();
 +        recipesAndSignatures = await gRemoteSettingsClient.get({
-+          throwIfInvalidSignature: true,
++          throwIfSyncFailed: true,
 +        });
        } catch (e) {
          await Uptake.reportRunner(Uptake.RUNNER_SERVER_ERROR);
@@ -109,6 +109,10 @@ The [Nimbus Experiment Loader](https://searchfox.org/mozilla-central/rev/408eac3
 
 > Note: We could leverage the history of status introduced in [Bug 1732056](https://bugzilla.mozilla.org/show_bug.cgi?id=1732056) to save the last sync status of a collection, and throw the appropriate error on `.get()`.
 
+> Note: The synchronization behaviour itself isn't changed. Each time we poll for changes we retry to synchronize the collections that are behind. Hopefully, the local DB will recover and `.get()` will stop throwing errors.
+
+> Note: We have another flag to check the integrity of local data: `.get({verifySignature: true})` will verify the signature of local data on each read, and will throw if invalid. The new flag in this *Option 3* won't verify the signature on each read, it will just check the status of the last synchronization.
+
 
 ### Option 4 - Overwrite local data only if successful
 
@@ -116,7 +120,7 @@ With this solution, we perform the synchronization fully in memory and overwrite
 
 Unlike the current implementation, which merges the diff locally, then clears the DB if invalid, then retries with the full dataset, then clears if invalid again and restores local dataset or dump, this solution would involve a lot less write operations and would be more efficient when synchronization errors happen.
 
-However, unlike the current implementation which verifies signatures after storing, this solution would not verify integrity on what is actually stored in the local DB. Even if the code that applies diffs [is relatively straightforward](https://searchfox.org/mozilla-central/rev/ea1234192518e01694a88eac8ff090e4cadf5ca4/services/settings/Database.jsm#129-154), there is still a chance of having a discrepancy between what is computed in memory and what is executed in the IndexedDB code.
+However, unlike the current implementation which verifies signatures after storing, this solution would not verify integrity on what is actually stored in the local DB. Even if the code that applies diffs [is relatively straightforward](https://searchfox.org/mozilla-central/rev/ea1234192518e01694a88eac8ff090e4cadf5ca4/services/settings/Database.jsm#129-154), there is still a chance of having a discrepancy between what is computed in memory and what is executed in the IndexedDB code. For collections that explicitly require tamper protection, we already have `.get({verifySignature: true})`.
 
 Since we would store the data in a single IndexedDB transaction, we should be safe with regards to storage shutdown, crash, or interruptions.
 
