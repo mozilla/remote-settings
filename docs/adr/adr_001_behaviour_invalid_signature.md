@@ -120,14 +120,18 @@ With this solution, we perform the synchronization fully in memory and overwrite
 
 Unlike the current implementation, which merges the diff locally, then clears the DB if invalid, then retries with the full dataset, then clears if invalid again and restores local dataset or dump, this solution would involve a lot less write operations and would be more efficient when synchronization errors happen.
 
-However, unlike the current implementation which verifies signatures after storing, this solution would not verify integrity on what is actually stored in the local DB. Even if the code that applies diffs [is relatively straightforward](https://searchfox.org/mozilla-central/rev/ea1234192518e01694a88eac8ff090e4cadf5ca4/services/settings/Database.jsm#129-154), there is still a chance of having a discrepancy between what is computed in memory and what is executed in the IndexedDB code. For collections that explicitly require tamper protection, we already have `.get({verifySignature: true})`.
+> Note: This option is roughly equivalent to *Option 2*, with less write operations.
+
+However, unlike the current implementation which verifies signatures after storing, this solution would not verify integrity on what is actually stored in the local DB. Even if the code that applies diffs [is relatively straightforward](https://searchfox.org/mozilla-central/rev/ea1234192518e01694a88eac8ff090e4cadf5ca4/services/settings/Database.jsm#129-154), there is still a chance of having a discrepancy between what is computed in memory and what is executed in the IndexedDB code.
 
 Since we would store the data in a single IndexedDB transaction, we should be safe with regards to storage shutdown, crash, or interruptions.
 
 - **Complexity**: Low. This is likely to simplify the code base.
 - **Cost of implementation**: Medium, critical code paths in the synchronization flow have to be modified.
 - **Generalization**: Global. It would affect all consumers.
-- **Security**: Good, only valid data is stored using a single IndexedDB transaction.
+- **Security**: *Bad*: This would allow attackers that gain access to the local DB to perform man-in-the-middle attacks. By serving a fake server response with an invalid certificate, and storing their content in the local DB beforehand, clients would be stuck with attackers' data.
+
+> Note: For collections that explicitly require tamper protection, we already have `.get({verifySignature: true})`.
 
 > Note: The downside of this approach could be mitigated by implementing [signature verification when data is up-to-date](https://bugzilla.mozilla.org/show_bug.cgi?id=1640126).
 
