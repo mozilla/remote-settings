@@ -108,7 +108,7 @@ Integration tests can be executed on a remote server.
 Debugging Locally (simple)
 --------------------------
 
-The simplest form of debugging is to run a suite of tests against the kinto server:
+The simplest form of debugging is to run a suite of tests against the Kinto server:
 
 .. code-block:: shell
 
