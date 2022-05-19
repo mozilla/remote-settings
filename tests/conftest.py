@@ -71,7 +71,9 @@ def pytest_addoption(parser):
         "--mail-dir",
         action="store",
         default=DEFAULT_MAIL_DIR,
-        help="Directory of debug email files (from server)",
+        help="Directory of debug email files (from server). Set as empty "
+        "string to disable email tests. Should be disabled for integration "
+        "tests",
     )
     parser.addoption(
         "--keep-existing",
@@ -83,7 +85,8 @@ def pytest_addoption(parser):
         "--skip-server-setup",
         action="store_true",
         default=DEFAULT_SKIP_SERVER_SETUP,
-        help="Skip server setup operations",
+        help="Skip server setup operations. Should be set to `true` for remote "
+        "server integration tests",
     )
 
 
