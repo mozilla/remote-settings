@@ -90,19 +90,54 @@ Test Remote Server
 
 Integration tests can be executed on a remote server.
 
+To run the integration test suite, first build the integration tests container
+
 .. code-block:: shell
 
     docker-compose build tests
 
+or download a pre-built container from `Dockerhub <https://hub.docker.com/r/mozilla/remote-settings-integration-tests>`_.
+
+Next run the tests, supplying config values as necessary. Config values are
+set as environment variables provided to the Docker container. See
+``tests/conftest.py`` for descriptions of all of the config options that are
+available.
+
+Note that the tests assume that the server has the ``attachments``,
+``changes``, ``history``, and ``signer`` plugins enabled. It may optionally
+have the ``email`` plugin installed.
+
+To have the tests bootstrap themselves (i.e. when ``SKIP_SERVER_SETUP=false``):
+
+- a user account should available with the ability to create users, buckets, and
+  collections
+- the account should also be able to assign users to groups
+- the credentials of this user should be supplied to the container
+
+If the tests should not bootstrap themselves and instead use resources already
+available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
+
+- There should a bucket and collection available
+- There should be two users available
+
+  - one user should be added to the ``editor`` group of the available collection
+  - the other should be added to the ``reviewer`` group of the available collection
+
+- the names of the bucket, collection, and user credentials should be supplied
+  as environment variables to the container
+
+Running integration tests on the Remote Settings dev server should look something like:
+
 .. code-block:: shell
 
-    docker-compose run \
+    docker run --rm \
         --env SERVER=https://settings.dev.mozaws.net/v1 \
-        --env MAIL_DIR="" `# disable tests about emails.` \
+        --env MAIL_DIR="" \
         --env SKIP_SERVER_SETUP=true \
-        --env EDITOR_AUTH=editor:azerty123 \
-        --env REVIEWER_AUTH=reviwer:s3cr3t \
-        tests integration-test
+        --env EDITOR_AUTH=<credentials available in 1Password> \
+        --env REVIEWER_AUTH=<credentials available in 1Password> \
+    remotesettings/tests integration-test
+
 
 
 Debugging Locally (simple)
