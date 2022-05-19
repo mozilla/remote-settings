@@ -147,8 +147,8 @@ Now, from that ``bash`` session you can reach the other services like:
 
 .. code-block:: shell
 
-    curl http://autograph:8000/__heartbeat__
-    curl http://web:8888/v1/__heartbeat__
+    http http://autograph:8000/__heartbeat__
+    http http://web:8888/v1/__heartbeat__
 
 
 Upgrade Things
