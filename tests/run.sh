@@ -15,8 +15,10 @@ usage() {
 [ $# -lt 1 ] && usage
 
 wait_for_server () {
-  wget -q --tries=180 --retry-connrefused --waitretry=1 -O /dev/null $SERVER/ || (echo "Can't reach $SERVER" && exit 1)
-  http -q --check-status $SERVER/__heartbeat__
+  echo "Waiting for $SERVER to become available"
+  wget -q --retry-connrefused --waitretry=1 -O /dev/null $SERVER || (echo "Can't reach $SERVER" && exit 1)
+  echo "verifying $SERVER heartbeat"
+  http --check-status --body --json --pretty format GET $SERVER/__heartbeat__ ; echo
 }
 
 case $1 in
