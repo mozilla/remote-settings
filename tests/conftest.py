@@ -119,7 +119,10 @@ def source_collection(request) -> str:
 
 @pytest.fixture(scope="session")
 def mail_dir(request) -> str:
-    return request.config.getoption("--mail-dir")
+    directory = request.config.getoption("--mail-dir")
+    if not directory:
+        pytest.skip("MAIL_DIR set to empty string. Skipping email test.")
+    return directory
 
 
 @pytest.fixture(scope="session")
