@@ -179,6 +179,10 @@ async def flush_default_collection(
     setup_auth: Auth,
 ):
     yield
+    # TODO: we should still set "setup_auth" to delete collection? So, edit
+    # readme to suggest setting SETUP_AUTH whether the tests are being run on
+    # DEV or locally? Or could EDITOR_AUTH be used here? Who is allowed to
+    # delete these records?
     setup_client = make_client(setup_auth)
 
     try:
