@@ -1,5 +1,12 @@
-__pycache__/
+__pycache__
+.bash_history
+.cache
+.circleci
+.DS_Store
+.envrc
+.git
+.github
+.pytest_cache
 .venv
 .vscode
-.pytest_cache
-tests/
+tests
