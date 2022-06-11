@@ -7,14 +7,14 @@
 version: 2.1
 aliases:
   - &restore_deps_cache
-      name: Restoring Python dependency cache
-      key: v2-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+    name: Restoring Python dependency cache
+    key: v3-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
   - &save_deps_cache
-      name: Saving Python dependency cache
-      key: v2-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-      paths:
-        - /home/circleci/.cache/pip
+    name: Saving Python dependency cache
+    key: v3-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+    paths:
+      - .venv
 
 workflows:
   pr-workflow:
@@ -271,4 +271,4 @@ jobs:
           name: Saving Python docs dependency cache
           key: v1-requirements-{{ checksum "docs/requirements.txt" }}
           paths:
-            - /home/circleci/.cache/pip
+            - .venv
