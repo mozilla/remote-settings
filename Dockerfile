@@ -21,12 +21,12 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN pip install --upgrade pip setuptools wheel virtualenv
+RUN python -m pip install --upgrade pip setuptools wheel virtualenv
 
 COPY requirements.txt .
 
 # Python packages
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
 RUN uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 
 
@@ -57,7 +57,7 @@ RUN chown 10001:10001 /app && \
     useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
 
 COPY . .
-RUN pip install ./kinto-remote-settings
+RUN python -m pip install ./kinto-remote-settings
 
 # Generate local key pair to simplify running without Autograph out of the box (see `config/testing.ini`)
 RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.pem /app/ecdsa.public.pem
