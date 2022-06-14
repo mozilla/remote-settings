@@ -11,12 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Needed to build uwsgi-dogstatsd plugin
     git
 
-# Get rustup https://rustup.rs/ for canonicaljson-rs
-# minimal profile https://rust-lang.github.io/rustup/concepts/profiles.html
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
-# Add cargo to PATH
-ENV PATH="/root/.cargo/bin:$PATH"
-
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
