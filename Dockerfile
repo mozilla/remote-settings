@@ -19,8 +19,9 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profi
 # Add cargo to PATH
 ENV PATH="/root/.cargo/bin:$PATH"
 
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 RUN pip install --upgrade pip setuptools wheel virtualenv
 
@@ -41,13 +42,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY --from=compile /opt/venv /opt/venv
+ENV VIRTUAL_ENV=/opt/venv
+
+COPY --from=compile $VIRTUAL_ENV $VIRTUAL_ENV
 COPY --from=compile /dogstatsd_plugin.so .
 
 ENV PYTHONUNBUFFERED=1 \
     PORT=8888 \
     KINTO_INI=config/local.ini \
-    PATH="/opt/venv/bin:$PATH"
+    PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # add a non-privileged user for installing and running
 # the application
