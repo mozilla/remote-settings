@@ -1,15 +1,6 @@
 # syntax=docker/dockerfile:1.3
 
-FROM python:3.10.5-slim-bullseye@sha256:ca78039cbd3772addb9179953bbf8fe71b50d4824b192e901d312720f5902b22 as compile
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Needed to download Rust
-    curl \
-    # Needed to build psycopg and uWSGI
-    build-essential \
-    libpq-dev \
-    # Needed to build uwsgi-dogstatsd plugin
-    git
+FROM python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50 as compile
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
