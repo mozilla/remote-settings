@@ -7,8 +7,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     # Needed to build psycopg and uWSGI
     build-essential \
-    python-dev \
-    python3-wheel \
     libpq-dev \
     # Needed to build uwsgi-dogstatsd plugin
     git
