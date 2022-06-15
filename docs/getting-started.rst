@@ -20,26 +20,35 @@ Once done, you will be able to login and edit your records on the Admin UIs:
 
 - https://settings-writer.prod.mozaws.net/v1/admin/
 
-The records will then be publicly visible at `<https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/{collection-id}/records>`__
+The records will then be publicly visible at `<https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/{collection-id}/changeset?_expected=0>`__
 
 Don't hesitate to contact us (``#delivery`` on Slack) if you're stuck or have questions about the process!
 
 Check out the :ref:`screencast to create, request review and approve changes <screencasts-modify-request-review>`, or :ref:`our FAQ <faq>`!
 
+
+Environments
+------------
+
++--------------+---------------------------------------+----------------------------------------------+---------------------------------------------+
+|              | DEV                                   | STAGE                                        | PROD                                        |
++==============+=======================================+==============================================+=============================================+
+| Base URL     | https://settings.dev.mozaws.net/v1/   | https://settings-writer.stage.mozaws.net/v1/ | https://settings-writer.prod.mozaws.net/v1/ |
++--------------+---------------------------------------+----------------------------------------------+---------------------------------------------+
+| Main purpose | Try out API and new use-cases         | QA data changes                              | Deliver data within minutes                 |
++--------------+---------------------------------------+----------------------------------------------+---------------------------------------------+
+| Deployed on  | pull-request merges                   | tagged versions                              | approvals                                   |
++--------------+---------------------------------------+----------------------------------------------+---------------------------------------------+
+| Access       | Public via LDAP Auth                  | VPN via LDAP groups                          | VPN via LDAP groups                         |
++--------------+---------------------------------------+----------------------------------------------+---------------------------------------------+
+| Permissions  | - Create collections, groups, records | - CRUD records                               | - CRUD records                              |
+|              | - Approve own changes                 | - Approve other's changes                    | - Approve other's changes                   |
++--------------+---------------------------------------+----------------------------------------------+---------------------------------------------+
+
+
 .. note::
 
-    In order to **try out changes in a real environment**, you can use the **STAGE** instance:
-
-    - https://settings-writer.stage.mozaws.net/v1/admin/ (*Admin UI*)
-
-    In order to switch Firefox from PROD to STAGE, use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_!
-
-    The records will be publicly visible at `<https://settings.stage.mozaws.net/v1/buckets/main/collections/{collection-id}/records>`__
-
-.. note::
-
-    If you simply **want to play** with the stack or the API, the best way to get started is probably to use our :ref:`DEV server <tutorial-dev-server>`,
-    since it's accessible without VPN access.
+    In order to switch Firefox from PROD to DEV or STAGE, use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_!
 
 
 About your data
