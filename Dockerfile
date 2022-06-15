@@ -6,29 +6,32 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN python -m pip install --upgrade pip
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    uwsgi-dev
+RUN uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 
 COPY requirements.txt .
 
 # Python packages
+RUN python -m pip install --upgrade pip
+COPY requirements.txt .
 RUN python -m pip install --no-cache-dir -r requirements.txt
-RUN uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 
 
 FROM python:3.10.5-slim-bullseye@sha256:ca78039cbd3772addb9179953bbf8fe71b50d4824b192e901d312720f5902b22 as server
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Needed for UWSGI 
-    libxml2-dev \
-    # Needed for psycopg2
-    libpq-dev
+    uwsgi \
+    uwsgi-plugins-all \
+    # PostgreSQL library (psycopg2)
+    libpq5
 
 WORKDIR /app
 
 ENV VIRTUAL_ENV=/opt/venv
 
 COPY --from=compile $VIRTUAL_ENV $VIRTUAL_ENV
-COPY --from=compile /dogstatsd_plugin.so .
+COPY --from=compile /dogstatsd_plugin.so /usr/lib/uwsgi/plugins/dogstatsd_plugin.so
 
 ENV PYTHONUNBUFFERED=1 \
     PORT=8888 \
@@ -56,4 +59,4 @@ EXPOSE $PORT
 
 # Run uwsgi by default
 ENTRYPOINT ["/bin/bash", "/app/bin/run.sh"]
-CMD uwsgi --http :${PORT} --ini ${KINTO_INI}
+CMD uwsgi --plugin http --http :${PORT} --ini ${KINTO_INI}

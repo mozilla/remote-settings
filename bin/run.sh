@@ -16,7 +16,7 @@ case $1 in
     kinto start --ini $KINTO_INI
     ;;
   uwsgistart)
-    uwsgi --http :$PORT --ini $KINTO_INI
+    uwsgi --plugin http --http :$PORT --ini $KINTO_INI
     ;;
   *)
     exec "$@"
