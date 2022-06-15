@@ -10,7 +10,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     uwsgi-dev
 RUN uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 
-COPY requirements.txt .
+# Get rustup https://rustup.rs/ for canonicaljson-rs, because no wheels are published for arm.
+# See https://github.com/mozilla-services/python-canonicaljson-rs/issues/3
+# Use Rust minimal profile https://rust-lang.github.io/rustup/concepts/profiles.html
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
+# Add cargo to PATH
+ENV PATH="/root/.cargo/bin:$PATH"
 
 # Python packages
 RUN python -m pip install --upgrade pip
