@@ -10,7 +10,11 @@ ENV PYTHONUNBUFFERED=1 \
 USER root
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget
+    apt-get install -y --no-install-recommends wget curl build-essential
+
+# Remove Rust installation when https://github.com/mozilla-services/python-canonicaljson-rs/issues/3 is fixed.
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
+ENV PATH="/root/.cargo/bin:$PATH"
 
 RUN pip install --upgrade pip setuptools wheel
 COPY requirements.txt .
