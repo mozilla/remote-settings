@@ -231,7 +231,7 @@ jobs:
 
   unit_test:
     docker:
-      - image: cimg/python:3.10
+      - image: python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50
       - image: cimg/postgres:12.8
         environment:
           POSTGRES_DB: testdb
@@ -250,7 +250,7 @@ jobs:
 
   lint_format:
     docker:
-      - image: cimg/python:3.10
+      - image: python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50
     steps:
       - checkout
       - run:
@@ -264,7 +264,7 @@ jobs:
 
   docs_test:
     docker:
-      - image: cimg/python:3.10
+      - image: python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50
     steps:
       - checkout
       - restore_cache:
