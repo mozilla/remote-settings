@@ -24,7 +24,7 @@ maintainer-clean: distclean
 	rm -rf $(VOLUMES_FOLDERS)
 
 $(VENV)/bin/python:
-	virtualenv $(VENV) --python=python3
+	python3 -m venv $(VENV)
 
 $(INSTALL_STAMP): $(VENV)/bin/python requirements.txt requirements-dev.txt
 	$(VENV)/bin/python -m pip install --upgrade pip wheel setuptools
