@@ -8,11 +8,11 @@ version: 2.1
 aliases:
   - &restore_deps_cache
     name: Restoring Python dependency cache
-    key: v3-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+    key: v3-requirements-{{ checksum ".python.installed" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
   - &save_deps_cache
     name: Saving Python dependency cache
-    key: v3-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+    key: v3-requirements-{{ checksum ".python.installed" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
     paths:
       - .venv
 
@@ -239,6 +239,9 @@ jobs:
           POSTGRES_PASSWORD: postgres
     steps:
       - checkout
+      - run:
+          name: Python version
+          command: python3 --version > .python.installed
       - restore_cache: *restore_deps_cache
       - run:
           name: Run kinto_remote_settings plugin unit tests
@@ -250,6 +253,9 @@ jobs:
       - image: cimg/python:3.10
     steps:
       - checkout
+      - run:
+          name: Python version
+          command: python3 --version > .python.installed
       - restore_cache: *restore_deps_cache
       - run:
           name: Check linting and formatting

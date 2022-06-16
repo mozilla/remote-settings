@@ -2,6 +2,13 @@
 
 FROM python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50 as compile
 
+# Get rustup https://rustup.rs/ for canonicaljson-rs, because no wheels are published for arm.
+# See https://github.com/mozilla-services/python-canonicaljson-rs/issues/3
+# Use Rust minimal profile https://rust-lang.github.io/rustup/concepts/profiles.html
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
+# Add cargo to PATH
+ENV PATH="/root/.cargo/bin:$PATH"
+
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
@@ -18,7 +25,7 @@ RUN uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 FROM python:3.10.5-slim-bullseye@sha256:ca78039cbd3772addb9179953bbf8fe71b50d4824b192e901d312720f5902b22 as server
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Needed for UWSGI 
+    # Needed for UWSGI
     libxml2-dev \
     # Needed for psycopg2
     libpq-dev
