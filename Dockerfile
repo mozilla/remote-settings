@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.3
 
-FROM python:3.10.5-bullseye@sha256:835a81524cfff09f04ea1eb4d2c37b11294b8965eca65f85170de818a53acf15 as compile
+FROM python:3.11.0b5-bullseye@sha256:cddff1f22a651303a50915c6b1b988319627f043b1cb642a166bf4c8e2ef817d as compile
 
 # Get rustup https://rustup.rs/ for canonicaljson-rs, because no wheels are published for arm.
 # See https://github.com/mozilla-services/python-canonicaljson-rs/issues/3
