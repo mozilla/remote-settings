@@ -42,7 +42,7 @@ Obtain credentials
 
 Until `Bug 1630651 <https://bugzilla.mozilla.org/show_bug.cgi?id=1630651>`_ happens, the easiest way to obtain your OpenID credentials is to use the admin interface.
 
-1. `Login on the Admin UI <AdminUI>`_ using your LDAP identity
+1. Login on the `Admin UI`_ using your LDAP identity
 2. Copy the authentication header (📋 icon in the top bar)
 3. Test your credentials with ``curl``. When reaching out the server root URL with this bearer token you should see a ``user`` entry whose ``id`` field is ``ldap:<you>@mozilla.com``.
 
@@ -165,7 +165,7 @@ Going further
 
 Now that your client can pull data from the server, you can proceed with more advanced stuff like:
 
-* `Login on the Admin UI <AdminUI>`_ and browse your data
+* Login on the `Admin UI`_ and browse your data
 * Create, modify, delete remote records on the server and check out the different ``sync`` event data attributes
 * Define a `JSON schema on your collection <http://docs.kinto-storage.org/en/stable/api/1.x/collections.html#collection-json-schema>`_ to validate records and have forms in the Admin UI
 * Attach files to your records (see :ref:`tutorial <tutorial-attachments>`)
@@ -186,4 +186,4 @@ Delete your collection
     curl -X DELETE ${SERVER}/buckets/main/collections/${CID} -H "Authorization:${BEARER_TOKEN}"
 
 
-.. _AdminUI: https://kinto.dev.mozaws.net/v1/admin/
+.. _Admin UI: https://settings.dev.mozaws.net/v1/admin/
