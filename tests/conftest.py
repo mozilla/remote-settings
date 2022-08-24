@@ -25,6 +25,7 @@ DEFAULT_COLLECTION = os.getenv("COLLECTION", "product-integrity")
 DEFAULT_MAIL_DIR = os.getenv("MAIL_DIR", "mail")
 DEFAULT_KEEP_EXISTING = asbool(os.getenv("KEEP_EXISTING", "false"))
 DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", "false"))
+DEFAULT_TO_REVIEW_ENABLED = asbool(os.getenv("TO_REVIEW_ENABLED", "true"))
 
 Auth = Tuple[str, str]
 ClientFactory = Callable[[Auth], AsyncClient]
@@ -85,6 +86,12 @@ def pytest_addoption(parser):
         default=DEFAULT_SKIP_SERVER_SETUP,
         help="Skip server setup operations",
     )
+    parser.addoption(
+        "--to-review-enabled",
+        action="store_true",
+        default=DEFAULT_TO_REVIEW_ENABLED,
+        help="Include tests and related to the to-review config option",
+    )
 
 
 @pytest.fixture(scope="session")
@@ -133,6 +140,11 @@ def keep_existing(request) -> bool:
 @pytest.fixture(scope="session")
 def skip_server_setup(request) -> bool:
     return request.config.getoption("--skip-server-setup")
+
+
+@pytest.fixture(scope="session")
+def to_review_enabled(request) -> bool:
+    return request.config.getoption("--to-review-enabled")
 
 
 @pytest.fixture
