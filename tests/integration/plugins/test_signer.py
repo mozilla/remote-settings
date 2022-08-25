@@ -46,8 +46,6 @@ async def test_signer_plugin_capabilities(make_client: ClientFactory):
     anonymous_client = make_client(tuple())
     capability = (await anonymous_client.server_info())["capabilities"]["signer"]
     assert capability["group_check_enabled"]
-    # TODO: this is disabled on dev
-    # assert capability["to_review_enabled"]
 
 
 async def test_signer_plugin_full_workflow(
@@ -55,10 +53,13 @@ async def test_signer_plugin_full_workflow(
     setup_auth: Auth,
     editor_auth: Auth,
     reviewer_auth: Auth,
-    server: str,
     keep_existing: bool,
     skip_server_setup: bool,
+    to_review_enabled: bool,
 ):
+    if not to_review_enabled:
+        pytest.skip("to-review disabled")
+
     editor_client = make_client(editor_auth)
     reviewer_client = make_client(reviewer_auth)
 
@@ -105,8 +106,7 @@ async def test_signer_plugin_full_workflow(
 
     # 2. ask for a signature
     # 2.1 ask for review
-    data = {"status": "to-review"}
-    await editor_client.patch_collection(data=data)
+    await editor_client.patch_collection(data={"status": "to-review"})
     # 2.2 check the preview collection
     preview_records = await preview_client.get_records()
     expected = existing + 20
@@ -121,8 +121,7 @@ async def test_signer_plugin_full_workflow(
     await verify_signature(preview_records, preview_timestamp, preview_signature)
 
     # 2.3 approve the review
-    data = {"status": "to-sign"}
-    await reviewer_client.patch_collection(data=data)
+    await reviewer_client.patch_collection(data={"status": "to-sign"})
 
     # 3. upload more data
     await upload_records(editor_client, 20)
@@ -137,8 +136,7 @@ async def test_signer_plugin_full_workflow(
 
     # 4. ask again for a signature
     # 2.1 ask for review (noop on old versions)
-    data = {"status": "to-review"}
-    await editor_client.patch_collection(data=data)
+    await editor_client.patch_collection(data={"status": "to-review"})
     # 2.2 check the preview collection
     preview_records = await preview_client.get_records()
     assert (
@@ -155,13 +153,52 @@ async def test_signer_plugin_full_workflow(
     assert preview_signature != metadata["signature"], "Preview collection not updated"
 
     # 2.3 approve the review
-    data = {"status": "to-sign"}
-    await reviewer_client.patch_collection(data=data)
+    await reviewer_client.patch_collection(data={"status": "to-sign"})
 
     # 5. verify signature
 
     records = list(await dest_client.get_records())
     assert len(records) == expected, f"{len(records)} != {expected} records"
+    timestamp = await dest_client.get_records_timestamp()
+    signature = (await dest_client.get_collection())["data"]["signature"]
+
+    try:
+        await verify_signature(records, timestamp, signature)
+    except Exception:
+        print("Signature KO")
+        raise
+
+
+async def test_workflow_without_review(
+    make_client: ClientFactory,
+    setup_auth: Auth,
+    editor_auth: Auth,
+    reviewer_auth: Auth,
+    skip_server_setup: bool,
+    to_review_enabled: bool,
+):
+    if to_review_enabled:
+        pytest.skip("to-review enabled")
+
+    editor_client = make_client(editor_auth)
+    reviewer_client = make_client(reviewer_auth)
+
+    resource = await signed_resource(editor_client)
+
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_server(setup_client, editor_client, reviewer_client)
+
+    dest_col = resource["destination"].get("collection")
+    dest_client = editor_client.clone(
+        bucket=resource["destination"]["bucket"],
+        collection=dest_col or editor_client.collection_name,
+        auth=tuple(),
+    )
+
+    await upload_records(editor_client, 1)
+    await reviewer_client.patch_collection(data={"status": "to-sign"})
+    records = list(await dest_client.get_records())
     timestamp = await dest_client.get_records_timestamp()
     signature = (await dest_client.get_collection())["data"]["signature"]
 
@@ -186,10 +223,10 @@ async def test_signer_plugin_rollback(
     await editor_client.patch_collection(data={"status": "to-rollback"})
     before_records = await editor_client.get_records()
 
-    await upload_records(editor_client, 5)
+    await upload_records(editor_client, 1)
 
     records = await editor_client.get_records()
-    assert len(records) == len(before_records) + 5
+    assert len(records) == len(before_records) + 1
     await editor_client.patch_collection(data={"status": "to-rollback"})
     records = await editor_client.get_records()
     assert len(records) == len(before_records)
@@ -201,6 +238,7 @@ async def test_signer_plugin_refresh(
     editor_auth: Auth,
     reviewer_auth: Auth,
     skip_server_setup: bool,
+    to_review_enabled: bool,
 ):
     reviewer_client = make_client(reviewer_auth)
     if not skip_server_setup:
@@ -212,7 +250,10 @@ async def test_signer_plugin_refresh(
     preview_bucket = resource["preview"]["bucket"]
     dest_bucket = resource["destination"]["bucket"]
     await upload_records(editor_client, 5)
-    await editor_client.patch_collection(data={"status": "to-review"})
+
+    if to_review_enabled:
+        await editor_client.patch_collection(data={"status": "to-review"})
+
     await reviewer_client.patch_collection(data={"status": "to-sign"})
     signature_preview_before = (
         await editor_client.get_collection(bucket=preview_bucket)
@@ -235,13 +276,17 @@ async def test_signer_plugin_refresh(
     assert signature_preview_before != signature_preview
 
 
-async def test_signer_plugin_reviewer_verifications(
+async def test_cannot_skip_to_review(
     make_client: ClientFactory,
     setup_auth: Auth,
     editor_auth: Auth,
     reviewer_auth: Auth,
     skip_server_setup: bool,
+    to_review_enabled: bool,
 ):
+    if not to_review_enabled:
+        pytest.skip("to-review disabled")
+
     editor_client = make_client(editor_auth)
     reviewer_client = make_client(reviewer_auth)
 
@@ -262,24 +307,85 @@ async def test_signer_plugin_reviewer_verifications(
             id=f"{setup_client.collection_name}-reviewers", changes=data
         )
 
-    await upload_records(editor_client, 5)
+    await upload_records(editor_client, 1)
 
-    # TODO: this doesn't raise. Why not?
-    # status cannot be set to to-sign
     with pytest.raises(KintoException):
         await reviewer_client.patch_collection(data={"status": "to-sign"})
+
+
+async def test_same_editor_cannot_review(
+    make_client: ClientFactory,
+    setup_auth: Auth,
+    editor_auth: Auth,
+    reviewer_auth: Auth,
+    skip_server_setup: bool,
+    to_review_enabled: bool,
+):
+    if not to_review_enabled:
+        pytest.skip("to-review disabled")
+
+    editor_client = make_client(editor_auth)
+    reviewer_client = make_client(reviewer_auth)
+
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_server(setup_client, editor_client, reviewer_client)
+        # Add reviewer to editors, and vice-versa.
+        reviewer_id = (await reviewer_client.server_info())["user"]["id"]
+        data = JSONPatch(
+            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
+        )
+        await setup_client.patch_group(
+            id=f"{setup_client.collection_name}-editors", changes=data
+        )
+        editor_id = (await editor_client.server_info())["user"]["id"]
+        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+        await setup_client.patch_group(
+            id=f"{setup_client.collection_name}-reviewers", changes=data
+        )
+
+    await upload_records(editor_client, 1)
 
     await reviewer_client.patch_collection(data={"status": "to-review"})
-    # same editor cannot review
     with pytest.raises(KintoException):
         await reviewer_client.patch_collection(data={"status": "to-sign"})
 
-    # review must be asked after cancelled
-    await editor_client.patch_collection(data={"status": "to-review"})
+
+async def test_rereview_after_cancel(
+    make_client: ClientFactory,
+    setup_auth: Auth,
+    editor_auth: Auth,
+    reviewer_auth: Auth,
+    skip_server_setup: bool,
+    to_review_enabled: bool,
+):
+    if not to_review_enabled:
+        pytest.skip("to-review disabled")
+
+    editor_client = make_client(editor_auth)
+    reviewer_client = make_client(reviewer_auth)
+
+    if not skip_server_setup:
+        setup_client = make_client(setup_auth)
+        await setup_server(setup_client, editor_client, reviewer_client)
+        # Add reviewer to editors, and vice-versa.
+        reviewer_id = (await reviewer_client.server_info())["user"]["id"]
+        data = JSONPatch(
+            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
+        )
+        await setup_client.patch_group(
+            id=f"{setup_client.collection_name}-editors", changes=data
+        )
+        editor_id = (await editor_client.server_info())["user"]["id"]
+        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+        await setup_client.patch_group(
+            id=f"{setup_client.collection_name}-reviewers", changes=data
+        )
+
+    await upload_records(editor_client, 1)
+
+    await reviewer_client.patch_collection(data={"status": "to-review"})
+
     await reviewer_client.patch_collection(data={"status": "work-in-progress"})
     with pytest.raises(KintoException):
         await reviewer_client.patch_collection(data={"status": "to-sign"})
-
-    await reviewer_client.patch_collection(data={"status": "to-review"})
-    # Client can now review because he is not the last_editor.
-    await editor_client.patch_collection(data={"status": "to-sign"})
