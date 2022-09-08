@@ -131,7 +131,7 @@ With regards to the script:
 
 - MUST read the following environment variables:
 
-  * ``AUTHORIZATION``: Raw authorization header (eg. ``Bearer f8435u30596``, ``Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==``)
+  * ``AUTHORIZATION``: Credentials for building the Authorization Header (eg. ``Bearer f8435u30596``, ``some-user:some-password``)
   * ``SERVER``: Writer server URL (eg. ``https://settings-writer.stage.mozaws.net/v1``)
   * ``ENVIRONMENT`` (optional): ``dev``, ``stage``, ``prod``
   * ``DRY_RUN`` (optional): do not perform operations is set to ``1``
