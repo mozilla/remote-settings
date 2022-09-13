@@ -4,12 +4,40 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-29.0.1 (unreleased)
+29.0.1 (2022-09-12)
 ===================
 
 **Bug Fixes**
 
 - Prevent users to submit records with floats in nested arrays (fixes #218)
+
+**Documentation**
+
+- Update link to Dev Server admin (#265)
+- Fix ordered list of scheduled jobs entry in support page (#257)
+- Update docs according to latest improvements in the stack (#234)
+- Explicit environments in docs (#233)
+
+**Internal Changes**
+
+- Switch to official Python image in CircleCI jobs that use Docker executor (#238)
+- Install Rust in docker and cache python dependencies by version (#237)
+- Fix circle CI issues (#236)
+- Push integration test container to Dockerhub (#221)
+- Bump python from 3.10.5-bullseye to 3.10.7-bullseye (#276)
+- Bump python from 3.10.5-slim-bullseye to 3.10.7-slim-bullseye in /tests (#277)
+- Bump kinto-http from 10.9.0 to 11.0.0 in /tests (#270)
+- Bump kinto-http from 10.9.0 to 11.0.0 (#271)
+- Bump black from 22.3.0 to 22.8.0 (#273)
+- Bump flake8 from 4.0.1 to 5.0.4 (#262)
+- Update docutils requirement from <0.19 to <0.20 (#246)
+- Bump ecdsa from 0.17.0 to 0.18.0 (#248)
+- Bump pytest-asyncio from 0.18.3 to 0.19.0 in /tests (#251)
+- Bump waitress from 2.1.1 to 2.1.2 (#230)
+- Bump httpie from 3.1.0 to 3.2.1 (#222)
+- Bump httpie from 3.1.0 to 3.2.1 in /tests (#223)
+- Bump kinto attachment from 6.2.0 to 6.3.0 (#214)
+
 
 `kinto-attachment <https://github.com/Kinto/kinto-attachment/compare/6.2.0...6.3.0>`_
 ----------------
