@@ -12,6 +12,9 @@ def heartbeat(request):
     for signer in request.registry.signers.values():
         try:
             signer.sign("This is a heartbeat test.")
+
+            # Additional checks for this signer backend.
+            signer.healthcheck(request)
         except Exception as e:
             logger.exception(e)
             return False

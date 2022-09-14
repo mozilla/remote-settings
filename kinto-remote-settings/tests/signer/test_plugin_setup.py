@@ -1,3 +1,4 @@
+import datetime
 import os
 import unittest
 import uuid
@@ -80,25 +81,46 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
 class HeartbeatTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
-        self.mock = patch.start()
-        self.addCleanup(patch.stop)
+        req_patch = mock.patch(
+            "kinto_remote_settings.signer.backends.autograph.requests"
+        )
+        self.request_mock = req_patch.start()
+        self.addCleanup(req_patch.stop)
         self.signature = {"signature": "", "x5u": "", "mode": "", "ref": "abc"}
-        self.mock.post.return_value.json.return_value = [self.signature]
+        self.request_mock.post.return_value.json.return_value = [self.signature]
+
+        fetch_cert_patch = mock.patch(
+            "kinto_remote_settings.signer.backends.autograph.fetch_cert"
+        )
+        self.fetch_cert_mock = fetch_cert_patch.start()
+        self.addCleanup(fetch_cert_patch.stop)
+        utcnow = datetime.datetime.now(datetime.timezone.utc)
+        next_year = utcnow + datetime.timedelta(days=365)
+        fake_cert = mock.MagicMock(not_valid_before=utcnow, not_valid_after=next_year)
+        self.fetch_cert_mock.return_value = fake_cert
 
     def test_heartbeat_is_exposed(self):
         resp = self.app.get("/__heartbeat__")
         assert "signer" in resp.json
 
     def test_heartbeat_fails_if_unreachable(self):
-        self.mock.post.side_effect = requests_exceptions.ConnectTimeout()
+        self.request_mock.post.side_effect = requests_exceptions.ConnectTimeout()
         resp = self.app.get("/__heartbeat__", status=503)
         assert resp.json["signer"] is False
 
     def test_heartbeat_fails_if_missing_attributes(self):
         invalid = self.signature.copy()
         invalid.pop("signature")
-        self.mock.post.return_value.json.return_value = [invalid]
+        self.request_mock.post.return_value.json.return_value = [invalid]
+        resp = self.app.get("/__heartbeat__", status=503)
+        assert resp.json["signer"] is False
+
+    def test_heartbeat_fails_if_certificate_expires_soon(self):
+        utcnow = datetime.datetime.now(datetime.timezone.utc)
+        next_week = utcnow + datetime.timedelta(days=7)
+        fake_cert = mock.MagicMock(not_valid_before=utcnow, not_valid_after=next_week)
+        self.fetch_cert_mock.return_value = fake_cert
+
         resp = self.app.get("/__heartbeat__", status=503)
         assert resp.json["signer"] is False
 
