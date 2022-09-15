@@ -251,7 +251,6 @@ From a browser console, you can debug JEXL expressions using the raw libraries:
     );
 
     await FilterExpressions.eval("a.b == 1", {a: {b: 1}});
-    → true
 
 In order to test using a real application context instead of an arbitrary object:
 
@@ -262,4 +261,3 @@ In order to test using a real application context instead of an arbitrary object
     );
 
     await FilterExpressions.eval("env.locale == 'fr-FR'", {env: ClientEnvironmentBase})
-    → false
