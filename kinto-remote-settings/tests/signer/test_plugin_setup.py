@@ -80,6 +80,12 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
 
 class HeartbeatTest(BaseWebTest, unittest.TestCase):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["kinto.signer.autograph.server_url"] = "https://test.com"
+        return settings
+
     def setUp(self):
         req_patch = mock.patch(
             "kinto_remote_settings.signer.backends.autograph.requests"

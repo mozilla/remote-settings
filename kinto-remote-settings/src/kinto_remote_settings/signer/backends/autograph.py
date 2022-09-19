@@ -25,6 +25,10 @@ class AutographSigner(SignerBase):
         self.auth = HawkAuth(id=hawk_id, key=hawk_secret)
 
     def healthcheck(self, request):
+        if not self.server_url.startswith("https"):
+            # No certificate to check if not connected via HTTPs.
+            return
+
         settings = request.registry.settings
         percentage_remaining_validity = int(
             settings.get(
