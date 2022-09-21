@@ -153,6 +153,14 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Check VERSION file
+          command: |
+            if [ "$CIRCLE_TAG" != $(cat VERSION) ];
+            then
+              echo "Version mismatch";
+              exit 1;
+            fi
+      - run:
           name: Create version.json
           command: |
             # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/main/docs/version_object.md
