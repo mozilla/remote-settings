@@ -4,6 +4,14 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+29.1.1 (2022-09-21)
+===================
+
+**Bug Fixes**
+
+- Fix version number in ``VERSION`` file (and thus in ``/__version__``)
+
+
 29.1.0 (2022-09-13)
 ===================
 
