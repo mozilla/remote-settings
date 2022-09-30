@@ -137,6 +137,9 @@ def _handle_cache_expires(request, bid, cid):
     if cache_expires is not None:
         request.response.cache_expires(seconds=int(cache_expires))
 
+    elif bucket_expires := settings.get(f"{bid}.record_cache_expires_seconds"):
+        request.response.cache_expires(seconds=int(bucket_expires))
+
     elif global_expires := settings.get("record_cache_expires_seconds"):
         request.response.cache_expires(seconds=int(global_expires))
 
