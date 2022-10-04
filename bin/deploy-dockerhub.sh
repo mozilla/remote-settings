@@ -49,7 +49,7 @@ INTEGRATION_TEST_DOCKER_REPO="mozilla/remote-settings-integration-tests"
 if [ -n "$1" ]; then
     TAG="$1"
     APP_VERSION="$(cat VERSION)"
-    if [ "$TAG" != "$APP_VERSION" ];
+    if [ "$TAG" != "latest" ] && [ "$TAG" != "$APP_VERSION" ];
     then
       echo "Version mismatch (tag=$TAG, version=$APP_VERSION)";
       exit 1;
