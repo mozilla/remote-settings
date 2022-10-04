@@ -4,6 +4,15 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+29.1.2 (unreleased)
+===================
+
+**Bug Fixes**
+
+- Add a default ``Cache-Control`` header value on all ``/changeset`` endpoints using the
+  ``kinto.record_cache_expires_seconds`` setting value.
+
+
 29.1.1 (2022-09-21)
 ===================
 
