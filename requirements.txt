@@ -268,9 +268,9 @@ jsonschema==4.2.1 \
     --hash=sha256:2a0f162822a64d95287990481b45d82f096e99721c86534f48201b64ebca6e8c \
     --hash=sha256:390713469ae64b8a58698bb3cbc3859abe6925b565a973f87323ef21b09a27a8
     # via kinto
-kinto[memcached,monitoring,postgresql]==14.7.2 \
-    --hash=sha256:98b77227a2b0a57f57186863a9b787143974e6877d6e3388442fe7686f08a247 \
-    --hash=sha256:da304af43a156728a28055015378e3e98e7979fa039b1a70d3c27421c4d03170
+kinto[memcached,monitoring,postgresql]==14.8.0 \
+    --hash=sha256:492bbe14560f5a8a893356f72b28a308d5d778f0eca1d94ddf9842e4a8b6f4b7 \
+    --hash=sha256:98d0458ebde88d0e7a6e5c5077839c8796bba906e01eaad0009be28e7a3aeeea
     # via
     #   -r requirements.in
     #   kinto-attachment
