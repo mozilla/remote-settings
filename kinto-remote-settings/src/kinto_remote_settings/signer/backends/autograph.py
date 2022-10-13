@@ -53,17 +53,17 @@ class AutographSigner(SignerBase):
         # The minimum remaining days depends on the certificate lifespan.
         relative_minimum = lifespan * percentage_remaining_validity / 100
         # We don't want to alert to much in advance, nor too late, hence we bound it.
-        bounded_minimum = int(
+        clamped_minimum = int(
             min(max_remaining_days, max(min_remaining_days, relative_minimum))
         )
-        if remaining_days <= bounded_minimum:
+        if remaining_days <= clamped_minimum:
             raise CertificateExpiresSoonError(
                 f"Only {remaining_days} days before Autograph certificate expires"
             )
 
         logger.debug(
             f"Certificate lasts {lifespan} days and ends in {remaining_days} days "
-            f"({remaining_days - bounded_minimum} days before alert)."
+            f"({remaining_days - clamped_minimum} days before alert)."
         )
 
     def sign(self, payload):
