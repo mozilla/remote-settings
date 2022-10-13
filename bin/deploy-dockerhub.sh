@@ -48,6 +48,12 @@ INTEGRATION_TEST_DOCKER_REPO="mozilla/remote-settings-integration-tests"
 # docker tag and push git branch to dockerhub
 if [ -n "$1" ]; then
     TAG="$1"
+    APP_VERSION="$(cat VERSION)"
+    if [ "$TAG" != "latest" ] && [ "$TAG" != "$APP_VERSION" ];
+    then
+      echo "Version mismatch (tag=$TAG, version=$APP_VERSION)";
+      exit 1;
+    fi
     echo "Tag and push server and integration test containers to Dockerhub"
     echo "${SERVER_DOCKER_REPO}:${TAG}"
     echo "${INTEGRATION_TEST_DOCKER_REPO}:${TAG}"
