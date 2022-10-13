@@ -123,12 +123,39 @@ class HeartbeatTest(BaseWebTest, unittest.TestCase):
 
     def test_heartbeat_fails_if_certificate_expires_soon(self):
         utcnow = datetime.datetime.now(datetime.timezone.utc)
-        next_week = utcnow + datetime.timedelta(days=7)
-        fake_cert = mock.MagicMock(not_valid_before=utcnow, not_valid_after=next_week)
+        thousands_days_ago = utcnow - datetime.timedelta(days=1000)
+        in_ten_days = utcnow + datetime.timedelta(days=10)
+        fake_cert = mock.MagicMock(
+            not_valid_before=thousands_days_ago, not_valid_after=in_ten_days
+        )
         self.fetch_cert_mock.return_value = fake_cert
 
         resp = self.app.get("/__heartbeat__", status=503)
         assert resp.json["signer"] is False
+
+    def test_heartbeat_fails_if_certificate_expires_on_clamped_limit(self):
+        utcnow = datetime.datetime.now(datetime.timezone.utc)
+        thousands_days_ago = utcnow - datetime.timedelta(days=1000)
+        in_thirty_days = utcnow + datetime.timedelta(days=30)
+        fake_cert = mock.MagicMock(
+            not_valid_before=thousands_days_ago, not_valid_after=in_thirty_days
+        )
+        self.fetch_cert_mock.return_value = fake_cert
+
+        resp = self.app.get("/__heartbeat__", status=503)
+        assert resp.json["signer"] is False
+
+    def test_heartbeat_succeeds_if_certificates_expires_before_threshold(self):
+        utcnow = datetime.datetime.now(datetime.timezone.utc)
+        thousands_days_ago = utcnow - datetime.timedelta(days=1000)
+        in_thirty_one_days = utcnow + datetime.timedelta(days=32)
+        fake_cert = mock.MagicMock(
+            not_valid_before=thousands_days_ago, not_valid_after=in_thirty_one_days
+        )
+        self.fetch_cert_mock.return_value = fake_cert
+
+        resp = self.app.get("/__heartbeat__", status=200)
+        assert resp.json["signer"] is True
 
 
 class IncludeMeTest(unittest.TestCase):
