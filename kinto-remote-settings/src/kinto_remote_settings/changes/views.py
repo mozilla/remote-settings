@@ -107,6 +107,12 @@ class AnonymousRoute(RouteFactory):
     factory=AnonymousRoute,
 )
 class Changes(resource.Resource):
+    """
+    This Kinto **resource** gets hit by old clients (Firefox <88)
+    See https://bugzilla.mozilla.org/show_bug.cgi?id=1666511
+
+    Recent clients reach the `/changeset` endpoints (see Kinto **service** below).
+    """
 
     schema = ChangesSchema
 
@@ -118,7 +124,15 @@ class Changes(resource.Resource):
         super(Changes, self).__init__(request, context)
 
     def plural_get(self):
-        result = super().plural_get()
+        try:
+            result = super().plural_get()
+        except httpexceptions.HTTPNotModified:
+            # Since the Google Cloud Platform CDN does not cache ``304 Not Modified``
+            # responses, we return a ``200 Ok`` with an empty list of changes to the clients.
+            # The two are strictly equivalent in the client implementation:
+            # https://searchfox.org/mozilla-esr78/rev/3c633b1a0994f380032/services/settings/Utils.jsm#170-208
+            result = self.postprocess([])
+
         _handle_cache_expires(self.request, MONITOR_BUCKET, CHANGES_COLLECTION)
         return result
 
