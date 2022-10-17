@@ -317,6 +317,7 @@ kinto-attachment==6.3.1 \
     --hash=sha256:f9be5600f8825825bae81362f4cc09a1ca81a3b97d4125e3e1ac61ccb0cdb62c
     # via -r requirements.in
 kinto-emailer==2.1.0 \
+    --hash=sha256:0579e6656dfbf1b928ae9f16012f88b13e97ad7d56831137297b90fc30a6d625 \
     --hash=sha256:5307f0451625f316143247501941c1916235ca9f9295b9248a29bf81c5ad321b
     # via -r requirements.in
 logging-color-formatter==1.0.2 \
