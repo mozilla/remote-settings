@@ -116,6 +116,7 @@ cornice==6.0.0 \
     #   cornice-swagger
     #   kinto
 cornice-swagger==1.0.1 \
+    --hash=sha256:94baebb818eb79a458497b3b924aacf340af85057abfdba7faa81e20c4d59b84 \
     --hash=sha256:98a63c139af8297e8494ffa4e9f3fe8226a55b8850abb3b65ca555b25105fc34
     # via kinto
 cryptography==38.0.1 \
