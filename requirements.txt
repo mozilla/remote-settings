@@ -8,14 +8,18 @@ attrs==21.2.0 \
     --hash=sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1 \
     --hash=sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb
     # via jsonschema
-bcrypt==3.2.0 \
-    --hash=sha256:5b93c1726e50a93a033c36e5ca7fdcd29a5c7395af50a6892f5d9e7c6cfbfb29 \
-    --hash=sha256:63d4e3ff96188e5898779b6057878fecf3f11cfe6ec3b313ea09955d587ec7a7 \
-    --hash=sha256:81fec756feff5b6818ea7ab031205e1d323d8943d237303baca2c5f9c7846f34 \
-    --hash=sha256:a67fb841b35c28a59cebed05fbd3e80eea26e6d75851f0574a9273c80f3e9b55 \
-    --hash=sha256:c95d4cbebffafcdd28bd28bb4e25b31c50f6da605c81ffd9ad8a3d1b2ab7b1b6 \
-    --hash=sha256:cd1ea2ff3038509ea95f687256c46b79f5fc382ad0aa3664d200047546d511d1 \
-    --hash=sha256:cdcdcb3972027f83fe24a48b1e90ea4b584d35f1cc279d76de6fc4b13376239d
+bcrypt==3.2.2 \
+    --hash=sha256:2b02d6bfc6336d1094276f3f588aa1225a598e27f8e3388f4db9948cb707b521 \
+    --hash=sha256:433c410c2177057705da2a9f2cd01dd157493b2a7ac14c8593a16b3dab6b6bfb \
+    --hash=sha256:4e029cef560967fb0cf4a802bcf4d562d3d6b4b1bf81de5ec1abbe0f1adb027e \
+    --hash=sha256:61bae49580dce88095d669226d5076d0b9d927754cedbdf76c6c9f5099ad6f26 \
+    --hash=sha256:6d2cb9d969bfca5bc08e45864137276e4c3d3d7de2b162171def3d188bf9d34a \
+    --hash=sha256:7180d98a96f00b1050e93f5b0f556e658605dd9f524d0b0e68ae7944673f525e \
+    --hash=sha256:7d9ba2e41e330d2af4af6b1b6ec9e6128e91343d0b4afb9282e54e5508f31baa \
+    --hash=sha256:7ff2069240c6bbe49109fe84ca80508773a904f5a8cb960e02a977f7f519b129 \
+    --hash=sha256:88273d806ab3a50d06bc6a2fc7c87d737dd669b76ad955f449c43095389bc8fb \
+    --hash=sha256:a2c46100e315c3a5b90fdc53e429c006c5f962529bc27e1dfd656292c20ccc40 \
+    --hash=sha256:cd43303d6b8a165c29ec6756afd169faba9396a9472cdff753fe9f19b96ce2fa
     # via kinto
 boto==2.49.0 \
     --hash=sha256:147758d41ae7240dc989f0039f27da8ca0d53734be0eb869ef16e3adcfa462e8 \
@@ -34,7 +38,9 @@ canonicaljson-rs==0.4.0 \
 certifi==2021.10.8 \
     --hash=sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872 \
     --hash=sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569
-    # via requests
+    # via
+    #   requests
+    #   sentry-sdk
 cffi==1.15.0 \
     --hash=sha256:00c878c90cb53ccfaae6b8bc18ad05d2036553e6d9d1d9dbcf323bbe83854ca3 \
     --hash=sha256:0104fb5ae2391d46a4cb082abdd5c69ea4eab79d8d44eaaf79f1b1fd806ee4c2 \
@@ -110,6 +116,7 @@ cornice==6.0.0 \
     #   cornice-swagger
     #   kinto
 cornice-swagger==1.0.1 \
+    --hash=sha256:94baebb818eb79a458497b3b924aacf340af85057abfdba7faa81e20c4d59b84 \
     --hash=sha256:98a63c139af8297e8494ffa4e9f3fe8226a55b8850abb3b65ca555b25105fc34
     # via kinto
 cryptography==38.0.1 \
@@ -298,18 +305,19 @@ jsonschema==4.2.1 \
     --hash=sha256:2a0f162822a64d95287990481b45d82f096e99721c86534f48201b64ebca6e8c \
     --hash=sha256:390713469ae64b8a58698bb3cbc3859abe6925b565a973f87323ef21b09a27a8
     # via kinto
-kinto[memcached,monitoring,postgresql]==14.8.0 \
-    --hash=sha256:492bbe14560f5a8a893356f72b28a308d5d778f0eca1d94ddf9842e4a8b6f4b7 \
-    --hash=sha256:98d0458ebde88d0e7a6e5c5077839c8796bba906e01eaad0009be28e7a3aeeea
+kinto[memcached,monitoring,postgresql]==15.0.0 \
+    --hash=sha256:67d101dc81d9abb49d3cfdcc82ee1b81f2bc4e869da4e92d7e6b6dc44b1bd70f \
+    --hash=sha256:c1710d4c994d814044c754b58c56453132438e2c31b382cedb4b5126a382f980
     # via
     #   -r requirements.in
     #   kinto-attachment
     #   kinto-emailer
-kinto-attachment==6.3.0 \
-    --hash=sha256:8ead3139e33e9ac113bd30a6ec6912c82e53e7e6e901d452fc13656f4538451d \
-    --hash=sha256:f1e85d5a2aa8574b53a8f28daefe935babea12017f04b201b15b06db6199ea4e
+kinto-attachment==6.3.1 \
+    --hash=sha256:c5d6349fd7a1663a730563cba7d450bafe689e7f600d2812ab67a113fd83a270 \
+    --hash=sha256:f9be5600f8825825bae81362f4cc09a1ca81a3b97d4125e3e1ac61ccb0cdb62c
     # via -r requirements.in
 kinto-emailer==2.1.0 \
+    --hash=sha256:0579e6656dfbf1b928ae9f16012f88b13e97ad7d56831137297b90fc30a6d625 \
     --hash=sha256:5307f0451625f316143247501941c1916235ca9f9295b9248a29bf81c5ad321b
     # via -r requirements.in
 logging-color-formatter==1.0.2 \
@@ -425,8 +433,9 @@ pyramid-multiauth==1.0.1 \
     --hash=sha256:6d8785558e1d0bbe0d0da43e296efc0fbe0de5071d1f9b1091e891f0e4ec9682 \
     --hash=sha256:c265258af8021094e5b98602e8bfe094eec1350eebb56473f36cd0e076910822
     # via kinto
-pyramid-storage==1.0.0 \
-    --hash=sha256:0268360ef4a62d16ae73c93da56615366715db3adffcdd36e6b537fc07c33029
+pyramid-storage==1.1.0 \
+    --hash=sha256:75fecab9bcdcc0d422f05b4d96ab874940cf646610db7b39dc47f59ad5bbad8f \
+    --hash=sha256:ee8fca161a8e844140fc29751e4b1232993f255c116a14d44a48818da41e4bc7
     # via kinto-attachment
 pyramid-tm==2.4 \
     --hash=sha256:4a4e212cd239f06c496d074f5d294e88478b94059541448bc151d505f653be59 \
@@ -496,10 +505,6 @@ python-rapidjson==1.5 \
     --hash=sha256:f378588baff7e3e7f1afb01de3912f969c727bdaaa7566c456bbebe3852a5e23 \
     --hash=sha256:f83c5515e4acc0cef7d98c4623a357f54c2c4833d918477a12eb595658b4fd75
     # via kinto
-raven==6.10.0 \
-    --hash=sha256:3fa6de6efa2493a7c827472e984ce9b020797d0da16f1db67197bcc23c8fae54 \
-    --hash=sha256:44a13f87670836e153951af9a3c80405d36b43097db869a36e92809673692ce4
-    # via kinto
 repoze-sendmail==4.4.1 \
     --hash=sha256:7a8ea37914a5d38bad38052a83eac1d867b171ff4cc8b4d4994e892c05b0d424 \
     --hash=sha256:f1396893d3aa43502624e88941a441233c06679ae50b1966ffbfccba05da6347
@@ -520,6 +525,10 @@ rsa==4.8 \
     --hash=sha256:5c6bd9dc7a543b7fe4304a631f8a8a3b674e2bbfc49c2ae96200cdbe55df6b17 \
     --hash=sha256:95c5d300c4e879ee69708c428ba566c59478fd653cc3a22243eeb8ed846950bb
     # via google-auth
+sentry-sdk==1.9.10 \
+    --hash=sha256:2469240f6190aaebcb453033519eae69cfe8cc602065b4667e18ee14fc1e35dc \
+    --hash=sha256:4fbace9a763285b608c06f01a807b51acb35f6059da6a01236654e08b0ee81ff
+    # via kinto
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
@@ -590,10 +599,12 @@ translationstring==1.4 \
     # via
     #   colander
     #   pyramid
-urllib3==1.26.7 \
-    --hash=sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece \
-    --hash=sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844
-    # via requests
+urllib3==1.26.12 \
+    --hash=sha256:3fa96cf423e6987997fc326ae8df396db2a8b7c667747d47ddd8ecba91f4a74e \
+    --hash=sha256:b930dd878d5a8afb066a637fbb35144fe7901e3b209d1cd4f524bd0e9deee997
+    # via
+    #   requests
+    #   sentry-sdk
 uwsgi==2.0.20 \
     --hash=sha256:88ab9867d8973d8ae84719cf233b7dafc54326fcaec89683c3f9f77c002cdff9
     # via -r requirements.in
