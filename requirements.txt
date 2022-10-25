@@ -703,8 +703,8 @@ urllib3==1.26.12 \
     # via
     #   requests
     #   sentry-sdk
-uwsgi==2.0.20 \
-    --hash=sha256:88ab9867d8973d8ae84719cf233b7dafc54326fcaec89683c3f9f77c002cdff9
+uwsgi==2.0.21 \
+    --hash=sha256:35a30d83791329429bc04fe44183ce4ab512fcf6968070a7bfba42fc5a0552a9
     # via -r requirements.in
 venusian==3.0.0 \
     --hash=sha256:06e7385786ad3a15c70740b2af8d30dfb063a946a851dcb4159f9e2a2302578f \
