@@ -78,12 +78,21 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
             resp = self.app.get(self.changes_uri)
         self.assertEqual(len(resp.json["data"]), 1)
 
-    def test_returns_304_if_no_change_occured(self):
+    def test_returns_200_with_empty_list_of_changes_if_no_change_occured(self):
         resp = self.app.get(self.changes_uri)
         before_timestamp = resp.headers["ETag"]
-        self.app.get(
-            self.changes_uri, headers={"If-None-Match": before_timestamp}, status=304
+
+        # With ?_since
+        resp = self.app.get(
+            self.changes_uri + f"?_since={before_timestamp}", status=200
         )
+        self.assertEqual(len(resp.json["data"]), 0)
+
+        # With ETag precondition headers
+        resp = self.app.get(
+            self.changes_uri, headers={"If-None-Match": before_timestamp}, status=200
+        )
+        self.assertEqual(len(resp.json["data"]), 0)
 
     def test_returns_412_with_if_none_match_star(self):
         self.app.get(self.changes_uri, headers={"If-None-Match": "*"}, status=412)
