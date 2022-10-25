@@ -4,16 +4,20 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+30.1.0 (2022-10-25)
+===================
+
+**API changes**
+
+- Return ``200 OK`` to old clients reaching out the ``monitor/changes`` with ``If-None-Match`` request headers, instead of the current ``304 Not Modified`` that aren't cached by the CDN.
+
+
 30.0.0 (2022-10-17)
 ===================
 
 **New features**
 
 - Check the Autograph certificate validity from the ``__heartbeat__`` endpoint.
-
-**API changes**
-
-- Return ``200 OK`` to old clients reaching out the ``monitor/changes`` with ``If-None-Match`` request headers, instead of the current ``304 Not Modified`` that aren't cached by the CDN.
 
 kinto
 -----
