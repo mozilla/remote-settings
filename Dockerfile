@@ -22,7 +22,7 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 RUN uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 
 
-FROM python:3.10.5-slim-bullseye@sha256:ca78039cbd3772addb9179953bbf8fe71b50d4824b192e901d312720f5902b22 as server
+FROM python:3.11.0-bullseye@sha256:2b513fc3bd55e88107d8e2dcce78a17a82a2d896d6b707ae76cf2ea5df8c4cec as server
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Needed for UWSGI
