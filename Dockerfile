@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.3
 
-FROM python:3.11.0-bullseye@sha256:2b513fc3bd55e88107d8e2dcce78a17a82a2d896d6b707ae76cf2ea5df8c4cec as compile
+FROM python:3.11.0-bullseye@sha256:3e2e743ca3027c375a13ee7b9b0f7757b0091501a7556563afbc8000b5c862a5 as compile
 
 # Get rustup https://rustup.rs/ for canonicaljson-rs, because no wheels are published for arm.
 # See https://github.com/mozilla-services/python-canonicaljson-rs/issues/3
@@ -22,7 +22,7 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 RUN uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 
 
-FROM python:3.11.0-bullseye@sha256:2b513fc3bd55e88107d8e2dcce78a17a82a2d896d6b707ae76cf2ea5df8c4cec as server
+FROM python:3.11.0-bullseye@sha256:3e2e743ca3027c375a13ee7b9b0f7757b0091501a7556563afbc8000b5c862a5 as server
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Needed for UWSGI
