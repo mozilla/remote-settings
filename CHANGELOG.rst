@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-30.1.1 (unreleased)
+30.1.1 (2022-11-22)
 ===================
 
 **Bug Fixes**
