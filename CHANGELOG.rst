@@ -4,6 +4,14 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+30.1.1 (unreleased)
+===================
+
+**Bug Fixes**
+
+- Make sure the ``Last-Modified`` response header of the ``/changeset`` endpoint is bumped when the collection metadata has changed. Otherwise, the CDN won't invalidate the cached responses from the origins when the collections signatures are refreshed.
+
+
 30.1.0 (2022-10-25)
 ===================
 
