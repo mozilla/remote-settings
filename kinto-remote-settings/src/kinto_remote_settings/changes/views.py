@@ -308,7 +308,9 @@ def get_changeset(request):
         model = ChangesModel(request)
         metadata = {}
         records_timestamp = model.timestamp()
-        last_modified = records_timestamp  # The collection 'monitor/changes' is virtual.
+        last_modified = (
+            records_timestamp  # The collection 'monitor/changes' is virtual.
+        )
         changes = model.get_objects(
             filters=filters, limit=limit, include_deleted=include_deleted
         )
