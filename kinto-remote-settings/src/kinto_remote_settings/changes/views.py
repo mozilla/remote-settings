@@ -307,7 +307,8 @@ def get_changeset(request):
 
         model = ChangesModel(request)
         metadata = {}
-        timestamp = model.timestamp()
+        records_timestamp = model.timestamp()
+        last_modified = records_timestamp  # The collection 'monitor/changes' is virtual.
         changes = model.get_objects(
             filters=filters, limit=limit, include_deleted=include_deleted
         )
@@ -351,23 +352,30 @@ def get_changeset(request):
             include_deleted=include_deleted,
         )
         # Fetch current collection timestamp.
-        timestamp = storage.resource_timestamp(
+        records_timestamp = storage.resource_timestamp(
             resource_name="record", parent_id=collection_uri
         )
+        # We use the timestamp from the collection metadata, because we want it to
+        # be bumped when the signature is refreshed. Indeed, the CDN will revalidate
+        # the origin's response, only if the `Last-Modified` header has changed.
+        # Side note: We are sure that the collection timestamp is always higher
+        # than the records timestamp, because we have fields like `last_edit_date`
+        # in the collection metadata that are automatically bumped when records change.
+        last_modified = metadata["last_modified"]
 
         # Do not serve inconsistent data.
-        if before != timestamp:  # pragma: no cover
+        if before != records_timestamp:  # pragma: no cover
             raise storage_exceptions.IntegrityError(message="Inconsistent data. Retry.")
 
     # Cache control.
     _handle_cache_expires(request, bid, cid)
 
     # Set Last-Modified response header (Pyramid takes care of converting).
-    request.response.last_modified = timestamp / 1000.0
+    request.response.last_modified = last_modified / 1000.0
 
     data = {
         "metadata": metadata,
-        "timestamp": timestamp,
+        "timestamp": records_timestamp,
         "changes": changes,
     }
     return data

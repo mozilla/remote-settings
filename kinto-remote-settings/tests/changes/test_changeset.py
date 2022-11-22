@@ -46,7 +46,7 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
 
     def test_last_modified_header_is_set(self):
         resp = self.app.get(self.changeset_uri, headers=self.headers)
-        timestamp = resp.json["timestamp"]
+        timestamp = resp.json["metadata"]["last_modified"]
 
         dt = parsedate_to_datetime(resp.headers["Last-Modified"])
 
