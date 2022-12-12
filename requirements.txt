@@ -46,9 +46,9 @@ canonicaljson-rs==0.4.0 \
     --hash=sha256:e935be49906478f9e3a9a37ae87ba15344d560b65c9ed1c22fcbdb4d57316fec \
     --hash=sha256:fad0990501a2f409c00425a9ce8c6e8d8bf49484652fbb7e3469cd79f36a4007
     # via -r requirements.in
-certifi==2022.9.24 \
-    --hash=sha256:0d9c601124e5a6ba9712dbc60d9c53c21e34f5f641fe83002317394311bdce14 \
-    --hash=sha256:90c1a32f1d68f940488354e36370f6cca89f0f106db09518524c88d6ed83f382
+certifi==2022.12.7 \
+    --hash=sha256:35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3 \
+    --hash=sha256:4ad3232f5e926d6718ec31cfc1fcadfde020920e278684144551c91769c7bc18
     # via
     #   requests
     #   sentry-sdk
