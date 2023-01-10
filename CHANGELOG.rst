@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-30.2.0 (unreleased)
+31.0.0 (2023-01-10)
 ===================
 
 **API changes**
