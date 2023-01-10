@@ -27,7 +27,9 @@ def monitored_collections(registry):
     return collections
 
 
-def changes_object(request, bucket_id, collection_id, timestamp):
+def changes_object(
+    request, bucket_id, collection_id, metadata_timestamp, records_timestamp
+):
     """Generate an object for /buckets/monitor/collections/changes."""
     http_host = request.registry.settings.get("http_host") or ""
     collection_uri = core_utils.instance_uri(
@@ -39,7 +41,8 @@ def changes_object(request, bucket_id, collection_id, timestamp):
 
     return dict(
         id=entry_id,
-        last_modified=timestamp,
+        last_modified=max(metadata_timestamp, records_timestamp),
+        last_publication=records_timestamp,
         bucket=bucket_id,
         collection=collection_id,
         host=http_host,

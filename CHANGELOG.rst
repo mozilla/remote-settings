@@ -4,6 +4,15 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+30.2.0 (unreleased)
+===================
+
+**API changes**
+
+- The timestamps of the monitor/changes entries now reflect the timestamp of the collection metadata (eg. last signature) instead of the records timestamp (eg. last publication).
+  This change will **impact both servers and clients significantly**. See the [related ADR](https://github.com/mozilla/remote-settings/blob/main/docs/adr/adr_002_cache_bust.md) for more details.
+
+
 30.1.1 (2022-11-22)
 ===================
 
