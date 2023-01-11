@@ -4,13 +4,21 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+31.0.1 (2023-01-10)
+===================
+
+**Bug Fixes**
+
+Fix a regression introduced in #328, where changesets' ``timestamp`` field would reflect the timestamp of collection metadata instead of the records timestamp. Leading to signature verification errors in clients.
+
+
 31.0.0 (2023-01-10)
 ===================
 
 **API changes**
 
 - The timestamps of the monitor/changes entries now reflect the timestamp of the collection metadata (eg. last signature) instead of the records timestamp (eg. last publication).
-  This change will **impact both servers and clients significantly**. See the [related ADR](https://github.com/mozilla/remote-settings/blob/main/docs/adr/adr_002_cache_bust.md) for more details.
+  This change will **impact both servers and clients significantly**. See the `related ADR`<https://github.com/mozilla/remote-settings/blob/main/docs/adr/adr_002_cache_bust.md>`_ for more details.
 
 
 30.1.1 (2022-11-22)
