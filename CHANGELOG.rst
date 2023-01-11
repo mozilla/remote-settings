@@ -4,7 +4,7 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-31.0.1 (2023-01-10)
+31.0.1 (2023-01-11)
 ===================
 
 **Bug Fixes**
