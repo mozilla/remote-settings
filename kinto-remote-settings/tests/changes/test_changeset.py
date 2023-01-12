@@ -30,10 +30,8 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
         return settings
 
     def test_changeset_is_accessible(self):
-        resp = self.app.get(
-            "/buckets/blocklists/collections/certificates", headers=self.headers
-        )
-        collection_metadata_timestamp = resp.json["data"]["last_modified"]
+        resp = self.app.head(self.records_uri, headers=self.headers)
+        records_timestamp = int(resp.headers["ETag"][1:-1])
 
         resp = self.app.get(self.changeset_uri, headers=self.headers)
         data = resp.json
@@ -44,7 +42,7 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
         assert data["metadata"]["id"] == "certificates"
         assert len(data["changes"]) == 1
         assert data["changes"][0]["dev-edition"] is True
-        assert data["timestamp"] == collection_metadata_timestamp
+        assert data["timestamp"] == records_timestamp
 
     def test_last_modified_header_is_set(self):
         resp = self.app.get(self.changeset_uri, headers=self.headers)

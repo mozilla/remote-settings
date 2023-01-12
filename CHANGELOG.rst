@@ -4,8 +4,18 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-31.0.0 (2023-01-10)
+31.0.1 (2023-01-12)
 ===================
+
+**Bug Fixes**
+
+- Rollback #328 and #350, where changesets' ``timestamp`` field would either lead to profuse signature verification in clients or systematic verification errors.
+
+
+31.0.0 (yanked)
+===============
+
+**Yanked**
 
 **API changes**
 
