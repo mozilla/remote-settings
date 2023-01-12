@@ -311,9 +311,7 @@ def get_changeset(request):
 
         model = ChangesModel(request)
         metadata = {}
-        records_timestamp = model.timestamp()
-        # The collection 'monitor/changes' does not have metadata.
-        metadata_timestamp = records_timestamp
+        last_modified = model.timestamp()
         changes = model.get_objects(
             filters=filters, limit=limit, include_deleted=include_deleted
         )
@@ -357,7 +355,7 @@ def get_changeset(request):
             include_deleted=include_deleted,
         )
         # Fetch records timestamp to check integrity.
-        records_timestamp = storage.resource_timestamp(
+        after_timestamp = storage.resource_timestamp(
             resource_name="record", parent_id=collection_uri
         )
 
@@ -367,21 +365,21 @@ def get_changeset(request):
         # Side note: We are sure that the collection timestamp is always higher
         # than the records timestamp, because we have fields like `last_edit_date`
         # in the collection metadata that are automatically bumped when records change.
-        metadata_timestamp = metadata["last_modified"]
+        last_modified = metadata["last_modified"]
 
         # Do not serve inconsistent data.
-        if before_timestamp != records_timestamp:  # pragma: no cover
+        if before_timestamp != after_timestamp:  # pragma: no cover
             raise storage_exceptions.IntegrityError(message="Inconsistent data. Retry.")
 
     # Cache control.
     _handle_cache_expires(request, bid, cid)
 
     # Set Last-Modified response header (Pyramid takes care of converting).
-    request.response.last_modified = metadata_timestamp / 1000.0
+    request.response.last_modified = last_modified / 1000.0
 
     data = {
         "metadata": metadata,
-        "timestamp": records_timestamp,
+        "timestamp": last_modified,
         "changes": changes,
     }
     return data
