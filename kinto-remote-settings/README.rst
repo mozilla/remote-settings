@@ -99,9 +99,9 @@ Returns the list of timestamps.
 
 Returns the following response for the collection:
 
-- ``changes``: list of records, optionally filtered with ``?_since="{timestamp}"``
+- ``changes``: list of records, optionnally filtered with ``?_since="{timestamp}"``
 - ``metadata``: collection attributes
-- ``timestamp``: last signature timestamp
+- ``timestamp``: records timestamp
 
 Note: the ``_expected={}`` querystring parameter is mandatory but can contain any
 arbitrary value (used for cache busting).

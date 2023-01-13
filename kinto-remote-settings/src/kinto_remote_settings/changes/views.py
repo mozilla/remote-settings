@@ -65,21 +65,17 @@ class ChangesModel(object):
         if self.__entries is None:
             self.__entries = {}
 
-            for (bid, cid) in monitored_collections(self.request.registry):
-                bucket_uri = core_utils.instance_uri(self.request, "bucket", id=bid)
+            for (bucket_id, collection_id) in monitored_collections(
+                self.request.registry
+            ):
                 collection_uri = core_utils.instance_uri(
-                    self.request, "collection", bucket_id=bid, id=cid
+                    self.request, "collection", bucket_id=bucket_id, id=collection_id
                 )
-                # Timestamp of last change in collection metadata
-                metadata_timestamp = self.storage.get(
-                    resource_name="collection", parent_id=bucket_uri, object_id=cid
-                )["last_modified"]
-                # Timestamp of last change in records
-                records_timestamp = self.storage.resource_timestamp(
+                timestamp = self.storage.resource_timestamp(
                     parent_id=collection_uri, resource_name="record"
                 )
                 entry = changes_object(
-                    self.request, bid, cid, metadata_timestamp, records_timestamp
+                    self.request, bucket_id, collection_id, timestamp
                 )
                 self.__entries[entry[self.id_field]] = entry
 
@@ -312,8 +308,9 @@ def get_changeset(request):
         model = ChangesModel(request)
         metadata = {}
         records_timestamp = model.timestamp()
-        # The collection 'monitor/changes' does not have metadata.
-        metadata_timestamp = records_timestamp
+        last_modified = (
+            records_timestamp  # The collection 'monitor/changes' is virtual.
+        )
         changes = model.get_objects(
             filters=filters, limit=limit, include_deleted=include_deleted
         )
@@ -325,7 +322,7 @@ def get_changeset(request):
         try:
             # We'll make sure that data isn't changed while we read metadata, changes,
             # etc.
-            before_timestamp = storage.resource_timestamp(
+            before = storage.resource_timestamp(
                 resource_name="record", parent_id=collection_uri
             )
             # Fetch collection metadata.
@@ -356,28 +353,27 @@ def get_changeset(request):
             sorting=[Sort("last_modified", -1)],
             include_deleted=include_deleted,
         )
-        # Fetch records timestamp to check integrity.
+        # Fetch current collection timestamp.
         records_timestamp = storage.resource_timestamp(
             resource_name="record", parent_id=collection_uri
         )
-
         # We use the timestamp from the collection metadata, because we want it to
         # be bumped when the signature is refreshed. Indeed, the CDN will revalidate
         # the origin's response, only if the `Last-Modified` header has changed.
         # Side note: We are sure that the collection timestamp is always higher
         # than the records timestamp, because we have fields like `last_edit_date`
         # in the collection metadata that are automatically bumped when records change.
-        metadata_timestamp = metadata["last_modified"]
+        last_modified = metadata["last_modified"]
 
         # Do not serve inconsistent data.
-        if before_timestamp != records_timestamp:  # pragma: no cover
+        if before != records_timestamp:  # pragma: no cover
             raise storage_exceptions.IntegrityError(message="Inconsistent data. Retry.")
 
     # Cache control.
     _handle_cache_expires(request, bid, cid)
 
     # Set Last-Modified response header (Pyramid takes care of converting).
-    request.response.last_modified = metadata_timestamp / 1000.0
+    request.response.last_modified = last_modified / 1000.0
 
     data = {
         "metadata": metadata,
