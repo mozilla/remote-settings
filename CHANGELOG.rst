@@ -9,18 +9,13 @@ the version control of each dependency.
 
 **Bug Fixes**
 
-- Rollback #328 and #350, where changesets' ``timestamp`` field would either lead to profuse signature verification in clients or systematic verification errors.
+- Rollback #328 of v31.0.0 and #350, where changesets' ``timestamp`` field would either lead to profuse signature verification in clients or systematic verification errors.
 
 
 31.0.0 (yanked)
 ===============
 
 **Yanked**
-
-**API changes**
-
-- The timestamps of the monitor/changes entries now reflect the timestamp of the collection metadata (eg. last signature) instead of the records timestamp (eg. last publication).
-  This change will **impact both servers and clients significantly**. See the [related ADR](https://github.com/mozilla/remote-settings/blob/main/docs/adr/adr_002_cache_bust.md) for more details.
 
 
 30.1.1 (2022-11-22)
