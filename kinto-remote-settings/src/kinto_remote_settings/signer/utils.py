@@ -1,7 +1,12 @@
 import logging
+import ssl
 from collections import OrderedDict
 from enum import Enum
+from urllib.parse import urlparse
 
+import cryptography
+import cryptography.x509
+from cryptography.hazmat.backends import default_backend as crypto_default_backend
 from kinto.core.events import ACTIONS
 from kinto.core.storage.exceptions import UnicityError
 from kinto.core.utils import build_request, instance_uri, read_env
@@ -276,3 +281,16 @@ def records_diff(left, right):
     # In left, but not in right.
     results.extend(left_by_id.values())
     return results
+
+
+def fetch_cert(url):
+    """
+    Returns the SSL certificate object for the specified `url`.
+    """
+    parsed_url = urlparse(url)
+    host, port = (parsed_url.netloc, parsed_url.port or 443)
+    cert_pem = ssl.get_server_certificate((host, port))
+    cert = cryptography.x509.load_pem_x509_certificate(
+        cert_pem.encode("utf8"), backend=crypto_default_backend()
+    )
+    return cert

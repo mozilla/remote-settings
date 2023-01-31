@@ -131,7 +131,7 @@ With regards to the script:
 
 - MUST read the following environment variables:
 
-  * ``AUTHORIZATION``: Raw authorization header (eg. ``Bearer f8435u30596``, ``Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==``)
+  * ``AUTHORIZATION``: Credentials for building the Authorization Header (eg. ``Bearer f8435u30596``, ``some-user:some-password``)
   * ``SERVER``: Writer server URL (eg. ``https://settings-writer.stage.mozaws.net/v1``)
   * ``ENVIRONMENT`` (optional): ``dev``, ``stage``, ``prod``
   * ``DRY_RUN`` (optional): do not perform operations is set to ``1``
@@ -237,3 +237,27 @@ Then, it synchronizes the collections that match one of the following:
 * it has an instantiated client — ie. a call to ``RemoteSettings("cid")`` was done earlier
 * some local data exists in the internal IndexedDB
 * a JSON dump was shipped in mozilla-central for this collection in ``services/settings/dumps/``
+
+
+How to debug JEXL expressions on records?
+'''''''''''''''''''''''''''''''''''''''''
+
+From a browser console, you can debug JEXL expressions using the raw libraries:
+
+.. code-block:: javascript
+
+    const { FilterExpressions } = ChromeUtils.import(
+      "resource://gre/modules/components-utils/FilterExpressions.jsm"
+    );
+
+    await FilterExpressions.eval("a.b == 1", {a: {b: 1}});
+
+In order to test using a real application context instead of an arbitrary object:
+
+.. code-block:: javascript
+
+    const { ClientEnvironmentBase } = ChromeUtils.import(
+      "resource://gre/modules/components-utils/ClientEnvironment.jsm"
+    );
+
+    await FilterExpressions.eval("env.locale == 'fr-FR'", {env: ClientEnvironmentBase})

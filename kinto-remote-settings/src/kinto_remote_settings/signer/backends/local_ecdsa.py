@@ -22,6 +22,9 @@ class ECDSASigner(SignerBase):
         self.private_key = private_key
         self.public_key = public_key
 
+    def healthcheck(self, request):
+        pass
+
     @classmethod
     def generate_keypair(cls):
         sk = SigningKey.generate(curve=NIST384p)

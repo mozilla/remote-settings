@@ -24,6 +24,8 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
+        settings["record_cache_expires_seconds"] = "180"
+        settings["main.record_cache_expires_seconds"] = "360"
         settings["blocklists.certificates.record_cache_expires_seconds"] = 1234
         return settings
 
@@ -44,7 +46,7 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
 
     def test_last_modified_header_is_set(self):
         resp = self.app.get(self.changeset_uri, headers=self.headers)
-        timestamp = resp.json["timestamp"]
+        timestamp = resp.json["metadata"]["last_modified"]
 
         dt = parsedate_to_datetime(resp.headers["Last-Modified"])
 
@@ -128,6 +130,26 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
     def test_cache_control_headers_are_set(self):
         resp = self.app.get(self.changeset_uri, headers=self.headers)
         assert resp.headers["Cache-Control"] == "max-age=1234"
+
+    def test_cache_control_can_be_set_per_bucket(self):
+        self.create_collection("main", "cfr")
+
+        resp = self.app.get(
+            "/buckets/main/collections/cfr/changeset?_expected=0",
+            headers=self.headers,
+        )
+
+        assert resp.headers["Cache-Control"] == "max-age=360"
+
+    def test_cache_control_has_default_if_not_set_explicit_per_collection(self):
+        self.create_collection("blocklists", "addons")
+
+        resp = self.app.get(
+            "/buckets/blocklists/collections/addons/changeset?_expected=0",
+            headers=self.headers,
+        )
+
+        assert resp.headers["Cache-Control"] == "max-age=180"
 
     def test_raises_original_backend_errors(self):
         backend = self.app.app.registry.storage
