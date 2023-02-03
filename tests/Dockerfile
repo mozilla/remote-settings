@@ -1,22 +1,10 @@
-# syntax=docker/dockerfile:1.3
-
-FROM python:3.11.1-slim-bullseye@sha256:3d260508893319ee271989fe16c0ddf13c710ec5ce1d0708cda7bc30da8389e7
-
-WORKDIR /app
+FROM python:3.11.1-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH="/app:$PYTHONPATH"
 
-USER root
+WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget curl build-essential
-
-# Remove Rust installation when https://github.com/mozilla-services/python-canonicaljson-rs/issues/3 is fixed.
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
-ENV PATH="/root/.cargo/bin:$PATH"
-
-RUN python -m pip install --upgrade pip
 COPY requirements.txt .
 RUN python -m pip install --no-cache-dir -r requirements.txt
 

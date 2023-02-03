@@ -1,66 +1,44 @@
-# syntax=docker/dockerfile:1.3
-
-FROM python:3.11.1-bullseye@sha256:73e59efbf2b98694e53ddaccd16d62218b614e6970c7225d30bf9e7d1bf40076 as compile
-
-# Get rustup https://rustup.rs/ for canonicaljson-rs, because no wheels are published for arm.
-# See https://github.com/mozilla-services/python-canonicaljson-rs/issues/3
-# Use Rust minimal profile https://rust-lang.github.io/rustup/concepts/profiles.html
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
-# Add cargo to PATH
-ENV PATH="/root/.cargo/bin:$PATH"
+FROM python:3.11.1 as compile
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN python -m pip install --upgrade pip
-
+WORKDIR /opt
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt && \
+    uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 
-# Python packages
-RUN python -m pip install --no-cache-dir -r requirements.txt
-RUN uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
+FROM python:3.11.1-slim as server
 
+ENV KINTO_INI=config/local.ini \
+    PATH="/opt/venv/bin:$PATH" \
+    PORT=8888 \
+    PYTHONUNBUFFERED=1 \
+    VIRTUAL_ENV=/opt/venv
 
-FROM python:3.11.1-bullseye@sha256:73e59efbf2b98694e53ddaccd16d62218b614e6970c7225d30bf9e7d1bf40076 as server
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY /bin/update_and_install_system_packages.sh /opt
+RUN /opt/update_and_install_system_packages.sh \
     # Needed for UWSGI
     libxml2-dev \
     # Needed for psycopg2
     libpq-dev
 
-WORKDIR /app
-
-ENV VIRTUAL_ENV=/opt/venv
+RUN groupadd --gid 10001 app && \
+    useradd -g app --uid 10001 --create-home app
 
 COPY --from=compile $VIRTUAL_ENV $VIRTUAL_ENV
-COPY --from=compile /dogstatsd_plugin.so .
 
-ENV PYTHONUNBUFFERED=1 \
-    PORT=8888 \
-    KINTO_INI=config/local.ini \
-    PATH="$VIRTUAL_ENV/bin:$PATH"
-
-# add a non-privileged user for installing and running
-# the application
-RUN chown 10001:10001 /app && \
-    groupadd --gid 10001 app && \
-    useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
-
-COPY . .
-RUN python -m pip install ./kinto-remote-settings
+WORKDIR /app
+COPY --chown=app:app . .
+COPY --from=compile /opt/dogstatsd_plugin.so .
+RUN pip install --no-cache-dir ./kinto-remote-settings
 
 # Generate local key pair to simplify running without Autograph out of the box (see `config/testing.ini`)
 RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.pem /app/ecdsa.public.pem
 
-# Drop down to unprivileged user
-RUN chown -R 10001:10001 /app
-
-USER 10001
-
 EXPOSE $PORT
-
+USER app
 # Run uwsgi by default
 ENTRYPOINT ["/bin/bash", "/app/bin/run.sh"]
-CMD uwsgi --http :${PORT} --ini ${KINTO_INI}
+CMD ["sh", "-c", "uwsgi --http :${PORT} --ini ${KINTO_INI}"]
