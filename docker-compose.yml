@@ -64,7 +64,8 @@ services:
 
   tests:
     build:
-      context: tests
+      context: .
+      dockerfile: tests/Dockerfile
     image: remotesettings/tests
     depends_on:
       - web
