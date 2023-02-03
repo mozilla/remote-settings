@@ -191,9 +191,9 @@ async def flush_default_collection(
     editor_auth: Auth,
 ):
     yield
-    setup_client = make_client(editor_auth)
+    editor_client = make_client(editor_auth)
     try:
-        await setup_client.delete_records()
+        await editor_client.delete_records()
     except KintoException as e:
         # in the case where a user doesn't have permissions to delete
         print(e)
