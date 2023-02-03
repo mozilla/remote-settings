@@ -9,6 +9,7 @@ services:
       - rs-db-data:/var/lib/postgresql/data
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
+      PGUSER: postgres
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 1s
