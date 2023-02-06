@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# Script to update and install system package. 
+# Takes list of packages to be installed as input.
+
+
 set -euo pipefail
 # Tell apt-get we're never going to be able to give manual 
 # feedback:
