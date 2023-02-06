@@ -43,7 +43,7 @@ services:
 
   web:
     build:
-      context: .
+      dockerfile: RemoteSettings.Dockerfile
     image: remotesettings/server
     depends_on:
       - db
@@ -64,8 +64,7 @@ services:
 
   tests:
     build:
-      context: .
-      dockerfile: tests/Dockerfile
+      dockerfile: IntegrationTests.Dockerfile
     image: remotesettings/tests
     depends_on:
       - web
