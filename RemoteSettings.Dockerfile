@@ -24,12 +24,13 @@ RUN /opt/update_and_install_system_packages.sh \
     # Needed for psycopg2
     libpq-dev
 
-RUN groupadd --gid 10001 app && \
-    useradd -g app --uid 10001 --create-home app
+
 
 COPY --from=compile $VIRTUAL_ENV $VIRTUAL_ENV
 
 WORKDIR /app
+RUN groupadd --gid 10001 app && \
+    useradd -g app --uid 10001 --home-dir /app app
 COPY --chown=app:app . .
 COPY --from=compile /opt/dogstatsd_plugin.so .
 RUN pip install --no-cache-dir ./kinto-remote-settings
