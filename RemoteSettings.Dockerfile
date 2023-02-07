@@ -29,8 +29,9 @@ RUN /opt/update_and_install_system_packages.sh \
 COPY --from=compile $VIRTUAL_ENV $VIRTUAL_ENV
 
 WORKDIR /app
-RUN groupadd --gid 10001 app && \
-    useradd -g app --uid 10001 --home-dir /app app
+RUN chown 10001:10001 /app && \
+    groupadd --gid 10001 app && \
+    useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
 COPY --chown=app:app . .
 COPY --from=compile /opt/dogstatsd_plugin.so .
 RUN pip install --no-cache-dir ./kinto-remote-settings
