@@ -65,7 +65,7 @@ class ChangesModel(object):
         if self.__entries is None:
             self.__entries = {}
 
-            for (bucket_id, collection_id) in monitored_collections(
+            for bucket_id, collection_id in monitored_collections(
                 self.request.registry
             ):
                 collection_uri = core_utils.instance_uri(
