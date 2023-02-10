@@ -44,8 +44,8 @@ lint: $(INSTALL_STAMP)
 	$(VENV)/bin/flake8 kinto-remote-settings tests
 
 test: $(INSTALL_STAMP)
-	PYTHONPATH=. $(VENV)/bin/coverage run --rcfile pyproject.toml -m pytest kinto-remote-settings
-	$(VENV)/bin/coverage report --rcfile pyproject.toml -m --fail-under 99
+	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings
+	$(VENV)/bin/coverage report -m --fail-under 99
 
 integration-test:
 	mkdir -p -m 777 $(VOLUMES_FOLDERS)
