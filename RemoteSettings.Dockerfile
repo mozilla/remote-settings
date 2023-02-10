@@ -1,4 +1,4 @@
-FROM python:3.11.1 as compile
+FROM python:3.11.2 as compile
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && \
     uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 
-FROM python:3.11.1-slim as server
+FROM python:3.11.2-slim as server
 
 ENV KINTO_INI=config/local.ini \
     PATH="/opt/venv/bin:$PATH" \
