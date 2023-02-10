@@ -67,7 +67,7 @@ class AutographSigner(SignerBase):
         )
 
     def sign(self, payload):
-        if isinstance(payload, str):  # pragma: nocover
+        if isinstance(payload, str):  # pragma: no cover
             payload = payload.encode("utf-8")
 
         b64_payload = base64.b64encode(payload)
