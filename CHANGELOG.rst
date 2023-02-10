@@ -4,6 +4,15 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
+
+31.0.2 (unreleased)
+===================
+
+**Internal Changes**
+
+- Enable code coverage report in ``make test``
+
+
 31.0.1 (2023-01-12)
 ===================
 

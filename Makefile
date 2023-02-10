@@ -8,6 +8,7 @@ VOLUMES_FOLDERS := autograph-certs mail
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d | xargs rm -rf
+	rm -rf .coverage
 
 distclean: clean
 	rm -rf *.egg *.egg-info/ dist/ build/
@@ -43,7 +44,8 @@ lint: $(INSTALL_STAMP)
 	$(VENV)/bin/flake8 kinto-remote-settings tests
 
 test: $(INSTALL_STAMP)
-	PYTHONPATH=. $(VENV)/bin/pytest kinto-remote-settings
+	PYTHONPATH=. $(VENV)/bin/coverage run --rcfile pyproject.toml -m pytest kinto-remote-settings
+	$(VENV)/bin/coverage report --rcfile pyproject.toml -m --fail-under 99
 
 integration-test:
 	mkdir -p -m 777 $(VOLUMES_FOLDERS)
