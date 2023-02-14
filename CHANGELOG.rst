@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-31.0.1 (2023-02-13)
+31.0.1 (2023-02-14)
 ===================
 
 **Bug Fixes**
