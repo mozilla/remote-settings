@@ -24,8 +24,6 @@ RUN /opt/update_and_install_system_packages.sh \
     # Needed for psycopg2
     libpq-dev
 
-
-
 COPY --from=compile $VIRTUAL_ENV $VIRTUAL_ENV
 
 WORKDIR /app
@@ -41,6 +39,6 @@ RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.p
 
 EXPOSE $PORT
 USER app
-# Run uwsgi by default
 ENTRYPOINT ["/bin/bash", "/app/bin/run.sh"]
-CMD ["sh", "-c", "uwsgi --http :${PORT} --ini ${KINTO_INI}"]
+# Run uwsgi by default
+CMD ["start"]
