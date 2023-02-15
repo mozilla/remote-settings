@@ -225,8 +225,8 @@ jobs:
       - run:
           name: Load containers
           command: |
-            docker load -i /tmp/workspace/rs_server_container.tar.gz
-            docker load -i /tmp/workspace/rs_test_container.tar.gz
+            docker load -i /tmp/workspace/rs_production_container.tar.gz
+            docker load -i /tmp/workspace/rs_test_runner_container.tar.gz
       - run:
           name: Browser Test
           command: make browser-test
