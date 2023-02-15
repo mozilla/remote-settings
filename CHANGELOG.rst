@@ -4,12 +4,19 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-31.0.1 (2023-01-12)
+
+31.0.1 (2023-02-14)
 ===================
 
 **Bug Fixes**
 
 - Rollback #328 of v31.0.0 and #350, where changesets' ``timestamp`` field would either lead to profuse signature verification in clients or systematic verification errors.
+
+**Internal Changes**
+
+- Enable code coverage report in ``make test``
+- Remove Rust toolchains, make other Docker / docker compose changes (#362, #369, #371)
+- Bump python from 3.11.1-slim to 3.11.2-slim (#373)
 
 
 31.0.0 (yanked)

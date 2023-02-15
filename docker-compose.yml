@@ -9,6 +9,7 @@ services:
       - rs-db-data:/var/lib/postgresql/data
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
+      PGUSER: postgres
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 1s
@@ -42,7 +43,7 @@ services:
 
   web:
     build:
-      context: .
+      dockerfile: RemoteSettings.Dockerfile
     image: remotesettings/server
     depends_on:
       - db
@@ -63,7 +64,7 @@ services:
 
   tests:
     build:
-      context: tests
+      dockerfile: IntegrationTests.Dockerfile
     image: remotesettings/tests
     depends_on:
       - web

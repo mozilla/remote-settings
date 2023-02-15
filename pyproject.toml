@@ -11,3 +11,29 @@ src_paths = ["kinto-remote-settings", "tests"]
 addopts = "-ra --showlocals --tb=native"
 sensitive_url = "https://settings-writer.prod.mozaws.net/v1/admin"
 asyncio_mode = "strict"
+
+[tool.coverage]
+# https://github.com/nedbat/coveragepy
+    [tool.coverage.run]
+    omit = [
+        '*/.local/*',
+        '/usr/*',
+        '*/.venv/*',
+        '*/.tox/*',
+        '*/virtualenvs/*',
+    ]
+
+    [tool.coverage.report]
+
+    exclude_lines = [
+        "# noqa",
+        "raise NotImplementedError",
+        "pragma: no cover",
+        "def __repr__",
+        "if .debug:",
+        "raise NotImplementedError",
+        "if __name__ == .__main__.:",
+        "logger.",
+        "from",
+        "import"
+    ]

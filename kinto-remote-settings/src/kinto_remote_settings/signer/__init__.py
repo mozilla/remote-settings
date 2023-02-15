@@ -266,7 +266,7 @@ def includeme(config):
         config.add_subscriber(send_notification, ReviewRequested)
         config.add_subscriber(send_notification, ReviewApproved)
         config.add_subscriber(send_notification, ReviewRejected)
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pass
 
     # Automatically create resources on startup if option is enabled.

@@ -468,7 +468,7 @@ class RefreshSignatureTest(SignoffWebTest, unittest.TestCase):
 
 
 class TrackingFieldsTest(SignoffWebTest, unittest.TestCase):
-    def last_edit_by_and_date_are_tracked(self):
+    def test_last_edit_by_and_date_are_tracked(self):
         self.app.post_json(
             self.source_collection + "/records",
             {"data": {"title": "Hallo"}},
