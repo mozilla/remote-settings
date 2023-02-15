@@ -1,12 +1,15 @@
 version: "3"
 
 volumes:
-  rs-db-data:
+  db-data:
+  debug-mail:
+  autograph-certs:
+  attachments:
 services:
   db:
     image: postgres:12
     volumes:
-      - rs-db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
       PGUSER: postgres
@@ -21,13 +24,14 @@ services:
 
   autograph:
     image: mozilla/autograph
+    user: root
     volumes:
-      - $PWD/autograph-certs:/tmp/autograph
+      - autograph-certs:/tmp/autograph
 
   certchains:
     image: httpd:2
     volumes:
-      - $PWD/autograph-certs:/usr/local/apache2/htdocs/
+      - autograph-certs:/usr/local/apache2/htdocs/
     depends_on:
       - autograph
     ports:
@@ -45,7 +49,8 @@ services:
   web:
     build:
       dockerfile: RemoteSettings.Dockerfile
-    image: remotesettings/server
+      target: local
+    image: remotesettings/local
     depends_on:
       - db
       - memcached
@@ -60,8 +65,10 @@ services:
     ports:
       - 8888:8888
     volumes:
-      - $PWD:/app
-    command: uwsgistart
+      - ./config:/app/config
+      - ./kinto-remote-settings:/app/kinto-remote-settings
+      - debug-mail:/app/mail
+      - attachments:/tmp/attachments
 
   tests:
     build:
@@ -78,6 +85,6 @@ services:
       - SELENIUM_PORT=4444
       - MAIL_DIR=/var/debug-mail/
     volumes:
-      - $PWD/tests:/app
-      - $PWD/mail:/var/debug-mail/
+      - ./tests:/app
+      - debug-mail:/var/debug-mail/
 

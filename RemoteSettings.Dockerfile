@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && \
     uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 
-FROM python:3.11.2-slim as server
+FROM python:3.11.2-slim as production
 
 ENV KINTO_INI=config/local.ini \
     PATH="/opt/venv/bin:$PATH" \
@@ -42,3 +42,7 @@ USER app
 ENTRYPOINT ["./bin/run.sh"]
 # Run uwsgi by default
 CMD ["start"]
+
+FROM production as local
+# create directories for volume mounts used in integration tests / local development
+RUN mkdir -m 777 /app/mail && mkdir -m 777 /tmp/attachments
