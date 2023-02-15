@@ -39,6 +39,6 @@ RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.p
 
 EXPOSE $PORT
 USER app
-ENTRYPOINT ["/bin/bash", "/app/bin/run.sh"]
+ENTRYPOINT ["./bin/run.sh"]
 # Run uwsgi by default
 CMD ["start"]
