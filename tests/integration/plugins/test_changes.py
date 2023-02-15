@@ -28,7 +28,7 @@ async def test_changes_plugin(
     assert len(test_collection_records) == 2
 
     editor_client = make_client(editor_auth)
-    resource = await signed_resource(editor_client)
+    (await signed_resource(editor_client))
     assert "bucket" in test_collection_records[0]
 
     initial_last_modified = test_collection_records[0]["last_modified"]
