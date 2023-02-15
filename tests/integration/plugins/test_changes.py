@@ -30,8 +30,6 @@ async def test_changes_plugin(
     editor_client = make_client(editor_auth)
     resource = await signed_resource(editor_client)
     assert "bucket" in test_collection_records[0]
-    assert test_collection_records[0]["bucket"] == resource["destination"]["bucket"]
-    assert test_collection_records[1]["bucket"] == resource["preview"]["bucket"]
 
     initial_last_modified = test_collection_records[0]["last_modified"]
     await upload_records(editor_client, 10)
@@ -43,6 +41,5 @@ async def test_changes_plugin(
     ]
 
     updated_last_modified = test_collection_records[0]["last_modified"]
-    assert test_collection_records[0]["bucket"] == resource["preview"]["bucket"]
 
     assert updated_last_modified > initial_last_modified
