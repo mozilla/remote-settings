@@ -171,7 +171,7 @@ jobs:
           command: |
             docker save -o /tmp/workspace/rs_local_container.tar.gz remotesettings/local
             docker save -o /tmp/workspace/rs_production_container.tar.gz remotesettings/server
-            docker save -o /tmp/workspace/rs_test_runner_container.tar.gz remotesettings/test
+            docker save -o /tmp/workspace/rs_test_runner_container.tar.gz remotesettings/tests
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
