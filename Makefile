@@ -52,7 +52,7 @@ browser-test:
 
 build:
 	docker build --file RemoteSettings.Dockerfile --target production --tag remotesettings/server .
-	docker-compose build
+	docker-compose --profile integration-test build
 
 build-db:
 ifdef PSQL_INSTALLED
