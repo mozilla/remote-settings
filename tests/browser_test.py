@@ -11,6 +11,7 @@ from .conftest import Auth, ClientFactory, signed_resource
 pytestmark = pytest.mark.asyncio
 
 
+@pytest.mark.nondestructive
 async def test_review_signoff(
     base_url: str,
     selenium: WebDriver,
