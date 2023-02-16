@@ -54,12 +54,12 @@ async def test_history_plugin(
     assert event_wip["target"]["data"]["status"] == "work-in-progress"
 
     assert event_to_review["action"] == "update"
-    assert event_to_review["user_id"] == "account:editor"
+    assert event_to_review["user_id"] == f"account:{editor_auth[0]}"
     assert event_to_review["target"]["data"]["status"] == "to-review"
 
     assert event_review_attrs["action"] == "update"
     assert "kinto-signer" in event_review_attrs["user_id"]
     assert (
         event_review_attrs["target"]["data"]["last_review_request_by"]
-        == "account:editor"
+        == f"account:{editor_auth[0]}"
     )

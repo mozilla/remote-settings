@@ -16,10 +16,6 @@ async def test_email_plugin(
     mail_dir: str,
     skip_server_setup: bool,
 ):
-    if not mail_dir:
-        # Skip test if mail dir is empty (eg. testing remote server)
-        return
-
     mail_dir = os.path.abspath(mail_dir)
     existing_email_files = set(os.listdir(mail_dir))
     print(f"Read emails from {mail_dir} ({len(existing_email_files)} file(s) present)")
