@@ -47,4 +47,4 @@ CMD ["start"]
 
 FROM production as local
 # create directories for volume mounts used in integration tests / local development
-RUN mkdir -m 777 /app/mail && mkdir -m 777 /tmp/attachments
+RUN mkdir -p -m 777 /app/mail && mkdir -p -m 777 /tmp/attachments
