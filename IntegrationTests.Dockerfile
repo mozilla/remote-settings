@@ -13,6 +13,6 @@ COPY tests/requirements.txt /opt
 RUN pip install --no-cache-dir -r /opt/requirements.txt
 
 WORKDIR /app
-COPY tests .
-
-ENTRYPOINT ["/bin/bash", "/app/run.sh"]
+COPY tests/ pyproject.toml ./
+# ./tests/run.sh, not ./bin/run.sh
+ENTRYPOINT ["/app/run.sh"]

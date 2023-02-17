@@ -5,6 +5,15 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+31.0.2.dev (unreleased)
+===================
+
+**Internal Changes**
+
+- Improve Docker volume management
+- Add Docker compose profile support for test services
+- Move ``kinto-remote-settings`` plugin build step to ``compile`` stage of Dockerfile
+
 31.0.1 (2023-02-14)
 ===================
 

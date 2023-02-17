@@ -126,8 +126,8 @@ jobs:
       - run:
           name: Load container
           command: |
-            docker load -i /tmp/workspace/rs_server_container.tar.gz
-            docker load -i /tmp/workspace/rs_test_container.tar.gz
+            docker load -i /tmp/workspace/rs_production_container.tar.gz
+            docker load -i /tmp/workspace/rs_test_runner_container.tar.gz
       - run:
           name: Push to Dockerhub
           command: |
@@ -169,13 +169,15 @@ jobs:
       - run:
           name: Save containers
           command: |
-            docker save -o /tmp/workspace/rs_server_container.tar.gz remotesettings/server
-            docker save -o /tmp/workspace/rs_test_container.tar.gz remotesettings/tests
+            docker save -o /tmp/workspace/rs_local_container.tar.gz remotesettings/local
+            docker save -o /tmp/workspace/rs_production_container.tar.gz remotesettings/server
+            docker save -o /tmp/workspace/rs_test_runner_container.tar.gz remotesettings/tests
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
-            - rs_server_container.tar.gz
-            - rs_test_container.tar.gz
+            - rs_local_container.tar.gz
+            - rs_production_container.tar.gz
+            - rs_test_runner_container.tar.gz
 
   integration_test:
     machine:
@@ -197,8 +199,8 @@ jobs:
       - run:
           name: Load containers
           command: |
-            docker load -i /tmp/workspace/rs_server_container.tar.gz
-            docker load -i /tmp/workspace/rs_test_container.tar.gz
+            docker load -i /tmp/workspace/rs_local_container.tar.gz
+            docker load -i /tmp/workspace/rs_test_runner_container.tar.gz
       - run:
           name: Integration Test
           command: make integration-test
@@ -223,8 +225,8 @@ jobs:
       - run:
           name: Load containers
           command: |
-            docker load -i /tmp/workspace/rs_server_container.tar.gz
-            docker load -i /tmp/workspace/rs_test_container.tar.gz
+            docker load -i /tmp/workspace/rs_production_container.tar.gz
+            docker load -i /tmp/workspace/rs_test_runner_container.tar.gz
       - run:
           name: Browser Test
           command: make browser-test

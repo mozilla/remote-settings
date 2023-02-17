@@ -3,7 +3,6 @@ INSTALL_STAMP := $(VENV)/.install.stamp
 DOC_STAMP := $(VENV)/.doc.install.stamp
 SPHINX_BUILDDIR = docs/_build
 PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
-VOLUMES_FOLDERS := autograph-certs mail
 
 clean:
 	find . -name '*.pyc' -delete
@@ -18,11 +17,7 @@ maintainer-clean: distclean
 	rm -rf .pytest_cache
 	rm -rf tests/.pytest_cache
 	find . -name '*.orig' -delete
-	docker-compose stop
-	docker-compose rm -f
-	RS_DB_DATA_VOL=$$(docker volume ls -q -f name="rs-db-data") ;\
-	[[ -n "$$RS_DB_DATA_VOL" ]] && docker volume rm -f $$RS_DB_DATA_VOL ;\
-	rm -rf $(VOLUMES_FOLDERS)
+	docker-compose down --remove-orphans --volumes --rmi all
 
 $(VENV)/bin/python:
 	python3 -m venv $(VENV)
@@ -48,17 +43,16 @@ test: $(INSTALL_STAMP)
 	$(VENV)/bin/coverage report -m --fail-under 99
 
 integration-test:
-	mkdir -p -m 777 $(VOLUMES_FOLDERS)
 	docker-compose run --rm web migrate
 	docker-compose run --rm tests integration-test
 
 browser-test:
-	mkdir -p -m 777 $(VOLUMES_FOLDERS)
 	docker-compose run --rm web migrate
 	docker-compose run --rm tests browser-test
 
 build:
-	docker-compose build
+	docker build --file RemoteSettings.Dockerfile --target production --tag remotesettings/server .
+	docker-compose --profile integration-test build
 
 build-db:
 ifdef PSQL_INSTALLED
@@ -73,6 +67,7 @@ endif
 
 start:
 	make build
+	docker-compose run --rm web migrate
 	docker-compose up
 
 stop:
