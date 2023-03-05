@@ -426,9 +426,9 @@ jsonschema==4.16.0 \
     --hash=sha256:165059f076eff6971bae5b742fc029a7b4ef3f9bcf04c14e4776a7605de14b23 \
     --hash=sha256:9e74b8f9738d6a946d70705dc692b74b5429cd0960d58e79ffecfc43b2221eb9
     # via kinto
-kinto[memcached,monitoring,postgresql]==15.0.0 \
-    --hash=sha256:67d101dc81d9abb49d3cfdcc82ee1b81f2bc4e869da4e92d7e6b6dc44b1bd70f \
-    --hash=sha256:c1710d4c994d814044c754b58c56453132438e2c31b382cedb4b5126a382f980
+kinto[memcached,monitoring,postgresql]==15.1.1 \
+    --hash=sha256:08c2fd809ca4549a1dfe30dcd76bdecbe3769b6270586aa1a53c061a430dbd8c \
+    --hash=sha256:7470da47393cc70005f27de016a8b71fa219eb1a4f12e321d4c701a8d3a222b8
     # via
     #   -r requirements.in
     #   kinto-attachment
@@ -692,7 +692,7 @@ rsa==4.9 \
     --hash=sha256:90260d9058e514786967344d0ef75fa8727eed8a7d2e43ce9f4bcf1b536174f7 \
     --hash=sha256:e38464a49c6c85d7f1351b0126661487a7e0a14a50f1675ec50eb34d4f20ef21
     # via google-auth
-sentry-sdk==1.9.10 \
+sentry-sdk[sqlalchemy]==1.9.10 \
     --hash=sha256:2469240f6190aaebcb453033519eae69cfe8cc602065b4667e18ee14fc1e35dc \
     --hash=sha256:4fbace9a763285b608c06f01a807b51acb35f6059da6a01236654e08b0ee81ff
     # via kinto
@@ -750,6 +750,7 @@ sqlalchemy==1.4.42 \
     --hash=sha256:fdb94a3d1ba77ff2ef11912192c066f01e68416f554c194d769391638c8ad09a
     # via
     #   kinto
+    #   sentry-sdk
     #   zope-sqlalchemy
 statsd==3.3.0 \
     --hash=sha256:c610fb80347fca0ef62666d241bce64184bd7cc1efe582f9690e045c25535eaa \
