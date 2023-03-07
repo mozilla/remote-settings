@@ -121,8 +121,8 @@ available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
 
 - There should be two users available
 
-  - one user should be added to the ``editor`` group of the available collection
-  - the other should be added to the ``reviewer`` group of the available collection
+  - one user should be added to the ``editors`` group of the available collection
+  - the other should be added to the ``reviewers`` group of the available collection
   - the credentials of these users should be passed in the ``EDITOR_AUTH`` and
     ``REVIEWER_AUTH`` config options respectively
 
