@@ -9,7 +9,7 @@ src_paths = ["kinto-remote-settings", "tests"]
 # --showlocals: show local variables in tracebacks
 # --tb=native: traceback printing with Python standard library formatting
 addopts = "-ra --showlocals --tb=native"
-sensitive_url = "https://settings-writer.prod.mozaws.net/v1/admin"
+sensitive_url = ".mozaws.net"
 asyncio_mode = "strict"
 
 [tool.coverage]
