@@ -74,6 +74,20 @@ Redirects are cached by default. Set to ``-1`` to disable, or ``0`` to cache for
     kinto.changes.since_max_age_redirect_ttl_seconds = 86400
 
 
+**Signer certificate health check**
+
+The validity of the SSL certificate of the signer is verified in the ``/__heartbeat__`` endpoint.
+By default, the heartbeat will fail if the certificate expires in less than 5% of its lifespan (bounded between 10 and 30 days).
+
+It is possible to adjust these parameters using the following settings:
+
+.. code-block :: ini
+
+    kinto.signer.heartbeat_certificate_percentage_remaining_validity = 5
+    kinto.signer.heartbeat_certificate_min_remaining_days = 10
+    kinto.signer.heartbeat_certificate_max_remaining_days = 30
+
+
 Endpoints
 =========
 

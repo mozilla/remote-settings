@@ -65,7 +65,7 @@ class ChangesModel(object):
         if self.__entries is None:
             self.__entries = {}
 
-            for (bucket_id, collection_id) in monitored_collections(
+            for bucket_id, collection_id in monitored_collections(
                 self.request.registry
             ):
                 collection_uri = core_utils.instance_uri(
@@ -107,6 +107,12 @@ class AnonymousRoute(RouteFactory):
     factory=AnonymousRoute,
 )
 class Changes(resource.Resource):
+    """
+    This Kinto **resource** gets hit by old clients (Firefox <88)
+    See https://bugzilla.mozilla.org/show_bug.cgi?id=1666511
+
+    Recent clients reach the `/changeset` endpoints (see Kinto **service** below).
+    """
 
     schema = ChangesSchema
 
@@ -118,7 +124,15 @@ class Changes(resource.Resource):
         super(Changes, self).__init__(request, context)
 
     def plural_get(self):
-        result = super().plural_get()
+        try:
+            result = super().plural_get()
+        except httpexceptions.HTTPNotModified:
+            # Since the Google Cloud Platform CDN does not cache ``304 Not Modified``
+            # responses, we return a ``200 Ok`` with an empty list of changes to the clients.
+            # The two are strictly equivalent in the client implementation:
+            # https://searchfox.org/mozilla-esr78/rev/3c633b1a0994f380032/services/settings/Utils.jsm#170-208
+            result = self.postprocess([])
+
         _handle_cache_expires(self.request, MONITOR_BUCKET, CHANGES_COLLECTION)
         return result
 
@@ -136,6 +150,12 @@ def _handle_cache_expires(request, bid, cid):
 
     if cache_expires is not None:
         request.response.cache_expires(seconds=int(cache_expires))
+
+    elif bucket_expires := settings.get(f"{bid}.record_cache_expires_seconds"):
+        request.response.cache_expires(seconds=int(bucket_expires))
+
+    elif global_expires := settings.get("record_cache_expires_seconds"):
+        request.response.cache_expires(seconds=int(global_expires))
 
 
 def _handle_old_since_redirect(request):
@@ -287,7 +307,10 @@ def get_changeset(request):
 
         model = ChangesModel(request)
         metadata = {}
-        timestamp = model.timestamp()
+        records_timestamp = model.timestamp()
+        last_modified = (
+            records_timestamp  # The collection 'monitor/changes' is virtual.
+        )
         changes = model.get_objects(
             filters=filters, limit=limit, include_deleted=include_deleted
         )
@@ -331,23 +354,30 @@ def get_changeset(request):
             include_deleted=include_deleted,
         )
         # Fetch current collection timestamp.
-        timestamp = storage.resource_timestamp(
+        records_timestamp = storage.resource_timestamp(
             resource_name="record", parent_id=collection_uri
         )
+        # We use the timestamp from the collection metadata, because we want it to
+        # be bumped when the signature is refreshed. Indeed, the CDN will revalidate
+        # the origin's response, only if the `Last-Modified` header has changed.
+        # Side note: We are sure that the collection timestamp is always higher
+        # than the records timestamp, because we have fields like `last_edit_date`
+        # in the collection metadata that are automatically bumped when records change.
+        last_modified = metadata["last_modified"]
 
         # Do not serve inconsistent data.
-        if before != timestamp:  # pragma: no cover
+        if before != records_timestamp:  # pragma: no cover
             raise storage_exceptions.IntegrityError(message="Inconsistent data. Retry.")
 
     # Cache control.
     _handle_cache_expires(request, bid, cid)
 
     # Set Last-Modified response header (Pyramid takes care of converting).
-    request.response.last_modified = timestamp / 1000.0
+    request.response.last_modified = last_modified / 1000.0
 
     data = {
         "metadata": metadata,
-        "timestamp": timestamp,
+        "timestamp": records_timestamp,
         "changes": changes,
     }
     return data

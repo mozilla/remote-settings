@@ -25,6 +25,7 @@ DEFAULT_COLLECTION = os.getenv("COLLECTION", "product-integrity")
 DEFAULT_MAIL_DIR = os.getenv("MAIL_DIR", "mail")
 DEFAULT_KEEP_EXISTING = asbool(os.getenv("KEEP_EXISTING", "false"))
 DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", "false"))
+DEFAULT_TO_REVIEW_ENABLED = asbool(os.getenv("TO_REVIEW_ENABLED", "true"))
 
 Auth = Tuple[str, str]
 ClientFactory = Callable[[Auth], AsyncClient]
@@ -88,6 +89,12 @@ def pytest_addoption(parser):
         help="Skip server setup operations. Should be set to `true` for remote "
         "server integration tests",
     )
+    parser.addoption(
+        "--to-review-enabled",
+        action="store_true",
+        default=DEFAULT_TO_REVIEW_ENABLED,
+        help="Include tests and related to the to-review config option",
+    )
 
 
 @pytest.fixture(scope="session")
@@ -122,7 +129,10 @@ def source_collection(request) -> str:
 
 @pytest.fixture(scope="session")
 def mail_dir(request) -> str:
-    return request.config.getoption("--mail-dir")
+    directory = request.config.getoption("--mail-dir")
+    if not directory:
+        pytest.skip("MAIL_DIR set to empty string. Skipping email test.")
+    return directory
 
 
 @pytest.fixture(scope="session")
@@ -133,6 +143,11 @@ def keep_existing(request) -> bool:
 @pytest.fixture(scope="session")
 def skip_server_setup(request) -> bool:
     return request.config.getoption("--skip-server-setup")
+
+
+@pytest.fixture(scope="session")
+def to_review_enabled(request) -> bool:
+    return request.config.getoption("--to-review-enabled")
 
 
 @pytest.fixture
@@ -176,13 +191,12 @@ def make_client(
 @pytest_asyncio.fixture(autouse=True)
 async def flush_default_collection(
     make_client: ClientFactory,
-    setup_auth: Auth,
+    editor_auth: Auth,
 ):
     yield
-    setup_client = make_client(setup_auth)
-
+    editor_client = make_client(editor_auth)
     try:
-        await setup_client.delete_records()
+        await editor_client.delete_records()
     except KintoException as e:
         # in the case where a user doesn't have permissions to delete
         print(e)

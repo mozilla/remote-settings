@@ -22,6 +22,9 @@ class ECDSASigner(SignerBase):
         self.private_key = private_key
         self.public_key = public_key
 
+    def healthcheck(self, request):
+        pass
+
     @classmethod
     def generate_keypair(cls):
         sk = SigningKey.generate(curve=NIST384p)
@@ -46,7 +49,7 @@ class ECDSASigner(SignerBase):
                 return VerifyingKey.from_pem(key_file.read())
 
     def sign(self, payload):
-        if isinstance(payload, str):  # pragma: nocover
+        if isinstance(payload, str):  # pragma: no cover
             payload = payload.encode("utf-8")
 
         payload = SIGN_PREFIX + payload
@@ -59,12 +62,12 @@ class ECDSASigner(SignerBase):
         return {"signature": enc_signature, "x5u": x5u, "mode": "p384ecdsa"}
 
     def verify(self, payload, signature_bundle):
-        if isinstance(payload, str):  # pragma: nocover
+        if isinstance(payload, str):  # pragma: no cover
             payload = payload.encode("utf-8")
 
         payload = SIGN_PREFIX + payload
         signature = signature_bundle["signature"]
-        if isinstance(signature, str):  # pragma: nocover
+        if isinstance(signature, str):  # pragma: no cover
             signature = signature.encode("utf-8")
 
         signature_bytes = base64.urlsafe_b64decode(signature)

@@ -3,11 +3,11 @@ INSTALL_STAMP := $(VENV)/.install.stamp
 DOC_STAMP := $(VENV)/.doc.install.stamp
 SPHINX_BUILDDIR = docs/_build
 PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
-VOLUMES_FOLDERS := autograph-certs mail
 
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d | xargs rm -rf
+	rm -rf .coverage
 
 distclean: clean
 	rm -rf *.egg *.egg-info/ dist/ build/
@@ -17,14 +17,10 @@ maintainer-clean: distclean
 	rm -rf .pytest_cache
 	rm -rf tests/.pytest_cache
 	find . -name '*.orig' -delete
-	docker-compose stop
-	docker-compose rm -f
-	RS_DB_DATA_VOL=$$(docker volume ls -q -f name="rs-db-data") ;\
-	[ -z "$$RS_DB_DATA_VOL" ] && docker volume rm -f $$RS_DB_DATA_VOL ;\
-	rm -rf $(VOLUMES_FOLDERS)
+	docker-compose down --remove-orphans --volumes --rmi all
 
 $(VENV)/bin/python:
-	virtualenv $(VENV) --python=python3
+	python3 -m venv $(VENV)
 
 $(INSTALL_STAMP): $(VENV)/bin/python requirements.txt requirements-dev.txt
 	$(VENV)/bin/python -m pip install --upgrade pip wheel setuptools
@@ -43,20 +39,20 @@ lint: $(INSTALL_STAMP)
 	$(VENV)/bin/flake8 kinto-remote-settings tests
 
 test: $(INSTALL_STAMP)
-	PYTHONPATH=. $(VENV)/bin/pytest kinto-remote-settings
+	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings
+	$(VENV)/bin/coverage report -m --fail-under 99
 
 integration-test:
-	mkdir -p -m 777 $(VOLUMES_FOLDERS)
 	docker-compose run --rm web migrate
 	docker-compose run --rm tests integration-test
 
 browser-test:
-	mkdir -p -m 777 $(VOLUMES_FOLDERS)
 	docker-compose run --rm web migrate
 	docker-compose run --rm tests browser-test
 
 build:
-	docker-compose build
+	docker build --file RemoteSettings.Dockerfile --target production --tag remotesettings/server .
+	docker-compose --profile integration-test build
 
 build-db:
 ifdef PSQL_INSTALLED
@@ -71,6 +67,7 @@ endif
 
 start:
 	make build
+	docker-compose run --rm web migrate
 	docker-compose up
 
 stop:

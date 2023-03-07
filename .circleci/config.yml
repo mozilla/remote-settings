@@ -7,14 +7,14 @@
 version: 2.1
 aliases:
   - &restore_deps_cache
-      name: Restoring Python dependency cache
-      key: v2-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+    name: Restoring Python dependency cache
+    key: v3-requirements-{{ checksum ".python.installed" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
   - &save_deps_cache
-      name: Saving Python dependency cache
-      key: v2-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-      paths:
-        - /home/circleci/.cache/pip
+    name: Saving Python dependency cache
+    key: v3-requirements-{{ checksum ".python.installed" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+    paths:
+      - .venv
 
 workflows:
   pr-workflow:
@@ -113,7 +113,7 @@ workflows:
 jobs:
   publish:
     machine:
-      image: ubuntu-2004:202111-01
+      image: ubuntu-2004:2022.04.2
     steps:
       - run:
           name: Install essential packages
@@ -126,8 +126,8 @@ jobs:
       - run:
           name: Load container
           command: |
-            docker load -i /tmp/workspace/rs_server_container.tar.gz
-            docker load -i /tmp/workspace/rs_test_container.tar.gz
+            docker load -i /tmp/workspace/rs_production_container.tar.gz
+            docker load -i /tmp/workspace/rs_test_runner_container.tar.gz
       - run:
           name: Push to Dockerhub
           command: |
@@ -144,7 +144,7 @@ jobs:
 
   build_containers:
     machine:
-      image: ubuntu-2004:202111-01
+      image: ubuntu-2004:2022.04.2
       docker_layer_caching: true
     environment:
       DOCKER_BUILDKIT: 1
@@ -169,17 +169,19 @@ jobs:
       - run:
           name: Save containers
           command: |
-            docker save -o /tmp/workspace/rs_server_container.tar.gz remotesettings/server
-            docker save -o /tmp/workspace/rs_test_container.tar.gz remotesettings/tests
+            docker save -o /tmp/workspace/rs_local_container.tar.gz remotesettings/local
+            docker save -o /tmp/workspace/rs_production_container.tar.gz remotesettings/server
+            docker save -o /tmp/workspace/rs_test_runner_container.tar.gz remotesettings/tests
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
-            - rs_server_container.tar.gz
-            - rs_test_container.tar.gz
+            - rs_local_container.tar.gz
+            - rs_production_container.tar.gz
+            - rs_test_runner_container.tar.gz
 
   integration_test:
     machine:
-      image: ubuntu-2004:202111-01
+      image: ubuntu-2004:2022.04.2
       docker_layer_caching: true
     environment:
       DOCKER_BUILDKIT: 1
@@ -197,15 +199,15 @@ jobs:
       - run:
           name: Load containers
           command: |
-            docker load -i /tmp/workspace/rs_server_container.tar.gz
-            docker load -i /tmp/workspace/rs_test_container.tar.gz
+            docker load -i /tmp/workspace/rs_local_container.tar.gz
+            docker load -i /tmp/workspace/rs_test_runner_container.tar.gz
       - run:
           name: Integration Test
           command: make integration-test
 
   browser_test:
     machine:
-      image: ubuntu-2004:202111-01
+      image: ubuntu-2004:2022.04.2
       docker_layer_caching: true
     environment:
       DOCKER_BUILDKIT: 1
@@ -223,15 +225,15 @@ jobs:
       - run:
           name: Load containers
           command: |
-            docker load -i /tmp/workspace/rs_server_container.tar.gz
-            docker load -i /tmp/workspace/rs_test_container.tar.gz
+            docker load -i /tmp/workspace/rs_production_container.tar.gz
+            docker load -i /tmp/workspace/rs_test_runner_container.tar.gz
       - run:
           name: Browser Test
           command: make browser-test
 
   unit_test:
     docker:
-      - image: cimg/python:3.10
+      - image: python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50
       - image: cimg/postgres:12.8
         environment:
           POSTGRES_DB: testdb
@@ -239,6 +241,9 @@ jobs:
           POSTGRES_PASSWORD: postgres
     steps:
       - checkout
+      - run:
+          name: Python version
+          command: python3 --version > .python.installed
       - restore_cache: *restore_deps_cache
       - run:
           name: Run kinto_remote_settings plugin unit tests
@@ -247,9 +252,12 @@ jobs:
 
   lint_format:
     docker:
-      - image: cimg/python:3.10
+      - image: python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50
     steps:
       - checkout
+      - run:
+          name: Python version
+          command: python3 --version > .python.installed
       - restore_cache: *restore_deps_cache
       - run:
           name: Check linting and formatting
@@ -258,7 +266,7 @@ jobs:
 
   docs_test:
     docker:
-      - image: cimg/python:3.10
+      - image: python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50
     steps:
       - checkout
       - restore_cache:
@@ -271,4 +279,4 @@ jobs:
           name: Saving Python docs dependency cache
           key: v1-requirements-{{ checksum "docs/requirements.txt" }}
           paths:
-            - /home/circleci/.cache/pip
+            - .venv

@@ -4,12 +4,192 @@ CHANGELOG
 This document describes changes between each past release as well as
 the version control of each dependency.
 
-29.0.1 (unreleased)
+
+31.0.2.dev (unreleased)
+===================
+
+**Internal Changes**
+
+- Improve Docker volume management
+- Add Docker compose profile support for test services
+- Move ``kinto-remote-settings`` plugin build step to ``compile`` stage of Dockerfile
+
+31.0.1 (2023-02-14)
+===================
+
+**Bug Fixes**
+
+- Rollback #328 of v31.0.0 and #350, where changesets' ``timestamp`` field would either lead to profuse signature verification in clients or systematic verification errors.
+
+**Internal Changes**
+
+- Enable code coverage report in ``make test``
+- Remove Rust toolchains, make other Docker / docker compose changes (#362, #369, #371)
+- Bump python from 3.11.1-slim to 3.11.2-slim (#373)
+
+
+31.0.0 (yanked)
+===============
+
+**Yanked**
+
+
+30.1.1 (2022-11-22)
+===================
+
+**Bug Fixes**
+
+- Make sure the ``Last-Modified`` response header of the ``/changeset`` endpoint is bumped when the collection metadata has changed. Otherwise, the CDN won't invalidate the cached responses from the origins when the collections signatures are refreshed.
+
+
+30.1.0 (2022-10-25)
+===================
+
+**API changes**
+
+- Return ``200 OK`` to old clients reaching out the ``monitor/changes`` with ``If-None-Match`` request headers, instead of the current ``304 Not Modified`` that aren't cached by the CDN.
+
+
+30.0.0 (2022-10-17)
+===================
+
+**New features**
+
+- Check the Autograph certificate validity from the ``__heartbeat__`` endpoint.
+
+kinto
+-----
+
+**kinto 14.8.0 → 15.0.0**: https://github.com/Kinto/kinto/releases/tag/15.0.0
+
+**Breaking Changes**
+
+- ``raven`` is not installed by default anymore (fixes Kinto/kinto#3054). Sentry reporting is now enabled via settings (or environment variables).
+
+In order to migrate from Kinto <14 to Kinto 15, remove the mention of ``sentry`` and ``raven`` from your logging configuration:
+
+.. code-block:: diff
+
+         # kinto.ini
+
+         [logger_root]
+         level = INFO
+    -    handlers = console, sentry
+    +    handlers = console
+
+         [handlers]
+    -    keys = console, sentry
+    +    keys = console
+
+    -    [handler_sentry]
+    -    class = raven.handlers.logging.SentryHandler
+- ``raven`` is not installed by default anymore (fixes #3054). Sentry reporting is now enable
+d via settings (or environment variables).
+
+In order to migrate from Kinto <14 to Kinto 15, remove the mention of ``sentry`` and ``raven`
+` from your logging configuration:
+
+.. code-block:: diff
+
+         # kinto.ini
+
+         [logger_root]
+         level = INFO
+    -    handlers = console, sentry
+    +    handlers = console
+
+         [handlers]
+    -    keys = console, sentry
+    +    keys = console
+
+    -    [handler_sentry]
+    -    class = raven.handlers.logging.SentryHandler
+    -    args = ('https://<key>:<secret>@app.getsentry.com/<project>',)
+    -    level = WARNING
+    -    formatter = generic
+
+And add the following settings:
+
+.. code-block:: ini
+
+    kinto.sentry_dsn = https://userid@o1.ingest.sentry.io/1
+    kinto.sentry_env = prod
+
+For more information, see `Settings documentation <https://kinto.readthedocs.io/en/stable/con
+figuration/settings.html#authentication>`_.
+
+**Documentation**
+
+- Fix ``/batch`` endpoint documentation about required authentication.
+
+kinto-attachment
+----------------
+
+**kinto-attachment 6.3.0 -> 6.3.1**: https://github.com/Kinto/kinto-attachment/releases/tag/6.3.1
+
+- Remove upper bound for kinto version (#567)
+
+
+29.2.0 (2022-10-04)
+===================
+
+**Bug Fixes**
+
+- Add a default ``Cache-Control`` header value on all ``/changeset`` endpoints using the
+  ``kinto.record_cache_expires_seconds`` setting value.
+
+kinto
+-----
+
+**kinto 14.7.2 → 14.8.0**: https://github.com/Kinto/kinto/releases/tag/14.8.0
+
+**New features**
+
+- Add ``Cache-Control`` response header in root URL endpoint (``/v1/``) when the instance is configured as read-only.
+
+
+29.1.1 (2022-09-21)
+===================
+
+**Bug Fixes**
+
+- Fix version number in ``VERSION`` file (and thus in ``/__version__``)
+
+
+29.1.0 (2022-09-13)
 ===================
 
 **Bug Fixes**
 
 - Prevent users to submit records with floats in nested arrays (fixes #218)
+
+**Documentation**
+
+- Update link to Dev Server admin (#265)
+- Fix ordered list of scheduled jobs entry in support page (#257)
+- Update docs according to latest improvements in the stack (#234)
+- Explicit environments in docs (#233)
+
+**Internal Changes**
+
+- Switch to official Python image in CircleCI jobs that use Docker executor (#238)
+- Install Rust in docker and cache python dependencies by version (#237)
+- Fix circle CI issues (#236)
+- Push integration test container to Dockerhub (#221)
+- Bump python from 3.10.5-bullseye to 3.10.7-bullseye (#276)
+- Bump python from 3.10.5-slim-bullseye to 3.10.7-slim-bullseye in /tests (#277)
+- Bump kinto-http from 10.9.0 to 11.0.0 in /tests (#270)
+- Bump kinto-http from 10.9.0 to 11.0.0 (#271)
+- Bump black from 22.3.0 to 22.8.0 (#273)
+- Bump flake8 from 4.0.1 to 5.0.4 (#262)
+- Update docutils requirement from <0.19 to <0.20 (#246)
+- Bump ecdsa from 0.17.0 to 0.18.0 (#248)
+- Bump pytest-asyncio from 0.18.3 to 0.19.0 in /tests (#251)
+- Bump waitress from 2.1.1 to 2.1.2 (#230)
+- Bump httpie from 3.1.0 to 3.2.1 (#222)
+- Bump httpie from 3.1.0 to 3.2.1 in /tests (#223)
+- Bump kinto attachment from 6.2.0 to 6.3.0 (#214)
+
 
 `kinto-attachment <https://github.com/Kinto/kinto-attachment/compare/6.2.0...6.3.0>`_
 ----------------
@@ -155,12 +335,12 @@ kinto-attachment
   commit 0af75a9efb6ae849ee1a6761349bfaf49dd1c488, and ``kinto-signer`` was
   copied at commit 249db348caec02daafc4c249658b4ca2a89343bd. After they were
   copied, linting and formatting tools were run against them and changes were
-  made for CI checks to pass. 
+  made for CI checks to pass.
 
 - ``kinto_changes`` and ``kinto_signer`` are now combined into one plugin
   ``kinto_remote_settings``. Kinto config files must be changed to register the
-  plugin as such. 
-  
+  plugin as such.
+
   Before:
   .. code-block:: ini
 
@@ -173,21 +353,21 @@ kinto-attachment
 
       kinto.includes = ...
                       kinto_remote_settings
-  
+
   This change does not include the names of config items. For instance,
   ``kinto_changes.http_host`` remains with prefix ``kinto_changes`` and was
   not renamed ``kinto_remote_settings.changes.http_host``.
 
 - In addition to the ``kinto_signer`` and ``kinto_changes`` consolidation as
   described above, ``kinto_remote_settings.signer``'s internal package
-  ``signer`` was renamed to ``backends``. Consider adjusting the 
+  ``signer`` was renamed to ``backends``. Consider adjusting the
   ``kinto.signer.signer_backend`` settings in your configuration
   accordingly.
 
   .. code-block:: ini
 
       kinto.signer.signer_backend = kinto_remote_settings.signer.backends.autograph
-    
+
 - Some collection metadata rely on classes from ``kinto_signer`` to have
   specific qualified names for ``kinto-emailer`` to send emails on signer
   events (review requests, approvals, ...). These names must be changed to

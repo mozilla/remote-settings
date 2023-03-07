@@ -630,7 +630,7 @@ def cleanup_preview_destination(event, resources):
             continue
 
         for k in ("preview", "destination"):
-            if k not in resource:  # pragma: nocover
+            if k not in resource:  # pragma: no cover
                 continue
             bid = resource[k]["bucket"]
             cid = resource[k]["collection"]
