@@ -134,6 +134,7 @@ Running integration tests on the Remote Settings dev server should look somethin
         --env SERVER=https://settings.dev.mozaws.net/v1 \
         --env MAIL_DIR="" \
         --env SKIP_SERVER_SETUP=true \
+        --env TO_REVIEW_ENABLED=false \
         --env EDITOR_AUTH=<credentials available in 1Password> \
         --env REVIEWER_AUTH=<credentials available in 1Password> \
     remotesettings/tests integration-test
