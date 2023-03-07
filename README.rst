@@ -107,24 +107,24 @@ Note that the tests assume that the server has the ``attachments``,
 ``changes``, ``history``, and ``signer`` plugins enabled. It may optionally
 have the ``email`` plugin installed.
 
-To have the tests bootstrap themselves (i.e. when ``SKIP_SERVER_SETUP=false``):
-
-- a user account should available with the ability to create users, buckets, and
-  collections
-- the account should also be able to assign users to groups
-- the credentials of this user should be supplied to the container
+To have the tests bootstrap themselves (i.e. when ``SKIP_SERVER_SETUP=false``),
+the credentials passed in ``SETUP_AUTH`` should have the permission to create 
+users, buckets, and collections.
 
 If the tests should not bootstrap themselves and instead use resources already
 available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
 
 - There should a bucket and collection available
+  
+  - the bucket, if not specified by the ``BUCKET`` config option, should be named ``main-workspace``
+  - the collection, if not specified by the ``COLLECTION`` config option, should be named ``product-integrity``
+
 - There should be two users available
 
   - one user should be added to the ``editor`` group of the available collection
   - the other should be added to the ``reviewer`` group of the available collection
-
-- the names of the bucket, collection, and user credentials should be supplied
-  as environment variables to the container
+  - the credentials of these users should be passed in the ``EDITOR_AUTH`` and
+    ``REVIEWER_AUTH`` config options respectively
 
 Running integration tests on the Remote Settings dev server should look something like:
 
