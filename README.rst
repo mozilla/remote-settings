@@ -177,7 +177,7 @@ against the Kinto server.
 
 .. code-block:: shell
 
-    docker-compose run tests bash
+    docker-compose run --rm tests bash
 
 Now, from that ``bash`` session you can reach the other services like:
 
