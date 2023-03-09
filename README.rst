@@ -114,7 +114,7 @@ users, buckets, and collections.
 If the tests should not bootstrap themselves and instead use resources already
 available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
 
-- There should a bucket and collection available
+- There should be a bucket and collection available
   
   - the bucket, if not specified by the ``BUCKET`` config option, should be named ``main-workspace``
   - the collection, if not specified by the ``COLLECTION`` config option, should be named ``product-integrity``
@@ -126,7 +126,7 @@ available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
   - the credentials of these users should be passed in the ``EDITOR_AUTH`` and
     ``REVIEWER_AUTH`` config options respectively
 
-Running integration tests on the Remote Settings dev server should look something like:
+Running integration tests on the Remote Settings DEV server should look something like:
 
 .. code-block:: shell
 
