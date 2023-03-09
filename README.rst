@@ -109,7 +109,8 @@ have the ``email`` plugin installed.
 
 To have the tests bootstrap themselves (i.e. when ``SKIP_SERVER_SETUP=false``),
 the credentials passed in ``SETUP_AUTH`` should have the permission to create 
-users, buckets, and collections.
+users, buckets, and collections. These credentials will be in the form
+``SETUP_AUTH=username:password`` or ``SETUP_AUTH="Bearer some_token"``
 
 If the tests should not bootstrap themselves and instead use resources already
 available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
@@ -135,8 +136,8 @@ Running integration tests on the Remote Settings dev server should look somethin
         --env MAIL_DIR="" \
         --env SKIP_SERVER_SETUP=true \
         --env TO_REVIEW_ENABLED=false \
-        --env EDITOR_AUTH=<credentials available in 1Password> \
-        --env REVIEWER_AUTH=<credentials available in 1Password> \
+        --env EDITOR_AUTH=<username:password, credentials available in 1Password> \
+        --env REVIEWER_AUTH=<username:password, available in 1Password> \
     remotesettings/tests integration-test
 
 
