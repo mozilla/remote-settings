@@ -133,7 +133,7 @@ Running integration tests on the Remote Settings dev server should look somethin
 
     docker run --rm \
         --env SERVER=https://settings.dev.mozaws.net/v1 \
-        --env MAIL_DIR="" \
+        --env MAIL_DIR="" `#disables test cases related to emails` \
         --env SKIP_SERVER_SETUP=true \
         --env TO_REVIEW_ENABLED=false \
         --env EDITOR_AUTH=<username:password, credentials available in 1Password> \
