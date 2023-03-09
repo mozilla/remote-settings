@@ -90,25 +90,62 @@ Test Remote Server
 
 Integration tests can be executed on a remote server.
 
+To run the integration test suite, first build the integration tests container
+
 .. code-block:: shell
 
     docker-compose build tests
 
+or download a pre-built container from `Dockerhub <https://hub.docker.com/r/mozilla/remote-settings-integration-tests>`_.
+
+Next run the tests, supplying config values as necessary. Config values are
+set as environment variables provided to the Docker container. See
+``tests/conftest.py`` for descriptions of all of the config options that are
+available.
+
+Note that the tests assume that the server has the ``attachments``,
+``changes``, ``history``, and ``signer`` plugins enabled. It may optionally
+have the ``email`` plugin installed.
+
+To have the tests bootstrap themselves (i.e. when ``SKIP_SERVER_SETUP=false``),
+the credentials passed in ``SETUP_AUTH`` should have the permission to create 
+users, buckets, and collections. These credentials will be in the form
+``SETUP_AUTH=username:password`` or ``SETUP_AUTH="Bearer some_token"``
+
+If the tests should not bootstrap themselves and instead use resources already
+available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
+
+- There should be a bucket and collection available
+  
+  - the bucket, if not specified by the ``BUCKET`` config option, should be named ``main-workspace``
+  - the collection, if not specified by the ``COLLECTION`` config option, should be named ``product-integrity``
+
+- There should be two users available
+
+  - one user should be added to the ``editors`` group of the available collection
+  - the other should be added to the ``reviewers`` group of the available collection
+  - the credentials of these users should be passed in the ``EDITOR_AUTH`` and
+    ``REVIEWER_AUTH`` config options respectively
+
+Running integration tests on the Remote Settings DEV server should look something like:
+
 .. code-block:: shell
 
-    docker-compose run \
+    docker run --rm \
         --env SERVER=https://settings.dev.mozaws.net/v1 \
-        --env MAIL_DIR="" `# disable tests about emails.` \
+        --env MAIL_DIR="" `#disables test cases related to emails` \
         --env SKIP_SERVER_SETUP=true \
-        --env EDITOR_AUTH=editor:azerty123 \
-        --env REVIEWER_AUTH=reviwer:s3cr3t \
-        tests integration-test
+        --env TO_REVIEW_ENABLED=false \
+        --env EDITOR_AUTH=<username:password, credentials available in 1Password> \
+        --env REVIEWER_AUTH=<username:password, available in 1Password> \
+    remotesettings/tests integration-test
+
 
 
 Debugging Locally (simple)
 --------------------------
 
-The simplest form of debugging is to run a suite of tests against the kinto server:
+The simplest form of debugging is to run a suite of tests against the Kinto server:
 
 .. code-block:: shell
 
@@ -141,14 +178,14 @@ against the Kinto server.
 
 .. code-block:: shell
 
-    docker-compose run tests bash
+    docker-compose run --rm tests bash
 
 Now, from that ``bash`` session you can reach the other services like:
 
 .. code-block:: shell
 
-    curl http://autograph:8000/__heartbeat__
-    curl http://web:8888/v1/__heartbeat__
+    http http://autograph:8000/__heartbeat__
+    http http://web:8888/v1/__heartbeat__
 
 
 Upgrade Things
