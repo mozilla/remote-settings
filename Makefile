@@ -43,10 +43,12 @@ test: $(INSTALL_STAMP)
 	$(VENV)/bin/coverage report -m --fail-under 99
 
 integration-test:
+	docker-compose build tests
 	docker-compose run --rm web migrate
 	docker-compose run --rm tests integration-test
 
 browser-test:
+	docker-compose build tests
 	docker-compose run --rm web migrate
 	docker-compose run --rm tests browser-test
 

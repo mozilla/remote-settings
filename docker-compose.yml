@@ -85,6 +85,5 @@ services:
       - SELENIUM_PORT=4444
       - MAIL_DIR=/var/debug-mail/
     volumes:
-      - ./tests:/app
       - debug-mail:/var/debug-mail/
 
