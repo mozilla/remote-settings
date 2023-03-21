@@ -587,9 +587,9 @@ pyramid-multiauth==1.0.1 \
     --hash=sha256:6d8785558e1d0bbe0d0da43e296efc0fbe0de5071d1f9b1091e891f0e4ec9682 \
     --hash=sha256:c265258af8021094e5b98602e8bfe094eec1350eebb56473f36cd0e076910822
     # via kinto
-pyramid-storage==1.1.0 \
-    --hash=sha256:75fecab9bcdcc0d422f05b4d96ab874940cf646610db7b39dc47f59ad5bbad8f \
-    --hash=sha256:ee8fca161a8e844140fc29751e4b1232993f255c116a14d44a48818da41e4bc7
+pyramid-storage==1.2.0 \
+    --hash=sha256:1b56f58b074e9a63fb51f038d599bce74497f4095648cffbfe9519d0df2709bd \
+    --hash=sha256:97f0ae56c46bf0fac22a3728f07e38d9de5f074a7e963c6a7d4f63e89bebc39d
     # via kinto-attachment
 pyramid-tm==2.5 \
     --hash=sha256:5c81dcecd33770f5e3596687d2be35ffc4f8ce5eda00a31acb00ae35a51430d0 \
