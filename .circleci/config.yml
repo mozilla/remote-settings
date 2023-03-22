@@ -8,11 +8,11 @@ version: 2.1
 aliases:
   - &restore_deps_cache
     name: Restoring Python dependency cache
-    key: v3-requirements-{{ checksum ".python.installed" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+    key: v4-requirements-{{ checksum "poetry.lock" }}
 
   - &save_deps_cache
     name: Saving Python dependency cache
-    key: v3-requirements-{{ checksum ".python.installed" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+    key: v4-requirements-{{ checksum "poetry.lock" }}
     paths:
       - .venv
 
@@ -233,7 +233,7 @@ jobs:
 
   unit_test:
     docker:
-      - image: python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50
+      - image: cimg/python:3.11.2
       - image: cimg/postgres:12.8
         environment:
           POSTGRES_DB: testdb
@@ -241,9 +241,6 @@ jobs:
           POSTGRES_PASSWORD: postgres
     steps:
       - checkout
-      - run:
-          name: Python version
-          command: python3 --version > .python.installed
       - restore_cache: *restore_deps_cache
       - run:
           name: Run kinto_remote_settings plugin unit tests
@@ -252,12 +249,9 @@ jobs:
 
   lint_format:
     docker:
-      - image: python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50
+      - image: cimg/python:3.11.2
     steps:
       - checkout
-      - run:
-          name: Python version
-          command: python3 --version > .python.installed
       - restore_cache: *restore_deps_cache
       - run:
           name: Check linting and formatting
@@ -266,17 +260,11 @@ jobs:
 
   docs_test:
     docker:
-      - image: python:3.10.5-bullseye@sha256:dac61c6d3e7ac6deb2926dd96d38090dcba0cb1cf9196ccc5740f25ebe449f50
+      - image: cimg/python:3.11.2
     steps:
       - checkout
-      - restore_cache:
-          name: Restoring Python docs dependency cache
-          key: v1-requirements-{{ checksum "docs/requirements.txt" }}
+      - restore_cache: *restore_deps_cache
       - run:
           name: Check documentation build
           command: make docs
-      - save_cache:
-          name: Saving Python docs dependency cache
-          key: v1-requirements-{{ checksum "docs/requirements.txt" }}
-          paths:
-            - .venv
+      - save_cache: *save_deps_cache
