@@ -79,7 +79,7 @@ down:
 
 install-docs: $(DOC_STAMP)
 $(DOC_STAMP): poetry.lock
-	poetry install --only docs
+	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --only docs
 	touch $(DOC_STAMP)
 
 docs: install-docs
