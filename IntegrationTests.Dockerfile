@@ -15,7 +15,7 @@ RUN python -m venv $POETRY_HOME && \
 
 WORKDIR /opt
 COPY pyproject.toml poetry.lock ./
-RUN $POETRY_HOME/bin/poetry install --only tests --no-root
+RUN $POETRY_HOME/bin/poetry install --only integration-tests --no-root
 
 FROM python:3.11.2-slim
 ENV PATH="/opt/.venv/bin:$PATH" \
