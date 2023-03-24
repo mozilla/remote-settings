@@ -1012,14 +1012,14 @@ grpcio-gcp = ["grpcio-gcp (>=0.2.2,<1.0dev)"]
 
 [[package]]
 name = "google-auth"
-version = "2.16.2"
+version = "2.16.3"
 description = "Google Authentication Library"
 category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*"
 files = [
-    {file = "google-auth-2.16.2.tar.gz", hash = "sha256:07e14f34ec288e3f33e00e2e3cc40c8942aa5d4ceac06256a28cd8e786591420"},
-    {file = "google_auth-2.16.2-py2.py3-none-any.whl", hash = "sha256:2fef3cf94876d1a0e204afece58bb4d83fb57228aaa366c64045039fda6770a2"},
+    {file = "google-auth-2.16.3.tar.gz", hash = "sha256:611779ce33a3aee265b94b74d4bb8c188f33010f5814761250a0ebbde94cc745"},
+    {file = "google_auth-2.16.3-py2.py3-none-any.whl", hash = "sha256:4dfcfd8ecd1cf03ddc97fddfb3b1f2973ea4f3f664aa0d8cfaf582ef9f0c60e7"},
 ]
 
 [package.dependencies]
@@ -2170,14 +2170,14 @@ pyramid = ">=2,<3"
 
 [[package]]
 name = "pyramid-storage"
-version = "1.2.0"
+version = "1.3.0"
 description = "File storage package for Pyramid"
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pyramid_storage-1.2.0-cp3-none-any.whl", hash = "sha256:1b56f58b074e9a63fb51f038d599bce74497f4095648cffbfe9519d0df2709bd"},
-    {file = "pyramid_storage-1.2.0.tar.gz", hash = "sha256:97f0ae56c46bf0fac22a3728f07e38d9de5f074a7e963c6a7d4f63e89bebc39d"},
+    {file = "pyramid_storage-1.3.0-cp3-none-any.whl", hash = "sha256:dd3de2f1947d2c89e456d9fd6a9ee2af8a4e24d9d67254d831b71ccaa5aa3b4e"},
+    {file = "pyramid_storage-1.3.0.tar.gz", hash = "sha256:0a356de73787931c5460ff27e62cfb58f5cb3386a8ad3e8582b1802d1745673c"},
 ]
 
 [package.dependencies]
