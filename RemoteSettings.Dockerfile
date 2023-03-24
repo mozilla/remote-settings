@@ -18,6 +18,11 @@ COPY ./poetry.lock ./pyproject.toml ./
 RUN $POETRY_HOME/bin/poetry install --only main --no-root && \
     uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
 
+# though we have kinto-remote-settings specified as a dependency in
+# pyproject.toml, we have it configured to install in editable mode for local
+# development. For building the container, we only install the "main"
+# dependency group so that we can use pip to install the packages in
+# non-editable mode
 COPY ./kinto-remote-settings ./kinto-remote-settings
 COPY VERSION .
 RUN pip install ./kinto-remote-settings
