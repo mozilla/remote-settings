@@ -263,8 +263,14 @@ jobs:
       - image: cimg/python:3.11.2
     steps:
       - checkout
-      - restore_cache: *restore_deps_cache
+      - restore_cache:
+          name: Restoring docs dependency cache
+          key: v2-docs-requirements-{{ checksum "poetry.lock" }}
       - run:
           name: Check documentation build
           command: make docs
-      - save_cache: *save_deps_cache
+      - save_cache: 
+          name: Saving docs dependency cache
+          key: v2-docs-requirements-{{ checksum "poetry.lock" }}
+          paths:
+            - .venv

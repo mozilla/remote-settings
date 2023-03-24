@@ -80,6 +80,8 @@ pytest-asyncio = "0.20.3"
 pytest-selenium = "4.0.0"
 webtest = "3.0.0"
 
+[tool.poetry.group.docs]
+optional = true
 
 [tool.poetry.group.docs.dependencies]
 docutils = "0.19"
