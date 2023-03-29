@@ -1,4 +1,6 @@
+import asyncio
 import os
+import random
 from typing import Callable, Tuple
 
 import pytest
@@ -10,6 +12,22 @@ from requests.adapters import HTTPAdapter
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.remote.webdriver import WebDriver
 from urllib3.util.retry import Retry
+
+
+class RemoteSettingsAsyncClient(AsyncClient):
+    async def fetch_changeset(self, **kwargs) -> list[dict]:
+        """
+        Fetch from `/changeset` endpoint introduced by the kinto-remote-settings plugin.
+        """
+        bucket = self.bucket_name
+        collection = self.collection_name
+        endpoint = f"/buckets/{bucket}/collections/{collection}/changeset"
+        kwargs.setdefault("_expected", random.randint(999999000000, 999999999999))
+        loop = asyncio.get_event_loop()
+        body, _ = await loop.run_in_executor(
+            None, lambda: self._client.session.request("get", endpoint, params=kwargs)
+        )
+        return body
 
 
 def asbool(s):
@@ -28,7 +46,7 @@ DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", "false"))
 DEFAULT_TO_REVIEW_ENABLED = asbool(os.getenv("TO_REVIEW_ENABLED", "true"))
 
 Auth = Tuple[str, str]
-ClientFactory = Callable[[Auth], AsyncClient]
+ClientFactory = Callable[[Auth], RemoteSettingsAsyncClient]
 
 
 def pytest_addoption(parser):
@@ -154,7 +172,7 @@ def to_review_enabled(request) -> bool:
 def make_client(
     server: str, source_bucket: str, source_collection: str, skip_server_setup: bool
 ) -> ClientFactory:
-    """Factory as fixture for creating a Kinto AsyncClient used for tests.
+    """Factory as fixture for creating a RemoteSettings AsyncClient used for tests.
 
     Args:
         server (str): Kinto server (in form 'http(s)://<host>:<port>/v1')
@@ -162,10 +180,10 @@ def make_client(
         source_collection (str): Source collection
 
     Returns:
-        AsyncClient: AsyncClient
+        RemoteSettingsAsyncClient: RemoteSettingsAsyncClient
     """
 
-    def _make_client(auth: Auth) -> AsyncClient:
+    def _make_client(auth: Auth) -> RemoteSettingsAsyncClient:
         request_session = requests.Session()
         retries = Retry(
             total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
@@ -177,7 +195,7 @@ def make_client(
         if not skip_server_setup and auth:
             create_user(request_session, server, auth)
 
-        return AsyncClient(
+        return RemoteSettingsAsyncClient(
             server_url=server,
             auth=auth,
             bucket=source_bucket,
