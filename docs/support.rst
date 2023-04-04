@@ -214,8 +214,8 @@ Using attachments on records, you can publish data of any size (as JSON, gzipped
 Also does remote settings do any sort of compression for the records?
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-Content is Gzip encoded.
-
+* Attachments are served using Gzip encoding.
+* Records are not (`Due to regression on our GCP setup <https://mozilla-hub.atlassian.net/browse/SE-3468>`_)
 
 Is it possible to deliver remote settings to some users only?
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''

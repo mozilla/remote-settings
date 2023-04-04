@@ -7,10 +7,21 @@ from ..utils import setup_server, upload_records
 pytestmark = pytest.mark.asyncio
 
 
+def find_changes_record(records: list[dict], bucket: str, collection: str):
+    return next(
+        (
+            record
+            for record in records
+            if record["collection"] == collection and record["bucket"] == bucket
+        )
+    )
+
+
 async def test_changes_plugin(
     make_client: ClientFactory,
     setup_auth: Auth,
     editor_auth: Auth,
+    reviewer_auth: Auth,
     source_collection: str,
     skip_server_setup: bool,
 ):
@@ -19,27 +30,56 @@ async def test_changes_plugin(
         await setup_server(setup_client)
 
     anonymous_client = make_client(tuple())
-    records = await anonymous_client.get_records(bucket="monitor", collection="changes")
-    assert records
-
-    test_collection_records = [
-        record for record in records if record["collection"] == source_collection
-    ]
-    assert len(test_collection_records) == 2
-
     editor_client = make_client(editor_auth)
-    (await signed_resource(editor_client))
-    assert "bucket" in test_collection_records[0]
+    reviewer_client = make_client(reviewer_auth)
 
-    initial_last_modified = test_collection_records[0]["last_modified"]
-    await upload_records(editor_client, 10)
+    # 1. Inspect the content of monitor/changes to get some reference timestamp
+    records = await anonymous_client.get_records(bucket="monitor", collection="changes")
+    resource = await signed_resource(editor_client)
+
+    initial_preview = find_changes_record(
+        records=records,
+        bucket=resource["preview"]["bucket"],
+        collection=source_collection,
+    )
+    initial_destination = find_changes_record(
+        records=records,
+        bucket=resource["destination"]["bucket"],
+        collection=source_collection,
+    )
+
+    # 2. Upload records and request review
+    await upload_records(editor_client, 1)
     await editor_client.patch_collection(data={"status": "to-review"})
 
+    # 3. Compare timestamps and assert that preview timestamp was bumped, and destination wasn't
     records = await anonymous_client.get_records(bucket="monitor", collection="changes")
-    test_collection_records = [
-        record for record in records if record["collection"] == source_collection
-    ]
+    preview = find_changes_record(
+        records=records,
+        bucket=resource["preview"]["bucket"],
+        collection=source_collection,
+    )
+    destination = find_changes_record(
+        records=records,
+        bucket=resource["destination"]["bucket"],
+        collection=source_collection,
+    )
 
-    updated_last_modified = test_collection_records[0]["last_modified"]
+    assert preview["last_modified"] > initial_preview["last_modified"]
+    assert destination["last_modified"] == initial_destination["last_modified"]
 
-    assert updated_last_modified > initial_last_modified
+    # 4. We approve the changes, and then assert that destination timestamp was bumped
+    await reviewer_client.patch_collection(data={"status": "to-sign"})
+    records = await anonymous_client.get_records(bucket="monitor", collection="changes")
+    preview = find_changes_record(
+        records=records,
+        bucket=resource["preview"]["bucket"],
+        collection=source_collection,
+    )
+    destination = find_changes_record(
+        records=records,
+        bucket=resource["destination"]["bucket"],
+        collection=source_collection,
+    )
+    assert preview["last_modified"] > initial_preview["last_modified"]
+    assert destination["last_modified"] > initial_destination["last_modified"]
