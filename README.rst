@@ -108,7 +108,7 @@ Note that the tests assume that the server has the ``attachments``,
 have the ``email`` plugin installed.
 
 To have the tests bootstrap themselves (i.e. when ``SKIP_SERVER_SETUP=false``),
-the credentials passed in ``SETUP_AUTH`` should have the permission to create 
+the credentials passed in ``SETUP_AUTH`` should have the permission to create
 users, buckets, and collections. These credentials will be in the form
 ``SETUP_AUTH=username:password`` or ``SETUP_AUTH="Bearer some_token"``
 
@@ -116,7 +116,7 @@ If the tests should not bootstrap themselves and instead use resources already
 available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
 
 - There should be a bucket and collection available
-  
+
   - the bucket, if not specified by the ``BUCKET`` config option, should be named ``main-workspace``
   - the collection, if not specified by the ``COLLECTION`` config option, should be named ``product-integrity``
 
@@ -132,7 +132,7 @@ Running integration tests on the Remote Settings DEV server should look somethin
 .. code-block:: shell
 
     docker run --rm \
-        --env SERVER=https://settings.dev.mozaws.net/v1 \
+        --env SERVER=https://remote-settings-dev.allizom.org/v1 \
         --env MAIL_DIR="" `#disables test cases related to emails` \
         --env SKIP_SERVER_SETUP=true \
         --env TO_REVIEW_ENABLED=false \
