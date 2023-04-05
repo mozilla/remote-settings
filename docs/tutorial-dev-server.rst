@@ -48,7 +48,7 @@ Until `Bug 1630651 <https://bugzilla.mozilla.org/show_bug.cgi?id=1630651>`_ happ
 
 .. code-block:: bash
 
-    SERVER=https://settings.dev.mozaws.net/v1
+    SERVER=https://remote-settings-dev.allizom.org/v1
     BEARER_TOKEN="Bearer uLdb-Yafefe....2Hyl5_w"
 
     curl -s ${SERVER}/ -H "Authorization:${BEARER_TOKEN}" | jq .user
@@ -124,7 +124,7 @@ Until `support for the DEV environment <https://github.com/mozilla-extensions/re
 .. code-block:: javascript
 
     Services.prefs.setCharPref("services.settings.loglevel", "debug");
-    Services.prefs.setCharPref("services.settings.server", "https://settings.dev.mozaws.net/v1");
+    Services.prefs.setCharPref("services.settings.server", "https://remote-settings-dev.allizom.org/v1");
     // Dev collections are signed with the STAGE infrastructure, use STAGE's hash:
     Services.prefs.setCharPref("security.content.signature.root_hash", "3C:01:44:6A:BE:90:36:CE:A9:A0:9A:CA:A3:A5:20:AC:62:8F:20:A7:AE:32:CE:86:1C:B2:EF:B7:0F:A0:C7:45");
     // Prevent packaged dumps to interfere.
@@ -186,4 +186,4 @@ Delete your collection
     curl -X DELETE ${SERVER}/buckets/main/collections/${CID} -H "Authorization:${BEARER_TOKEN}"
 
 
-.. _Admin UI: https://settings.dev.mozaws.net/v1/admin/
+.. _Admin UI: https://remote-settings-dev.allizom.org/v1/admin/
