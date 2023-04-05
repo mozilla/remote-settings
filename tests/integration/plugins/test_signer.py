@@ -97,8 +97,9 @@ async def test_signer_plugin_full_workflow(
         # Re-sign and verify.
         await editor_client.patch_collection(data={"status": "to-review"})
         await reviewer_client.patch_collection(data={"status": "to-sign"})
-        timestamp = await dest_client.get_records_timestamp()
-        signature = (await dest_client.get_collection())["data"]["signature"]
+        changeset = await dest_client.fetch_changeset()
+        timestamp = changeset["timestamp"]
+        signature = changeset["metadata"]["signature"]
         await verify_signature([], timestamp, signature)
 
     # 1. upload data
@@ -108,15 +109,15 @@ async def test_signer_plugin_full_workflow(
     # 2.1 ask for review
     await editor_client.patch_collection(data={"status": "to-review"})
     # 2.2 check the preview collection
-    preview_records = await preview_client.get_records()
+    changeset = await preview_client.fetch_changeset()
+    preview_records = changeset["changes"]
     expected = existing + 20
     assert (
         len(preview_records) == expected
     ), f"{len(preview_records)} != {expected} records"
-    metadata = (await preview_client.get_collection())["data"]
-    preview_signature = metadata.get("signature")
+    preview_timestamp = changeset["timestamp"]
+    preview_signature = changeset["metadata"]["signature"]
     assert preview_signature, "Preview collection not signed"
-    preview_timestamp = await preview_client.get_records_timestamp()
     # Verify the preview collection
     await verify_signature(preview_records, preview_timestamp, preview_signature)
 
@@ -156,11 +157,12 @@ async def test_signer_plugin_full_workflow(
     await reviewer_client.patch_collection(data={"status": "to-sign"})
 
     # 5. verify signature
-
-    records = list(await dest_client.get_records())
+    changeset = await dest_client.fetch_changeset()
+    records = changeset["changes"]
     assert len(records) == expected, f"{len(records)} != {expected} records"
-    timestamp = await dest_client.get_records_timestamp()
-    signature = (await dest_client.get_collection())["data"]["signature"]
+    timestamp = changeset["timestamp"]
+    signature = changeset["metadata"]["signature"]
+    assert signature, "Preview collection not signed"
 
     try:
         await verify_signature(records, timestamp, signature)
@@ -198,9 +200,10 @@ async def test_workflow_without_review(
 
     await upload_records(editor_client, 1)
     await reviewer_client.patch_collection(data={"status": "to-sign"})
-    records = list(await dest_client.get_records())
-    timestamp = await dest_client.get_records_timestamp()
-    signature = (await dest_client.get_collection())["data"]["signature"]
+    changeset = await dest_client.fetch_changeset()
+    records = changeset["changes"]
+    timestamp = changeset["timestamp"]
+    signature = changeset["metadata"]["signature"]
 
     try:
         await verify_signature(records, timestamp, signature)
