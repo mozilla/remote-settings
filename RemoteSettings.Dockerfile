@@ -1,4 +1,4 @@
-FROM python:3.11.2 as compile
+FROM python:3.11.3 as compile
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
@@ -12,7 +12,7 @@ COPY ./kinto-remote-settings ./kinto-remote-settings
 COPY VERSION .
 RUN pip install --no-cache-dir ./kinto-remote-settings
 
-FROM python:3.11.2-slim as production
+FROM python:3.11.3-slim as production
 
 ENV KINTO_INI=config/local.ini \
     PATH="/opt/venv/bin:$PATH" \
