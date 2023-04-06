@@ -1,4 +1,4 @@
-FROM python:3.11.2 as compile
+FROM python:3.11.3 as compile
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -27,7 +27,7 @@ COPY ./kinto-remote-settings ./kinto-remote-settings
 COPY VERSION .
 RUN pip install ./kinto-remote-settings
 
-FROM python:3.11.2-slim as production
+FROM python:3.11.3-slim as production
 
 ENV KINTO_INI=config/local.ini \
     PATH="/opt/.venv/bin:$PATH" \
