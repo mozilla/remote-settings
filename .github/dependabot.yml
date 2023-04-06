@@ -9,23 +9,6 @@ updates:
   open-pull-requests-limit: 99
   reviewers:
   - leplatrem
-  ignore:
-  - dependency-name: sqlalchemy
-    versions:
-    - 1.4.2
-    - 1.4.3
-    - 1.4.5
-  - dependency-name: pyramid
-    versions:
-    - "2.0"
-  - dependency-name: idna
-    versions:
-    - "3.1"
-  - dependency-name: importlib-metadata
-    versions:
-    - 3.7.2
-    - 3.7.3
-    - 3.8.1
 - package-ecosystem: docker
   directory: "/"
   schedule:
