@@ -13,6 +13,7 @@ the version control of each dependency.
 - Improve Docker volume management
 - Add Docker compose profile support for test services
 - Move ``kinto-remote-settings`` plugin build step to ``compile`` stage of Dockerfile
+- Replace ``pip-tools`` with ``poetry`` for dependency management
 
 31.0.1 (2023-02-14)
 ===================

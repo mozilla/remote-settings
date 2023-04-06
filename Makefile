@@ -22,11 +22,10 @@ maintainer-clean: distclean
 $(VENV)/bin/python:
 	python3 -m venv $(VENV)
 
-$(INSTALL_STAMP): $(VENV)/bin/python requirements.txt requirements-dev.txt
-	$(VENV)/bin/python -m pip install --upgrade pip wheel setuptools
-	$(VENV)/bin/pip install -r requirements.txt
-	$(VENV)/bin/pip install -e kinto-remote-settings
-	$(VENV)/bin/pip install -r requirements-dev.txt
+install: $(INSTALL_STAMP)
+$(INSTALL_STAMP): poetry.lock
+	@if [ -z $(shell command -v poetry 2> /dev/null) ]; then echo "Poetry could not be found. See https://python-poetry.org/docs/"; exit 2; fi
+	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --no-root
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)
@@ -79,8 +78,8 @@ down:
 	docker-compose down
 
 install-docs: $(DOC_STAMP)
-$(DOC_STAMP): $(VENV)/bin/python docs/requirements.txt
-	$(VENV)/bin/pip install -Ur docs/requirements.txt
+$(DOC_STAMP): poetry.lock
+	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --only docs
 	touch $(DOC_STAMP)
 
 docs: install-docs

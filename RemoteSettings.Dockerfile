@@ -1,24 +1,39 @@
 FROM python:3.11.3 as compile
 
-ENV VIRTUAL_ENV=/opt/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    POETRY_HOME="/opt/poetry" \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    VIRTUAL_ENV=/opt/.venv \
+    PATH="/opt/.venv/bin:$PATH"
+
+# Install Poetry
+RUN python -m venv $POETRY_HOME && \
+    $POETRY_HOME/bin/pip install poetry==1.4.1 && \
+    $POETRY_HOME/bin/poetry --version
 
 WORKDIR /opt
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt && \
+COPY ./poetry.lock ./pyproject.toml ./
+RUN $POETRY_HOME/bin/poetry install --only main --no-root && \
     uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
+
+# though we have kinto-remote-settings specified as a dependency in
+# pyproject.toml, we have it configured to install in editable mode for local
+# development. For building the container, we only install the "main"
+# dependency group so that we can use pip to install the packages in
+# non-editable mode
 COPY ./kinto-remote-settings ./kinto-remote-settings
 COPY VERSION .
-RUN pip install --no-cache-dir ./kinto-remote-settings
+RUN pip install ./kinto-remote-settings
 
 FROM python:3.11.3-slim as production
 
 ENV KINTO_INI=config/local.ini \
-    PATH="/opt/venv/bin:$PATH" \
+    PATH="/opt/.venv/bin:$PATH" \
     PORT=8888 \
     PYTHONUNBUFFERED=1 \
-    VIRTUAL_ENV=/opt/venv
+    VIRTUAL_ENV=/opt/.venv
 
 COPY /bin/update_and_install_system_packages.sh /opt
 RUN /opt/update_and_install_system_packages.sh \

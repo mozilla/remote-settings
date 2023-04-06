@@ -13,22 +13,28 @@ https://remote-settings.readthedocs.io
 Content
 -------
 
-This *Remote Settings* repository contains the following:
+This *Remote Settings* repository contains the following files and directories of note:
 
 * ``bin/``: container entry point and script(s)
 * ``config/``: example configuration file(s)
 * ``docs/``: documentation source files
 * ``kinto-remote-settings/``: Kinto plugin specific to Remote Settings
 * ``tests/``: browser and integration tests
-* ``requirements.in``: Python packages for the service (source of truth for ``requirements.txt``)
-* ``requirements-dev.txt``: Python packages for local development and tests
+* ``pyproject.toml``: contains dependency information and (most) config settings
 * ``VERSION``: SemVer version number that serves as both the version of the service and the ``kinto-remote-settings`` plugin
 
+Setup
+-----
+
+You will need:
+
+- Docker
+- ``docker-compose`` with `buildkit <https://docs.docker.com/develop/develop-images/build_enhancements/>`_ enabled
+- `poetry <https://python-poetry.org/>`_
+- `Make <https://www.gnu.org/software/make/>`_
 
 Run
 ---
-
-You need Docker and ``docker-compose``. Ensure `buildkit <https://docs.docker.com/develop/develop-images/build_enhancements/>`_ is enabled on your Docker engine.
 
 .. code-block:: shell
 
@@ -191,23 +197,24 @@ Now, from that ``bash`` session you can reach the other services like:
 Upgrade Things
 --------------
 
-Most common use-case is that you want to upgrade one of the dependencies.
+Dependabot is enabled on this repository, so it should keep dependencies up to date. 
 
-Top level dependencies are listed in ``requirements.in``.
-
-We use `pip-tools's pip-compile <https://pypi.org/project/pip-tools/>`_ command to generate the exhaustive list of pinned dependencies with their hash.
-
-To upgrade a single package, run:
+To manually edit dependency versions, use `standard poetry commands <https://python-poetry.org/docs/master/managing-dependencies/>`_. Because our
+usecase is somewhat complex with multiple groups and some dependencies appearing
+in multiple groups, sometimes the easiest way to update packages is to edit
+``pyproject.toml`` to the specified package version, then run:
 
 .. code-block:: shell
 
-    pip-compile --upgrade-package kinto-attachment
+    poetry lock --no-update
+
+to update the lockfile.
 
 To test that this installs run:
 
 .. code-block:: shell
 
-    docker-compose build web
+    make install
 
 
 About versioning
