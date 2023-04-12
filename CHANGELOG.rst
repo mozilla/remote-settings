@@ -8,6 +8,10 @@ the version control of each dependency.
 31.0.2.dev (unreleased)
 ===================
 
+**Bug Fixes**
+
+- Fixes #410: Reorder float error message so path is at the end
+
 **Internal Changes**
 
 - Improve Docker volume management
