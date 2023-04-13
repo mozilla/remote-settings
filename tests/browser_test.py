@@ -92,7 +92,7 @@ async def test_review_signoff(
     assert readonly_checkbox.is_displayed()
     readonly_checkbox.click()
 
-    # find and click on main bucket product-integrity collection
+    # find and click on main bucket `integration-tests` collection
     product_integrity: WebElement = selenium.find_element(
         By.XPATH,
         f"//a[@href='#/buckets/{dest_bucket}/collections/{source_collection}/records' and contains(., '{source_collection}')]",
