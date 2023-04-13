@@ -124,7 +124,7 @@ available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
 - There should be a bucket and collection available
 
   - the bucket, if not specified by the ``BUCKET`` config option, should be named ``main-workspace``
-  - the collection, if not specified by the ``COLLECTION`` config option, should be named ``product-integrity``
+  - the collection, if not specified by the ``COLLECTION`` config option, should be named ``integration-tests``
 
 - There should be two users available
 
