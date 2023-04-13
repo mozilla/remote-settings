@@ -25,6 +25,7 @@ async def test_history_plugin(
 
     # Reset collection status.
     collection = await editor_client.get_collection()
+    timestamp_start = collection["data"]["last_modified"]
     if collection["data"]["status"] != "signed":
         await editor_client.patch_collection(data={"status": "to-rollback"})
 
@@ -33,21 +34,19 @@ async def test_history_plugin(
     # Request review, will set status and update collection attributes.
     await editor_client.patch_collection(data={"status": "to-review"})
 
-    history = await editor_client.get_history()
+    history_entries = await editor_client.get_history(
+        resource_name="collection",
+        collection_id=editor_client.collection_name,
+        _since=timestamp_start,
+    )
 
-    history.reverse()
-    collection_entries = [
-        e
-        for e in history
-        if e["resource_name"] == "collection"
-        and e["collection_id"] == editor_client.collection_name
-    ]
-    assert len(collection_entries) >= 3, "History does not contain expected events"
+    history_entries.reverse()
+    assert len(history_entries) >= 3, "History does not contain expected events"
     (
         event_wip,
         event_to_review,
         event_review_attrs,
-    ) = collection_entries[-3:]
+    ) = history_entries[-3:]
 
     assert event_wip["action"] == "update"
     assert "kinto-signer" in event_wip["user_id"]
