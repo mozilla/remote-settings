@@ -5,7 +5,7 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-31.0.2.dev (unreleased)
+31.0.2 (2023-04-13)
 ===================
 
 **Bug Fixes**
