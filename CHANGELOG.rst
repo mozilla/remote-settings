@@ -5,6 +5,14 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
+31.0.3.dev (unreleased)
+=======================
+
+**Bug Fixes**
+
+- Reduce size of downloaded history in integration tests
+
+
 31.0.2 (2023-04-13)
 ===================
 
