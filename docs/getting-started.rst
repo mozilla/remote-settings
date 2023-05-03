@@ -18,7 +18,7 @@ Basically, you will have to go through these 3 steps:
 
 Once done, you will be able to login and edit your records on the Admin UIs:
 
-- https://settings-writer.prod.mozaws.net/v1/admin/
+- https://remote-settings.mozilla.org/v1/admin/
 
 The records will then be publicly visible at `<https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/{collection-id}/changeset?_expected=0>`__
 
@@ -30,20 +30,20 @@ Check out the :ref:`screencast to create, request review and approve changes <sc
 Environments
 ------------
 
-+--------------+---------------------------------------------+----------------------------------------------+---------------------------------------------+
-|              | DEV                                         | STAGE                                        | PROD                                        |
-+==============+=============================================+==============================================+=============================================+
-| Base URL     | https://remote-settings-dev.allizom.org/v1/ | https://settings-writer.stage.mozaws.net/v1/ | https://settings-writer.prod.mozaws.net/v1/ |
-+--------------+---------------------------------------------+----------------------------------------------+---------------------------------------------+
-| Main purpose | Try out API and new use-cases               | QA data changes                              | Deliver data within minutes                 |
-+--------------+---------------------------------------------+----------------------------------------------+---------------------------------------------+
-| Deployed on  | pull-request merges                         | tagged versions                              | approvals                                   |
-+--------------+---------------------------------------------+----------------------------------------------+---------------------------------------------+
-| Access       | Public via LDAP Auth                        | VPN via LDAP groups                          | VPN via LDAP groups                         |
-+--------------+---------------------------------------------+----------------------------------------------+---------------------------------------------+
-| Permissions  | - Create collections, groups, records       | - CRUD records                               | - CRUD records                              |
-|              | - Approve own changes                       | - Approve other's changes                    | - Approve other's changes                   |
-+--------------+---------------------------------------------+----------------------------------------------+---------------------------------------------+
++--------------+---------------------------------------------+-----------------------------------------+-----------------------------------------+
+|              | DEV                                         | STAGE                                   | PROD                                    |
++==============+=============================================+=========================================+=========================================+
+| Base URL     | https://remote-settings-dev.allizom.org/v1/ | https://remote-settings.allizom.org/v1/ | https://remote-settings.mozilla.org/v1/ |
++--------------+---------------------------------------------+-----------------------------------------+-----------------------------------------+
+| Main purpose | Try out API and new use-cases               | QA data changes                         | Deliver data within minutes             |
++--------------+---------------------------------------------+-----------------------------------------+-----------------------------------------+
+| Deployed on  | pull-request merges                         | tagged versions                         | approvals                               |
++--------------+---------------------------------------------+-----------------------------------------+-----------------------------------------+
+| Access       | Public via LDAP Auth                        | VPN via LDAP groups                     | VPN via LDAP groups                     |
++--------------+---------------------------------------------+-----------------------------------------+-----------------------------------------+
+| Permissions  | - Create collections, groups, records       | - CRUD records                          | - CRUD records                          |
+|              | - Approve own changes                       | - Approve other's changes               | - Approve other's changes               |
++--------------+---------------------------------------------+-----------------------------------------+-----------------------------------------+
 
 
 .. note::
