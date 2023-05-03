@@ -22,7 +22,7 @@ I approved the changes, but still don't see them
 ''''''''''''''''''''''''''''''''''''''''''''''''
 
 * A CDN serves as a cache, only push notifications bust the cache efficiently
-* Check that your data is visible on the source server: eg. https://settings.prod.mozaws.net/v1/buckets/main/collections/cfr/changeset?_expected=something-random-42
+* Check that your data is visible on the source server: eg. https://prod.remote-settings.prod.webservices.mozgcp.net/v1/buckets/main/collections/cfr/changeset?_expected=something-random-42
 
 
 .. _faq:
@@ -176,7 +176,7 @@ If you have a lot of data that you want to duplicate from one instance to anothe
 
 	pip install --user kinto-wizard
 
-Dump the main records:
+Dump the main records from STAGE:
 
 .. code-block:: bash
 
@@ -184,11 +184,11 @@ Dump the main records:
 
 Open the ``.yaml`` file and rename the bucket name on top to ``main-workspace``.
 
-Login in the Remote Settings Admin and copy the authentication header (icon in the top bar), in order to use it in the ``--auth`` parameter of the ``kinto-wizard load`` command.
+Login in the Remote Settings Admin and copy the authentication header (icon in the top bar), in order to use it in the ``--auth`` parameter of the ``kinto-wizard load`` command. And load into PROD:
 
 .. code-block:: bash
 
-    kinto-wizard load --server https://settings.prod.mozaws.net/v1 --auth="Bearer uLdb-Yafefe....2Hyl5_w" top-sites.yaml
+    kinto-wizard load --server https://remote-settings.mozilla.org/v1 --auth="Bearer uLdb-Yafefe....2Hyl5_w" top-sites.yaml
 
 Requesting review can be done via the UI, :ref:`or the command-line <tutorial-multi-signoff-request-review>`.
 
