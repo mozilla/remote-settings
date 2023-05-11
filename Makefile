@@ -42,6 +42,7 @@ lint: $(INSTALL_STAMP)  ## Analyze code base
 	$(VENV)/bin/isort . --check-only --virtual-env=$(VENV)
 	$(VENV)/bin/black --check kinto-remote-settings tests --diff
 	$(VENV)/bin/flake8 kinto-remote-settings tests
+	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v poetry.lock` --baseline .secrets.baseline
 
 test: $(INSTALL_STAMP)  ## Run unit tests
 	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings
