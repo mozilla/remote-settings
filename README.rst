@@ -35,8 +35,8 @@ You will need:
 - `poetry <https://python-poetry.org/>`_
 - `Make <https://www.gnu.org/software/make/>`_
 
-Run
----
+Usage
+-----
 
 .. code-block:: shell
 
