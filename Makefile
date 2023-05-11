@@ -4,58 +4,64 @@ DOC_STAMP := $(VENV)/.doc.install.stamp
 SPHINX_BUILDDIR = docs/_build
 PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
 
-clean:
+
+help:
+	@echo "Please use 'make <target>' where <target> is one of the following commands.\n"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@echo "\nCheck the Makefile to know exactly what each target is doing."
+
+clean: ## Delete Python cache files
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d | xargs rm -rf
 	rm -rf .coverage
 
-distclean: clean
+distclean: clean ## Delete packaging and cache files
 	rm -rf *.egg *.egg-info/ dist/ build/
 
-maintainer-clean: distclean
+maintainer-clean: distclean ## Delete all non versioned files
 	deactivate ; rm -rf .venv/
 	rm -rf .pytest_cache
 	rm -rf tests/.pytest_cache
 	find . -name '*.orig' -delete
 	docker-compose down --remove-orphans --volumes --rmi all
 
-$(VENV)/bin/python:
+$(VENV)/bin/python:  ## Create virtualenv
 	python3 -m venv $(VENV)
 
-install: $(INSTALL_STAMP)
+install: $(INSTALL_STAMP)  ## Install dependencies
 $(INSTALL_STAMP): poetry.lock
 	@if [ -z $(shell command -v poetry 2> /dev/null) ]; then echo "Poetry could not be found. See https://python-poetry.org/docs/"; exit 2; fi
 	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --no-root
 	touch $(INSTALL_STAMP)
 
-format: $(INSTALL_STAMP)
+format: $(INSTALL_STAMP)  ## Format code base
 	$(VENV)/bin/isort . --virtual-env=$(VENV)
 	$(VENV)/bin/black kinto-remote-settings tests
 
-lint: $(INSTALL_STAMP)
+lint: $(INSTALL_STAMP)  ## Analyze code base
 	$(VENV)/bin/isort . --check-only --virtual-env=$(VENV)
 	$(VENV)/bin/black --check kinto-remote-settings tests --diff
 	$(VENV)/bin/flake8 kinto-remote-settings tests
 
-test: $(INSTALL_STAMP)
+test: $(INSTALL_STAMP)  ## Run unit tests
 	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings
 	$(VENV)/bin/coverage report -m --fail-under 99
 
-integration-test:
+integration-test:  ## Run integration tests using Docker
 	docker-compose build tests
 	docker-compose run --rm web migrate
 	docker-compose run --rm tests integration-test
 
-browser-test:
+browser-test:  ## Run browser tests using Docker
 	docker-compose build tests
 	docker-compose run --rm web migrate
 	docker-compose run --rm tests browser-test
 
-build:
+build:  ## Build containers
 	docker build --file RemoteSettings.Dockerfile --target production --tag remotesettings/server .
 	docker-compose --profile integration-test build
 
-build-db:
+build-db:  ## Initialize database 'postgresql://postgres@localhost/testdb'
 ifdef PSQL_INSTALLED
 	@pg_isready 2>/dev/null 1>&2 || (echo Run PostgreSQL before starting tests. && exit 1)
 	@echo Creating db...
@@ -66,23 +72,23 @@ else
 	@echo PostgreSQL not installed. Please install PostgreSQL to use this command.
 endif
 
-start:
+start:  ## Run the services using Docker
 	make build
 	docker-compose run --rm web migrate
 	docker-compose up
 
-stop:
+stop:  ## Stop the services
 	docker-compose stop
 
-down:
+down:  ## Shutwdown all containers
 	docker-compose down
 
-install-docs: $(DOC_STAMP)
+install-docs: $(DOC_STAMP)  ## Install documentation build dependencies
 $(DOC_STAMP): poetry.lock
 	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --only docs
 	touch $(DOC_STAMP)
 
-docs: install-docs
+docs: install-docs  ## Build documentation
 	$(VENV)/bin/sphinx-build -a -W -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"
