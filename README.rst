@@ -6,6 +6,8 @@ Remote Settings is a Mozilla service that makes it easy to manage evergreen sett
 https://remote-settings.readthedocs.io
 --------------------------------------
 
+.. image:: https://img.shields.io/badge/Status-Sustain-green
+
 .. image:: https://circleci.com/gh/mozilla/remote-settings/tree/main.svg?style=svg
    :target: https://circleci.com/gh/mozilla/remote-settings
 
@@ -33,8 +35,8 @@ You will need:
 - `poetry <https://python-poetry.org/>`_
 - `Make <https://www.gnu.org/software/make/>`_
 
-Run
----
+Usage
+-----
 
 .. code-block:: shell
 
