@@ -24,7 +24,7 @@ RUN $POETRY_HOME/bin/poetry install --only main --no-root && \
 # dependency group so that we can use pip to install the packages in
 # non-editable mode
 COPY ./kinto-remote-settings ./kinto-remote-settings
-COPY VERSION .
+COPY version.json .
 RUN pip install ./kinto-remote-settings
 
 FROM python:3.11.3-slim as production
