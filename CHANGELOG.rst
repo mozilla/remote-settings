@@ -5,13 +5,13 @@ This document describes changes between each past release as well as
 the version control of each dependency.
 
 
-31.0.3.dev (unreleased)
-=======================
+31.0.3
+======
 
 **Bug Fixes**
 
-- Reduce size of downloaded history in integration tests
-
+- Reduce size of downloaded history in integration tests (#414)
+- Change default collection for integration tests (#413)
 
 31.0.2 (2023-04-13)
 ===================
