@@ -156,12 +156,14 @@ jobs:
           name: Create version.json
           command: |
             # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/main/docs/version_object.md
+            LATEST_TAG=$(git describe --tags --abbrev=0)
             printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' \
             "$CIRCLE_SHA1" \
-            $(cat VERSION) \
+            "${CIRCLE_TAG:-$LATEST_TAG}" \
             "$CIRCLE_PROJECT_USERNAME" \
             "$CIRCLE_PROJECT_REPONAME" \
             "$CIRCLE_BUILD_URL" > version.json
+            cat version.json
       - run: mkdir -p /tmp/workspace
       - run:
           name: Build
@@ -269,7 +271,7 @@ jobs:
       - run:
           name: Check documentation build
           command: make docs
-      - save_cache: 
+      - save_cache:
           name: Saving docs dependency cache
           key: v2-docs-requirements-{{ checksum "poetry.lock" }}
           paths:
