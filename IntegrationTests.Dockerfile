@@ -1,4 +1,4 @@
-FROM python:3.11.3-slim as build
+FROM python:3.11.4-slim as build
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -17,7 +17,7 @@ WORKDIR /opt
 COPY pyproject.toml poetry.lock ./
 RUN $POETRY_HOME/bin/poetry install --only integration-tests --no-root
 
-FROM python:3.11.3-slim
+FROM python:3.11.4-slim
 ENV PATH="/opt/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/.venv \
