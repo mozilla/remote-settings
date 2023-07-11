@@ -2497,13 +2497,13 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "requests-hawk"
-version = "1.1.1"
+version = "1.2.1"
 description = "requests-hawk"
 optional = false
 python-versions = "*"
 files = [
-    {file = "requests-hawk-1.1.1.tar.gz", hash = "sha256:4c74bd31b581f6d2b36d575bb537b1f29469509f560f5050339a48195d48929b"},
-    {file = "requests_hawk-1.1.1-py2.py3-none-any.whl", hash = "sha256:4a5c7135ee2f5f8be70054a8c3874c918dd4dcd355d675f2de8653aab6f94e39"},
+    {file = "requests-hawk-1.2.1.tar.gz", hash = "sha256:ad9205042c94bdb15afaa19b0780e11077b24d9e5cffac1fb3d26cb08aa435b7"},
+    {file = "requests_hawk-1.2.1-py2.py3-none-any.whl", hash = "sha256:afe8add3c72a21405543a07464b62e36a5f378585e5cf3b54b1307e884f67324"},
 ]
 
 [package.dependencies]
@@ -3301,4 +3301,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "749dcf507f8408c6f6c5824343e9aa49dd5eceae4330df815d8612b8d7f609be"
+content-hash = "7f3761af8ef7a035ab4475efab8be18c15f78dbc8102e604f83e1ad8041cc36f"

@@ -54,7 +54,7 @@ ecdsa = "0.18.0"
 kinto = {version = "^16.0.0", extras = ["postgresql","memcached","monitoring"]}
 kinto-attachment = "6.3.1"
 kinto-emailer = "2.1.0"
-requests-hawk = "1.1.1"
+requests-hawk = "1.2.1"
 uwsgi = "2.0.21"
 
 [tool.poetry.group.kinto-remote-settings.dependencies]
