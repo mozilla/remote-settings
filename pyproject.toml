@@ -73,7 +73,7 @@ detect-secrets = "^1.4.0"
 optional = true
 
 [tool.poetry.group.integration-tests.dependencies]
-aiohttp = "3.8.4"
+aiohttp = "3.8.5"
 autograph-utils = "0.1.1"
 canonicaljson-rs = "0.5.0"
 httpie = "3.2.1"
