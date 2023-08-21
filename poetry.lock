@@ -1247,13 +1247,13 @@ files = [
 
 [[package]]
 name = "httpie"
-version = "3.2.1"
+version = "3.2.2"
 description = "HTTPie: modern, user-friendly command-line HTTP client for the API era."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "httpie-3.2.1-py3-none-any.whl", hash = "sha256:34dd03abdab7651eef2bca967b6aa5c73e8c24f32bd8784d19ac1b0f212bfd79"},
-    {file = "httpie-3.2.1.tar.gz", hash = "sha256:c9c0032ca3a8d62492b7231b2dd83d94becf3b71baf8a4bbcd9ed1038537e3ec"},
+    {file = "httpie-3.2.2-py3-none-any.whl", hash = "sha256:33082092553126e3e38395682c23121c3450472ffddb363eb895ad685d01800e"},
+    {file = "httpie-3.2.2.tar.gz", hash = "sha256:8bfb671f0b39505c197fdef3367f7f99af5d0e81a4e22289bb4c1f0e72251c90"},
 ]
 
 [package.dependencies]
@@ -3278,4 +3278,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "bcfab9a636ae1cf2674fece5c97db51a9aa008fba71138870f15b81f8380c63f"
+content-hash = "97729bdd8870de7511a35a29cee41992dc15dbe52290a119ef80507b9fba8ff1"
