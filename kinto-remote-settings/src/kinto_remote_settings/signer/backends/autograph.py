@@ -15,10 +15,6 @@ SIGNATURE_FIELDS = ["signature", "x5u"]
 EXTRA_SIGNATURE_FIELDS = ["mode", "public_key", "type", "signer_id", "ref"]
 
 
-class CertificateExpiresSoonError(Exception):
-    """Error raised when the Autograph certificate is about to expire."""
-
-
 class AutographSigner(SignerBase):
     def __init__(self, server_url, hawk_id, hawk_secret):
         self.server_url = server_url
@@ -57,9 +53,8 @@ class AutographSigner(SignerBase):
             min(max_remaining_days, max(min_remaining_days, relative_minimum))
         )
         if remaining_days <= clamped_minimum:
-            raise CertificateExpiresSoonError(
-                f"Only {remaining_days} days before Autograph certificate expires"
-            )
+            msg = "Only %s days before Autograph certificate expires (%s)"
+            logger.warning(msg, remaining_days, end)
 
         logger.debug(
             f"Certificate lasts {lifespan} days and ends in {remaining_days} days "
