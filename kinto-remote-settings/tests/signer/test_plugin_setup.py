@@ -121,7 +121,7 @@ class HeartbeatTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get("/__heartbeat__", status=503)
         assert resp.json["signer"] is False
 
-    def test_heartbeat_fails_if_certificate_expires_soon(self):
+    def test_heartbeat_warns_if_certificate_expires_soon(self):
         utcnow = datetime.datetime.now(datetime.timezone.utc)
         thousands_days_ago = utcnow - datetime.timedelta(days=1000)
         in_ten_days = utcnow + datetime.timedelta(days=10)
@@ -130,10 +130,17 @@ class HeartbeatTest(BaseWebTest, unittest.TestCase):
         )
         self.fetch_cert_mock.return_value = fake_cert
 
-        resp = self.app.get("/__heartbeat__", status=503)
-        assert resp.json["signer"] is False
+        with mock.patch(
+            "kinto_remote_settings.signer.backends.autograph.logger"
+        ) as mocked_logger:
+            resp = self.app.get("/__heartbeat__")
 
-    def test_heartbeat_fails_if_certificate_expires_on_clamped_limit(self):
+        assert resp.json["signer"] is True
+        mocked_logger.warning.assert_called_with(
+            "Only %s days before Autograph certificate expires (%s)", 9, in_ten_days
+        )
+
+    def test_heartbeat_warns_if_certificate_expires_on_clamped_limit(self):
         utcnow = datetime.datetime.now(datetime.timezone.utc)
         thousands_days_ago = utcnow - datetime.timedelta(days=1000)
         in_thirty_days = utcnow + datetime.timedelta(days=30)
@@ -142,8 +149,15 @@ class HeartbeatTest(BaseWebTest, unittest.TestCase):
         )
         self.fetch_cert_mock.return_value = fake_cert
 
-        resp = self.app.get("/__heartbeat__", status=503)
-        assert resp.json["signer"] is False
+        with mock.patch(
+            "kinto_remote_settings.signer.backends.autograph.logger"
+        ) as mocked_logger:
+            resp = self.app.get("/__heartbeat__")
+
+        assert resp.json["signer"] is True
+        mocked_logger.warning.assert_called_with(
+            "Only %s days before Autograph certificate expires (%s)", 29, in_thirty_days
+        )
 
     def test_heartbeat_succeeds_if_certificates_expires_before_threshold(self):
         utcnow = datetime.datetime.now(datetime.timezone.utc)
