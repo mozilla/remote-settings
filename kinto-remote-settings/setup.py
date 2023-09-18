@@ -5,7 +5,7 @@ import setuptools
 
 
 path = Path(__file__).parent.parent / "version.json"
-version = json.load(open(path))["version"].replace("v", "")
+version = json.load(open(path))["version"].replace("v", "").split("-")[0]
 
 INSTALL_REQUIRES = [
     "kinto",
