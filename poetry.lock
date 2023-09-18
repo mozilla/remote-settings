@@ -1415,13 +1415,13 @@ format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-
 
 [[package]]
 name = "kinto"
-version = "16.1.0"
+version = "16.2.1"
 description = "Kinto Web Service - Store, Sync, Share, and Self-Host."
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto-16.1.0-cp3-none-any.whl", hash = "sha256:d5aee2856a6fb50f46a3181dc706c3e5e97b4635e3aaf6b8d13a024ebc289f54"},
-    {file = "kinto-16.1.0.tar.gz", hash = "sha256:bfb859675292072fb5f2ff1a14d6167acc5a1ae08bad3b3d8115ff4ac692288e"},
+    {file = "kinto-16.2.1-cp3-none-any.whl", hash = "sha256:048caefbd188d476c0d19a2f149845674f18e5964f539262740d38913b0933ae"},
+    {file = "kinto-16.2.1.tar.gz", hash = "sha256:5de20484a3e230ac7727b937e9ee23d7067e8d519b7c190b97e8f03a4a18272c"},
 ]
 
 [package.dependencies]
@@ -3285,4 +3285,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "d815aa63a0562d5544d03e62e12575f1efd603ee36aae6fefb9bc7d7087f891a"
+content-hash = "b46456114abda4e748657401644c0bcde327292c265c6b49a01733044755ca71"
