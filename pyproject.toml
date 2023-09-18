@@ -88,7 +88,7 @@ optional = true
 
 [tool.poetry.group.docs.dependencies]
 docutils = "0.20.1"
-sphinx = "7.2.5"
+sphinx = "7.2.6"
 
 [build-system]
 requires = ["poetry-core"]
