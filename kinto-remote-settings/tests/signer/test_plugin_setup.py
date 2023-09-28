@@ -398,7 +398,26 @@ class OnCollectionChangedTest(unittest.TestCase):
         )
 
 
-class BatchTest(BaseWebTest, unittest.TestCase):
+class PatchAutographMixin:
+    def setUp(self):
+        super().setUp()
+        # Patch calls to Autograph.
+        patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
+        mocked = patch.start()
+        self.addCleanup(patch.stop)
+        mocked.post.return_value.json.side_effect = lambda: [
+            {
+                "signature": uuid.uuid4().hex,
+                "hash_algorithm": "",
+                "signature_encoding": "",
+                "content-signature": "",
+                "x5u": "",
+                "ref": "",
+            }
+        ]
+
+
+class BatchTest(BaseWebTest, PatchAutographMixin, unittest.TestCase):
     def setUp(self):
         super(BatchTest, self).setUp()
         self.headers = get_user_headers("me")
@@ -424,21 +443,6 @@ class BatchTest(BaseWebTest, unittest.TestCase):
             {"data": {"members": [self.userid]}},
             headers=self.headers,
         )
-
-        # Patch calls to Autograph.
-        patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
-        self.mock = patch.start()
-        self.addCleanup(patch.stop)
-        self.mock.post.return_value.json.return_value = [
-            {
-                "signature": "",
-                "hash_algorithm": "",
-                "signature_encoding": "",
-                "content-signature": "",
-                "x5u": "",
-                "ref": "",
-            }
-        ]
 
     def test_various_collections_can_be_signed_using_batch(self):
         self.app.put_json("/buckets/alice/collections/source", headers=self.headers)
@@ -542,30 +546,15 @@ class RecordChangedTest(BaseWebTest, unittest.TestCase):
             assert path in resp.json["message"]
 
 
-class SourceCollectionDeletion(BaseWebTest, unittest.TestCase):
+class SourceCollectionSoftDeletion(BaseWebTest, PatchAutographMixin, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):
-        settings = super(cls, SourceCollectionDeletion).get_app_settings(extras)
+        settings = super(cls, SourceCollectionSoftDeletion).get_app_settings(extras)
         settings["signer.to_review_enabled"] = "true"
         return settings
 
     def setUp(self):
         super().setUp()
-
-        # Patch calls to Autograph.
-        patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
-        mocked = patch.start()
-        self.addCleanup(patch.stop)
-        mocked.post.return_value.json.side_effect = lambda: [
-            {
-                "signature": uuid.uuid4().hex,
-                "hash_algorithm": "",
-                "signature_encoding": "",
-                "content-signature": "",
-                "x5u": "",
-                "ref": "",
-            }
-        ]
 
         self.headers = get_user_headers("me")
         resp = self.app.get("/", headers=self.headers)
@@ -630,6 +619,14 @@ class SourceCollectionDeletion(BaseWebTest, unittest.TestCase):
 
         assert not mocked.called
 
+    def test_editors_reviewers_groups_are_deleted(self):
+        self.app.get(
+            "/buckets/stage/groups/a-editors", headers=self.headers, status=404
+        )
+        self.app.get(
+            "/buckets/stage/groups/a-reviewers", headers=self.headers, status=404
+        )
+
     def test_destination_content_is_deleted_when_source_is_deleted(self):
         # Destination is empty.
         resp = self.app.get("/buckets/prod/collections/a/records", headers=self.headers)
@@ -663,3 +660,73 @@ class SourceCollectionDeletion(BaseWebTest, unittest.TestCase):
             "/buckets/preview/collections/a/records", headers=self.headers
         )
         assert len(resp.json["data"]) == 5
+
+
+class SourceCollectionHardDeletion(BaseWebTest, PatchAutographMixin, unittest.TestCase):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super(cls, SourceCollectionHardDeletion).get_app_settings(extras)
+        settings["signer.to_review_enabled"] = "true"
+        settings["signer.hard_delete_destination_on_source_deletion"] = "true"
+        return settings
+
+    def setUp(self):
+        super().setUp()
+
+        self.headers = get_user_headers("me")
+        resp = self.app.get("/", headers=self.headers)
+        self.userid = resp.json["user"]["id"]
+
+        self.other_headers = get_user_headers("Sam:Wan Heilss")
+        resp = self.app.get("/", headers=self.other_headers)
+        self.other_userid = resp.json["user"]["id"]
+
+        self.app.put_json("/buckets/stage", headers=self.headers)
+
+        self.app.put_json(
+            "/buckets/stage/groups/a-editors",
+            {"data": {"members": [self.other_userid]}},
+            headers=self.headers,
+        )
+        self.app.put_json(
+            "/buckets/stage/groups/a-reviewers",
+            {"data": {"members": [self.userid]}},
+            headers=self.headers,
+        )
+
+        self.create_records_and_sign()
+
+    def create_records_and_sign(self):
+        body = {"permissions": {"write": [self.other_userid]}}
+        self.app.put_json("/buckets/stage/collections/a", body, headers=self.headers)
+        for i in range(5):
+            self.app.post_json(
+                "/buckets/stage/collections/a/records", headers=self.headers
+            )
+        self.app.patch_json(
+            "/buckets/stage/collections/a",
+            {"data": {"status": "to-review"}},
+            headers=self.other_headers,
+        )
+        self.app.patch_json(
+            "/buckets/stage/collections/a",
+            {"data": {"status": "to-sign"}},
+            headers=self.headers,
+        )
+
+    def test_related_objects_are_all_deleted(self):
+        self.app.get("/buckets/preview/collections/a", headers=self.headers)
+        self.app.get("/buckets/prod/collections/a", headers=self.headers)
+        self.app.get("/buckets/stage/groups/a-editors", headers=self.headers)
+        self.app.get("/buckets/stage/groups/a-reviewers", headers=self.headers)
+
+        self.app.delete("/buckets/stage/collections/a", headers=self.headers)
+
+        self.app.get("/buckets/preview/collections/a", headers=self.headers, status=404)
+        self.app.get("/buckets/prod/collections/a", headers=self.headers, status=404)
+        self.app.get(
+            "/buckets/stage/groups/a-editors", headers=self.headers, status=404
+        )
+        self.app.get(
+            "/buckets/stage/groups/a-reviewers", headers=self.headers, status=404
+        )

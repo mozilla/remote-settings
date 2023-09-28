@@ -7,6 +7,7 @@ from kinto.core.storage.exceptions import ObjectNotFoundError
 from kinto.core.utils import instance_uri
 from pyramid import httpexceptions
 from pyramid.interfaces import IAuthorizationPolicy
+from pyramid.settings import asbool
 
 from . import events as signer_events
 from .updater import TRACKING_FIELDS, LocalUpdater
@@ -616,46 +617,83 @@ def create_editors_reviewers_groups(event, resources, editors_group, reviewers_g
 
 def cleanup_preview_destination(event, resources):
     storage = event.request.registry.storage
+    settings = event.request.registry.settings
 
     for impacted in event.impacted_objects:
         old_collection = impacted["old"]
 
+        source_bid = event.payload["bucket_id"]
+        source_bucket_uri = instance_uri(event.request, "bucket", id=source_bid)
+        source_cid = old_collection["id"]
+
         resource, signer = pick_resource_and_signer(
             event.request,
             resources,
-            bucket_id=event.payload["bucket_id"],
-            collection_id=old_collection["id"],
+            bucket_id=source_bid,
+            collection_id=source_cid,
         )
         if resource is None:
             continue
+
+        # Delete groups (without tombstones if soft delete)
+        should_hard_delete = asbool(
+            settings["signer.hard_delete_destination_on_source_deletion"]
+        )
+        storage.delete(
+            resource_name="group",
+            parent_id=source_bucket_uri,
+            object_id=f"{source_cid}-editors",
+            with_deleted=not should_hard_delete,
+        )
+        storage.delete(
+            resource_name="group",
+            parent_id=source_bucket_uri,
+            object_id=f"{source_cid}-reviewers",
+            with_deleted=not should_hard_delete,
+        )
 
         for k in ("preview", "destination"):
             if k not in resource:  # pragma: no cover
                 continue
             bid = resource[k]["bucket"]
             cid = resource[k]["collection"]
+            bucket_uri = instance_uri(event.request, "bucket", id=bid)
             collection_uri = instance_uri(
                 event.request, "collection", bucket_id=bid, id=cid
             )
-            storage.delete_all(
-                resource_name="record", parent_id=collection_uri, with_deleted=True
-            )
 
-            updater = LocalUpdater(
-                signer=signer,
-                storage=storage,
-                permission=event.request.registry.permission,
-                source=resource["source"],
-                destination=resource[k],
-            )
+            if should_hard_delete:
+                # Delete the records and the collection.
+                storage.delete_all(
+                    resource_name="record", parent_id=collection_uri, with_deleted=False
+                )
+                storage.delete(
+                    resource_name="collection",
+                    parent_id=bucket_uri,
+                    object_id=cid,
+                    with_deleted=False,
+                )
+            else:
+                # Delete records with tombstones.
+                storage.delete_all(
+                    resource_name="record", parent_id=collection_uri, with_deleted=True
+                )
 
-            # At this point, the DELETE event was sent for the source collection,
-            # but the source records may not have been deleted yet (it happens in an
-            # event listener too). That's why we don't copy the records otherwise it
-            # will recreate the records that were just deleted.
-            updater.sign_and_update_destination(
-                event.request,
-                source_attributes=old_collection,
-                next_source_status=None,
-                push_records=False,
-            )
+                updater = LocalUpdater(
+                    signer=signer,
+                    storage=storage,
+                    permission=event.request.registry.permission,
+                    source=resource["source"],
+                    destination=resource[k],
+                )
+
+                # At this point, the DELETE event was sent for the source collection,
+                # but the source records may not have been deleted yet (it happens in an
+                # event listener too). That's why we don't copy the records otherwise it
+                # will recreate the records that were just deleted.
+                updater.sign_and_update_destination(
+                    event.request,
+                    source_attributes=old_collection,
+                    next_source_status=None,
+                    push_records=False,
+                )

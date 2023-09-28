@@ -20,6 +20,7 @@ DEFAULT_SETTINGS = {
     "resources": "/buckets/main-workspace -> /buckets/main-preview -> /buckets/main",
     "signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
     "to_review_enabled": False,
+    "hard_delete_destination_on_source_deletion": False,
 }
 
 
