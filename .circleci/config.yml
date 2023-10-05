@@ -132,7 +132,7 @@ jobs:
           name: Push to Dockerhub
           command: |
             if [ "${CIRCLE_BRANCH}" == "main" ]; then
-              ./bin/deploy-dockerhub.sh latest
+              ./bin/deploy-dockerhub.sh $(git describe --tags --abbrev=4)
             else
               echo "CIRCLE_BRANCH=${CIRCLE_BRANCH} empty. Not pushing to dockerhub."
             fi
