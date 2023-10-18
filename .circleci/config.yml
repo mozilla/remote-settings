@@ -21,8 +21,8 @@ workflows:
 
   tag-workflow:
     jobs:
-      - build_containers:
-          filters: &tag-filters
+      - build_containers: &tag-filters
+          filters:
             tags:
               only: /\d+\..*/
             branches:

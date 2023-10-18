@@ -50,6 +50,7 @@ services:
     build:
       dockerfile: RemoteSettings.Dockerfile
       target: local
+      context: .
     image: remotesettings/local
     depends_on:
       - db
@@ -73,6 +74,7 @@ services:
   tests:
     build:
       dockerfile: IntegrationTests.Dockerfile
+      context: .
     image: remotesettings/tests
     profiles: [integration-test]
     depends_on:
