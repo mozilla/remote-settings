@@ -28,7 +28,7 @@ maintainer-clean: distclean ## Delete all non versioned files
 $(VENV)/bin/python:  ## Create virtualenv
 	python3 -m venv $(VENV)
 
-install: $(INSTALL_STAMP)  ## Install dependencies
+install: $(VENV)/bin/python $(INSTALL_STAMP)  ## Install dependencies
 $(INSTALL_STAMP): poetry.lock
 	@if [ -z $(shell command -v poetry 2> /dev/null) ]; then echo "Poetry could not be found. See https://python-poetry.org/docs/"; exit 2; fi
 	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --no-root
@@ -84,7 +84,7 @@ stop:  ## Stop the services
 down:  ## Shutwdown all containers
 	docker-compose down
 
-install-docs: $(DOC_STAMP)  ## Install documentation build dependencies
+install-docs: $(VENV)/bin/python $(DOC_STAMP)  ## Install documentation build dependencies
 $(DOC_STAMP): poetry.lock
 	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --only docs
 	touch $(DOC_STAMP)
