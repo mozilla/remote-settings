@@ -97,13 +97,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Run Integration Tests
+      - name: Run integration tests
         run: make integration-test
   browser-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Run Integration Tests
+      - name: Run browser tests
         run: make browser-test
   review-dependabot-pr:
     permissions:
