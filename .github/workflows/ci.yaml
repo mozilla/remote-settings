@@ -10,7 +10,9 @@ jobs:
       - name: Install poetry
         run: pipx install poetry
       - uses: actions/cache@v3
-        id: cache-poetry
+        # We need to use this caching strategy (rather than setting `cache: poetry` in setup-python)
+        # because our use of dependency groups. We want separate caches for each dependency group.
+        # https://github.com/actions/setup-python/issues/505
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
         with:
@@ -36,7 +38,9 @@ jobs:
         with:
           python-version: "3.11"
       - uses: actions/cache@v3
-        id: cache-poetry
+        # We need to use this caching strategy (rather than setting `cache: poetry`` in setup-python)
+        # because our use of dependency groups. We want separate caches for each dependency group.
+        # https://github.com/actions/setup-python/issues/505
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
         with:
@@ -74,7 +78,9 @@ jobs:
         with:
           python-version: "3.11"
       - uses: actions/cache@v3
-        id: cache-poetry
+        # We need to use this caching strategy (rather than setting `cache: poetry`` in setup-python)
+        # because our use of dependency groups. We want separate caches for each dependency group.
+        # https://github.com/actions/setup-python/issues/505
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
         with:
