@@ -5,110 +5,32 @@
 # DOCKER_PASS
 #
 version: 2.1
-aliases:
-  - &restore_deps_cache
-    name: Restoring Python dependency cache
-    key: v4-requirements-{{ checksum "poetry.lock" }}
-
-  - &save_deps_cache
-    name: Saving Python dependency cache
-    key: v4-requirements-{{ checksum "poetry.lock" }}
-    paths:
-      - .venv
 
 workflows:
-  pr-workflow:
-    jobs:
-      - lint_format: &pr-filters
-          filters:
-            branches:
-              ignore: main
-      - docs_test:
-          <<: *pr-filters
-      - build_containers:
-          <<: *pr-filters
-          requires:
-            - lint_format
-      - integration_test:
-          <<: *pr-filters
-          requires:
-            - build_containers
-      - browser_test:
-          <<: *pr-filters
-          requires:
-            - build_containers
-      - unit_test:
-          <<: *pr-filters
-          requires:
-            - lint_format
 
   main-workflow:
     jobs:
-      - lint_format: &main-filters
+      - build_containers: &main-filters
           filters:
             branches:
               only: main
-      - docs_test:
-          <<: *main-filters
-      - build_containers:
-          <<: *main-filters
-          requires:
-            - lint_format
-      - integration_test:
-          <<: *main-filters
-          requires:
-            - build_containers
-      - browser_test:
-          <<: *main-filters
-          requires:
-            - build_containers
-      - unit_test:
-          <<: *main-filters
-          requires:
-            - lint_format
       - publish:
           <<: *main-filters
           requires:
-            - docs_test
-            - unit_test
             - build_containers
-            - integration_test
-            - browser_test
 
   tag-workflow:
     jobs:
-      - lint_format: &tag-filters
+      - build_containers: &tag-filters
           filters:
             tags:
               only: /\d+\..*/
             branches:
               ignore: /.*/
-      - docs_test:
-          <<: *tag-filters
-      - build_containers:
-          <<: *tag-filters
-          requires:
-            - lint_format
-      - integration_test:
-          <<: *tag-filters
-          requires:
-            - build_containers
-      - browser_test:
-          <<: *tag-filters
-          requires:
-            - build_containers
-      - unit_test:
-          <<: *tag-filters
-          requires:
-            - lint_format
       - publish:
           <<: *tag-filters
           requires:
-            - docs_test
-            - unit_test
             - build_containers
-            - integration_test
-            - browser_test
 
 jobs:
   publish:
@@ -127,7 +49,6 @@ jobs:
           name: Load container
           command: |
             docker load -i /tmp/workspace/rs_production_container.tar.gz
-            docker load -i /tmp/workspace/rs_test_runner_container.tar.gz
       - run:
           name: Push to Dockerhub
           command: |
@@ -171,108 +92,8 @@ jobs:
       - run:
           name: Save containers
           command: |
-            docker save -o /tmp/workspace/rs_local_container.tar.gz remotesettings/local
             docker save -o /tmp/workspace/rs_production_container.tar.gz remotesettings/server
-            docker save -o /tmp/workspace/rs_test_runner_container.tar.gz remotesettings/tests
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
-            - rs_local_container.tar.gz
             - rs_production_container.tar.gz
-            - rs_test_runner_container.tar.gz
-
-  integration_test:
-    machine:
-      image: ubuntu-2004:2022.04.2
-      docker_layer_caching: true
-    environment:
-      DOCKER_BUILDKIT: 1
-      COMPOSE_DOCKER_CLI_BUILD: 1
-      BUILDKIT_PROGRESS: plain
-    steps:
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          name: Set hosts
-          command: |
-            echo 127.0.0.1 localhost | sudo tee -a /etc/hosts
-            cat /etc/hosts
-      - run:
-          name: Load containers
-          command: |
-            docker load -i /tmp/workspace/rs_local_container.tar.gz
-            docker load -i /tmp/workspace/rs_test_runner_container.tar.gz
-      - run:
-          name: Integration Test
-          command: make integration-test
-
-  browser_test:
-    machine:
-      image: ubuntu-2004:2022.04.2
-      docker_layer_caching: true
-    environment:
-      DOCKER_BUILDKIT: 1
-      COMPOSE_DOCKER_CLI_BUILD: 1
-      BUILDKIT_PROGRESS: plain
-    steps:
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          name: Set hosts
-          command: |
-            echo 127.0.0.1 localhost | sudo tee -a /etc/hosts
-            cat /etc/hosts
-      - run:
-          name: Load containers
-          command: |
-            docker load -i /tmp/workspace/rs_production_container.tar.gz
-            docker load -i /tmp/workspace/rs_test_runner_container.tar.gz
-      - run:
-          name: Browser Test
-          command: make browser-test
-
-  unit_test:
-    docker:
-      - image: cimg/python:3.11.2
-      - image: cimg/postgres:12.8
-        environment:
-          POSTGRES_DB: testdb
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-    steps:
-      - checkout
-      - restore_cache: *restore_deps_cache
-      - run:
-          name: Run kinto_remote_settings plugin unit tests
-          command: make test
-      - save_cache: *save_deps_cache
-
-  lint_format:
-    docker:
-      - image: cimg/python:3.11.2
-    steps:
-      - checkout
-      - restore_cache: *restore_deps_cache
-      - run:
-          name: Check linting and formatting
-          command: make lint
-      - save_cache: *save_deps_cache
-
-  docs_test:
-    docker:
-      - image: cimg/python:3.11.2
-    steps:
-      - checkout
-      - restore_cache:
-          name: Restoring docs dependency cache
-          key: v2-docs-requirements-{{ checksum "poetry.lock" }}
-      - run:
-          name: Check documentation build
-          command: make docs
-      - save_cache:
-          name: Saving docs dependency cache
-          key: v2-docs-requirements-{{ checksum "poetry.lock" }}
-          paths:
-            - .venv

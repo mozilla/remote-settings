@@ -1,0 +1,116 @@
+name: Run CI checks
+
+on: pull_request
+
+jobs:
+  run_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/cache@v3
+        # We need to use this caching strategy (rather than setting `cache: poetry` in setup-python)
+        # because our use of dependency groups. We want separate caches for each dependency group.
+        # https://github.com/actions/setup-python/issues/505
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
+        with:
+          path: |
+            ~/.cache/pypoetry/virtualenvs
+            ~/.cache/pypoetry/cache
+            ~/.cache/pypoetry/artifacts
+          key: poetry-dev-${{ hashFiles('poetry.lock') }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"    
+      - name: Install dependencies
+        run: make install
+      - name: Run linting and formatting checks
+        run: make lint
+  docs_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - uses: actions/cache@v3
+        # We need to use this caching strategy (rather than setting `cache: poetry`` in setup-python)
+        # because our use of dependency groups. We want separate caches for each dependency group.
+        # https://github.com/actions/setup-python/issues/505
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
+        with:
+          path: |
+            ~/.cache/pypoetry/virtualenvs
+            ~/.cache/pypoetry/cache
+            ~/.cache/pypoetry/artifacts
+          key: poetry-docs-${{ hashFiles('poetry.lock') }}
+      - name: Check documentation build
+        run: make docs
+  run_test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres # pragma: allowlist secret
+          POSTGRES_HOST_AUTH_METHOD: trust
+          LC_COLLATE: en_US.UTF8
+          LC_CTYPE: en_US.UTF8
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - uses: actions/cache@v3
+        # We need to use this caching strategy (rather than setting `cache: poetry`` in setup-python)
+        # because our use of dependency groups. We want separate caches for each dependency group.
+        # https://github.com/actions/setup-python/issues/505
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
+        with:
+          path: |
+            ~/.cache/pypoetry/virtualenvs
+            ~/.cache/pypoetry/cache
+            ~/.cache/pypoetry/artifacts
+          key: poetry-dev-${{ hashFiles('poetry.lock') }}
+      - name: Install dependencies
+        run: make install
+      - name: Run tests
+        run: make test
+  integration_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run integration tests
+        run: make integration-test
+  browser-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run browser tests
+        run: make browser-test
+  review-dependabot-pr:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Enable Dependabot automation
+        uses: mozilla/syseng-pod/actions/dependabot-automerge@main
