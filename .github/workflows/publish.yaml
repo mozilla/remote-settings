@@ -28,6 +28,7 @@ jobs:
             # Show complete version.json for debugging
             cat ./version.json
       - name: Docker metadata
+        id: docker-metadata
         uses: docker/metadata-action@v5
         with:
           images: mozilla/remote-settings
@@ -46,7 +47,7 @@ jobs:
           file: RemoteSettings.Dockerfile
           target: production
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.docker-metadata.outputs.tags }}
   
   integration_test_container:
     runs-on: ubuntu-latest
@@ -58,6 +59,7 @@ jobs:
       - name: Set tag version
         run: echo "LATEST_TAG=$(git describe --tags --abbrev=4)" >> $GITHUB_ENV
       - name: Docker metadata
+        id: docker-metadata
         uses: docker/metadata-action@v5
         with:
           images: mozilla/remote-settings-integration-tests
@@ -75,4 +77,4 @@ jobs:
           context: .
           file: IntegrationTests.Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.docker-metadata.outputs.tags }}
