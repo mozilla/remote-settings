@@ -99,11 +99,9 @@ jobs:
       DOCKER_CACHE: /tmp/docker-cache
     steps:
       - uses: actions/checkout@v3
-
-      - run: |
-          mkdir -p ${DOCKER_CACHE}/web
-          mkdir -p ${DOCKER_CACHE}/tests
-
+      
+      - run: mkdir ${DOCKER_CACHE}
+        
       - name: Compute cache key
         run: echo "CACHE_KEY=$(git ls-tree --full-tree -r --name-only HEAD | grep -v -f RemoteSettings.dockerignore | git hash-object --stdin)" >> $GITHUB_ENV
 
@@ -121,17 +119,21 @@ jobs:
         with:
           install: true
       
-      - name: Pre-build image caches
-        run: |
-          docker buildx build \
-            --cache-from type=local,src=${DOCKER_CACHE}/web \
-            --cache-to type=local,dest=${DOCKER_CACHE}/web,mode=max \
-            --file RemoteSettings.Dockerfile .
+      - name: Build web container
+        uses: docker/build-push-action@v5
+        with:
+          cache-from: type=local,src=${{ env.DOCKER_CACHE}}/web
+          cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/web,mode=max
+          file: RemoteSettings.Dockerfile
+          context: .
 
-          docker buildx build \
-            --cache-from type=local,src=${DOCKER_CACHE}/tests \
-            --cache-to type=local,dest=${DOCKER_CACHE}/tests,mode=max \
-            --file IntegrationTests.Dockerfile .
+      - name: Build test container
+        uses: docker/build-push-action@v5
+        with:
+          cache-from: type=local,src=${{ env.DOCKER_CACHE}}/tests
+          cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/tests,mode=max
+          file: IntegrationTests.Dockerfile
+          context: .
 
       - name: Run integration tests
         run: make integration-test
@@ -142,11 +144,7 @@ jobs:
       DOCKER_CACHE: /tmp/docker-cache
     steps:
       - uses: actions/checkout@v3
-      
-      - run: |
-          mkdir -p ${DOCKER_CACHE}/web
-          mkdir -p ${DOCKER_CACHE}/tests
-      
+
       - name: Compute cache key
         run: echo "CACHE_KEY=$(git ls-tree --full-tree -r --name-only HEAD | grep -v -f RemoteSettings.dockerignore | git hash-object --stdin)" >> $GITHUB_ENV
 
@@ -164,17 +162,21 @@ jobs:
         with:
           install: true
       
-      - name: Pre-build image caches
-        run: |
-          docker buildx build \
-            --cache-from type=local,src=${DOCKER_CACHE}/web \
-            --cache-to type=local,dest=${DOCKER_CACHE}/web,mode=max \
-            --file RemoteSettings.Dockerfile .
+      - name: Build web container
+        uses: docker/build-push-action@v5
+        with:
+          cache-from: type=local,src=${{ env.DOCKER_CACHE}}/web
+          cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/web,mode=max
+          file: RemoteSettings.Dockerfile
+          context: .
 
-          docker buildx build \
-            --cache-from type=local,src=${DOCKER_CACHE}/tests \
-            --cache-to type=local,dest=${DOCKER_CACHE}/tests,mode=max \
-            --file IntegrationTests.Dockerfile .
+      - name: Build test container
+        uses: docker/build-push-action@v5
+        with:
+          cache-from: type=local,src=${{ env.DOCKER_CACHE}}/tests
+          cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/tests,mode=max
+          file: IntegrationTests.Dockerfile
+          context: .
 
       - name: Run browser tests
         run: make browser-test
