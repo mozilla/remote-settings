@@ -103,7 +103,8 @@ jobs:
       - run: mkdir ${DOCKER_CACHE}
         
       - name: Compute cache key
-        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r --name-only HEAD | grep -v -f RemoteSettings.dockerignore | git hash-object --stdin)" >> $GITHUB_ENV
+        # Create hash of hashes of checked in files not in Dockerignore
+        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f RemoteSettings.dockerignore | awk '{print $3}' | git hash-object --stdin)" >> $GITHUB_ENV
 
       - uses: actions/cache@v3
         with:
@@ -146,7 +147,8 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Compute cache key
-        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r --name-only HEAD | grep -v -f RemoteSettings.dockerignore | git hash-object --stdin)" >> $GITHUB_ENV
+        # Create hash of hashes of checked in files not in Dockerignore
+        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f RemoteSettings.dockerignore | awk '{print $3}' | git hash-object --stdin)" >> $GITHUB_ENV
 
       - uses: actions/cache@v3
         with:
