@@ -23,7 +23,7 @@ maintainer-clean: distclean ## Delete all non versioned files
 	rm -rf .pytest_cache
 	rm -rf tests/.pytest_cache
 	find . -name '*.orig' -delete
-	docker-compose down --remove-orphans --volumes --rmi all
+	docker compose down --remove-orphans --volumes --rmi all
 
 $(VENV)/bin/python:  ## Create virtualenv
 	python3 -m venv $(VENV)
@@ -49,18 +49,18 @@ test: $(INSTALL_STAMP)  ## Run unit tests
 	$(VENV)/bin/coverage report -m --fail-under 99
 
 integration-test:  ## Run integration tests using Docker
-	docker-compose build tests
-	docker-compose run --rm web migrate
-	docker-compose run --rm tests integration-test
+	docker compose build tests
+	docker compose run --rm web migrate
+	docker compose run --rm tests integration-test
 
 browser-test:  ## Run browser tests using Docker
-	docker-compose build tests
-	docker-compose run --rm web migrate
-	docker-compose run --rm tests browser-test
+	docker compose build tests
+	docker compose run --rm web migrate
+	docker compose run --rm tests browser-test
 
 build:  ## Build containers
 	docker build --file RemoteSettings.Dockerfile --target production --tag remotesettings/server .
-	docker-compose --profile integration-test build
+	docker compose --profile integration-test build
 
 build-db:  ## Initialize database 'postgresql://postgres@localhost/testdb'
 ifdef PSQL_INSTALLED
@@ -74,15 +74,15 @@ else
 endif
 
 start:  ## Run the services using Docker
-	make build
-	docker-compose run --rm web migrate
-	docker-compose up
+	docker compose build
+	docker compose run --rm web migrate
+	docker compose up
 
 stop:  ## Stop the services
-	docker-compose stop
+	docker compose stop
 
 down:  ## Shutwdown all containers
-	docker-compose down
+	docker compose down
 
 install-docs: $(VENV)/bin/python $(DOC_STAMP)  ## Install documentation build dependencies
 $(DOC_STAMP): poetry.lock
