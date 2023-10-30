@@ -6,6 +6,13 @@ updates:
     interval: weekly
     day: sunday
     timezone: UCT
+  groups:
+    production-dependency-patches:
+      dependency-type: "production"
+      update-types: ["patch"]
+    development-dependencies:
+      dependency-type: "development"
+      update-types: ["major", "minor", "patch"]
   open-pull-requests-limit: 99
   reviewers:
   - leplatrem
