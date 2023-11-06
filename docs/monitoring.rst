@@ -63,7 +63,7 @@ Redash Queries
 - `Remote Settings clients stuck in the past <https://sql.telemetry.mozilla.org/queries/81955>`_
 - `Profiles with broken sync (last 120H) <https://sql.telemetry.mozilla.org/queries/85521>`_
 
-.. notes::
+.. note::
 
     Most queries filter on the last X hours with ``WHERE timestamp > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {{X}} HOUR)``
     but it's possible to query a specific time window with:
@@ -72,7 +72,7 @@ Redash Queries
         WHERE timestamp > timestamp '2023-10-24 06:00:00'
           AND timestamp < timestamp '2023-10-24 22:00:00'
 
-.. notes::
+.. note::
 
     These queries may require permissions, don't hesitate to request access on Slack in ``#delivery``.
 
