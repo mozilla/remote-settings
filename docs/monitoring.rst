@@ -30,16 +30,46 @@ Servers logs are available in the Google Cloud Console `Logs Explorer <https://c
 Writer Instances
 ''''''''''''''''
 
+This shows Nginx logs combined with application logs:
+
 ::
 
-    TBD
+    resource.type="k8s_container"
+    labels."k8s-pod/app_kubernetes_io/component"="writer"
+
+To filter out request summaries, and see application logs only:
+
+::
+
+    jsonPayload.Type!="request.summary"
+
+Specific status codes, for example errors:
+
+::
+
+    jsonPayload.Fields.code=~"^(4|5)\d{2,2}$"
+
 
 Reader Instances
 ''''''''''''''''
 
 ::
 
-    TBD
+    labels."k8s-pod/app_kubernetes_io/component"="reader"
+
+
+Cronjobs / Lambdas
+''''''''''''''''''
+
+Filter ``labels."k8s-pod/app_kubernetes_io/component"`` with one of the following values:
+
+- ``cron-backport-records``
+- ``cron-backport-records-normandy``
+- ``cron-cookie-banner-rules-list``
+- ``cron-refresh-signature``
+- ``cron-remote-settings-mdn-browser-compat-data``
+- ``cron-sync-megaphone``
+
 
 Attachments CDN Logs
 ''''''''''''''''''''
