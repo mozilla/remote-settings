@@ -99,6 +99,7 @@ Redash Queries
     but it's possible to query a specific time window with:
 
     ::
+
         WHERE timestamp > timestamp '2023-10-24 06:00:00'
           AND timestamp < timestamp '2023-10-24 22:00:00'
 
