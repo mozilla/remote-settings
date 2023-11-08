@@ -42,7 +42,7 @@ asyncio_mode = "strict"
 name = "remote-settings"
 version = "0"
 description = "Easily manage evergreen settings data in Firefox"
-authors = ["@mozilla/remote-settings-reviewers"]
+authors = ["Contactless <postmaster@localhost>"]
 license = "MPL"
 readme = "README.rst"
 

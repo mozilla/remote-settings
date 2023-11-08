@@ -86,7 +86,7 @@ down:  ## Shutwdown all containers
 
 install-docs: $(VENV)/bin/python $(DOC_STAMP)  ## Install documentation build dependencies
 $(DOC_STAMP): poetry.lock
-	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --only docs
+	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --no-root --only docs
 	touch $(DOC_STAMP)
 
 docs: install-docs  ## Build documentation
