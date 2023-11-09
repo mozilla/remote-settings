@@ -9,6 +9,8 @@ Troubleshooting
 * Open a `Server Side ticket <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ (Admin, permissions etc.)
 * Open a `Client Side ticket <https://bugzilla.mozilla.org/enter_bug.cgi?product=Firefox&component=Remote%20Settings%20Client>`_ (Gecko API related)
 
+Before reaching out in ``#delivery`` on Slack, double-check that your question wasn't already covered here.
+
 I cannot access my collection
 '''''''''''''''''''''''''''''
 
@@ -53,7 +55,7 @@ The **recommended way** to setup Firefox to pull data from STAGE is to use the `
 
 .. note::
 
-    On Beta and Release, you have to run Firefox with the environment variable ``MOZ_REMOTE_SETTINGS_DEVTOOLS=1`` to toggle environments. 
+    On Beta and Release, you have to run Firefox with the environment variable ``MOZ_REMOTE_SETTINGS_DEVTOOLS=1`` to toggle environments.
 
 Alternatively, in order to point STAGE before on fresh profiles for example, you can set the `appropriate preferences <https://github.com/mozilla/remote-settings-devtools/blob/1.7.0/extension/experiments/remotesettings/api.js#L173-L184>`_ in a ``user.js`` file:
 
@@ -72,9 +74,9 @@ The recommended way to setup Firefox to pull data from the preview collection is
 
 .. note::
 
-    On Beta and Release, you have to run Firefox with the environment variable ``MOZ_REMOTE_SETTINGS_DEVTOOLS=1`` to toggle environments. 
+    On Beta and Release, you have to run Firefox with the environment variable ``MOZ_REMOTE_SETTINGS_DEVTOOLS=1`` to toggle environments.
 
-See `developer docs about preview mode <https://firefox-source-docs.mozilla.org/services/settings/index.html#preview-mode>`_ for manual toggling. 
+See `developer docs about preview mode <https://firefox-source-docs.mozilla.org/services/settings/index.html#preview-mode>`_ for manual toggling.
 
 
 How do I preview the changes before requesting review?
