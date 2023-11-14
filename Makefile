@@ -35,13 +35,12 @@ $(INSTALL_STAMP): poetry.lock
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)  ## Format code base
-	$(VENV)/bin/isort . --virtual-env=$(VENV)
-	$(VENV)/bin/black kinto-remote-settings tests
+	$(VENV)/bin/ruff check --fix kinto-remote-settings tests
+	$(VENV)/bin/ruff format kinto-remote-settings tests
 
 lint: $(INSTALL_STAMP)  ## Analyze code base
-	$(VENV)/bin/isort . --check-only --virtual-env=$(VENV)
-	$(VENV)/bin/black --check kinto-remote-settings tests --diff
-	$(VENV)/bin/flake8 kinto-remote-settings tests
+	$(VENV)/bin/ruff check kinto-remote-settings tests
+	$(VENV)/bin/ruff format kinto-remote-settings tests
 	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v poetry.lock` --baseline .secrets.baseline
 
 test: $(INSTALL_STAMP)  ## Run unit tests
