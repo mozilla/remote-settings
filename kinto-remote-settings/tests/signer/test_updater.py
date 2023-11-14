@@ -34,7 +34,9 @@ class LocalUpdaterTest(unittest.TestCase):
         return patcher.start()
 
     def test_updater_raises_if_resources_are_not_set_properly(self):
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(
+            ValueError, match="Resources should contain both " "bucket and collection"
+        ):
             LocalUpdater(
                 source={"bucket": "source"},
                 destination={},
@@ -42,9 +44,6 @@ class LocalUpdaterTest(unittest.TestCase):
                 storage=self.storage,
                 permission=self.permission,
             )
-        assert str(excinfo.value) == (
-            "Resources should contain both " "bucket and collection"
-        )
 
     def test_get_source_records_asks_storage_for_records(self):
         self.storage.list_all.return_value = []

@@ -7,7 +7,6 @@ import pytest
 import pytest_asyncio
 import requests
 from kinto_http import AsyncClient, KintoException
-from pytest import FixtureRequest
 from requests.adapters import HTTPAdapter
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -168,7 +167,7 @@ def to_review_enabled(request) -> bool:
     return request.config.getoption("--to-review-enabled")
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_client(
     server: str, source_bucket: str, source_collection: str, skip_server_setup: bool
 ) -> ClientFactory:
@@ -221,7 +220,7 @@ async def flush_default_collection(
 
 
 @pytest.fixture(scope="session", autouse=True)
-def verify_url(request: FixtureRequest, base_url: str):
+def _verify_url(request: pytest.FixtureRequest, base_url: str):
     """Verifies the base URL"""
     verify = request.config.option.verify_base_url
     if base_url and verify:
@@ -231,13 +230,13 @@ def verify_url(request: FixtureRequest, base_url: str):
         session.get(base_url, verify=False)
 
 
-@pytest.fixture
+@pytest.fixture()
 def firefox_options(firefox_options: Options) -> Options:
     firefox_options.headless = True
     return firefox_options
 
 
-@pytest.fixture
+@pytest.fixture()
 def selenium(selenium: WebDriver) -> WebDriver:
     selenium.set_window_size(1024, 600)
     selenium.maximize_window()

@@ -52,7 +52,8 @@ async def test_changes_plugin(
     await upload_records(editor_client, 1)
     await editor_client.patch_collection(data={"status": "to-review"})
 
-    # 3. Compare timestamps and assert that preview timestamp was bumped, and destination wasn't
+    # 3. Compare timestamps and assert that preview timestamp was bumped,
+    #    and destination wasn't
     records = await anonymous_client.get_records(bucket="monitor", collection="changes")
     preview = find_changes_record(
         records=records,

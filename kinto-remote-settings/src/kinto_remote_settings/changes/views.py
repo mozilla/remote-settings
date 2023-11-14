@@ -128,8 +128,8 @@ class Changes(resource.Resource):
             result = super().plural_get()
         except httpexceptions.HTTPNotModified:
             # Since the Google Cloud Platform CDN does not cache ``304 Not Modified``
-            # responses, we return a ``200 Ok`` with an empty list of changes to the clients.
-            # The two are strictly equivalent in the client implementation:
+            # responses, we return a ``200 Ok`` with an empty list of changes to the
+            # clients. The two are strictly equivalent in the client implementation:
             # https://searchfox.org/mozilla-esr78/rev/3c633b1a0994f380032/services/settings/Utils.jsm#170-208
             result = self.postprocess([])
 

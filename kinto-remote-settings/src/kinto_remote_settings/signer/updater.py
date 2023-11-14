@@ -152,8 +152,9 @@ class LocalUpdater(object):
     def rollback_changes(
         self, request, refresh_last_edit=True, refresh_signature=False
     ):
-        """Restore the contents of *destination* to *source* (delete extras, recreate deleted,
-        and restore changes) (eg. destination -> preview, or preview -> source).
+        """Restore the contents of *destination* to *source* (delete extras,
+        recreate deleted, and restore changes) (eg. destination -> preview,
+        or preview -> source).
         """
         dest_records, _ = self.get_destination_records(empty_none=False)
         dest_by_id = {r["id"]: r for r in dest_records}
@@ -295,13 +296,13 @@ class LocalUpdater(object):
         return self._get_records(self.destination, **kwargs)
 
     def push_records_to_destination(self, request):
-        dest_records, dest_timestamp = self.get_destination_records()
-        source_records, source_timestamp = self.get_source_records()
+        dest_records, _dest_timestamp = self.get_destination_records()
+        source_records, _source_timestamp = self.get_source_records()
         new_records = records_diff(source_records, dest_records)
         changes_count = len(new_records)
 
         if len(new_records) == 0:
-            return
+            return None
 
         # Update the destination collection.
         for record in new_records:

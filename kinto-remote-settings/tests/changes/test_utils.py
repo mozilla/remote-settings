@@ -15,16 +15,13 @@ class ChangesRecordTest(unittest.TestCase):
         timestamp = 1525457597166
         entry = changes_object(request, "a", "b", timestamp)
 
-        self.assertEqual(
-            entry,
-            {
-                "bucket": "a",
-                "collection": "b",
-                "host": "",
-                "id": "9527d115-6191-fa49-a530-8fbfc4997755",
-                "last_modified": timestamp,
-            },
-        )
+        assert entry == {
+            "bucket": "a",
+            "collection": "b",
+            "host": "",
+            "id": "9527d115-6191-fa49-a530-8fbfc4997755",
+            "last_modified": timestamp,
+        }
 
     def test_another_hardcoded(self):
         request = Request.blank(path="/")
@@ -35,13 +32,10 @@ class ChangesRecordTest(unittest.TestCase):
         timestamp = 1525457597166
         entry = changes_object(request, "a", "b", timestamp)
 
-        self.assertEqual(
-            entry,
-            {
-                "bucket": "a",
-                "collection": "b",
-                "host": "https://localhost:443",
-                "id": "fa48a96d-1600-f561-8645-3395acb08a5a",
-                "last_modified": timestamp,
-            },
-        )
+        assert entry == {
+            "bucket": "a",
+            "collection": "b",
+            "host": "https://localhost:443",
+            "id": "fa48a96d-1600-f561-8645-3395acb08a5a",
+            "last_modified": timestamp,
+        }

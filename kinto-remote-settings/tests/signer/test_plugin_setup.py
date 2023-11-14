@@ -28,9 +28,9 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.maxDiff = None
         resp = self.app.get("/")
         capabilities = resp.json["capabilities"]
-        self.assertIn("signer", capabilities)
+        assert "signer" in capabilities
         expected = {
-            "description": "Digital signatures for integrity and authenticity of records.",  # NOQA
+            "description": "Digital signatures for integrity and authenticity of records.",
             "url": ("https://github.com/Kinto/kinto-signer#kinto-signer"),
             "version": __version__,
             "group_check_enabled": True,
@@ -76,7 +76,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                 },
             ],
         }
-        self.assertEqual(expected, capabilities["signer"])
+        assert expected == capabilities["signer"]
 
 
 class HeartbeatTest(BaseWebTest, unittest.TestCase):
@@ -184,7 +184,7 @@ class IncludeMeTest(unittest.TestCase):
             "signer.resources": (
                 "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1\n"
             ),
-            "signer.sb1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",  # noqa: 501
+            "signer.sb1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.sb1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.ecdsa.private_key": "/path/to/private",
         }
@@ -200,7 +200,7 @@ class IncludeMeTest(unittest.TestCase):
             "signer.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.ecdsa.public_key": "/path/to/key",
             "signer.ecdsa.private_key": "/path/to/private",
-            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",  # noqa: 501
+            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.sb1.sc1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.sc1.ecdsa.private_key": "/path/to/private",
         }
@@ -214,10 +214,10 @@ class IncludeMeTest(unittest.TestCase):
             "signer.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.ecdsa.public_key": "/path/to/key",
             "signer.ecdsa.private_key": "/path/to/private",
-            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",  # noqa: 501
+            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.sb1.sc1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.sc1.ecdsa.private_key": "/path/to/private",
-            "signer.sb2.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",  # noqa: 501
+            "signer.sb2.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.sb2.ecdsa.public_key": "/path/to/key",
             "signer.sb2.ecdsa.private_key": "/path/to/private",
         }
@@ -234,10 +234,10 @@ class IncludeMeTest(unittest.TestCase):
                 "/buckets/sb1/collections/sc1 -> /buckets/db1/collections/dc1\n"
                 "/buckets/sb1/collections/sc2 -> /buckets/db1/collections/dc2"
             ),
-            "signer.sb1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",  # noqa: 501
+            "signer.sb1.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.sb1.ecdsa.public_key": "/path/to/key",
             "signer.sb1.ecdsa.private_key": "/path/to/private",
-            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.backends.autograph",  # noqa: 501
+            "signer.sb1.sc1.signer_backend": "kinto_remote_settings.signer.backends.autograph",
             "signer.sb1.sc1.autograph.server_url": "http://localhost",
             "signer.sb1.sc1.autograph.hawk_id": "alice",
             "signer.sb1.sc1.autograph.hawk_secret": "a-secret",
@@ -610,7 +610,7 @@ class SourceCollectionSoftDeletion(BaseWebTest, PatchAutographMixin, unittest.Te
         self.app.put_json("/buckets/bid/collections/a", headers=self.headers)
 
         patch = mock.patch(
-            "kinto_remote_settings.signer.updater.LocalUpdater.sign_and_update_destination"  # noqa: 501
+            "kinto_remote_settings.signer.updater.LocalUpdater.sign_and_update_destination"
         )
         mocked = patch.start()
         self.addCleanup(patch.stop)

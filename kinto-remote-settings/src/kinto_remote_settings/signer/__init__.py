@@ -117,7 +117,7 @@ def includeme(config):
             cid = resource["source"]["collection"]
             collection_wide = f"signer.{bid}.{cid}."
             deprecated = f"signer.{bid}_{cid}."
-            prefixes = [collection_wide, deprecated] + prefixes
+            prefixes = [collection_wide, deprecated, *prefixes]
 
         # Instantiates the signers associated to this resource.
         dotted_location = utils.get_first_matching_setting(
