@@ -44,9 +44,10 @@ class ECDSASigner(SignerBase):
         if self.private_key:
             private_key = self.load_private_key()
             return private_key.get_verifying_key()
-        elif self.public_key:
+        if self.public_key:
             with open(self.public_key, "rb") as key_file:
                 return VerifyingKey.from_pem(key_file.read())
+        return None
 
     def sign(self, payload):
         if isinstance(payload, str):  # pragma: no cover

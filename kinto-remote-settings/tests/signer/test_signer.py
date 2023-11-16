@@ -52,7 +52,7 @@ class ECDSASignerTest(unittest.TestCase):
 
     def test_keyloading_fails_if_no_settings(self):
         backend = self.get_backend(public_key=self.vk_location)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="specify the private_key location"):
             backend.load_private_key()
 
     def test_key_loading_works(self):
@@ -85,7 +85,7 @@ class ECDSASignerTest(unittest.TestCase):
         urlsafe_b64decode(signature.encode("utf-8"))  # Raise if wrong.
 
     def test_load_private_key_raises_if_no_key_specified(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Please, specify either"):
             self.get_backend().load_private_key()
 
     def test_public_key_can_be_loaded_from_public_key_pem(self):
@@ -97,7 +97,7 @@ class ECDSASignerTest(unittest.TestCase):
         signer.load_public_key()
 
     def test_load_public_key_raises_an_error_if_missing_settings(self):
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(ValueError, match="Please, specify either") as excinfo:
             self.get_backend()
         msg = "Please, specify either a private_key or public_key location."
         assert str(excinfo.value) == msg
@@ -118,7 +118,7 @@ class ECDSASignerTest(unittest.TestCase):
         )
 
     def test_load_from_settings_fails_if_no_public_or_private_key(self):
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(ValueError, match="Please specify either") as excinfo:
             local_ecdsa.load_from_settings({"settings_prefix": "kinto"}, "")
         msg = (
             "Please specify either kinto.signer.ecdsa.private_key or "

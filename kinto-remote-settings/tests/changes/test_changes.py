@@ -32,11 +32,11 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
     def test_parent_bucket_and_collection_can_exist(self):
         self.app.put("/buckets/monitor", headers=self.headers)
         resp = self.app.get(self.changes_uri)  # Not failing
-        self.assertEqual(len(resp.json["data"]), 1)
+        assert len(resp.json["data"]) == 1
 
         self.app.put("/buckets/monitor/collections/changes", headers=self.headers)
         resp = self.app.get(self.changes_uri)  # Not failing
-        self.assertEqual(len(resp.json["data"]), 1)
+        assert len(resp.json["data"]) == 1
 
     def test_a_change_record_is_updated_per_bucket_collection(self):
         resp = self.app.get(self.changes_uri)
@@ -49,8 +49,8 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
 
         after_timestamp = resp.json["data"][0]["last_modified"]
         after_id = resp.json["data"][0]["id"]
-        self.assertEqual(before_id, after_id)
-        self.assertNotEqual(before_timestamp, after_timestamp)
+        assert before_id == after_id
+        assert before_timestamp != after_timestamp
 
     def test_only_collections_specified_in_settings_are_monitored(self):
         resp = self.app.get(self.changes_uri, headers=self.headers)
@@ -67,8 +67,8 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
 
         resp = self.app.get(self.changes_uri, headers=self.headers)
         after = resp.json["data"][0]
-        self.assertEqual(change_record["id"], after["id"])
-        self.assertEqual(change_record["last_modified"], after["last_modified"])
+        assert change_record["id"] == after["id"]
+        assert change_record["last_modified"] == after["last_modified"]
 
     def test_the_resource_configured_can_be_a_collection_uri(self):
         with mock.patch.dict(
@@ -76,7 +76,7 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
             [("changes.resources", "/buckets/blocklists/collections/certificates")],
         ):
             resp = self.app.get(self.changes_uri)
-        self.assertEqual(len(resp.json["data"]), 1)
+        assert len(resp.json["data"]) == 1
 
     def test_returns_200_with_empty_list_of_changes_if_no_change_occured(self):
         resp = self.app.get(self.changes_uri)
@@ -86,13 +86,13 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get(
             self.changes_uri + f"?_since={before_timestamp}", status=200
         )
-        self.assertEqual(len(resp.json["data"]), 0)
+        assert len(resp.json["data"]) == 0
 
         # With ETag precondition headers
         resp = self.app.get(
             self.changes_uri, headers={"If-None-Match": before_timestamp}, status=200
         )
-        self.assertEqual(len(resp.json["data"]), 0)
+        assert len(resp.json["data"]) == 0
 
     def test_returns_412_with_if_none_match_star(self):
         self.app.get(self.changes_uri, headers={"If-None-Match": "*"}, status=412)
@@ -109,14 +109,14 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
             self.app.app.registry.settings, [("changes.resources", "")]
         ):
             resp = self.app.get(self.changes_uri)
-        self.assertEqual(resp.json["data"], [])
+        assert resp.json["data"] == []
 
     def test_change_record_has_greater_last_modified_of_collection_of_records(self):
         resp = self.app.post_json(self.records_uri, SAMPLE_RECORD, headers=self.headers)
         last_modified = resp.json["data"]["last_modified"]
         resp = self.app.get(self.changes_uri, headers=self.headers)
         change_last_modified = resp.json["data"][0]["last_modified"]
-        self.assertGreaterEqual(change_last_modified, last_modified)
+        assert change_last_modified >= last_modified
 
     def test_record_with_old_timestamp_does_update_changes(self):
         resp = self.app.post_json(self.records_uri, SAMPLE_RECORD, headers=self.headers)
@@ -126,27 +126,27 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
 
         resp = self.app.get(self.changes_uri, headers=self.headers)
         change_last_modified = resp.json["data"][0]["last_modified"]
-        self.assertNotEqual(change_last_modified, 42)
+        assert change_last_modified != 42
 
     def test_change_record_has_server_host_attribute(self):
         self.app.post_json(self.records_uri, SAMPLE_RECORD, headers=self.headers)
 
         resp = self.app.get(self.changes_uri, headers=self.headers)
         change = resp.json["data"][0]
-        self.assertEqual(change["host"], "www.kinto-storage.org")
+        assert change["host"] == "www.kinto-storage.org"
 
     def test_change_record_has_bucket_and_collection_attributes(self):
         self.app.post_json(self.records_uri, SAMPLE_RECORD, headers=self.headers)
 
         resp = self.app.get(self.changes_uri, headers=self.headers)
         change = resp.json["data"][0]
-        self.assertEqual(change["bucket"], "blocklists")
-        self.assertEqual(change["collection"], "certificates")
+        assert change["bucket"] == "blocklists"
+        assert change["collection"] == "certificates"
 
     def test_changes_capability_exposed(self):
         resp = self.app.get("/")
         capabilities = resp.json["capabilities"]
-        self.assertIn("changes", capabilities)
+        assert "changes" in capabilities
         expected = {
             "description": "Track modifications of records in Kinto and store "
             "the collection timestamps into a specific bucket "
@@ -156,7 +156,7 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
             "synchronisation.html#polling-for-remote-changes",
             "version": __version__,
         }
-        self.assertEqual(expected, capabilities["changes"])
+        assert expected == capabilities["changes"]
 
 
 class CacheExpiresTest(BaseWebTest, unittest.TestCase):
@@ -187,7 +187,7 @@ class CacheExpiresTest(BaseWebTest, unittest.TestCase):
         # The `If-None-Match` header is just a way to obtain a 304 instead of a 200
         # with an empty list. In the client code [0] it is always used in conjonction
         # with _since={last-etag}
-        # [0] https://searchfox.org/mozilla-central/rev/93905b66/services/settings/Utils.jsm#70-73 # noqa: 501
+        # [0] https://searchfox.org/mozilla-central/rev/93905b66/services/settings/Utils.jsm#70-73
         headers = {"If-None-Match": f'"{HOUR_AGO}"'}
         resp = self.app.get(self.changes_uri + f'?_since="{HOUR_AGO}"', headers=headers)
         assert "max-age=60" in resp.headers["Cache-Control"]
@@ -205,10 +205,10 @@ class OldSinceRedirectTest(BaseWebTest, unittest.TestCase):
 
     def test_redirects_and_drops_since_if_too_old(self):
         resp = self.app.get(self.changes_uri + "?_since=42")
-        self.assertEqual(resp.status_code, 307)
-        self.assertEqual(
-            resp.headers["Location"],
-            "https://cdn-host/v1/buckets/monitor/collections/changes/records",
+        assert resp.status_code == 307
+        assert (
+            resp.headers["Location"]
+            == "https://cdn-host/v1/buckets/monitor/collections/changes/records"
         )
 
         # Try again with a real timestamp older than allowed in settings.
@@ -216,23 +216,23 @@ class OldSinceRedirectTest(BaseWebTest, unittest.TestCase):
             (datetime.datetime.now() - datetime.timedelta(days=3)).timestamp() * 1000
         )
         resp = self.app.get(self.changes_uri + f"?_since={timestamp}")
-        self.assertEqual(resp.status_code, 307)
+        assert resp.status_code == 307
 
     def test_redirects_keep_other_querystring_params(self):
         resp = self.app.get(self.changes_uri + "?_since=42&_expected=%22123456%22")
-        self.assertEqual(resp.status_code, 307)
-        self.assertIn("/records?_expected=%22123456%22", resp.headers["Location"])
+        assert resp.status_code == 307
+        assert "/records?_expected=%22123456%22" in resp.headers["Location"]
 
     def test_does_not_redirect_if_not_old_enough(self):
         timestamp = int(
             (datetime.datetime.now() - datetime.timedelta(days=1)).timestamp() * 1000
         )
         resp = self.app.get(self.changes_uri + f"?_since={timestamp}")
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
 
     def test_redirects_sends_cache_control(self):
         response = self.app.get(self.changes_uri + "?_since=42")
-        self.assertEqual(response.status_code, 307)
-        self.assertIn("Expires", response.headers)
-        self.assertIn("Cache-Control", response.headers)
-        self.assertEqual(response.headers["Cache-Control"], "max-age=86400")
+        assert response.status_code == 307
+        assert "Expires" in response.headers
+        assert "Cache-Control" in response.headers
+        assert response.headers["Cache-Control"] == "max-age=86400"

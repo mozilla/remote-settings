@@ -36,11 +36,11 @@ async def test_permissions_endpoint(
         )
         resp.raise_for_status()
         permissions = resp.json()["data"]
-        collection_perms = [
+        collection_perms = next(
             e["permissions"]
             for e in permissions
             if e["resource_name"] == "collection"
             and e["bucket_id"] == source_bucket
             and e["collection_id"] == source_collection
-        ][0]
+        )
         assert "write" in collection_perms

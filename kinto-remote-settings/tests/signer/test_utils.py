@@ -115,23 +115,22 @@ class ParseResourcesTest(unittest.TestCase):
             "/buckets/sbid1/collections/scid -> /buckets/dbid1/collections/dcid,"
             "/buckets/sbid2/collections/scid -> /buckets/dbid2/collections/dcid"
         )
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         raw_resources = "sbid1/scid -> dbid1/dcid,sbid2/scid -> dbid2/dcid"
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
     def test_resources_must_be_valid_names(self):
         raw_resources = (
             "/buckets/sbi+d1/collections/scid -> /buckets/dbid1/collections/dci,d"
         )
-        with self.assertRaises(ConfigurationError) as e:
+        with pytest.raises(
+            ConfigurationError,
+            match="Malformed resource: bucket or collection id is invalid",
+        ):
             utils.parse_resources(raw_resources)
-        assert repr(e.exception).startswith(
-            'ConfigurationError("Malformed resource: '
-            "bucket or collection id is invalid"
-        )
 
     def test_resources_can_be_defined_per_bucket(self):
         raw_resources = "/buckets/stage -> /buckets/preview -> /buckets/prod"
@@ -146,7 +145,7 @@ class ParseResourcesTest(unittest.TestCase):
 
     def test_cannot_mix_per_bucket_and_per_collection(self):
         raw_resources = "/buckets/stage -> /buckets/prod/collections/boom"
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         raw_resources = (
@@ -154,30 +153,30 @@ class ParseResourcesTest(unittest.TestCase):
             "/buckets/preview/collections/boom -> "
             "/buckets/prod"
         )
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         raw_resources = (
             "/buckets/stage -> /buckets/preview/collections/boom -> /buckets/prod"
         )
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         raw_resources = "/buckets/stage/collections/boom -> /buckets/prod"
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
     def test_cannot_repeat_source_preview_or_destination(self):
         raw_resources = "/buckets/stage -> /buckets/stage -> /buckets/prod"
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         raw_resources = "/buckets/stage -> /buckets/preview -> /buckets/stage"
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         raw_resources = "/buckets/stage -> /buckets/preview -> /buckets/preview"
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
     def test_cannot_repeat_resources(self):
@@ -186,7 +185,7 @@ class ParseResourcesTest(unittest.TestCase):
         /buckets/stage -> /buckets/preview1 -> /buckets/prod1
         /buckets/stage -> /buckets/preview2 -> /buckets/prod2
         """
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         # Repeated reviews.
@@ -194,7 +193,7 @@ class ParseResourcesTest(unittest.TestCase):
         /buckets/stage1 -> /buckets/preview -> /buckets/prod1
         /buckets/stage2 -> /buckets/preview -> /buckets/prod2
         """
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         # Repeated destination.
@@ -202,7 +201,7 @@ class ParseResourcesTest(unittest.TestCase):
         /buckets/stage1 -> /buckets/prod
         /buckets/stage2 -> /buckets/preview -> /buckets/prod
         """
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         # Source in other's preview.
@@ -210,7 +209,7 @@ class ParseResourcesTest(unittest.TestCase):
         /buckets/stage -> /buckets/preview -> /buckets/prod
         /buckets/bid1  -> /buckets/stage   -> /buckets/bid2
         """
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         # Source in other's destination.
@@ -218,7 +217,7 @@ class ParseResourcesTest(unittest.TestCase):
     /buckets/b/collections/c  -> /buckets/b/collections/c2 -> /buckets/b/collections/c3
     /buckets/b/collections/ca -> /buckets/b/collections/cb -> /buckets/b/collections/c
         """
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
 
         # Preview in other's destination.
@@ -226,5 +225,5 @@ class ParseResourcesTest(unittest.TestCase):
     /buckets/b/collections/c0 -> /buckets/b/collections/c1 -> /buckets/b/collections/c2
     /buckets/b/collections/ca -> /buckets/b/collections/cb -> /buckets/b/collections/c1
         """
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)

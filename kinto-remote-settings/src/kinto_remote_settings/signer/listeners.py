@@ -382,7 +382,7 @@ def prevent_float_value(event, resources):
                 raise ValueError(
                     f"field contains float value (tip: use integer or string), '{path}'"
                 )
-            elif isinstance(v, (list, dict)):
+            if isinstance(v, (list, dict)):
                 scan(v, path)
 
     # Only raise in configured resources.
