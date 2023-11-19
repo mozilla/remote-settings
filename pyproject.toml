@@ -88,13 +88,13 @@ pytest = "7.4.3"
 webtest = "3.0.0"
 coverage = "7.3.2"
 detect-secrets = "^1.4.0"
-ruff = "^0.1.5"
+ruff = "^0.1.6"
 
 [tool.poetry.group.integration-tests]
 optional = true
 
 [tool.poetry.group.integration-tests.dependencies]
-aiohttp = "3.8.6"
+aiohttp = "3.9.0"
 autograph-utils = "0.1.1"
 canonicaljson-rs = "0.5.0"
 httpie = "3.2.2"
