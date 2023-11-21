@@ -155,4 +155,4 @@ The process for a patch to reach Remote Settings is the following:
 * Upgrade Kinto in `Remote Settings <https://github.com/mozilla/remote-settings/>`_
 * Release a new version of Remote Settings
 * DEV and STAGE are deployed automatically when a new tag is published
-* Request a deployment in PROD on Bugzilla (`example <https://bugzilla.mozilla.org/show_bug.cgi?id=1570037>`_)
+* Initiate deployment in PROD (See *Releasing* section in README)
