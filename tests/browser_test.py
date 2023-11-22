@@ -74,14 +74,14 @@ async def test_review_signoff(
         raise
 
     assert approve_button, "Approve button not found"
-    assert approve_button.text == "Approve"
+    assert approve_button.text == "Approve..."
     assert approve_button.is_displayed()
 
     reject_button: WebElement = selenium.find_element(
-        By.XPATH, "//button[contains(., 'Reject')]"
+        By.XPATH, "//button[contains(., 'Decline')]"
     )
     assert reject_button, "Reject button not found"
-    assert reject_button.text == "Reject"
+    assert reject_button.text == "Decline..."
     assert reject_button.is_displayed()
 
     approve_button.click()
@@ -115,7 +115,7 @@ async def test_review_signoff(
 def sign_in(selenium: WebDriver, auth: Auth):
     # find and select Kinto Account Auth for login
     kinto_auth_radio_button: WebElement = selenium.find_element(
-        By.XPATH, "//input[@value='accounts']"
+        By.XPATH, "//label[contains(.,'Kinto Account Auth')]"
     )
     assert kinto_auth_radio_button, "Kinto Account Auth radio button not found"
     kinto_auth_radio_button.click()
@@ -125,7 +125,7 @@ def sign_in(selenium: WebDriver, auth: Auth):
         By.ID, "root_credentials__title"
     )
     assert account_creds_title, "Account credentials title not found"
-    assert account_creds_title.text == "Account credentials*"
+    assert account_creds_title.text == "Account credentials"
     assert account_creds_title.is_displayed()
 
     # enter login username
