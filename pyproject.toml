@@ -101,7 +101,7 @@ httpie = "3.2.2"
 kinto-http = "11.0.1"
 pytest = "7.4.3"
 pytest-asyncio = "0.21.1"
-pytest-selenium = "4.0.1"
+pytest-selenium = "4.0.2"
 webtest = "3.0.0"
 
 [tool.poetry.group.docs]
