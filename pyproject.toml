@@ -94,13 +94,13 @@ ruff = "^0.1.6"
 optional = true
 
 [tool.poetry.group.integration-tests.dependencies]
-aiohttp = "3.9.0"
+aiohttp = "3.9.1"
 autograph-utils = "0.1.1"
 canonicaljson-rs = "0.5.0"
 httpie = "3.2.2"
 kinto-http = "11.0.1"
 pytest = "7.4.3"
-pytest-asyncio = "0.21.1"
+pytest-asyncio = "0.23.2"
 pytest-selenium = "4.0.2"
 webtest = "3.0.0"
 
