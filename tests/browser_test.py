@@ -4,8 +4,8 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-
 from .conftest import Auth, ClientFactory, signed_resource
+import time
 
 
 pytestmark = pytest.mark.asyncio
@@ -64,6 +64,7 @@ async def test_review_signoff(
         + f"#/buckets/{source_bucket}/collections/{source_collection}/simple-review"
     )
     selenium.refresh()
+    time.sleep(1)  # preventing hooks race condition that occurs on github
 
     try:
         approve_button: WebElement = selenium.find_element(
