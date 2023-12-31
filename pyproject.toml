@@ -86,9 +86,9 @@ kinto-remote-settings = {path = "./kinto-remote-settings", develop = true}
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.3"
 webtest = "3.0.0"
-coverage = "7.3.2"
+coverage = "7.4.0"
 detect-secrets = "^1.4.0"
-ruff = "^0.1.6"
+ruff = "^0.1.9"
 
 [tool.poetry.group.integration-tests]
 optional = true
