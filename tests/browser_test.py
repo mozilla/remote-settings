@@ -1,5 +1,6 @@
-import pytest
 import time
+
+import pytest
 from kinto_http.patch_type import JSONPatch
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
@@ -65,7 +66,7 @@ async def test_review_signoff(
         + f"#/buckets/{source_bucket}/collections/{source_collection}/simple-review"
     )
     selenium.refresh()
-    
+
     time.sleep(1)  # give react a second for hooks
 
     try:
