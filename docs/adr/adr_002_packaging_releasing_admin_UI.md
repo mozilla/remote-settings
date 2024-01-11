@@ -8,7 +8,7 @@
 
 Currently, in order to deliver a change on the Kinto Admin UI to our Remote Settings production users, we need to go through the following steps:
 
-1. Release the Kinto Admin package on NPM
+1. Tag a new Kinto Admin version (Github Action publishes the package on NPM)
 2. Upgrade the Kinto Admin version embedded in Kinto ([source](https://github.com/Kinto/kinto/blob/master/kinto/plugins/admin/VERSION))
 3. Tag a new Kinto version (Github Action publishes the package on Pypi)
 4. Upgrade the Kinto version in Remote Settings
@@ -65,7 +65,7 @@ This way the Kinto Admin version does not have to necessarily be the same as the
 
 The releasing steps would become:
 
-1. Release the Kinto Admin package on NPM
+1. Tag a new Kinto Admin version
 2. Upgrade the Kinto Admin version in Remote Settings
 3. Release and deploy Remote Settings
 
@@ -108,7 +108,7 @@ In order to maintain current URLs, some rewriting rules will have to be setup:
 
 The releasing steps would become:
 
-1. Release the Kinto Admin package on NPM
+1. Tag a new Kinto Admin version
 2. Deploy Kinto Admin in bucket
 
 **Delivery Efforts**: Low. Deployment could occur automatically on tagging.
