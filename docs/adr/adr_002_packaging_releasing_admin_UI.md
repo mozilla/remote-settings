@@ -14,6 +14,18 @@ Currently, in order to deliver a change on the Kinto Admin UI to our Remote Sett
 4. Upgrade the Kinto version in Remote Settings
 5. Release and deploy Remote Settings
 
+```mermaid
+sequenceDiagram
+    actor dev
+    dev->>Kinto Admin: Tag release
+    dev->>Kinto: Update Kinto Admin VERSION file
+    dev->>Kinto: Tag release
+    Kinto->>PyPI: Build with new Kinto Admin, release to PyPI
+    Dependabot->>Remote Settings: Bump Kinto
+    dev->>Remote Settings: Tag release
+    Remote Settings->>Prod: Build with new Kinto, release to prod
+```
+
 Each step can take a certain amount of time, since they may involve pull-requests, review, and coordination.
 
 We want to reduce the amount of time and efforts that are necessary for a change in the Kinto Admin UI repository to be deployed and available to our production users.
@@ -69,6 +81,16 @@ The releasing steps would become:
 2. Upgrade the Kinto Admin version in Remote Settings
 3. Release and deploy Remote Settings
 
+```mermaid
+sequenceDiagram
+    actor dev
+    dev->>Kinto Admin: Tag release
+    dev->>Remote Settings: Update Kinto Admin VERSION file
+    dev->>Remote Settings: Tag release
+    Remote Settings->>Remote Settings: Build RS container, overwriting bundle in kinto Python package with new Kinto Admin
+    Remote Settings->>Production: release to prod
+```
+
 **Delivery Efforts**: Mid. 2 release steps.
 
 **Complexity**: Low. But ungraceful because of the coupling between the location where Kinto expects the assets to be and the Remote Settings repository
@@ -83,6 +105,16 @@ This solution is similar to *Option 1*, except that we introduce a new setting i
 In Remote Settings, we would set it to a local folder (eg. `KINTO_ADMIN_ASSETS_LOCATION=/app/kinto-admin-assets/`), compile the Admin UI assets, copy them to the container at this location, and let the Remote Settings serve the Admin UI as usual.
 
 The releasing steps are the same as *Option 1*.
+
+```mermaid
+sequenceDiagram
+    actor dev
+    dev->>Kinto Admin: Tag release
+    dev->>Remote Settings: Update Kinto Admin VERSION file
+    dev->>Remote Settings: Tag release
+    Remote Settings->>Remote Settings: Build RS container, saving new Kinto Admin to KINTO_ADMIN_ASSETS_LOCATION
+    Remote Settings->>Production: release to prod
+```
 
 **Pros**
 
