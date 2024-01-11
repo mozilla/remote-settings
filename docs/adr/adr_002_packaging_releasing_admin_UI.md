@@ -22,22 +22,34 @@ We want to reduce the amount of time and efforts that are necessary for a change
 
 In order to choose our solution we considered the following criteria:
 
-- **?**: Low → High: <?>
+- **Delivery Efforts**: Low → High: Amount of efforts or release steps.
+- **Complexity**: Low → High
+- **Version Consistency**: Low → High: Whether our users obtain a consistent experience between versions deployed on servers and pulled containers.
 
 ## Considered Options
 
 1. [Option 0 - Do nothing](#option-0---do-nothing)
-1. [Option 1 - XXX](#option-1---XXX)
+1. [Option 1 - Overwrite Kinto Admin version in Kinto python package](#option-1---overwrite-kinto-admin-version-in-kinto-python-package)
+1. [Option 2 - Add option to override embedded Kinto Admin version](#option-2---add-option-to-override-embedded-kinto-admin-version)
+1. [Option 3 - Decouple Kinto Admin from container](#option-3---decouple-kinto-admin-from-container)
+1. [Option 4 - Merge Kinto and Kinto Admin repositories](#option-4---merge-kinto-and-kinto-admin-repositories)
 
 ## Decision Outcome
 
-Chosen option: Option 2 because it reduces the amount of steps significantly, but does not introduce any additional complexity. It is flexible and even optional.
+Chosen option: **Option 2** because it reduces the amount of steps significantly, but does not introduce any additional complexity. It is flexible and even optional.
 
 ## Pros and Cons of the Options
 
 ### Option 0 - Do nothing
 
 See problem statement :)
+
+**Delivery Efforts**: High. 3 release steps.
+
+**Complexity**: Low. Nothing to do.
+
+**Version Consistency**: High. Same version in Kinto and Remote Settings.
+
 
 ### Option 1 - Overwrite Kinto Admin version in Kinto python package
 
@@ -49,29 +61,26 @@ With this solution, we introduce a command in the Remote Settings repository tha
 
 This way the Kinto Admin version does not have to necessarily be the same as the one bundled in the Kinto Python package.
 
+> Note: In the Remote Settings repository, the version of the Kinto Admin could be specified in a `package.json` file so that Dependabot can automatically open pull-requests to upgrade it.
+
 The releasing steps would become:
 
 1. Release the Kinto Admin package on NPM
 2. Upgrade the Kinto Admin version in Remote Settings
 3. Release and deploy Remote Settings
 
-**Pros**
+**Delivery Efforts**: Mid. 2 release steps.
 
-- Simplicity
-- Consistent packaging of the Remote Settings service in one container
+**Complexity**: Low. But ungraceful because of the coupling between the location where Kinto expects the assets to be and the Remote Settings repository
 
-**Cons**
-
-- Ungraceful
-- Coupling of between the location where Kinto expects the assets to be and the Remote Settings repository
-- Potential source of confusion about deployed versions (official version in Kinto package and overwritten version in Remote Settings)
+**Version Consistency**: Mid-High. Users pulling the Remote Settings container would obtain the same UI version as the one deployed in a specific environment. The only version divergence for the UI version would be between Remote Settings and Kinto containers, which is acceptable.
 
 
 ### Option 2 - Add option to override embedded Kinto Admin version
 
-This solution is similar to *Option 1*, except that we introduce a new setting in Kinto to specify the location of the Kinto Admin assets instead of overwriting the files that are bundled ([sources](https://github.com/Kinto/kinto/blob/602ec49c80f033374aa1e957c8448e86d00ac9e8/kinto/plugins/admin/views.py#L13)).
+This solution is similar to *Option 1*, except that we introduce a new setting in Kinto to specify the location of the Kinto Admin assets instead of overwriting the files that are bundled inside the Python package ([sources](https://github.com/Kinto/kinto/blob/602ec49c80f033374aa1e957c8448e86d00ac9e8/kinto/plugins/admin/views.py#L13)).
 
-In Remote Settings, we would set it to a local folder (eg. `KINTO_ADMIN_ASSETS_LOCATION=/app/kinto-admin-assets/`), and we let the Remote Settings serve the Admin UI as usual.
+In Remote Settings, we would set it to a local folder (eg. `KINTO_ADMIN_ASSETS_LOCATION=/app/kinto-admin-assets/`), compile the Admin UI assets, copy them to the container at this location, and let the Remote Settings serve the Admin UI as usual.
 
 The releasing steps are the same as *Option 1*.
 
@@ -81,9 +90,11 @@ The releasing steps are the same as *Option 1*.
 - Elegant and flexible
 - Offers our community users the ability to use their own forks of the Kinto Admin UI
 
-**Cons**
+**Delivery Efforts**: Mid. 2 Same as *Option 1*.
 
-- Potential source of confusion about deployed versions (official version in Kinto package and overwritten version in Remote Settings)
+**Complexity**: Low. Just replace a hard-coded path with a setting value.
+
+**Version Consistency**: Mid-High. Same as *Option 1*.
 
 
 ### Option 3 - Decouple Kinto Admin from container
@@ -100,11 +111,25 @@ The releasing steps would become:
 1. Release the Kinto Admin package on NPM
 2. Deploy Kinto Admin in bucket
 
-**Pros**
+**Delivery Efforts**: Low. Deployment could occur automatically on tagging.
 
-- Immediate deployment
+**Complexity**: Mid-High. Deployment configuration and setup would not be as obvious and straightforward as the current situation (assets served from the container).
 
-**Cons**
+**Version Consistency**: Low. Users pulling the Remote Settings container would not necessarily obtain the same UI version as the one deployed in a specific environment
 
-- Complexity w.r.t deployment and setup
-- The Remote Settings container would not necessarily bundle the same version as the one deployed in a specific environment
+
+### Option 4 - Merge Kinto and Kinto Admin repositories
+
+If we would merge the two repositories into one monorepo, we would be able to release the changes in one step.
+
+The releasing steps would become:
+
+1. Tag a new Kinto version (embedding current Admin from main branch)
+2. Upgrade the Kinto version in Remote Settings
+3. Release and deploy Remote Settings
+
+**Delivery Efforts**: Mid. 2 release steps.
+
+**Complexity**: Mid. The Github Actions in the Kinto repository would become more complex since they would have to deal with both NPM and Python environments.
+
+**Version Consistency**: High. The Kinto container would embed a specific Admin version that would eventually be exposed to our Remote Settings users.
