@@ -143,7 +143,16 @@ The releasing steps would become:
 1. Tag a new Kinto Admin version
 2. Deploy Kinto Admin in bucket
 
-**Delivery Efforts**: Low. Deployment could occur automatically on tagging.
+```mermaid
+sequenceDiagram
+    actor dev
+    dev->>Kinto Admin: Tag release
+    dev->>Cloud Storage: Trigger/Approve deployment
+    Cloud Storage->>Cloud Storage: Build Admin assets, bust cache
+    Cloud Storage->>Production: release to prod
+```
+
+**Delivery Efforts**: Low. Deployment could even occur automatically on tagging.
 
 **Complexity**: Mid-High. Deployment configuration and setup would not be as obvious and straightforward as the current situation (assets served from the container).
 
@@ -159,6 +168,15 @@ The releasing steps would become:
 1. Tag a new Kinto version (embedding current Admin from main branch)
 2. Upgrade the Kinto version in Remote Settings
 3. Release and deploy Remote Settings
+
+```mermaid
+sequenceDiagram
+    actor dev
+    dev->>Kinto (Monorepo): Tag release
+    Dependabot->>Remote Settings: Bump Kinto
+    dev->>Remote Settings: Tag release
+    Remote Settings->>Production: release to prod
+```
 
 **Delivery Efforts**: Mid. 2 release steps.
 
