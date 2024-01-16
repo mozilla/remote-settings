@@ -29,14 +29,11 @@ RUN pip install ./kinto-remote-settings
 
 # We build the Kinto Admin assets at the specific
 # version specified in `kinto-admin/VERSION`.
-FROM node:20.11.0-slim as build-admin
-COPY /bin/update_and_install_system_packages.sh /opt
-RUN /opt/update_and_install_system_packages.sh \
-    ca-certificates\
-    curl
-COPY bin/build-kinto-admin.sh /opt/
-COPY kinto-admin/ /opt/kinto-admin/
-RUN cd /opt && ./build-kinto-admin.sh
+FROM node:20.11.0 as build-admin
+WORKDIR /opt
+COPY bin/build-kinto-admin.sh .
+COPY kinto-admin/ kinto-admin/
+RUN ./build-kinto-admin.sh
 
 
 FROM python:3.11.5-slim as production
