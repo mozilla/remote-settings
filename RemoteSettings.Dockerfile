@@ -27,9 +27,19 @@ COPY ./kinto-remote-settings ./kinto-remote-settings
 COPY version.json .
 RUN pip install ./kinto-remote-settings
 
+# We build the Kinto Admin assets at the specific
+# version specified in `kinto-admin/VERSION`.
+FROM node:20.11.0 as build-admin
+WORKDIR /opt
+COPY bin/build-kinto-admin.sh .
+COPY kinto-admin/ kinto-admin/
+RUN ./build-kinto-admin.sh
+
+
 FROM python:3.11.5-slim as production
 
 ENV KINTO_INI=config/local.ini \
+    KINTO_ADMIN_ASSETS_PATH=/app/kinto-admin/build/ \
     PATH="/opt/.venv/bin:$PATH" \
     PORT=8888 \
     PYTHONUNBUFFERED=1 \
@@ -50,6 +60,8 @@ RUN chown 10001:10001 /app && \
     useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
 COPY --chown=app:app . .
 COPY --from=compile /opt/dogstatsd_plugin.so .
+
+COPY --from=build-admin /opt/kinto-admin/build $KINTO_ADMIN_ASSETS_PATH
 
 # Generate local key pair to simplify running without Autograph out of the box (see `config/testing.ini`)
 RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.pem /app/ecdsa.public.pem
