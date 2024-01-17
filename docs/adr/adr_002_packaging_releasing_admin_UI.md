@@ -1,6 +1,6 @@
 # Packaging: Upgrading Admin UI
 
-* Status: proposed
+* Status: [accepted](https://github.com/mozilla/remote-settings/pull/525)
 * Deciders: mleplatre, gbeckley, acottner
 * Date: Jan 9, 2024
 
@@ -8,9 +8,9 @@
 
 Currently, in order to deliver a change on the Kinto Admin UI to our Remote Settings production users, we need to go through the following steps:
 
-1. Tag a new Kinto Admin version (Github Action publishes the package on NPM)
+1. Tag a new Kinto Admin version and create a Github release entry
 2. Upgrade the Kinto Admin version embedded in Kinto ([source](https://github.com/Kinto/kinto/blob/master/kinto/plugins/admin/VERSION))
-3. Tag a new Kinto version (Github Action publishes the package on Pypi)
+3. Tag a new Kinto version (since the recent Kinto 16.3.0, a Github Action publishes the package on Pypi)
 4. Upgrade the Kinto version in Remote Settings
 5. Release and deploy Remote Settings
 
@@ -68,12 +68,12 @@ See problem statement :)
 With this solution, we introduce a command in the Remote Settings repository that:
 
 1. pulls the Kinto Admin sources at a specific version ([source](https://github.com/Kinto/kinto/blob/master/scripts/build-kinto-admin.sh))
-2. build the assets (Node)
+2. builds the assets (Node)
 3. overwrites the assets that are bundled with the Kinto package (ie. in `lib/python3.11/site-packages/kinto/plugins/admin/build/`) with the recent ones
 
 This way the Kinto Admin version does not have to necessarily be the same as the one bundled in the Kinto Python package.
 
-> Note: In the Remote Settings repository, the version of the Kinto Admin could be specified in a `package.json` file so that Dependabot can automatically open pull-requests to upgrade it.
+> Note: In the Remote Settings repository, we could also consider to automate the version upgrades using a dedicated action that would compare the specified local version with the latest upstream version.
 
 The releasing steps would become:
 
