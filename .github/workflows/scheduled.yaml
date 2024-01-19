@@ -1,10 +1,8 @@
 name: Run scheduled jobs
 
-# on:
-#   schedule:
-#     - cron: '0 0 * * *' # Runs daily at midnight
-
-on: workflow_dispatch
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight
 
 jobs:
   update-kinto-admin:
@@ -47,7 +45,7 @@ jobs:
           fi
 
       - name: Configure git
-        if: ${{ steps.compare_versions.outputs.update_needed == 'true' }}
+        if: ${{ steps.compare_versions.outputs.update_needed }}
         # https://github.com/orgs/community/discussions/26560
         run: |
           git config user.name github-actions[bot]
@@ -55,7 +53,7 @@ jobs:
 
       - name: Create branch
         id: create_branch
-        if: ${{ steps.compare_versions.outputs.update_needed == 'true' }}
+        if: ${{ steps.compare_versions.outputs.update_needed }}
         env:
           BRANCH_NAME: kinto-admin/${{ steps.latest_release_version.outputs.version }}
           LATEST_RELEASE: ${{ steps.latest_release_version.outputs.version }}
