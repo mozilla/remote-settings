@@ -76,7 +76,7 @@ cryptography = "41.0.7"
 ecdsa = "0.18.0"
 kinto = {version = "^16.3.0", extras = ["postgresql","memcached","monitoring"]}
 kinto-attachment = "6.3.2"
-kinto-emailer = "2.1.0"
+kinto-emailer = "3.0.1"
 requests-hawk = "1.2.1"
 uwsgi = "2.0.23"
 
