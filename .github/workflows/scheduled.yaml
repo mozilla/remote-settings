@@ -45,7 +45,7 @@ jobs:
           fi
 
       - name: Configure git
-        if: ${{ steps.compare_versions.outputs.update_needed }}
+        if: ${{ steps.compare_versions.outputs.update_needed == 'true' }}
         # https://github.com/orgs/community/discussions/26560
         run: |
           git config user.name github-actions[bot]
@@ -53,7 +53,7 @@ jobs:
 
       - name: Create branch
         id: create_branch
-        if: ${{ steps.compare_versions.outputs.update_needed }}
+        if: ${{ steps.compare_versions.outputs.update_needed == 'true' }}
         env:
           BRANCH_NAME: kinto-admin/${{ steps.latest_release_version.outputs.version }}
           LATEST_RELEASE: ${{ steps.latest_release_version.outputs.version }}
