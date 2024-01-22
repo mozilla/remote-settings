@@ -25,7 +25,7 @@ jobs:
       - name: Get latest release version
         id: latest_release_version
         run: |
-          LATEST_RELEASE_VERSION=$(curl -s https://api.github.com/repos/Kinto/kinto-admin/releases/latest | jq .tag_name | tr -d '"')
+          LATEST_RELEASE_VERSION=$(curl -s https://api.github.com/repos/Kinto/kinto-admin/releases/latest | jq -r .tag_name)
           echo "Latest Version: $LATEST_RELEASE_VERSION"
           echo "version=${LATEST_RELEASE_VERSION#v}" >> $GITHUB_OUTPUT
 
