@@ -1314,13 +1314,13 @@ format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-
 
 [[package]]
 name = "kinto"
-version = "16.3.0"
+version = "17.0.0"
 description = "Kinto Web Service - Store, Sync, Share, and Self-Host."
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto-16.3.0-cp3-none-any.whl", hash = "sha256:8e174f05275c7cc5c35834162ded5b8cf0725c9eaac3e1061dc21b0dce38f365"},
-    {file = "kinto-16.3.0.tar.gz", hash = "sha256:8bc2f0dea419bdd3be15510fb166781c6380db7effd282c547142c580e660b41"},
+    {file = "kinto-17.0.0-py3-none-any.whl", hash = "sha256:110b2b88d79f881d688be97608ad7a55fa787a33c757eb6065a5d42ebecfcd6e"},
+    {file = "kinto-17.0.0.tar.gz", hash = "sha256:dbd452c67fa243bfe60187baa3f9a6c5057a7f8764b097b43c12459b6835e161"},
 ]
 
 [package.dependencies]
@@ -1351,10 +1351,12 @@ werkzeug = {version = "*", optional = true, markers = "extra == \"monitoring\""}
 "zope.sqlalchemy" = {version = "*", optional = true, markers = "extra == \"postgresql\""}
 
 [package.extras]
+dev = ["build", "ruff", "twine"]
 memcached = ["python-memcached"]
 monitoring = ["newrelic", "sentry-sdk[sqlalchemy]", "statsd", "werkzeug"]
 postgresql = ["SQLAlchemy (<3)", "psycopg2", "zope.sqlalchemy"]
 redis = ["kinto-redis"]
+test = ["bravado", "pytest", "pytest-cache", "pytest-cov", "selenium", "webtest"]
 
 [[package]]
 name = "kinto-attachment"
@@ -3135,4 +3137,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "1224e052faeb638ba79f55c98bee1388db56107e529232b8d4a1098ba0608039"
+content-hash = "046fd9103e2daa9a3d6955f754c895e3e7b528f3ddbf73317fb75fe9a7624f3c"
