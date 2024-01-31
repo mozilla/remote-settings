@@ -31,9 +31,9 @@ RUN pip install ./kinto-remote-settings
 # version specified in `kinto-admin/VERSION`.
 FROM node:21.6.1 as build-admin
 WORKDIR /opt
-COPY bin/build-kinto-admin.sh .
+COPY bin/pull-kinto-admin.sh .
 COPY kinto-admin/ kinto-admin/
-RUN ./build-kinto-admin.sh
+RUN ./pull-kinto-admin.sh
 
 
 FROM python:3.11.5-slim as production
