@@ -62,6 +62,7 @@ COPY --chown=app:app . .
 COPY --from=compile /opt/dogstatsd_plugin.so .
 
 COPY --from=build-admin /opt/kinto-admin/build $KINTO_ADMIN_ASSETS_PATH
+COPY --from=build-admin /opt/kinto-admin/VERSION $KINTO_ADMIN_ASSETS_PATH/VERSION
 
 # Generate local key pair to simplify running without Autograph out of the box (see `config/testing.ini`)
 RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.pem /app/ecdsa.public.pem
