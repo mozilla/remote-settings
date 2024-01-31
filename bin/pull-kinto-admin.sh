@@ -6,4 +6,5 @@ TAG="v${VERSION}"
 
 # download and unzip release
 curl -OL https://github.com/Kinto/kinto-admin/releases/download/${TAG}/kinto-admin-release.tar
+mkdir ./kinto-admin/build
 tar -xf kinto-admin-release.tar -C ./kinto-admin/build && rm kinto-admin-release.tar
