@@ -70,7 +70,7 @@ license = "MPL"
 readme = "README.rst"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11, <3.13"
 canonicaljson-rs = "0.5.0"
 cryptography = "42.0.1"
 ecdsa = "0.18.0"
