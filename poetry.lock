@@ -1327,13 +1327,13 @@ referencing = ">=0.31.0"
 
 [[package]]
 name = "kinto"
-version = "17.0.0"
+version = "18.0.0"
 description = "Kinto Web Service - Store, Sync, Share, and Self-Host."
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto-17.0.0-py3-none-any.whl", hash = "sha256:110b2b88d79f881d688be97608ad7a55fa787a33c757eb6065a5d42ebecfcd6e"},
-    {file = "kinto-17.0.0.tar.gz", hash = "sha256:dbd452c67fa243bfe60187baa3f9a6c5057a7f8764b097b43c12459b6835e161"},
+    {file = "kinto-18.0.0-py3-none-any.whl", hash = "sha256:d24cd945883a63033bc98c15e566caa8cefc609f8b08688eb8f745db42d96dd2"},
+    {file = "kinto-18.0.0.tar.gz", hash = "sha256:cbfa27a565bdfeb6e75c36cca8a514247e108803baac30dba948f2399289f98c"},
 ]
 
 [package.dependencies]
@@ -2080,13 +2080,13 @@ test = ["assertpy (>=1.1)", "beautifulsoup4 (>=4.11.1)", "black (>=22.1.0)", "fl
 
 [[package]]
 name = "pytest-metadata"
-version = "3.0.0"
+version = "3.1.0"
 description = "pytest plugin for test session metadata"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "pytest_metadata-3.0.0-py3-none-any.whl", hash = "sha256:a17b1e40080401dc23177599208c52228df463db191c1a573ccdffacd885e190"},
-    {file = "pytest_metadata-3.0.0.tar.gz", hash = "sha256:769a9c65d2884bd583bc626b0ace77ad15dbe02dd91a9106d47fd46d9c2569ca"},
+    {file = "pytest_metadata-3.1.0-py3-none-any.whl", hash = "sha256:54ce21108708d0f2fdb30c7056ce5789ce052262efff4832892aa92df4a76291"},
+    {file = "pytest_metadata-3.1.0.tar.gz", hash = "sha256:53dcd8bbd101cf6ca97efb4a42a72fcbee5de173bddad4850f4ce9bb27e9f0f2"},
 ]
 
 [package.dependencies]
@@ -3332,4 +3332,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "2c40f38927bbfab48a709a2cf096e0d27def69c59c22d2ecb1d8936ebc11d6fc"
+content-hash = "449438c240cdf23269521de6ddcfc784a678dba102fa154330612dbfe417161a"
