@@ -30,8 +30,7 @@ integration-test)
 browser-test)
     shift
     wait_for_server
-    # pytest --base-url $SERVER --verify-base-url browser_test.py --server $SERVER --log-level=DEBUG
-    py.test browser_test.py --log-level=DEBUG
+    pytest browser_test.py --log-level=DEBUG
     ;;
 *)
     exec "$@"
