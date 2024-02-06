@@ -9,7 +9,8 @@ set -euo pipefail
 # feedback:
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get update
+apt-get clean
+apt-get update --allow-releaseinfo-change-suite
 # Install security updates
 apt-get -y upgrade
 # Install packages
