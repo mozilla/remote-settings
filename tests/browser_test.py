@@ -1,7 +1,9 @@
-import re
 import os
+import re
 import unittest
+
 from playwright.sync_api import expect, sync_playwright
+
 
 baseUrl = os.getenv("SERVER", "http://localhost:8888/v1/")
 auth = {"user": "user", "password": "pass"}
@@ -10,11 +12,15 @@ browser = sync_playwright().start().firefox.launch()
 context = browser.new_context(base_url=baseUrl)
 page = browser.new_page()
 
+
 class BrowserTest(unittest.TestCase):
     def setUp(self):
         request = context.request
-        request.post("accounts", data={"data": {"id": auth["user"], "password": auth["password"]}})
-        
+        request.post(
+            "accounts",
+            data={"data": {"id": auth["user"], "password": auth["password"]}},
+        )
+
     def test_login_and_view_home_page(self):
         page.goto(f"{baseUrl}admin/")
 
