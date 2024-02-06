@@ -18,7 +18,7 @@ wait_for_server () {
   echo "Waiting for $SERVER to become available"
   wget -q --retry-connrefused --waitretry=1 -O /dev/null $SERVER || (echo "Can't reach $SERVER" && exit 1)
   echo "verifying $SERVER heartbeat"
-  http --check-status --body --json --pretty format GET $SERVER/__heartbeat__ ; echo
+  http --check-status --body --json --pretty format GET ${SERVER}__heartbeat__ ; echo
 }
 
 case $1 in
@@ -30,8 +30,8 @@ integration-test)
 browser-test)
     shift
     wait_for_server
-    wget -q --tries=180 --retry-connrefused --waitretry=1 -O /dev/null http://selenium:4444/wd/hub/status || (echo "Can't reach Selenium" && exit 1)
-    pytest --driver Remote --capability browserName firefox --base-url $SERVER/admin/ --verify-base-url browser_test.py --server $SERVER
+    # pytest --base-url $SERVER --verify-base-url browser_test.py --server $SERVER --log-level=DEBUG
+    py.test browser_test.py --log-level=DEBUG
     ;;
 *)
     exec "$@"

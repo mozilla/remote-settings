@@ -37,15 +37,6 @@ services:
     ports:
       - 9999:80
 
-  selenium:
-    image: selenium/standalone-firefox
-    profiles: [integration-test]
-    volumes:
-      - /dev/shm:/dev/shm
-    ports:
-      - 4444:4444
-    shm_size: 2g
-
   web:
     build:
       dockerfile: RemoteSettings.Dockerfile
@@ -79,12 +70,9 @@ services:
     profiles: [integration-test]
     depends_on:
       - web
-      - selenium
       - certchains
     environment:
-      - SERVER=http://web:8888/v1
-      - SELENIUM_HOST=selenium
-      - SELENIUM_PORT=4444
+      - SERVER=http://web:8888/v1/
       - MAIL_DIR=/var/debug-mail/
     volumes:
       - debug-mail:/var/debug-mail/

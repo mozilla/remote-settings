@@ -101,8 +101,9 @@ httpie = "3.2.2"
 kinto-http = "11.0.1"
 pytest = "7.4.4"
 pytest-asyncio = "0.23.4"
-pytest-selenium = "4.1.0"
 webtest = "3.0.0"
+playwright = "^1.41.1"
+pytest-playwright = "^0.4.4"
 
 [tool.poetry.group.docs]
 optional = true

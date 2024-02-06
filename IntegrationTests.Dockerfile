@@ -1,4 +1,4 @@
-FROM python:3.12.1-slim as build
+FROM python:3.12.1 as build
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -17,7 +17,9 @@ WORKDIR /opt
 COPY pyproject.toml poetry.lock ./
 RUN $POETRY_HOME/bin/poetry install --only integration-tests --no-root
 
-FROM python:3.12.1-slim
+FROM python:3.12.1
+RUN apt update && apt upgrade -y
+
 ENV PATH="/opt/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/.venv \
@@ -27,6 +29,9 @@ COPY /bin/update_and_install_system_packages.sh /opt
 RUN /opt/update_and_install_system_packages.sh wget
 
 COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
+
+RUN playwright install firefox
+RUN playwright install-deps
 
 WORKDIR /app
 COPY tests/ pyproject.toml ./

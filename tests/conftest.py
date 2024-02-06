@@ -8,8 +8,6 @@ import pytest_asyncio
 import requests
 from kinto_http import AsyncClient, KintoException
 from requests.adapters import HTTPAdapter
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.remote.webdriver import WebDriver
 from urllib3.util.retry import Retry
 
 
@@ -228,20 +226,6 @@ def _verify_url(request: pytest.FixtureRequest, base_url: str):
         retries = Retry(backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
         session.mount(base_url, HTTPAdapter(max_retries=retries))
         session.get(base_url, verify=False)
-
-
-@pytest.fixture()
-def firefox_options(firefox_options: Options) -> Options:
-    firefox_options.headless = True
-    return firefox_options
-
-
-@pytest.fixture()
-def selenium(selenium: WebDriver) -> WebDriver:
-    selenium.set_window_size(1024, 600)
-    selenium.maximize_window()
-    selenium.implicitly_wait(5)
-    return selenium
 
 
 def create_user(request_session: requests.Session, server: str, auth: Auth):
