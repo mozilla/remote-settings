@@ -72,7 +72,7 @@ services:
       - web
       - certchains
     environment:
-      - SERVER=http://web:8888/v1/
+      - SERVER=http://web:8888/v1
       - MAIL_DIR=/var/debug-mail/
     volumes:
       - debug-mail:/var/debug-mail/

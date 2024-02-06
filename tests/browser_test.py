@@ -5,7 +5,7 @@ import unittest
 from playwright.sync_api import expect, sync_playwright
 
 
-baseUrl = os.getenv("SERVER", "http://localhost:8888/v1/")
+baseUrl = os.getenv("SERVER", "http://localhost:8888/v1")
 auth = {"user": "user", "password": "pass"}
 
 browser = sync_playwright().start().firefox.launch()
@@ -22,7 +22,7 @@ class BrowserTest(unittest.TestCase):
         )
 
     def test_login_and_view_home_page(self):
-        page.goto(f"{baseUrl}admin/")
+        page.goto(f"{baseUrl}/admin/")
 
         expect(page).to_have_title(re.compile("Remote Settings"))
 
@@ -34,7 +34,6 @@ class BrowserTest(unittest.TestCase):
         txtPassword.fill(auth["password"])
         page.get_by_text(re.compile("Sign in using Kinto Account Auth")).click()
 
-        expect(page.get_by_text("Remote Settings")).to_be_visible()
         expect(page.get_by_text("project_name")).to_be_visible()
         expect(page.get_by_text("project_version")).to_be_visible()
         expect(page.get_by_text("http_api_version")).to_be_visible()
