@@ -55,6 +55,7 @@ class BrowserTest(unittest.TestCase):
         page.get_by_text("Request review").last.click()
 
         # verify that we are in-progress for review
-        wizardSteps = page.locator(".bs-wizard-step")
-        expect(wizardSteps[0]).to_have_class("completed")
-        expect(wizardSteps[1]).to_have_class("active")
+        expect(page.locator(".bs-wizard-step.complete").first).to_contain_text("Work in progress")
+        expect(page.locator(".bs-wizard-step.active").first).to_contain_text("Waiting review")
+        expect(page.locator(".bs-wizard-step.disabled").first).to_contain_text("Approved")
+
