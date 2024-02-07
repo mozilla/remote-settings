@@ -30,7 +30,7 @@ integration-test)
 browser-test)
     shift
     wait_for_server
-    pytest browser_test.py --log-level=DEBUG
+    pytest browser_test.py --log-level=DEBUG --browser firefox
     ;;
 *)
     exec "$@"

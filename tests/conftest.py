@@ -6,13 +6,13 @@ from typing import Callable, Tuple
 import pytest
 import pytest_asyncio
 import requests
-from kinto_http import AsyncClient, KintoException
+from kinto_http import Client, KintoException
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 
-class RemoteSettingsAsyncClient(AsyncClient):
-    async def fetch_changeset(self, **kwargs) -> list[dict]:
+class RemoteSettingsClient(Client):
+    def fetch_changeset(self, **kwargs) -> list[dict]:
         """
         Fetch from `/changeset` endpoint introduced by the kinto-remote-settings plugin.
         """
@@ -20,10 +20,7 @@ class RemoteSettingsAsyncClient(AsyncClient):
         collection = self.collection_name
         endpoint = f"/buckets/{bucket}/collections/{collection}/changeset"
         kwargs.setdefault("_expected", random.randint(999999000000, 999999999999))
-        loop = asyncio.get_event_loop()
-        body, _ = await loop.run_in_executor(
-            None, lambda: self._client.session.request("get", endpoint, params=kwargs)
-        )
+        body, _ = self.session.request("get", endpoint, params=kwargs)
         return body
 
 
@@ -43,7 +40,7 @@ DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", "false"))
 DEFAULT_TO_REVIEW_ENABLED = asbool(os.getenv("TO_REVIEW_ENABLED", "true"))
 
 Auth = Tuple[str, str]
-ClientFactory = Callable[[Auth], RemoteSettingsAsyncClient]
+ClientFactory = Callable[[Auth], RemoteSettingsClient]
 
 
 def pytest_addoption(parser):
@@ -169,7 +166,7 @@ def to_review_enabled(request) -> bool:
 def make_client(
     server: str, source_bucket: str, source_collection: str, skip_server_setup: bool
 ) -> ClientFactory:
-    """Factory as fixture for creating a RemoteSettings AsyncClient used for tests.
+    """Factory as fixture for creating a RemoteSettings Client used for tests.
 
     Args:
         server (str): Kinto server (in form 'http(s)://<host>:<port>/v1')
@@ -177,10 +174,10 @@ def make_client(
         source_collection (str): Source collection
 
     Returns:
-        RemoteSettingsAsyncClient: RemoteSettingsAsyncClient
+        RemoteSettingsClient: RemoteSettingsClient
     """
 
-    def _make_client(auth: Auth) -> RemoteSettingsAsyncClient:
+    def _make_client(auth: Auth) -> RemoteSettingsClient:
         request_session = requests.Session()
         retries = Retry(
             total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
@@ -192,7 +189,7 @@ def make_client(
         if not skip_server_setup and auth:
             create_user(request_session, server, auth)
 
-        return RemoteSettingsAsyncClient(
+        return RemoteSettingsClient(
             server_url=server,
             auth=auth,
             bucket=source_bucket,
@@ -203,15 +200,14 @@ def make_client(
     return _make_client
 
 
-@pytest_asyncio.fixture(autouse=True)
-async def flush_default_collection(
+@pytest.fixture(autouse=True)
+def flush_default_collection(
     make_client: ClientFactory,
     editor_auth: Auth,
 ):
-    yield
     editor_client = make_client(editor_auth)
     try:
-        await editor_client.delete_records()
+        editor_client.delete_records()
     except KintoException as e:
         # in the case where a user doesn't have permissions to delete
         print(e)
@@ -238,9 +234,9 @@ def create_user(request_session: requests.Session, server: str, auth: Auth):
         )
 
 
-async def signed_resource(client):
+def signed_resource(client):
     bid, cid = client.bucket_name, client.collection_name
-    signer_resources = (await client.server_info())["capabilities"]["signer"][
+    signer_resources = (client.server_info())["capabilities"]["signer"][
         "resources"
     ]
     signed_resource = [
