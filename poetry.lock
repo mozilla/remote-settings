@@ -297,6 +297,7 @@ files = [
     {file = "canonicaljson_rs-0.6.0-cp311-none-win_amd64.whl", hash = "sha256:f66dff64e1ccf0050c59a6808c6a4c1691cc33d35215e0bfeb4e92888d4ef344"},
     {file = "canonicaljson_rs-0.6.0-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:e357662b5a275e283074c867dfe11eb282b99b2d90836c89283fe304b99a09c4"},
     {file = "canonicaljson_rs-0.6.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:faf7a6903fa045b4b557b83a836967e4f67c33ea9be213af23e94d219771f387"},
+    {file = "canonicaljson_rs-0.6.0-cp312-cp312-manylinux_2_24_aarch64.whl", hash = "sha256:529a466570442a2a419cbd030355b496be07456bddd572ba21d50e37d1031045"},
     {file = "canonicaljson_rs-0.6.0-cp312-cp312-manylinux_2_24_ppc64le.whl", hash = "sha256:538182095b298ec23e47bdd0fe92e4c60c267dafe1b9d82ed2d4163e9935aecb"},
     {file = "canonicaljson_rs-0.6.0-cp312-cp312-manylinux_2_24_s390x.whl", hash = "sha256:837a152355e8877a5bd2bb080e13540f0351d590df3668ea35527ee46e20ff89"},
     {file = "canonicaljson_rs-0.6.0-cp312-cp312-manylinux_2_24_x86_64.whl", hash = "sha256:fdfc8eb8c248642544e75cd596c5b21704a85ddae0b6abfa83eabe5f1d8360fa"},
@@ -3217,4 +3218,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11, <3.13"
-content-hash = "761183149ebf49c34222761d17ef3202fb1ff866c3ff30230b1c2a1b1d48f150"
+content-hash = "4dcdf08c9a1561f6ca09c1946476f02644c710c2ac31a3250eaa5ab51bf5d979"
