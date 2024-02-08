@@ -1,4 +1,4 @@
-FROM python:3.12.1 as build
+FROM python:3.12.2 as build
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -17,7 +17,7 @@ WORKDIR /opt
 COPY pyproject.toml poetry.lock ./
 RUN $POETRY_HOME/bin/poetry install --only integration-tests --no-root
 
-FROM python:3.12.1
+FROM python:3.12.2
 RUN apt update && apt upgrade -y
 
 ENV PATH="/opt/.venv/bin:$PATH" \
