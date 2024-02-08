@@ -258,9 +258,9 @@ async def test_signer_plugin_refresh(
         editor_client.patch_collection(data={"status": "to-review"})
 
     reviewer_client.patch_collection(data={"status": "to-sign"})
-    signature_preview_before = (
-        editor_client.get_collection(bucket=preview_bucket)
-    )["data"]["signature"]
+    signature_preview_before = (editor_client.get_collection(bucket=preview_bucket))[
+        "data"
+    ]["signature"]
 
     signature_before = (editor_client.get_collection(bucket=dest_bucket))["data"][
         "signature"
@@ -268,12 +268,10 @@ async def test_signer_plugin_refresh(
 
     reviewer_client.patch_collection(data={"status": "to-resign"})
 
-    signature = (editor_client.get_collection(bucket=dest_bucket))["data"][
+    signature = (editor_client.get_collection(bucket=dest_bucket))["data"]["signature"]
+    signature_preview = (editor_client.get_collection(bucket=dest_bucket))["data"][
         "signature"
     ]
-    signature_preview = (editor_client.get_collection(bucket=dest_bucket))[
-        "data"
-    ]["signature"]
 
     assert signature_before != signature
     assert signature_preview_before != signature_preview
