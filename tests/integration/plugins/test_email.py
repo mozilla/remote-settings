@@ -24,9 +24,9 @@ async def test_email_plugin(
 
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_server(setup_client, editor_client)
+        setup_server(setup_client, editor_client)
 
-        await setup_client.patch_bucket(
+        setup_client.patch_bucket(
             data={
                 "kinto-emailer": {
                     "hooks": [
@@ -44,16 +44,16 @@ async def test_email_plugin(
             },
         )
 
-    bucket_metadata = await editor_client.get_bucket()
+    bucket_metadata = editor_client.get_bucket()
     email_hooks = bucket_metadata["data"]["kinto-emailer"]["hooks"]
     assert [
         h for h in email_hooks if "ReviewRequested" in h["event"]
     ], "Email hook not found"
 
     # Create record, will set status to "work-in-progress"
-    await editor_client.create_record(data={"hola": "mundo"})
+    editor_client.create_record(data={"hola": "mundo"})
     # Request review!
-    await editor_client.patch_collection(data={"status": "to-review"})
+    editor_client.patch_collection(data={"status": "to-review"})
 
     email_files_created = set(os.listdir(mail_dir)) - existing_email_files
     assert email_files_created, "No emails created"

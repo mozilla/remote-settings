@@ -18,23 +18,23 @@ async def test_history_plugin(
 
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_server(setup_client, editor_client)
+        setup_server(setup_client, editor_client)
 
         if not keep_existing:
-            await setup_client.purge_history()
+            setup_client.purge_history()
 
     # Reset collection status.
-    collection = await editor_client.get_collection()
+    collection = editor_client.get_collection()
     timestamp_start = collection["data"]["last_modified"]
     if collection["data"]["status"] != "signed":
-        await editor_client.patch_collection(data={"status": "to-rollback"})
+        editor_client.patch_collection(data={"status": "to-rollback"})
 
     # Create record, will set status to "work-in-progress"
-    await editor_client.create_record(data={"hola": "mundo"})
+    editor_client.create_record(data={"hola": "mundo"})
     # Request review, will set status and update collection attributes.
-    await editor_client.patch_collection(data={"status": "to-review"})
+    editor_client.patch_collection(data={"status": "to-review"})
 
-    history_entries = await editor_client.get_history(
+    history_entries = editor_client.get_history(
         resource_name="collection",
         collection_id=editor_client.collection_name,
         _since=timestamp_start,

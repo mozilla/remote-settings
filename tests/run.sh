@@ -30,8 +30,7 @@ integration-test)
 browser-test)
     shift
     wait_for_server
-    wget -q --tries=180 --retry-connrefused --waitretry=1 -O /dev/null http://selenium:4444/wd/hub/status || (echo "Can't reach Selenium" && exit 1)
-    pytest --driver Remote --capability browserName firefox --base-url $SERVER/admin/ --verify-base-url browser_test.py --server $SERVER
+    pytest browser_test.py --log-level=DEBUG --browser firefox
     ;;
 *)
     exec "$@"

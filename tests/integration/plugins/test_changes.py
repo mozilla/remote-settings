@@ -27,15 +27,15 @@ async def test_changes_plugin(
 ):
     if not skip_server_setup:
         setup_client = make_client(setup_auth)
-        await setup_server(setup_client)
+        setup_server(setup_client)
 
     anonymous_client = make_client(tuple())
     editor_client = make_client(editor_auth)
     reviewer_client = make_client(reviewer_auth)
 
     # 1. Inspect the content of monitor/changes to get some reference timestamp
-    records = await anonymous_client.get_records(bucket="monitor", collection="changes")
-    resource = await signed_resource(editor_client)
+    records = anonymous_client.get_records(bucket="monitor", collection="changes")
+    resource = signed_resource(editor_client)
 
     initial_preview = find_changes_record(
         records=records,
@@ -49,12 +49,12 @@ async def test_changes_plugin(
     )
 
     # 2. Upload records and request review
-    await upload_records(editor_client, 1)
-    await editor_client.patch_collection(data={"status": "to-review"})
+    upload_records(editor_client, 1)
+    editor_client.patch_collection(data={"status": "to-review"})
 
     # 3. Compare timestamps and assert that preview timestamp was bumped,
     #    and destination wasn't
-    records = await anonymous_client.get_records(bucket="monitor", collection="changes")
+    records = anonymous_client.get_records(bucket="monitor", collection="changes")
     preview = find_changes_record(
         records=records,
         bucket=resource["preview"]["bucket"],
@@ -70,8 +70,8 @@ async def test_changes_plugin(
     assert destination["last_modified"] == initial_destination["last_modified"]
 
     # 4. We approve the changes, and then assert that destination timestamp was bumped
-    await reviewer_client.patch_collection(data={"status": "to-sign"})
-    records = await anonymous_client.get_records(bucket="monitor", collection="changes")
+    reviewer_client.patch_collection(data={"status": "to-sign"})
+    records = anonymous_client.get_records(bucket="monitor", collection="changes")
     preview = find_changes_record(
         records=records,
         bucket=resource["preview"]["bucket"],

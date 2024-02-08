@@ -27,7 +27,7 @@ async def test_permissions_endpoint(
         setup_client = make_client(setup_auth)
         editor_client = make_client(editor_auth)
         reviewer_client = make_client(reviewer_auth)
-        await setup_server(setup_client, editor_client, reviewer_client)
+        setup_server(setup_client, editor_client, reviewer_client)
 
     for user in (editor_auth, reviewer_auth):
         resp = requests.get(
