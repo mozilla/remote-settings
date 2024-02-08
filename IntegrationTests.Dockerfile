@@ -18,7 +18,6 @@ COPY pyproject.toml poetry.lock ./
 RUN $POETRY_HOME/bin/poetry install --only integration-tests --no-root
 
 FROM python:3.12.2
-RUN apt update && apt upgrade -y
 
 ENV PATH="/opt/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
@@ -30,8 +29,7 @@ RUN /opt/update_and_install_system_packages.sh wget
 
 COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
 
-RUN playwright install firefox
-RUN playwright install-deps
+RUN playwright install --with-deps firefox
 
 WORKDIR /app
 COPY tests/ pyproject.toml ./
