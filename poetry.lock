@@ -1355,7 +1355,7 @@ memcached = ["python-memcached"]
 monitoring = ["newrelic", "sentry-sdk[sqlalchemy]", "statsd", "werkzeug"]
 postgresql = ["SQLAlchemy (<3)", "psycopg2", "zope.sqlalchemy"]
 redis = ["kinto-redis"]
-test = ["bravado", "pytest", "pytest-cache", "pytest-cov", "selenium", "webtest"]
+test = ["bravado", "pytest", "pytest-cache", "pytest-cov", "webtest"]
 
 [[package]]
 name = "kinto-attachment"
