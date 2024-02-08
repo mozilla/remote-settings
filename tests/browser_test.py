@@ -1,10 +1,11 @@
 import re
+
 import pytest
 from kinto_http.patch_type import JSONPatch
 from playwright.sync_api import expect
 
 
-@pytest.fixture(autouse=True, scope="function")
+@pytest.fixture(autouse=True)
 def _do_setup(
     source_bucket,
     source_collection,
@@ -44,9 +45,6 @@ def test_login_and_submit_review(
     editor_auth,
     source_bucket,
     source_collection,
-    setup_auth,
-    skip_server_setup,
-    keep_existing,
 ):
     # load login page
     page.goto(f"{server}/admin/")
@@ -100,20 +98,13 @@ def test_review_requested_changes(
     reviewer_auth,
     source_bucket,
     source_collection,
-    setup_auth,
-    skip_server_setup,
-    keep_existing,
     make_client,
     editor_auth,
 ):
     # setup changes to review
     editor_client = make_client(editor_auth)
-    editor_client.create_record(
-        data={"prop": "val"}
-    )
-    editor_client.patch_collection(
-        data={"status": "to-review"}
-    )
+    editor_client.create_record(data={"prop": "val"})
+    editor_client.patch_collection(data={"status": "to-review"})
 
     # load login page
     page.goto(f"{server}/admin/")
