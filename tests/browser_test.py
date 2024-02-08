@@ -39,6 +39,7 @@ def _do_setup(
         setup_client.delete_records()
 
 
+@pytest.mark.order(1)
 def test_login_and_submit_review(
     server,
     page,
@@ -95,4 +96,49 @@ def test_login_and_submit_review(
     expect(page.locator(".bs-wizard-step.disabled").first).to_contain_text("Approved")
 
 
-# TODO: reviewer test scenario - login to approve pending request
+@pytest.mark.order(2)
+def review_requested_changes(
+    server,
+    page,
+    reviewer_auth,
+    source_bucket,
+    source_collection,
+    setup_auth,
+    skip_server_setup,
+    keep_existing,
+):
+    # load login page
+    page.goto(f"{server}/admin/")
+    expect(page).to_have_title(re.compile("Remote Settings"))
+
+    # login
+    page.get_by_label("Kinto Account Auth").click()
+    txtUsername = page.get_by_label(re.compile("Username"))
+    txtPassword = page.get_by_label(re.compile("Password"))
+    txtUsername.fill(reviewer_auth[0])
+    txtPassword.fill(reviewer_auth[1])
+    page.get_by_text(re.compile("Sign in using Kinto Account Auth")).click()
+
+    # verify home page loaded
+    expect(page.get_by_text("project_name")).to_be_visible()
+    expect(page.get_by_text("project_version")).to_be_visible()
+    expect(page.get_by_text("http_api_version")).to_be_visible()
+    expect(page.get_by_text("project_docs")).to_be_visible()
+
+    # navigate to test collection
+    page.click(
+        '[href="#/buckets/main-workspace/collections/integration-tests/records"]'
+    )
+    expect(
+        page.get_by_text("Records of main-workspace/integration-tests")
+    ).to_be_visible()
+
+    # navigate to review page
+    page.click(
+        '[href="#/buckets/main-workspace/collections/integration-tests/simple-review"]'
+    )
+    expect(page.get_by_text("Review requested by")).to_be_visible()
+
+    # approve and verify no changes are pending
+    page.get_by_text("Approve...").click()
+    expect(page.get_by_text("No changes to review")).to_be_visible()
