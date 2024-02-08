@@ -108,7 +108,7 @@ def test_review_requested_changes(
 
     # load login page
     page.goto(f"{server}/admin/")
-    
+
     # login
     page.get_by_label("Kinto Account Auth").click()
     page.get_by_label(re.compile("Username")).fill(reviewer_auth[0])
