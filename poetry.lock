@@ -2088,20 +2088,6 @@ requests = ">=2.9"
 test = ["black (>=22.1.0)", "flake8 (>=4.0.1)", "pre-commit (>=2.17.0)", "pytest-localserver (>=0.7.1)", "tox (>=3.24.5)"]
 
 [[package]]
-name = "pytest-order"
-version = "1.2.0"
-description = "pytest plugin to run your tests in a specific order"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pytest-order-1.2.0.tar.gz", hash = "sha256:944f86b6d441aa7b1da80f801c6ab65b84bbeba472d0a7a12eb43ba26650101a"},
-    {file = "pytest_order-1.2.0-py3-none-any.whl", hash = "sha256:9d65c3b6dc6d6ee984d6ae2c6c4aa4f1331e5b915116219075c888c8bcbb93b8"},
-]
-
-[package.dependencies]
-pytest = {version = ">=6.2.4", markers = "python_version >= \"3.10\""}
-
-[[package]]
 name = "pytest-playwright"
 version = "0.4.4"
 description = "A pytest wrapper with fixtures for Playwright to automate web browsers"
@@ -3235,4 +3221,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11, <3.13"
-content-hash = "387b66db6456785dd08387e741acf9cb873e9440586fad7075a9b65eba64b67b"
+content-hash = "0b1cd9c02d6fb7af4056436a2cd338224ebb35468d527ccae94458212ca8e41c"

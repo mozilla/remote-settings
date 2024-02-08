@@ -1,11 +1,10 @@
 import re
-
 import pytest
 from kinto_http.patch_type import JSONPatch
 from playwright.sync_api import expect
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="function")
 def _do_setup(
     source_bucket,
     source_collection,
@@ -39,7 +38,6 @@ def _do_setup(
         setup_client.delete_records()
 
 
-@pytest.mark.order(1)
 def test_login_and_submit_review(
     server,
     page,
@@ -70,10 +68,10 @@ def test_login_and_submit_review(
 
     # navigate to test collection
     page.click(
-        '[href="#/buckets/main-workspace/collections/integration-tests/records"]'
+        f'[href="#/buckets/{source_bucket}/collections/{source_collection}/records"]'
     )
     expect(
-        page.get_by_text("Records of main-workspace/integration-tests")
+        page.get_by_text(f"Records of {source_bucket}/{source_collection}")
     ).to_be_visible()
 
     # create a record
@@ -96,8 +94,7 @@ def test_login_and_submit_review(
     expect(page.locator(".bs-wizard-step.disabled").first).to_contain_text("Approved")
 
 
-@pytest.mark.order(2)
-def review_requested_changes(
+def test_review_requested_changes(
     server,
     page,
     reviewer_auth,
@@ -106,7 +103,18 @@ def review_requested_changes(
     setup_auth,
     skip_server_setup,
     keep_existing,
+    make_client,
+    editor_auth,
 ):
+    # setup changes to review
+    editor_client = make_client(editor_auth)
+    editor_client.create_record(
+        data={"prop": "val"}
+    )
+    editor_client.patch_collection(
+        data={"status": "to-review"}
+    )
+
     # load login page
     page.goto(f"{server}/admin/")
     expect(page).to_have_title(re.compile("Remote Settings"))
@@ -127,15 +135,15 @@ def review_requested_changes(
 
     # navigate to test collection
     page.click(
-        '[href="#/buckets/main-workspace/collections/integration-tests/records"]'
+        f'[href="#/buckets/{source_bucket}/collections/{source_collection}/records"]'
     )
     expect(
-        page.get_by_text("Records of main-workspace/integration-tests")
+        page.get_by_text(f"Records of {source_bucket}/{source_collection}")
     ).to_be_visible()
 
     # navigate to review page
     page.click(
-        '[href="#/buckets/main-workspace/collections/integration-tests/simple-review"]'
+        f'[href="#/buckets/{source_bucket}/collections/{source_collection}/simple-review"]'
     )
     expect(page.get_by_text("Review requested by")).to_be_visible()
 
