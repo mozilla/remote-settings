@@ -6,7 +6,7 @@ from playwright.sync_api import expect
 
 
 @pytest.fixture(autouse=True)
-def do_setup(
+def _do_setup(
     source_bucket,
     source_collection,
     setup_auth,
@@ -14,7 +14,7 @@ def do_setup(
     keep_existing,
     editor_auth,
     reviewer_auth,
-    make_client
+    make_client,
 ):
     if skip_server_setup:
         return
@@ -33,12 +33,8 @@ def do_setup(
     )
     data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
     setup_client.patch_group(id=f"{source_collection}-editors", changes=data)
-    data = JSONPatch(
-        [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
-    )
-    setup_client.patch_group(
-        id=f"{source_collection}-reviewers", changes=data
-    )
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
+    setup_client.patch_group(id=f"{source_collection}-reviewers", changes=data)
     if not keep_existing:
         setup_client.delete_records()
 
@@ -51,7 +47,7 @@ def test_login_and_submit_review(
     source_collection,
     setup_auth,
     skip_server_setup,
-    keep_existing
+    keep_existing,
 ):
     # load login page
     page.goto(f"{server}/admin/")
@@ -72,8 +68,12 @@ def test_login_and_submit_review(
     expect(page.get_by_text("project_docs")).to_be_visible()
 
     # navigate to test collection
-    page.click('[href="#/buckets/main-workspace/collections/integration-tests/records"]')
-    expect(page.get_by_text("Records of main-workspace/integration-tests")).to_be_visible()
+    page.click(
+        '[href="#/buckets/main-workspace/collections/integration-tests/records"]'
+    )
+    expect(
+        page.get_by_text("Records of main-workspace/integration-tests")
+    ).to_be_visible()
 
     # create a record
     page.get_by_text("Create record").first.click()
@@ -86,8 +86,13 @@ def test_login_and_submit_review(
     page.get_by_text("Request review").last.click()
 
     # verify that we are in-progress for review
-    expect(page.locator(".bs-wizard-step.complete").first).to_contain_text("Work in progress")
-    expect(page.locator(".bs-wizard-step.active").first).to_contain_text("Waiting review")
+    expect(page.locator(".bs-wizard-step.complete").first).to_contain_text(
+        "Work in progress"
+    )
+    expect(page.locator(".bs-wizard-step.active").first).to_contain_text(
+        "Waiting review"
+    )
     expect(page.locator(".bs-wizard-step.disabled").first).to_contain_text("Approved")
+
 
 # TODO: reviewer test scenario - login to approve pending request

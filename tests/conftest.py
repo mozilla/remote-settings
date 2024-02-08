@@ -199,7 +199,7 @@ def make_client(
 
 
 @pytest.fixture(autouse=True)
-def flush_default_collection(
+def _flush_default_collection(
     make_client: ClientFactory,
     editor_auth: Auth,
 ):
@@ -234,9 +234,7 @@ def create_user(request_session: requests.Session, server: str, auth: Auth):
 
 def signed_resource(client):
     bid, cid = client.bucket_name, client.collection_name
-    signer_resources = (client.server_info())["capabilities"]["signer"][
-        "resources"
-    ]
+    signer_resources = (client.server_info())["capabilities"]["signer"]["resources"]
     signed_resource = [
         r
         for r in signer_resources
