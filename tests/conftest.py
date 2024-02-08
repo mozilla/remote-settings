@@ -1,10 +1,8 @@
-import asyncio
 import os
 import random
 from typing import Callable, Tuple
 
 import pytest
-import pytest_asyncio
 import requests
 from kinto_http import Client, KintoException
 from requests.adapters import HTTPAdapter

@@ -1,12 +1,13 @@
-import os
 import re
+
 import pytest
-from playwright.sync_api import expect
 from kinto_http.patch_type import JSONPatch
+from playwright.sync_api import expect
+
 
 @pytest.fixture(autouse=True)
 def do_setup(
-    source_bucket, 
+    source_bucket,
     source_collection,
     setup_auth,
     skip_server_setup,
@@ -17,7 +18,7 @@ def do_setup(
 ):
     if skip_server_setup:
         return
-    
+
     editor_client = make_client(editor_auth)
     reviewer_client = make_client(reviewer_auth)
 
@@ -43,10 +44,10 @@ def do_setup(
 
 
 def test_login_and_submit_review(
-    server, 
-    page, 
-    editor_auth, 
-    source_bucket, 
+    server,
+    page,
+    editor_auth,
+    source_bucket,
     source_collection,
     setup_auth,
     skip_server_setup,
@@ -73,10 +74,10 @@ def test_login_and_submit_review(
     # navigate to test collection
     page.click('[href="#/buckets/main-workspace/collections/integration-tests/records"]')
     expect(page.get_by_text("Records of main-workspace/integration-tests")).to_be_visible()
-    
+
     # create a record
     page.get_by_text("Create record").first.click()
-    page.get_by_label("JSON record").fill('{"prop": "val"}');
+    page.get_by_label("JSON record").fill('{"prop": "val"}')
     page.get_by_text("Create record").click()
 
     # request a review
