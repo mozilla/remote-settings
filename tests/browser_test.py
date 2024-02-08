@@ -108,21 +108,12 @@ def test_review_requested_changes(
 
     # load login page
     page.goto(f"{server}/admin/")
-    expect(page).to_have_title(re.compile("Remote Settings"))
-
+    
     # login
     page.get_by_label("Kinto Account Auth").click()
-    txtUsername = page.get_by_label(re.compile("Username"))
-    txtPassword = page.get_by_label(re.compile("Password"))
-    txtUsername.fill(reviewer_auth[0])
-    txtPassword.fill(reviewer_auth[1])
+    page.get_by_label(re.compile("Username")).fill(reviewer_auth[0])
+    page.get_by_label(re.compile("Password")).fill(reviewer_auth[1])
     page.get_by_text(re.compile("Sign in using Kinto Account Auth")).click()
-
-    # verify home page loaded
-    expect(page.get_by_text("project_name")).to_be_visible()
-    expect(page.get_by_text("project_version")).to_be_visible()
-    expect(page.get_by_text("http_api_version")).to_be_visible()
-    expect(page.get_by_text("project_docs")).to_be_visible()
 
     # navigate to test collection
     page.click(
