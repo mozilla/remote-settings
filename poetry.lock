@@ -1371,19 +1371,23 @@ test = ["bravado", "pytest", "pytest-cache", "pytest-cov", "selenium", "webtest"
 
 [[package]]
 name = "kinto-attachment"
-version = "6.3.2"
+version = "6.4.0"
 description = "Attach files to Kinto records"
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto-attachment-6.3.2.tar.gz", hash = "sha256:05c08a201ae0af989f462f373724599a36c9d589381dfcef80aebbb083acc285"},
+    {file = "kinto-attachment-6.4.0.tar.gz", hash = "sha256:c5240e042c585b4bf5f0e95614aa186f755316b99f37b98b9767c26c4defa14a"},
+    {file = "kinto_attachment-6.4.0-py3-none-any.whl", hash = "sha256:8bbc649528afa2f95e9a01d80ded1a84bf856a2f2f4f57b0f7ccac71bc98b38f"},
 ]
 
 [package.dependencies]
 boto = "*"
 google-cloud-storage = "*"
 kinto = "*"
-pyramid_storage = ">=0.1.0"
+pyramid-storage = "*"
+
+[package.extras]
+dev = ["kinto-http", "kinto[postgresql]", "moto[s3,server] (<5)", "pytest", "pytest-cache", "pytest-cov", "ruff", "webtest"]
 
 [[package]]
 name = "kinto-emailer"
@@ -3347,4 +3351,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11, <3.13"
-content-hash = "4dcdf08c9a1561f6ca09c1946476f02644c710c2ac31a3250eaa5ab51bf5d979"
+content-hash = "dff2788b0885e1e5eaa07d6adfea6c5006486f4d0d09b40423bbee9d9fa8b9bd"
