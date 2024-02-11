@@ -78,7 +78,7 @@ kinto = {version = "^18.0.0", extras = ["postgresql","memcached","monitoring"]}
 kinto-attachment = "6.4.0"
 kinto-emailer = "3.0.1"
 requests-hawk = "1.2.1"
-uwsgi = "2.0.23"
+uwsgi = "2.0.24"
 
 [tool.poetry.group.kinto-remote-settings.dependencies]
 kinto-remote-settings = {path = "./kinto-remote-settings", develop = true}
