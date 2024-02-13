@@ -88,7 +88,7 @@ pytest = "7.4.4"
 webtest = "3.0.0"
 coverage = "7.4.1"
 detect-secrets = "^1.4.0"
-ruff = "^0.2.0"
+ruff = "^0.2.1"
 
 [tool.poetry.group.integration-tests]
 optional = true
@@ -100,9 +100,9 @@ canonicaljson-rs = "0.6.0"
 httpie = "3.2.2"
 kinto-http = "11.0.1"
 pytest = "7.4.4"
-pytest-asyncio = "0.23.4"
+pytest-asyncio = "0.23.5"
 webtest = "3.0.0"
-playwright = "^1.41.1"
+playwright = "^1.41.2"
 pytest-playwright = "^0.4.4"
 
 [tool.poetry.group.docs]
