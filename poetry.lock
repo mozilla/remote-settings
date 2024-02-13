@@ -297,6 +297,7 @@ files = [
     {file = "canonicaljson_rs-0.6.0-cp311-none-win_amd64.whl", hash = "sha256:f66dff64e1ccf0050c59a6808c6a4c1691cc33d35215e0bfeb4e92888d4ef344"},
     {file = "canonicaljson_rs-0.6.0-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:e357662b5a275e283074c867dfe11eb282b99b2d90836c89283fe304b99a09c4"},
     {file = "canonicaljson_rs-0.6.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:faf7a6903fa045b4b557b83a836967e4f67c33ea9be213af23e94d219771f387"},
+    {file = "canonicaljson_rs-0.6.0-cp312-cp312-manylinux_2_24_aarch64.whl", hash = "sha256:529a466570442a2a419cbd030355b496be07456bddd572ba21d50e37d1031045"},
     {file = "canonicaljson_rs-0.6.0-cp312-cp312-manylinux_2_24_ppc64le.whl", hash = "sha256:538182095b298ec23e47bdd0fe92e4c60c267dafe1b9d82ed2d4163e9935aecb"},
     {file = "canonicaljson_rs-0.6.0-cp312-cp312-manylinux_2_24_s390x.whl", hash = "sha256:837a152355e8877a5bd2bb080e13540f0351d590df3668ea35527ee46e20ff89"},
     {file = "canonicaljson_rs-0.6.0-cp312-cp312-manylinux_2_24_x86_64.whl", hash = "sha256:fdfc8eb8c248642544e75cd596c5b21704a85ddae0b6abfa83eabe5f1d8360fa"},
@@ -1355,7 +1356,7 @@ memcached = ["python-memcached"]
 monitoring = ["newrelic", "sentry-sdk[sqlalchemy]", "statsd", "werkzeug"]
 postgresql = ["SQLAlchemy (<3)", "psycopg2", "zope.sqlalchemy"]
 redis = ["kinto-redis"]
-test = ["bravado", "pytest", "pytest-cache", "pytest-cov", "webtest"]
+test = ["bravado", "pytest", "pytest-cache", "pytest-cov", "selenium", "webtest"]
 
 [[package]]
 name = "kinto-attachment"
@@ -2933,12 +2934,12 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "uwsgi"
-version = "2.0.23"
+version = "2.0.24"
 description = "The uWSGI server"
 optional = false
 python-versions = "*"
 files = [
-    {file = "uwsgi-2.0.23.tar.gz", hash = "sha256:0cafda0c16f921db7fe42cfaf81b167cf884ee17350efbdd87d1ecece2d7de37"},
+    {file = "uwsgi-2.0.24.tar.gz", hash = "sha256:77b6dd5cd633f4ae87ee393f7701f617736815499407376e78f3d16467523afe"},
 ]
 
 [[package]]
@@ -3221,4 +3222,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11, <3.13"
-content-hash = "0b1cd9c02d6fb7af4056436a2cd338224ebb35468d527ccae94458212ca8e41c"
+content-hash = "7b990f44e31d59474fb4dacf591cd1b41380762693513d1e08f76bb5e8a38afe"
