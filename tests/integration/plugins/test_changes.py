@@ -1,7 +1,7 @@
 import pytest
 
-from ...conftest import Auth, ClientFactory, signed_resource
-from ..utils import setup_server, upload_records
+from ...conftest import ClientFactory, signed_resource
+from ..utils import upload_records
 
 
 pytestmark = pytest.mark.asyncio
@@ -18,21 +18,11 @@ def find_changes_record(records: list[dict], bucket: str, collection: str):
 
 
 async def test_changes_plugin(
-    make_client: ClientFactory,
-    setup_auth: Auth,
-    editor_auth: Auth,
-    reviewer_auth: Auth,
+    anonymous_client: ClientFactory,
+    editor_client: ClientFactory,
+    reviewer_client: ClientFactory,
     source_collection: str,
-    skip_server_setup: bool,
 ):
-    if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        setup_server(setup_client)
-
-    anonymous_client = make_client(tuple())
-    editor_client = make_client(editor_auth)
-    reviewer_client = make_client(reviewer_auth)
-
     # 1. Inspect the content of monitor/changes to get some reference timestamp
     records = anonymous_client.get_records(bucket="monitor", collection="changes")
     resource = signed_resource(editor_client)

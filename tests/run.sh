@@ -25,7 +25,7 @@ case $1 in
 integration-test)
     shift
     wait_for_server
-    pytest integration $@
+    pytest -s integration $@
     ;;
 browser-test)
     shift

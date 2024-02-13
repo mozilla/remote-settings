@@ -1,27 +1,20 @@
 import pytest
 
 from ...conftest import Auth, ClientFactory
-from ..utils import setup_server
 
 
 pytestmark = pytest.mark.asyncio
 
 
 async def test_history_plugin(
-    make_client: ClientFactory,
-    setup_auth: Auth,
+    setup_client: ClientFactory,
+    editor_client: ClientFactory,
     editor_auth: Auth,
     keep_existing: bool,
     skip_server_setup: bool,
 ):
-    editor_client = make_client(editor_auth)
-
-    if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        setup_server(setup_client, editor_client)
-
-        if not keep_existing:
-            setup_client.purge_history()
+    if not skip_server_setup and not keep_existing:
+        setup_client.purge_history()
 
     # Reset collection status.
     collection = editor_client.get_collection()

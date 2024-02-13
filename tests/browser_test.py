@@ -14,18 +14,16 @@ def _do_setup(
     keep_existing,
     editor_auth,
     reviewer_auth,
-    make_client,
+    editor_client,
+    reviewer_client,
+    setup_client,
 ):
     if skip_server_setup:
         return
 
-    editor_client = make_client(editor_auth)
-    reviewer_client = make_client(reviewer_auth)
-
     editor_id = editor_client.server_info()["user"]["id"]
     reviewer_id = reviewer_client.server_info()["user"]["id"]
 
-    setup_client = make_client(setup_auth)
     setup_client.create_bucket(if_not_exists=True)
     setup_client.create_collection(
         permissions={"write": [editor_id, reviewer_id]},
@@ -98,11 +96,10 @@ def test_review_requested_changes(
     reviewer_auth,
     source_bucket,
     source_collection,
-    make_client,
+    editor_client,
     editor_auth,
 ):
     # setup changes to review
-    editor_client = make_client(editor_auth)
     editor_client.create_record(data={"prop": "val"})
     editor_client.patch_collection(data={"status": "to-review"})
 

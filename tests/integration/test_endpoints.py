@@ -1,11 +1,6 @@
-import pytest
 import requests
 
-from ..conftest import Auth, ClientFactory
-from .utils import setup_server
-
-
-pytestmark = pytest.mark.asyncio
+from ..conftest import Auth
 
 
 def test_heartbeat(server: str):
@@ -13,22 +8,14 @@ def test_heartbeat(server: str):
     resp.raise_for_status()
 
 
-async def test_permissions_endpoint(
-    make_client: ClientFactory,
+def test_permissions_endpoint(
     server: str,
-    setup_auth: Auth,
     editor_auth: Auth,
     reviewer_auth: Auth,
     source_bucket: str,
     source_collection: str,
     skip_server_setup: bool,
 ):
-    if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        editor_client = make_client(editor_auth)
-        reviewer_client = make_client(reviewer_auth)
-        setup_server(setup_client, editor_client, reviewer_client)
-
     for user in (editor_auth, reviewer_auth):
         resp = requests.get(
             f"{server}/permissions",

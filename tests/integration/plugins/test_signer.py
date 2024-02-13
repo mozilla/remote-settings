@@ -8,8 +8,8 @@ from autograph_utils import MemoryCache, SignatureVerifier
 from kinto_http import KintoException
 from kinto_http.patch_type import JSONPatch
 
-from ...conftest import Auth, ClientFactory, signed_resource
-from ..utils import _rand, setup_server, upload_records
+from ...conftest import ClientFactory, signed_resource
+from ..utils import _rand, upload_records
 
 
 class FakeRootHash:
@@ -42,32 +42,21 @@ async def verify_signature(records, timestamp, signature):
 pytestmark = pytest.mark.asyncio
 
 
-async def test_signer_plugin_capabilities(make_client: ClientFactory):
-    anonymous_client = make_client(tuple())
+async def test_signer_plugin_capabilities(anonymous_client: ClientFactory):
     capability = (anonymous_client.server_info())["capabilities"]["signer"]
     assert capability["group_check_enabled"]
 
 
 async def test_signer_plugin_full_workflow(
-    make_client: ClientFactory,
-    setup_auth: Auth,
-    editor_auth: Auth,
-    reviewer_auth: Auth,
+    editor_client: ClientFactory,
+    reviewer_client: ClientFactory,
     keep_existing: bool,
-    skip_server_setup: bool,
     to_review_enabled: bool,
 ):
     if not to_review_enabled:
         pytest.skip("to-review disabled")
 
-    editor_client = make_client(editor_auth)
-    reviewer_client = make_client(reviewer_auth)
-
     resource = signed_resource(editor_client)
-
-    if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        setup_server(setup_client, editor_client, reviewer_client)
 
     dest_col = resource["destination"].get("collection")
     dest_client = editor_client.clone(
@@ -172,24 +161,14 @@ async def test_signer_plugin_full_workflow(
 
 
 async def test_workflow_without_review(
-    make_client: ClientFactory,
-    setup_auth: Auth,
-    editor_auth: Auth,
-    reviewer_auth: Auth,
-    skip_server_setup: bool,
+    editor_client: ClientFactory,
+    reviewer_client: ClientFactory,
     to_review_enabled: bool,
 ):
     if to_review_enabled:
         pytest.skip("to-review enabled")
 
-    editor_client = make_client(editor_auth)
-    reviewer_client = make_client(reviewer_auth)
-
     resource = signed_resource(editor_client)
-
-    if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        setup_server(setup_client, editor_client, reviewer_client)
 
     dest_col = resource["destination"].get("collection")
     dest_client = editor_client.clone(
@@ -213,16 +192,8 @@ async def test_workflow_without_review(
 
 
 async def test_signer_plugin_rollback(
-    make_client: ClientFactory,
-    setup_auth: Auth,
-    editor_auth: Auth,
-    skip_server_setup: bool,
+    editor_client: ClientFactory,
 ):
-    if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        setup_server(setup_client)
-
-    editor_client = make_client(editor_auth)
     editor_client.patch_collection(data={"status": "to-rollback"})
     before_records = editor_client.get_records()
 
@@ -236,19 +207,10 @@ async def test_signer_plugin_rollback(
 
 
 async def test_signer_plugin_refresh(
-    make_client: ClientFactory,
-    setup_auth: Auth,
-    editor_auth: Auth,
-    reviewer_auth: Auth,
-    skip_server_setup: bool,
+    editor_client: ClientFactory,
+    reviewer_client: ClientFactory,
     to_review_enabled: bool,
 ):
-    reviewer_client = make_client(reviewer_auth)
-    if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        setup_server(setup_client, reviewer_client=reviewer_client)
-
-    editor_client = make_client(editor_auth)
     resource = signed_resource(editor_client)
     preview_bucket = resource["preview"]["bucket"]
     dest_bucket = resource["destination"]["bucket"]
@@ -278,22 +240,16 @@ async def test_signer_plugin_refresh(
 
 
 async def test_cannot_skip_to_review(
-    make_client: ClientFactory,
-    setup_auth: Auth,
-    editor_auth: Auth,
-    reviewer_auth: Auth,
+    setup_client: ClientFactory,
+    editor_client: ClientFactory,
+    reviewer_client: ClientFactory,
     skip_server_setup: bool,
     to_review_enabled: bool,
 ):
     if not to_review_enabled:
         pytest.skip("to-review disabled")
 
-    editor_client = make_client(editor_auth)
-    reviewer_client = make_client(reviewer_auth)
-
     if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        setup_server(setup_client, editor_client, reviewer_client)
         # Add reviewer to editors, and vice-versa.
         reviewer_id = (reviewer_client.server_info())["user"]["id"]
         data = JSONPatch(
@@ -315,22 +271,16 @@ async def test_cannot_skip_to_review(
 
 
 async def test_same_editor_cannot_review(
-    make_client: ClientFactory,
-    setup_auth: Auth,
-    editor_auth: Auth,
-    reviewer_auth: Auth,
+    setup_client: ClientFactory,
+    editor_client: ClientFactory,
+    reviewer_client: ClientFactory,
     skip_server_setup: bool,
     to_review_enabled: bool,
 ):
     if not to_review_enabled:
         pytest.skip("to-review disabled")
 
-    editor_client = make_client(editor_auth)
-    reviewer_client = make_client(reviewer_auth)
-
     if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        setup_server(setup_client, editor_client, reviewer_client)
         # Add reviewer to editors, and vice-versa.
         reviewer_id = (reviewer_client.server_info())["user"]["id"]
         data = JSONPatch(
@@ -353,22 +303,16 @@ async def test_same_editor_cannot_review(
 
 
 async def test_rereview_after_cancel(
-    make_client: ClientFactory,
-    setup_auth: Auth,
-    editor_auth: Auth,
-    reviewer_auth: Auth,
+    setup_client: ClientFactory,
+    editor_client: ClientFactory,
+    reviewer_client: ClientFactory,
     skip_server_setup: bool,
     to_review_enabled: bool,
 ):
     if not to_review_enabled:
         pytest.skip("to-review disabled")
 
-    editor_client = make_client(editor_auth)
-    reviewer_client = make_client(reviewer_auth)
-
     if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        setup_server(setup_client, editor_client, reviewer_client)
         # Add reviewer to editors, and vice-versa.
         reviewer_id = (reviewer_client.server_info())["user"]["id"]
         data = JSONPatch(
