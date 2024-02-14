@@ -1,10 +1,10 @@
 import requests
 
-from ...conftest import ClientFactory
+from ...conftest import RemoteSettingsClient
 
 
 def test_attachment_plugin_new_record(
-    editor_client: ClientFactory,
+    editor_client: RemoteSettingsClient,
 ):
     with open("kinto-logo.svg", "rb") as attachment:
         assert requests.post(
@@ -21,7 +21,7 @@ def test_attachment_plugin_new_record(
 
 
 def test_attachment_plugin_existing_record(
-    editor_client: ClientFactory,
+    editor_client: RemoteSettingsClient,
 ):
     editor_client.create_record(
         id="logo",

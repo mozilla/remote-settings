@@ -1,14 +1,14 @@
 import pytest
 
-from ...conftest import Auth, ClientFactory
+from ...conftest import Auth, RemoteSettingsClient
 
 
 pytestmark = pytest.mark.asyncio
 
 
 async def test_history_plugin(
-    setup_client: ClientFactory,
-    editor_client: ClientFactory,
+    setup_client: RemoteSettingsClient,
+    editor_client: RemoteSettingsClient,
     editor_auth: Auth,
     keep_existing: bool,
     skip_server_setup: bool,

@@ -8,7 +8,7 @@ from autograph_utils import MemoryCache, SignatureVerifier
 from kinto_http import KintoException
 from kinto_http.patch_type import JSONPatch
 
-from ...conftest import ClientFactory, signed_resource
+from ...conftest import RemoteSettingsClient, signed_resource
 from ..utils import _rand, upload_records
 
 
@@ -42,14 +42,14 @@ async def verify_signature(records, timestamp, signature):
 pytestmark = pytest.mark.asyncio
 
 
-async def test_signer_plugin_capabilities(anonymous_client: ClientFactory):
+async def test_signer_plugin_capabilities(anonymous_client: RemoteSettingsClient):
     capability = (anonymous_client.server_info())["capabilities"]["signer"]
     assert capability["group_check_enabled"]
 
 
 async def test_signer_plugin_full_workflow(
-    editor_client: ClientFactory,
-    reviewer_client: ClientFactory,
+    editor_client: RemoteSettingsClient,
+    reviewer_client: RemoteSettingsClient,
     keep_existing: bool,
     to_review_enabled: bool,
 ):
@@ -161,8 +161,8 @@ async def test_signer_plugin_full_workflow(
 
 
 async def test_workflow_without_review(
-    editor_client: ClientFactory,
-    reviewer_client: ClientFactory,
+    editor_client: RemoteSettingsClient,
+    reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
 ):
     if to_review_enabled:
@@ -192,7 +192,7 @@ async def test_workflow_without_review(
 
 
 async def test_signer_plugin_rollback(
-    editor_client: ClientFactory,
+    editor_client: RemoteSettingsClient,
 ):
     editor_client.patch_collection(data={"status": "to-rollback"})
     before_records = editor_client.get_records()
@@ -207,8 +207,8 @@ async def test_signer_plugin_rollback(
 
 
 async def test_signer_plugin_refresh(
-    editor_client: ClientFactory,
-    reviewer_client: ClientFactory,
+    editor_client: RemoteSettingsClient,
+    reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
 ):
     resource = signed_resource(editor_client)
@@ -240,9 +240,9 @@ async def test_signer_plugin_refresh(
 
 
 async def test_cannot_skip_to_review(
-    setup_client: ClientFactory,
-    editor_client: ClientFactory,
-    reviewer_client: ClientFactory,
+    setup_client: RemoteSettingsClient,
+    editor_client: RemoteSettingsClient,
+    reviewer_client: RemoteSettingsClient,
     skip_server_setup: bool,
     to_review_enabled: bool,
 ):
@@ -271,9 +271,9 @@ async def test_cannot_skip_to_review(
 
 
 async def test_same_editor_cannot_review(
-    setup_client: ClientFactory,
-    editor_client: ClientFactory,
-    reviewer_client: ClientFactory,
+    setup_client: RemoteSettingsClient,
+    editor_client: RemoteSettingsClient,
+    reviewer_client: RemoteSettingsClient,
     skip_server_setup: bool,
     to_review_enabled: bool,
 ):
@@ -303,9 +303,9 @@ async def test_same_editor_cannot_review(
 
 
 async def test_rereview_after_cancel(
-    setup_client: ClientFactory,
-    editor_client: ClientFactory,
-    reviewer_client: ClientFactory,
+    setup_client: RemoteSettingsClient,
+    editor_client: RemoteSettingsClient,
+    reviewer_client: RemoteSettingsClient,
     skip_server_setup: bool,
     to_review_enabled: bool,
 ):

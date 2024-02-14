@@ -201,22 +201,22 @@ def make_client(
 
 
 @pytest.fixture(scope="session")
-def setup_client(setup_auth, make_client) -> ClientFactory:
+def setup_client(setup_auth, make_client) -> RemoteSettingsClient:
     return make_client(setup_auth)
 
 
 @pytest.fixture(scope="session")
-def editor_client(editor_auth, make_client) -> ClientFactory:
+def editor_client(editor_auth, make_client) -> RemoteSettingsClient:
     return make_client(editor_auth)
 
 
 @pytest.fixture(scope="session")
-def reviewer_client(reviewer_auth, make_client) -> ClientFactory:
+def reviewer_client(reviewer_auth, make_client) -> RemoteSettingsClient:
     return make_client(reviewer_auth)
 
 
 @pytest.fixture(scope="session")
-def anonymous_client(make_client) -> ClientFactory:
+def anonymous_client(make_client) -> RemoteSettingsClient:
     return make_client(tuple())
 
 
@@ -246,10 +246,9 @@ def _setup_server(setup_client, editor_client, reviewer_client, skip_server_setu
 
 @pytest.fixture(autouse=True)
 def _flush_default_collection(
-    make_client: ClientFactory,
+    editor_client: RemoteSettingsClient,
     editor_auth: Auth,
 ):
-    editor_client = make_client(editor_auth)
     try:
         editor_client.delete_records()
     except KintoException as e:

@@ -1,6 +1,6 @@
 import pytest
 
-from ...conftest import ClientFactory, signed_resource
+from ...conftest import RemoteSettingsClient, signed_resource
 from ..utils import upload_records
 
 
@@ -18,9 +18,9 @@ def find_changes_record(records: list[dict], bucket: str, collection: str):
 
 
 async def test_changes_plugin(
-    anonymous_client: ClientFactory,
-    editor_client: ClientFactory,
-    reviewer_client: ClientFactory,
+    anonymous_client: RemoteSettingsClient,
+    editor_client: RemoteSettingsClient,
+    reviewer_client: RemoteSettingsClient,
     source_collection: str,
 ):
     # 1. Inspect the content of monitor/changes to get some reference timestamp
