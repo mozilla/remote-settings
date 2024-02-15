@@ -2,17 +2,15 @@ import os
 
 import pytest
 
-from ...conftest import Auth, ClientFactory
-from ..utils import setup_server
+from ...conftest import Auth
 
 
 pytestmark = pytest.mark.asyncio
 
 
 async def test_email_plugin(
-    make_client: ClientFactory,
-    setup_auth: Auth,
-    editor_auth: Auth,
+    setup_client: Auth,
+    editor_client: Auth,
     mail_dir: str,
     skip_server_setup: bool,
 ):
@@ -20,12 +18,7 @@ async def test_email_plugin(
     existing_email_files = set(os.listdir(mail_dir))
     print(f"Read emails from {mail_dir} ({len(existing_email_files)} file(s) present)")
 
-    editor_client = make_client(editor_auth)
-
     if not skip_server_setup:
-        setup_client = make_client(setup_auth)
-        setup_server(setup_client, editor_client)
-
         setup_client.patch_bucket(
             data={
                 "kinto-emailer": {

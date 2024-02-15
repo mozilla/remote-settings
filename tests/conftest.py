@@ -5,6 +5,7 @@ from typing import Callable, Tuple
 import pytest
 import requests
 from kinto_http import Client, KintoException
+from kinto_http.patch_type import JSONPatch
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -36,6 +37,7 @@ DEFAULT_MAIL_DIR = os.getenv("MAIL_DIR", "mail")
 DEFAULT_KEEP_EXISTING = asbool(os.getenv("KEEP_EXISTING", "false"))
 DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", "false"))
 DEFAULT_TO_REVIEW_ENABLED = asbool(os.getenv("TO_REVIEW_ENABLED", "true"))
+
 
 Auth = Tuple[str, str]
 ClientFactory = Callable[[Auth], RemoteSettingsClient]
@@ -160,7 +162,7 @@ def to_review_enabled(request) -> bool:
     return request.config.getoption("--to-review-enabled")
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def make_client(
     server: str, source_bucket: str, source_collection: str, skip_server_setup: bool
 ) -> ClientFactory:
@@ -198,12 +200,55 @@ def make_client(
     return _make_client
 
 
+@pytest.fixture(scope="session")
+def setup_client(setup_auth, make_client) -> RemoteSettingsClient:
+    return make_client(setup_auth)
+
+
+@pytest.fixture(scope="session")
+def editor_client(editor_auth, make_client) -> RemoteSettingsClient:
+    return make_client(editor_auth)
+
+
+@pytest.fixture(scope="session")
+def reviewer_client(reviewer_auth, make_client) -> RemoteSettingsClient:
+    return make_client(reviewer_auth)
+
+
+@pytest.fixture(scope="session")
+def anonymous_client(make_client) -> RemoteSettingsClient:
+    return make_client(tuple())
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _setup_server(setup_client, editor_client, reviewer_client, skip_server_setup):
+    if skip_server_setup:
+        return
+
+    setup_client.create_bucket(
+        permissions={
+            "collection:create": ["system.Authenticated"],
+        },
+        if_not_exists=True,
+    )
+    setup_client.create_collection(if_not_exists=True)
+
+    editor_id = (editor_client.server_info())["user"]["id"]
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+    setup_client.patch_group(id=f"{setup_client.collection_name}-editors", changes=data)
+
+    reviewer_id = (reviewer_client.server_info())["user"]["id"]
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
+    setup_client.patch_group(
+        id=f"{setup_client.collection_name}-reviewers", changes=data
+    )
+
+
 @pytest.fixture(autouse=True)
 def _flush_default_collection(
-    make_client: ClientFactory,
+    editor_client: RemoteSettingsClient,
     editor_auth: Auth,
 ):
-    editor_client = make_client(editor_auth)
     try:
         editor_client.delete_records()
     except KintoException as e:

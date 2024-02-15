@@ -92,7 +92,7 @@ finished, run:
 Test Remote Server
 ------------------
 
-Integration tests can be executed on a remote server.
+Integration tests can be executed on a remote server or against the docker-compose containers.
 
 To run the integration test suite, first build the integration tests container
 
@@ -143,6 +143,13 @@ Running integration tests on the Remote Settings DEV server should look somethin
         --env EDITOR_AUTH=<username:password, credentials available in 1Password> \
         --env REVIEWER_AUTH=<username:password, available in 1Password> \
     remotesettings/tests integration-test
+
+
+Because the integration tests are capable of running against environments with existing data, there are limitations to what they can do. Examples:
+ - Test server setup is global and may be skipped entirely against an existing server
+ - All tests have access to the same bucket, collection, and users
+ - Tests are not allowed to delete the bucket(s), collection(s) or users
+ - Test records may not be purged if the remote server disables this ability
 
 
 
