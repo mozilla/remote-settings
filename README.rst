@@ -17,7 +17,7 @@ This *Remote Settings* repository contains the following files and directories o
 * ``config/``: example configuration file(s)
 * ``docs/``: documentation source files
 * ``kinto-remote-settings/``: Kinto plugin specific to Remote Settings
-* ``tests/``: browser and integration tests
+* ``tests/``: browser/integration/gatekeeper tests
 * ``pyproject.toml``: contains dependency information and (most) config settings
 * ``VERSION``: SemVer version number that serves as both the version of the service and the ``kinto-remote-settings`` plugin
 
@@ -59,14 +59,13 @@ After this setup is complete, tests can be run with ``pytest`` using ``make``:
     make test
 
 
-**Integration & Browser Tests**
+**Browser Tests**
 
 With Docker and docker-compose, test that all components are working as expected with:
 
 .. code-block:: shell
 
     make build
-    make integration-test
     make browser-test
 
 .. note::
@@ -92,15 +91,15 @@ finished, run:
 Test Remote Server
 ------------------
 
-Integration tests can be executed on a remote server or against the docker-compose containers.
+Browser tests can be executed on a remote server or against the docker-compose containers.
 
-To run the integration test suite, first build the integration tests container
+To run the test suite, first build the tests container
 
 .. code-block:: shell
 
     docker-compose build tests
 
-or download a pre-built container from `Dockerhub <https://hub.docker.com/r/mozilla/remote-settings-integration-tests>`_.
+or download a pre-built container from `Dockerhub <https://hub.docker.com/r/mozilla/remote-settings-browser-tests>`_.
 
 Next run the tests, supplying config values as necessary. Config values are
 set as environment variables provided to the Docker container. See
@@ -131,7 +130,7 @@ available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
   - the credentials of these users should be passed in the ``EDITOR_AUTH`` and
     ``REVIEWER_AUTH`` config options respectively
 
-Running integration tests on the Remote Settings DEV server should look something like:
+Running browser tests on the Remote Settings DEV server should look something like:
 
 .. code-block:: shell
 
@@ -142,10 +141,10 @@ Running integration tests on the Remote Settings DEV server should look somethin
         --env TO_REVIEW_ENABLED=false \
         --env EDITOR_AUTH=<username:password, credentials available in 1Password> \
         --env REVIEWER_AUTH=<username:password, available in 1Password> \
-    remotesettings/tests integration-test
+    remotesettings/tests browser-test
 
 
-Because the integration tests are capable of running against environments with existing data, there are limitations to what they can do. Examples:
+Because the tests are capable of running against environments with existing data, there are limitations to what they can do. Examples:
  - Test server setup is global and may be skipped entirely against an existing server
  - All tests have access to the same bucket, collection, and users
  - Tests are not allowed to delete the bucket(s), collection(s) or users
@@ -160,7 +159,6 @@ The simplest form of debugging is to run a suite of tests against the Kinto serv
 
 .. code-block:: shell
 
-    make integration-test
     make browser-test
 
 Debugging Locally (advanced)

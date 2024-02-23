@@ -1,14 +1,9 @@
 import os
 
-import pytest
-
-from ...conftest import Auth
+from ..conftest import Auth
 
 
-pytestmark = pytest.mark.asyncio
-
-
-async def test_email_plugin(
+def test_email_plugin(
     setup_client: Auth,
     editor_client: Auth,
     mail_dir: str,

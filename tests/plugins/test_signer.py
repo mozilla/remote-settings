@@ -3,13 +3,17 @@ import random
 
 import aiohttp
 import canonicaljson
+import nest_asyncio
 import pytest
 from autograph_utils import MemoryCache, SignatureVerifier
 from kinto_http import KintoException
 from kinto_http.patch_type import JSONPatch
 
-from ...conftest import RemoteSettingsClient, signed_resource
+from ..conftest import RemoteSettingsClient, signed_resource
 from ..utils import _rand, upload_records
+
+
+nest_asyncio.apply()
 
 
 class FakeRootHash:
@@ -39,14 +43,12 @@ async def verify_signature(records, timestamp, signature):
         await verifier.verify(serialized, signature["signature"], x5u)
 
 
-pytestmark = pytest.mark.asyncio
-
-
-async def test_signer_plugin_capabilities(anonymous_client: RemoteSettingsClient):
+def test_signer_plugin_capabilities(anonymous_client: RemoteSettingsClient):
     capability = (anonymous_client.server_info())["capabilities"]["signer"]
     assert capability["group_check_enabled"]
 
 
+@pytest.mark.asyncio()
 async def test_signer_plugin_full_workflow(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
@@ -160,6 +162,7 @@ async def test_signer_plugin_full_workflow(
         raise
 
 
+@pytest.mark.asyncio()
 async def test_workflow_without_review(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
@@ -191,7 +194,7 @@ async def test_workflow_without_review(
         raise
 
 
-async def test_signer_plugin_rollback(
+def test_signer_plugin_rollback(
     editor_client: RemoteSettingsClient,
 ):
     editor_client.patch_collection(data={"status": "to-rollback"})
@@ -206,7 +209,7 @@ async def test_signer_plugin_rollback(
     assert len(records) == len(before_records)
 
 
-async def test_signer_plugin_refresh(
+def test_signer_plugin_refresh(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
@@ -239,7 +242,7 @@ async def test_signer_plugin_refresh(
     assert signature_preview_before != signature_preview
 
 
-async def test_cannot_skip_to_review(
+def test_cannot_skip_to_review(
     setup_client: RemoteSettingsClient,
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
@@ -270,7 +273,7 @@ async def test_cannot_skip_to_review(
         reviewer_client.patch_collection(data={"status": "to-sign"})
 
 
-async def test_same_editor_cannot_review(
+def test_same_editor_cannot_review(
     setup_client: RemoteSettingsClient,
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
@@ -302,7 +305,7 @@ async def test_same_editor_cannot_review(
         reviewer_client.patch_collection(data={"status": "to-sign"})
 
 
-async def test_rereview_after_cancel(
+def test_rereview_after_cancel(
     setup_client: RemoteSettingsClient,
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,

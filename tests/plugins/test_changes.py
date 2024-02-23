@@ -1,10 +1,5 @@
-import pytest
-
-from ...conftest import RemoteSettingsClient, signed_resource
+from ..conftest import RemoteSettingsClient, signed_resource
 from ..utils import upload_records
-
-
-pytestmark = pytest.mark.asyncio
 
 
 def find_changes_record(records: list[dict], bucket: str, collection: str):
@@ -17,7 +12,7 @@ def find_changes_record(records: list[dict], bucket: str, collection: str):
     )
 
 
-async def test_changes_plugin(
+def test_changes_plugin(
     anonymous_client: RemoteSettingsClient,
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,

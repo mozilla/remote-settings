@@ -72,7 +72,7 @@ readme = "README.rst"
 [tool.poetry.dependencies]
 python = ">=3.11, <3.13"
 canonicaljson-rs = "0.6.0"
-cryptography = "42.0.3"
+cryptography = "42.0.4"
 ecdsa = "0.18.0"
 kinto = {version = "^18.0.0", extras = ["postgresql","memcached","monitoring"]}
 kinto-attachment = "6.4.0"
@@ -90,10 +90,10 @@ coverage = "7.4.1"
 detect-secrets = "^1.4.0"
 ruff = "^0.2.2"
 
-[tool.poetry.group.integration-tests]
+[tool.poetry.group.browser-tests]
 optional = true
 
-[tool.poetry.group.integration-tests.dependencies]
+[tool.poetry.group.browser-tests.dependencies]
 aiohttp = "3.9.3"
 autograph-utils = "0.1.1"
 canonicaljson-rs = "0.6.0"
@@ -104,6 +104,7 @@ pytest-asyncio = "0.23.5"
 webtest = "3.0.0"
 playwright = "^1.41.2"
 pytest-playwright = "^0.4.4"
+nest_asyncio="^1.6.0"
 
 [tool.poetry.group.docs]
 optional = true

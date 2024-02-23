@@ -1,11 +1,12 @@
-import requests
+from playwright.sync_api import Browser, BrowserContext
 
-from ..conftest import Auth
+from .conftest import Auth
+from .utils import create_extra_headers
 
 
-def test_heartbeat(server: str):
-    resp = requests.get(f"{server}/__heartbeat__")
-    resp.raise_for_status()
+def test_heartbeat(server: str, context: BrowserContext):
+    resp = context.request.get(f"{server}/__heartbeat__")
+    assert resp.status == 200
 
 
 def test_permissions_endpoint(
@@ -14,14 +15,14 @@ def test_permissions_endpoint(
     reviewer_auth: Auth,
     source_bucket: str,
     source_collection: str,
-    skip_server_setup: bool,
+    browser: Browser,
 ):
     for user in (editor_auth, reviewer_auth):
-        resp = requests.get(
-            f"{server}/permissions",
-            auth=user,
+        context = browser.new_context(
+            base_url=server, extra_http_headers=create_extra_headers(user[0], user[1])
         )
-        resp.raise_for_status()
+        resp = context.request.get("/permissions")
+        assert resp.status == 200
         permissions = resp.json()["data"]
         collection_perms = next(
             e["permissions"]

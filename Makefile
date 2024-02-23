@@ -47,11 +47,6 @@ test: $(INSTALL_STAMP)  ## Run unit tests
 	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings
 	$(VENV)/bin/coverage report -m --fail-under 99
 
-integration-test:  ## Run integration tests using Docker
-	docker compose build tests
-	docker compose run --rm web migrate
-	docker compose run --rm tests integration-test
-
 browser-test:  ## Run browser tests using Docker
 	docker compose build tests
 	docker compose run --rm web migrate
@@ -59,7 +54,7 @@ browser-test:  ## Run browser tests using Docker
 
 build:  ## Build containers
 	docker build --file RemoteSettings.Dockerfile --target production --tag remotesettings/server .
-	docker compose --profile integration-test build
+	docker compose --profile browser-test build
 
 build-db:  ## Initialize database 'postgresql://postgres@localhost/testdb'
 ifdef PSQL_INSTALLED

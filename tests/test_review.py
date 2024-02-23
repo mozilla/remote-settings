@@ -1,38 +1,14 @@
 import re
 
 import pytest
-from kinto_http.patch_type import JSONPatch
 from playwright.sync_api import expect
 
 
 @pytest.fixture(autouse=True)
 def _do_setup(
-    source_bucket,
-    source_collection,
-    setup_auth,
-    skip_server_setup,
     keep_existing,
-    editor_auth,
-    reviewer_auth,
-    editor_client,
-    reviewer_client,
     setup_client,
 ):
-    if skip_server_setup:
-        return
-
-    editor_id = editor_client.server_info()["user"]["id"]
-    reviewer_id = reviewer_client.server_info()["user"]["id"]
-
-    setup_client.create_bucket(if_not_exists=True)
-    setup_client.create_collection(
-        permissions={"write": [editor_id, reviewer_id]},
-        if_not_exists=True,
-    )
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-    setup_client.patch_group(id=f"{source_collection}-editors", changes=data)
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
-    setup_client.patch_group(id=f"{source_collection}-reviewers", changes=data)
     if not keep_existing:
         setup_client.delete_records()
 

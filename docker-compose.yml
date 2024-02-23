@@ -64,10 +64,10 @@ services:
 
   tests:
     build:
-      dockerfile: IntegrationTests.Dockerfile
+      dockerfile: BrowserTests.Dockerfile
       context: .
     image: remotesettings/tests
-    profiles: [integration-test]
+    profiles: [browser-test]
     depends_on:
       - web
       - certchains

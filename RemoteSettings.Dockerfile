@@ -73,5 +73,5 @@ ENTRYPOINT ["./bin/run.sh"]
 CMD ["start"]
 
 FROM production as local
-# create directories for volume mounts used in integration tests / local development
+# create directories for volume mounts used in browser tests / local development
 RUN mkdir -p -m 777 /app/mail && mkdir -p -m 777 /tmp/attachments
