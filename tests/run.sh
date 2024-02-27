@@ -10,6 +10,5 @@ wait_for_server () {
   http --check-status --body --json --pretty format GET $SERVER/__heartbeat__ ; echo
 }
 
-shift
 wait_for_server
 pytest --browser firefox $@
