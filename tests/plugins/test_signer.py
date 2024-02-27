@@ -52,12 +52,7 @@ def test_signer_plugin_capabilities(anonymous_client: RemoteSettingsClient):
 async def test_signer_plugin_full_workflow(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
-    keep_existing: bool,
-    to_review_enabled: bool,
 ):
-    if not to_review_enabled:
-        pytest.skip("to-review disabled")
-
     resource = signed_resource(editor_client)
 
     dest_col = resource["destination"].get("collection")
@@ -77,7 +72,7 @@ async def test_signer_plugin_full_workflow(
 
     existing_records = editor_client.get_records()
     existing = len(existing_records)
-    if existing > 0 and not keep_existing:
+    if existing > 0:
         editor_client.delete_records()
         existing = 0
 
@@ -162,141 +157,20 @@ async def test_signer_plugin_full_workflow(
         raise
 
 
-@pytest.mark.asyncio()
-async def test_workflow_without_review(
-    editor_client: RemoteSettingsClient,
-    reviewer_client: RemoteSettingsClient,
-    to_review_enabled: bool,
-):
-    if to_review_enabled:
-        pytest.skip("to-review enabled")
-
-    resource = signed_resource(editor_client)
-
-    dest_col = resource["destination"].get("collection")
-    dest_client = editor_client.clone(
-        bucket=resource["destination"]["bucket"],
-        collection=dest_col or editor_client.collection_name,
-        auth=tuple(),
-    )
-
-    upload_records(editor_client, 1)
-    reviewer_client.patch_collection(data={"status": "to-sign"})
-    changeset = dest_client.fetch_changeset()
-    records = changeset["changes"]
-    timestamp = changeset["timestamp"]
-    signature = changeset["metadata"]["signature"]
-
-    try:
-        await verify_signature(records, timestamp, signature)
-    except Exception:
-        print("Signature KO")
-        raise
-
-
-def test_signer_plugin_rollback(
-    editor_client: RemoteSettingsClient,
-):
-    editor_client.patch_collection(data={"status": "to-rollback"})
-    before_records = editor_client.get_records()
-
-    upload_records(editor_client, 1)
-
-    records = editor_client.get_records()
-    assert len(records) == len(before_records) + 1
-    editor_client.patch_collection(data={"status": "to-rollback"})
-    records = editor_client.get_records()
-    assert len(records) == len(before_records)
-
-
-def test_signer_plugin_refresh(
-    editor_client: RemoteSettingsClient,
-    reviewer_client: RemoteSettingsClient,
-    to_review_enabled: bool,
-):
-    resource = signed_resource(editor_client)
-    preview_bucket = resource["preview"]["bucket"]
-    dest_bucket = resource["destination"]["bucket"]
-    upload_records(editor_client, 5)
-
-    if to_review_enabled:
-        editor_client.patch_collection(data={"status": "to-review"})
-
-    reviewer_client.patch_collection(data={"status": "to-sign"})
-    signature_preview_before = (editor_client.get_collection(bucket=preview_bucket))[
-        "data"
-    ]["signature"]
-
-    signature_before = (editor_client.get_collection(bucket=dest_bucket))["data"][
-        "signature"
-    ]
-
-    reviewer_client.patch_collection(data={"status": "to-resign"})
-
-    signature = (editor_client.get_collection(bucket=dest_bucket))["data"]["signature"]
-    signature_preview = (editor_client.get_collection(bucket=dest_bucket))["data"][
-        "signature"
-    ]
-
-    assert signature_before != signature
-    assert signature_preview_before != signature_preview
-
-
-def test_cannot_skip_to_review(
-    setup_client: RemoteSettingsClient,
-    editor_client: RemoteSettingsClient,
-    reviewer_client: RemoteSettingsClient,
-    skip_server_setup: bool,
-    to_review_enabled: bool,
-):
-    if not to_review_enabled:
-        pytest.skip("to-review disabled")
-
-    if not skip_server_setup:
-        # Add reviewer to editors, and vice-versa.
-        reviewer_id = (reviewer_client.server_info())["user"]["id"]
-        data = JSONPatch(
-            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
-        )
-        setup_client.patch_group(
-            id=f"{setup_client.collection_name}-editors", changes=data
-        )
-        editor_id = (editor_client.server_info())["user"]["id"]
-        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-        setup_client.patch_group(
-            id=f"{setup_client.collection_name}-reviewers", changes=data
-        )
-
-    upload_records(editor_client, 1)
-
-    with pytest.raises(KintoException):
-        reviewer_client.patch_collection(data={"status": "to-sign"})
-
-
 def test_same_editor_cannot_review(
     setup_client: RemoteSettingsClient,
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
-    skip_server_setup: bool,
-    to_review_enabled: bool,
 ):
-    if not to_review_enabled:
-        pytest.skip("to-review disabled")
-
-    if not skip_server_setup:
-        # Add reviewer to editors, and vice-versa.
-        reviewer_id = (reviewer_client.server_info())["user"]["id"]
-        data = JSONPatch(
-            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
-        )
-        setup_client.patch_group(
-            id=f"{setup_client.collection_name}-editors", changes=data
-        )
-        editor_id = (editor_client.server_info())["user"]["id"]
-        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-        setup_client.patch_group(
-            id=f"{setup_client.collection_name}-reviewers", changes=data
-        )
+    # Add reviewer to editors, and vice-versa.
+    reviewer_id = (reviewer_client.server_info())["user"]["id"]
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
+    setup_client.patch_group(id=f"{setup_client.collection_name}-editors", changes=data)
+    editor_id = (editor_client.server_info())["user"]["id"]
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+    setup_client.patch_group(
+        id=f"{setup_client.collection_name}-reviewers", changes=data
+    )
 
     upload_records(editor_client, 1)
 
@@ -309,26 +183,16 @@ def test_rereview_after_cancel(
     setup_client: RemoteSettingsClient,
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
-    skip_server_setup: bool,
-    to_review_enabled: bool,
 ):
-    if not to_review_enabled:
-        pytest.skip("to-review disabled")
-
-    if not skip_server_setup:
-        # Add reviewer to editors, and vice-versa.
-        reviewer_id = (reviewer_client.server_info())["user"]["id"]
-        data = JSONPatch(
-            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
-        )
-        setup_client.patch_group(
-            id=f"{setup_client.collection_name}-editors", changes=data
-        )
-        editor_id = (editor_client.server_info())["user"]["id"]
-        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-        setup_client.patch_group(
-            id=f"{setup_client.collection_name}-reviewers", changes=data
-        )
+    # Add reviewer to editors, and vice-versa.
+    reviewer_id = (reviewer_client.server_info())["user"]["id"]
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
+    setup_client.patch_group(id=f"{setup_client.collection_name}-editors", changes=data)
+    editor_id = (editor_client.server_info())["user"]["id"]
+    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+    setup_client.patch_group(
+        id=f"{setup_client.collection_name}-reviewers", changes=data
+    )
 
     upload_records(editor_client, 1)
 

@@ -6,11 +6,9 @@ from playwright.sync_api import expect
 
 @pytest.fixture(autouse=True)
 def _do_setup(
-    keep_existing,
     setup_client,
 ):
-    if not keep_existing:
-        setup_client.delete_records()
+    setup_client.delete_records()
 
 
 def test_login_and_submit_review(

@@ -23,20 +23,11 @@ class RemoteSettingsClient(Client):
         return body
 
 
-def asbool(s):
-    return s.strip().lower() in ("true", "yes", "on", "1")
-
-
 DEFAULT_SERVER = os.getenv("SERVER", "http://localhost:8888/v1")
 DEFAULT_SETUP_AUTH = os.getenv("SETUP_AUTH", "user:pass")
 DEFAULT_EDITOR_AUTH = os.getenv("EDITOR_AUTH", "editor:pass")
 DEFAULT_REVIEWER_AUTH = os.getenv("REVIEWER_AUTH", "reviewer:pass")
-DEFAULT_BUCKET = os.getenv("BUCKET", "main-workspace")
-DEFAULT_COLLECTION = os.getenv("COLLECTION", "integration-tests")
 DEFAULT_MAIL_DIR = os.getenv("MAIL_DIR", "mail")
-DEFAULT_KEEP_EXISTING = asbool(os.getenv("KEEP_EXISTING", "false"))
-DEFAULT_SKIP_SERVER_SETUP = asbool(os.getenv("SKIP_SERVER_SETUP", "false"))
-DEFAULT_TO_REVIEW_ENABLED = asbool(os.getenv("TO_REVIEW_ENABLED", "true"))
 
 
 Auth = Tuple[str, str]
@@ -69,43 +60,12 @@ def pytest_addoption(parser):
         help="Basic authentication for reviewer",
     )
     parser.addoption(
-        "--bucket",
-        action="store",
-        default=DEFAULT_BUCKET,
-        help="Source bucket",
-    )
-    parser.addoption(
-        "--collection",
-        action="store",
-        default=DEFAULT_COLLECTION,
-        help="Source collection",
-    )
-    parser.addoption(
         "--mail-dir",
         action="store",
         default=DEFAULT_MAIL_DIR,
         help="Directory of debug email files (from server). Set as empty "
         "string to disable email tests. Should be disabled for browser/integration "
         "tests",
-    )
-    parser.addoption(
-        "--keep-existing",
-        action="store_true",
-        default=DEFAULT_KEEP_EXISTING,
-        help="Keep existing collection data",
-    )
-    parser.addoption(
-        "--skip-server-setup",
-        action="store_true",
-        default=DEFAULT_SKIP_SERVER_SETUP,
-        help="Skip server setup operations. Should be set to `true` for remote "
-        "server browser/integration tests",
-    )
-    parser.addoption(
-        "--to-review-enabled",
-        action="store_true",
-        default=DEFAULT_TO_REVIEW_ENABLED,
-        help="Include tests and related to the to-review config option",
     )
 
 
@@ -131,12 +91,12 @@ def reviewer_auth(request) -> Auth:
 
 @pytest.fixture(scope="session")
 def source_bucket(request) -> str:
-    return request.config.getoption("--bucket")
+    return "main-workspace"
 
 
 @pytest.fixture(scope="session")
 def source_collection(request) -> str:
-    return request.config.getoption("--collection")
+    return "browser-tests"
 
 
 @pytest.fixture(scope="session")
@@ -148,23 +108,19 @@ def mail_dir(request) -> str:
 
 
 @pytest.fixture(scope="session")
-def keep_existing(request) -> bool:
-    return request.config.getoption("--keep-existing")
-
-
-@pytest.fixture(scope="session")
-def skip_server_setup(request) -> bool:
-    return request.config.getoption("--skip-server-setup")
-
-
-@pytest.fixture(scope="session")
-def to_review_enabled(request) -> bool:
-    return request.config.getoption("--to-review-enabled")
+def request_session(server) -> requests.Session:
+    session = requests.Session()
+    retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+    session.mount(f"{server.split('://')[0]}://", HTTPAdapter(max_retries=retries))
+    return session
 
 
 @pytest.fixture(scope="session")
 def make_client(
-    server: str, source_bucket: str, source_collection: str, skip_server_setup: bool
+    server: str,
+    source_bucket: str,
+    source_collection: str,
+    request_session: requests.Session,
 ) -> ClientFactory:
     """Factory as fixture for creating a RemoteSettings Client used for tests.
 
@@ -178,15 +134,7 @@ def make_client(
     """
 
     def _make_client(auth: Auth) -> RemoteSettingsClient:
-        request_session = requests.Session()
-        retries = Retry(
-            total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
-        )
-        request_session.mount(
-            f"{server.split('://')[0]}://", HTTPAdapter(max_retries=retries)
-        )
-
-        if not skip_server_setup and auth:
+        if auth:
             create_user(request_session, server, auth)
 
         return RemoteSettingsClient(
@@ -221,16 +169,19 @@ def anonymous_client(make_client) -> RemoteSettingsClient:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _setup_server(setup_client, editor_client, reviewer_client, skip_server_setup):
-    if skip_server_setup:
-        return
-
+def _setup_server(
+    request,
+    setup_client,
+    editor_client,
+    reviewer_client,
+):
     setup_client.create_bucket(
         permissions={
             "collection:create": ["system.Authenticated"],
         },
         if_not_exists=True,
     )
+
     setup_client.create_collection(if_not_exists=True)
 
     editor_id = (editor_client.server_info())["user"]["id"]
@@ -257,14 +208,13 @@ def _flush_default_collection(
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _verify_url(request: pytest.FixtureRequest, base_url: str):
+def _verify_url(
+    request: pytest.FixtureRequest, base_url: str, request_session: requests.Session
+):
     """Verifies the base URL"""
     verify = request.config.option.verify_base_url
     if base_url and verify:
-        session = requests.Session()
-        retries = Retry(backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
-        session.mount(base_url, HTTPAdapter(max_retries=retries))
-        session.get(base_url, verify=False)
+        request_session.get(base_url, verify=False)
 
 
 def create_user(request_session: requests.Session, server: str, auth: Auth):

@@ -110,21 +110,13 @@ Note that the tests assume that the server has the ``attachments``,
 ``changes``, ``history``, and ``signer`` plugins enabled. It may optionally
 have the ``email`` plugin installed.
 
-To have the tests bootstrap themselves (i.e. when ``SKIP_SERVER_SETUP=false``),
-the credentials passed in ``SETUP_AUTH`` should have the permission to create
-users, buckets, and collections. These credentials will be in the form
+The credentials passed in ``SETUP_AUTH`` should have the permission to create users, 
+buckets, and collections. These credentials will be in the form 
 ``SETUP_AUTH=username:password`` or ``SETUP_AUTH="Bearer some_token"``
 
-If the tests should not bootstrap themselves and instead use resources already
-available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
-
-- There should be a bucket and collection available
-
-  - the bucket, if not specified by the ``BUCKET`` config option, should be named ``main-workspace``
-  - the collection, if not specified by the ``COLLECTION`` config option, should be named ``integration-tests``
-
+- All tests will run under the `browser-tests` collection in the `main-workspace` bucket
+  - If the collection does not exist it will be created
 - There should be two users available
-
   - one user should be added to the ``editors`` group of the available collection
   - the other should be added to the ``reviewers`` group of the available collection
   - the credentials of these users should be passed in the ``EDITOR_AUTH`` and
@@ -137,18 +129,17 @@ Running browser tests on the Remote Settings DEV server should look something li
     docker run --rm \
         --env SERVER=https://remote-settings-dev.allizom.org/v1 \
         --env MAIL_DIR="" `#disables test cases related to emails` \
-        --env SKIP_SERVER_SETUP=true \
-        --env TO_REVIEW_ENABLED=false \
         --env EDITOR_AUTH=<username:password, credentials available in 1Password> \
         --env REVIEWER_AUTH=<username:password, available in 1Password> \
     remotesettings/tests browser-test
 
 
 Because the tests are capable of running against environments with existing data, there are limitations to what they can do. Examples:
- - Test server setup is global and may be skipped entirely against an existing server
+ - Test setup is global 
+ - Test setup and may be partially skipped if the bucket, collection and users already exist
  - All tests have access to the same bucket, collection, and users
  - Tests are not allowed to delete the bucket(s), collection(s) or users
- - Test records may not be purged if the remote server disables this ability
+ - Test collection records are purged before each test
 
 
 
