@@ -18,6 +18,7 @@ def upload_records(client: Client, num: int):
     return records
 
 
+# Playwright it expects a 401 returned on the first request if auth is provided, which does not work in kinto.
 def create_extra_headers(username: str, password: str):
     return {
         "Authorization": "Basic "

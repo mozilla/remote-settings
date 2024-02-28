@@ -157,6 +157,7 @@ async def test_signer_plugin_full_workflow(
         print("Signature KO")
         raise
 
+
 def test_signer_plugin_rollback(
     editor_client: RemoteSettingsClient,
 ):
