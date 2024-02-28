@@ -13,6 +13,7 @@ from ..conftest import RemoteSettingsClient, signed_resource
 from ..utils import _rand, upload_records
 
 
+# nest_asyncio resolves a compatability issue with playwright
 nest_asyncio.apply()
 
 
@@ -155,6 +156,61 @@ async def test_signer_plugin_full_workflow(
     except Exception:
         print("Signature KO")
         raise
+
+def test_signer_plugin_rollback(
+    editor_client: RemoteSettingsClient,
+):
+    editor_client.patch_collection(data={"status": "to-rollback"})
+    before_records = editor_client.get_records()
+
+    upload_records(editor_client, 1)
+
+    records = editor_client.get_records()
+    assert len(records) == len(before_records) + 1
+    editor_client.patch_collection(data={"status": "to-rollback"})
+    records = editor_client.get_records()
+    assert len(records) == len(before_records)
+
+
+def test_signer_plugin_refresh(
+    editor_client: RemoteSettingsClient,
+    reviewer_client: RemoteSettingsClient,
+):
+    resource = signed_resource(editor_client)
+    preview_bucket = resource["preview"]["bucket"]
+    dest_bucket = resource["destination"]["bucket"]
+    upload_records(editor_client, 5)
+
+    editor_client.patch_collection(data={"status": "to-review"})
+
+    reviewer_client.patch_collection(data={"status": "to-sign"})
+    signature_preview_before = (editor_client.get_collection(bucket=preview_bucket))[
+        "data"
+    ]["signature"]
+
+    signature_before = (editor_client.get_collection(bucket=dest_bucket))["data"][
+        "signature"
+    ]
+
+    reviewer_client.patch_collection(data={"status": "to-resign"})
+
+    signature = (editor_client.get_collection(bucket=dest_bucket))["data"]["signature"]
+    signature_preview = (editor_client.get_collection(bucket=dest_bucket))["data"][
+        "signature"
+    ]
+
+    assert signature_before != signature
+    assert signature_preview_before != signature_preview
+
+
+def test_cannot_skip_to_review(
+    editor_client: RemoteSettingsClient,
+    reviewer_client: RemoteSettingsClient,
+):
+    upload_records(editor_client, 1)
+
+    with pytest.raises(KintoException):
+        reviewer_client.patch_collection(data={"status": "to-sign"})
 
 
 def test_same_editor_cannot_review(
