@@ -9,6 +9,13 @@ def test_heartbeat(server: str, context: BrowserContext):
     assert resp.status == 200
 
 
+def test_config(server_config, to_review_enabled):
+    assert server_config["project_name"]
+    assert server_config["project_version"]
+    assert server_config["http_api_version"]
+    assert server_config["url"]
+
+
 def test_permissions_endpoint(
     server: str,
     editor_auth: Auth,

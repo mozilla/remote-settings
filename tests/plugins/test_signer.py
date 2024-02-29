@@ -53,7 +53,11 @@ def test_signer_plugin_capabilities(anonymous_client: RemoteSettingsClient):
 async def test_signer_plugin_full_workflow(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
+    to_review_enabled: bool,
 ):
+    if not to_review_enabled:
+        pytest.skip("to-review disabled")
+
     resource = signed_resource(editor_client)
 
     dest_col = resource["destination"].get("collection")
@@ -158,6 +162,38 @@ async def test_signer_plugin_full_workflow(
         raise
 
 
+@pytest.mark.asyncio()
+async def test_workflow_without_review(
+    editor_client: RemoteSettingsClient,
+    reviewer_client: RemoteSettingsClient,
+    to_review_enabled: bool,
+):
+    if to_review_enabled:
+        pytest.skip("to-review enabled")
+
+    resource = signed_resource(editor_client)
+
+    dest_col = resource["destination"].get("collection")
+    dest_client = editor_client.clone(
+        bucket=resource["destination"]["bucket"],
+        collection=dest_col or editor_client.collection_name,
+        auth=tuple(),
+    )
+
+    upload_records(editor_client, 1)
+    reviewer_client.patch_collection(data={"status": "to-sign"})
+    changeset = dest_client.fetch_changeset()
+    records = changeset["changes"]
+    timestamp = changeset["timestamp"]
+    signature = changeset["metadata"]["signature"]
+
+    try:
+        await verify_signature(records, timestamp, signature)
+    except Exception:
+        print("Signature KO")
+        raise
+
+
 def test_signer_plugin_rollback(
     editor_client: RemoteSettingsClient,
 ):
@@ -176,13 +212,15 @@ def test_signer_plugin_rollback(
 def test_signer_plugin_refresh(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
+    to_review_enabled: bool,
 ):
     resource = signed_resource(editor_client)
     preview_bucket = resource["preview"]["bucket"]
     dest_bucket = resource["destination"]["bucket"]
     upload_records(editor_client, 5)
 
-    editor_client.patch_collection(data={"status": "to-review"})
+    if to_review_enabled:
+        editor_client.patch_collection(data={"status": "to-review"})
 
     reviewer_client.patch_collection(data={"status": "to-sign"})
     signature_preview_before = (editor_client.get_collection(bucket=preview_bucket))[
@@ -207,7 +245,11 @@ def test_signer_plugin_refresh(
 def test_cannot_skip_to_review(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
+    to_review_enabled: bool,
 ):
+    if not to_review_enabled:
+        pytest.skip("to-review disabled")
+
     upload_records(editor_client, 1)
 
     with pytest.raises(KintoException):
@@ -218,7 +260,11 @@ def test_same_editor_cannot_review(
     setup_client: RemoteSettingsClient,
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
+    to_review_enabled: bool,
 ):
+    if not to_review_enabled:
+        pytest.skip("to-review disabled")
+
     # Add reviewer to editors, and vice-versa.
     reviewer_id = (reviewer_client.server_info())["user"]["id"]
     data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
@@ -240,7 +286,11 @@ def test_rereview_after_cancel(
     setup_client: RemoteSettingsClient,
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
+    to_review_enabled: bool,
 ):
+    if not to_review_enabled:
+        pytest.skip("to-review disabled")
+
     # Add reviewer to editors, and vice-versa.
     reviewer_id = (reviewer_client.server_info())["user"]["id"]
     data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])

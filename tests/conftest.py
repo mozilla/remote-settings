@@ -100,6 +100,17 @@ def source_collection(request) -> str:
 
 
 @pytest.fixture(scope="session")
+def server_config(browser, server) -> dict:
+    resp = browser.new_context().request.get(server)
+    return resp.json()
+
+
+@pytest.fixture(scope="session")
+def to_review_enabled(server_config) -> bool:
+    return server_config["capabilities"]["signer"]["to_review_enabled"]
+
+
+@pytest.fixture(scope="session")
 def mail_dir(request) -> str:
     directory = request.config.getoption("--mail-dir")
     if not directory:
