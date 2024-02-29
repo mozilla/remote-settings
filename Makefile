@@ -48,7 +48,7 @@ test: $(INSTALL_STAMP)  ## Run unit tests
 	$(VENV)/bin/coverage report -m --fail-under 99
 
 browser-test:  ## Run browser tests using Docker
-	docker compose build tests
+	docker compose build tests -q
 	docker compose run --rm web migrate
 	docker compose run --rm tests
 
