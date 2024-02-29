@@ -114,7 +114,7 @@ The credentials passed in ``SETUP_AUTH`` should have the permission to create us
 buckets, and collections. These credentials will be in the form 
 ``SETUP_AUTH=username:password`` or ``SETUP_AUTH="Bearer some_token"``
 
-- All tests will run under the ``browser-tests`` collection in the ``main-workspace`` bucket
+- All tests will run under the ``integration-tests`` collection in the ``main-workspace`` bucket
   - If the collection does not exist it will be created
 - There should be two users available
   - one user should be added to the ``editors`` group of the available collection

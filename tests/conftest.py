@@ -96,7 +96,7 @@ def source_bucket(request) -> str:
 
 @pytest.fixture(scope="session")
 def source_collection(request) -> str:
-    return "browser-tests"
+    return "integration-tests"
 
 
 @pytest.fixture(scope="session")
