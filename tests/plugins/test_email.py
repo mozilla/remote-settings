@@ -12,23 +12,24 @@ def test_email_plugin(
     existing_email_files = set(os.listdir(mail_dir))
     print(f"Read emails from {mail_dir} ({len(existing_email_files)} file(s) present)")
 
-    setup_client.patch_bucket(
-        data={
-            "kinto-emailer": {
-                "hooks": [
-                    {
-                        "event": "kinto_remote_settings.signer.events.ReviewRequested",
-                        "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
-                        "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
-                        "recipients": [
-                            "me@you.com",
-                            f"/buckets/{setup_client.bucket_name}/groups/reviewers",
-                        ],
-                    }
-                ]
-            }
-        },
-    )
+    if setup_client:
+        setup_client.patch_bucket(
+            data={
+                "kinto-emailer": {
+                    "hooks": [
+                        {
+                            "event": "kinto_remote_settings.signer.events.ReviewRequested",
+                            "subject": "{user_id} requested review on {bucket_id}/{collection_id}.",
+                            "template": "Review changes at {root_url}admin/#/buckets/{bucket_id}/collections/{collection_id}/records",
+                            "recipients": [
+                                "me@you.com",
+                                f"/buckets/{setup_client.bucket_name}/groups/reviewers",
+                            ],
+                        }
+                    ]
+                }
+            },
+        )
 
     bucket_metadata = editor_client.get_bucket()
     email_hooks = bucket_metadata["data"]["kinto-emailer"]["hooks"]

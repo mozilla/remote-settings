@@ -76,6 +76,9 @@ def server(request) -> str:
 
 @pytest.fixture(scope="session")
 def setup_auth(request) -> Auth:
+    auth = request.config.getoption("--setup-auth")
+    if not auth:
+        return None
     return tuple(request.config.getoption("--setup-auth").split(":"))
 
 
@@ -161,7 +164,8 @@ def make_client(
 
 @pytest.fixture(scope="session")
 def setup_client(setup_auth, make_client) -> RemoteSettingsClient:
-    return make_client(setup_auth)
+    if setup_auth:
+        return make_client(setup_auth)
 
 
 @pytest.fixture(scope="session")
@@ -186,6 +190,9 @@ def _setup_server(
     editor_client,
     reviewer_client,
 ):
+    if not setup_client:
+        return
+
     setup_client.create_bucket(
         permissions={
             "collection:create": ["system.Authenticated"],

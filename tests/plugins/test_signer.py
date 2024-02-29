@@ -265,15 +265,20 @@ def test_same_editor_cannot_review(
     if not to_review_enabled:
         pytest.skip("to-review disabled")
 
-    # Add reviewer to editors, and vice-versa.
-    reviewer_id = (reviewer_client.server_info())["user"]["id"]
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
-    setup_client.patch_group(id=f"{setup_client.collection_name}-editors", changes=data)
-    editor_id = (editor_client.server_info())["user"]["id"]
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-    setup_client.patch_group(
-        id=f"{setup_client.collection_name}-reviewers", changes=data
-    )
+    if setup_client:
+        # Add reviewer to editors, and vice-versa.
+        reviewer_id = (reviewer_client.server_info())["user"]["id"]
+        data = JSONPatch(
+            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
+        )
+        setup_client.patch_group(
+            id=f"{setup_client.collection_name}-editors", changes=data
+        )
+        editor_id = (editor_client.server_info())["user"]["id"]
+        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+        setup_client.patch_group(
+            id=f"{setup_client.collection_name}-reviewers", changes=data
+        )
 
     upload_records(editor_client, 1)
 
@@ -292,14 +297,19 @@ def test_rereview_after_cancel(
         pytest.skip("to-review disabled")
 
     # Add reviewer to editors, and vice-versa.
-    reviewer_id = (reviewer_client.server_info())["user"]["id"]
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": reviewer_id}])
-    setup_client.patch_group(id=f"{setup_client.collection_name}-editors", changes=data)
-    editor_id = (editor_client.server_info())["user"]["id"]
-    data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
-    setup_client.patch_group(
-        id=f"{setup_client.collection_name}-reviewers", changes=data
-    )
+    if setup_client:
+        reviewer_id = (reviewer_client.server_info())["user"]["id"]
+        data = JSONPatch(
+            [{"op": "add", "path": "/data/members/0", "value": reviewer_id}]
+        )
+        setup_client.patch_group(
+            id=f"{setup_client.collection_name}-editors", changes=data
+        )
+        editor_id = (editor_client.server_info())["user"]["id"]
+        data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])
+        setup_client.patch_group(
+            id=f"{setup_client.collection_name}-reviewers", changes=data
+        )
 
     upload_records(editor_client, 1)
 

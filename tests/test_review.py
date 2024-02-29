@@ -1,14 +1,6 @@
 import re
 
-import pytest
 from playwright.sync_api import expect
-
-
-@pytest.fixture(autouse=True)
-def _do_setup(
-    setup_client,
-):
-    setup_client.delete_records()
 
 
 def test_login_and_submit_review(
