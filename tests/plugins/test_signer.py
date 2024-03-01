@@ -219,8 +219,7 @@ def test_signer_plugin_refresh(
     dest_bucket = resource["destination"]["bucket"]
     upload_records(editor_client, 5)
 
-    if to_review_enabled:
-        editor_client.patch_collection(data={"status": "to-review"})
+    editor_client.patch_collection(data={"status": "to-review"})
 
     reviewer_client.patch_collection(data={"status": "to-sign"})
     signature_preview_before = (editor_client.get_collection(bucket=preview_bucket))[
