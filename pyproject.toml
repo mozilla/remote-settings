@@ -88,7 +88,7 @@ pytest = "8.0.2"
 webtest = "3.0.0"
 coverage = "7.4.3"
 detect-secrets = "^1.4.0"
-ruff = "^0.2.2"
+ruff = "^0.3.0"
 
 [tool.poetry.group.integration-tests]
 optional = true
