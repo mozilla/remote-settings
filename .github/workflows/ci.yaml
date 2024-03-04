@@ -93,51 +93,6 @@ jobs:
         run: make install
       - name: Run tests
         run: make test
-  integration_test:
-    runs-on: ubuntu-latest
-    env:
-      DOCKER_CACHE: /tmp/docker-cache
-    steps:
-      - uses: actions/checkout@v3
-
-      - run: mkdir ${DOCKER_CACHE}
-
-      - name: Compute cache key
-        # Create hash of hashes of checked in files not in Dockerignore
-        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f RemoteSettings.dockerignore | awk '{print $3}' | git hash-object --stdin)" >> $GITHUB_ENV
-
-      - uses: actions/cache@v3
-        with:
-          path: ${{ env.DOCKER_CACHE}}
-          key: docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'IntegrationTests.Dockerfile') }}-${{ env.CACHE_KEY }}
-          restore-keys: |
-            docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'IntegrationTests.Dockerfile') }}-${{ env.CACHE_KEY }}
-            docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'IntegrationTests.Dockerfile') }}-
-            docker-build-
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          install: true
-
-      - name: Build web container
-        uses: docker/build-push-action@v5
-        with:
-          cache-from: type=local,src=${{ env.DOCKER_CACHE}}/web
-          cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/web,mode=max
-          file: RemoteSettings.Dockerfile
-          context: .
-
-      - name: Build test container
-        uses: docker/build-push-action@v5
-        with:
-          cache-from: type=local,src=${{ env.DOCKER_CACHE}}/tests
-          cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/tests,mode=max
-          file: IntegrationTests.Dockerfile
-          context: .
-
-      - name: Run integration tests
-        run: make integration-test
 
   browser-test:
     runs-on: ubuntu-latest
@@ -153,10 +108,10 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ${{ env.DOCKER_CACHE}}
-          key: docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'IntegrationTests.Dockerfile') }}-${{ env.CACHE_KEY }}
+          key: docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'BrowserTests.Dockerfile') }}-${{ env.CACHE_KEY }}
           restore-keys: |
-            docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'IntegrationTests.Dockerfile') }}-${{ env.CACHE_KEY }}
-            docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'IntegrationTests.Dockerfile') }}-
+            docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'BrowserTests.Dockerfile') }}-${{ env.CACHE_KEY }}
+            docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'BrowserTests.Dockerfile') }}-
             docker-build-
 
       - name: Set up Docker Buildx
@@ -177,7 +132,7 @@ jobs:
         with:
           cache-from: type=local,src=${{ env.DOCKER_CACHE}}/tests
           cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/tests,mode=max
-          file: IntegrationTests.Dockerfile
+          file: BrowserTests.Dockerfile
           context: .
 
       - name: Run browser tests

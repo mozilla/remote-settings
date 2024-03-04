@@ -17,7 +17,7 @@ This *Remote Settings* repository contains the following files and directories o
 * ``config/``: example configuration file(s)
 * ``docs/``: documentation source files
 * ``kinto-remote-settings/``: Kinto plugin specific to Remote Settings
-* ``tests/``: browser and integration tests
+* ``tests/``: browser/integration/gatekeeper tests
 * ``pyproject.toml``: contains dependency information and (most) config settings
 * ``VERSION``: SemVer version number that serves as both the version of the service and the ``kinto-remote-settings`` plugin
 
@@ -59,14 +59,13 @@ After this setup is complete, tests can be run with ``pytest`` using ``make``:
     make test
 
 
-**Integration & Browser Tests**
+**Browser Tests**
 
 With Docker and docker-compose, test that all components are working as expected with:
 
 .. code-block:: shell
 
     make build
-    make integration-test
     make browser-test
 
 .. note::
@@ -92,15 +91,15 @@ finished, run:
 Test Remote Server
 ------------------
 
-Integration tests can be executed on a remote server or against the docker-compose containers.
+Browser tests can be executed on a remote server or against the docker-compose containers.
 
-To run the integration test suite, first build the integration tests container
+To run the test suite, first build the tests container
 
 .. code-block:: shell
 
     docker-compose build tests
 
-or download a pre-built container from `Dockerhub <https://hub.docker.com/r/mozilla/remote-settings-integration-tests>`_.
+or download a pre-built container from `Dockerhub <https://hub.docker.com/r/mozilla/remote-settings-browser-tests>`_.
 
 Next run the tests, supplying config values as necessary. Config values are
 set as environment variables provided to the Docker container. See
@@ -111,45 +110,36 @@ Note that the tests assume that the server has the ``attachments``,
 ``changes``, ``history``, and ``signer`` plugins enabled. It may optionally
 have the ``email`` plugin installed.
 
-To have the tests bootstrap themselves (i.e. when ``SKIP_SERVER_SETUP=false``),
-the credentials passed in ``SETUP_AUTH`` should have the permission to create
-users, buckets, and collections. These credentials will be in the form
+The credentials passed in ``SETUP_AUTH`` should have the permission to create users, 
+buckets, and collections. These credentials will be in the form 
 ``SETUP_AUTH=username:password`` or ``SETUP_AUTH="Bearer some_token"``
 
-If the tests should not bootstrap themselves and instead use resources already
-available on the server (i.e. when ``SKIP_SERVER_SETUP=true``):
-
-- There should be a bucket and collection available
-
-  - the bucket, if not specified by the ``BUCKET`` config option, should be named ``main-workspace``
-  - the collection, if not specified by the ``COLLECTION`` config option, should be named ``integration-tests``
-
+- All tests will run under the ``integration-tests`` collection in the ``main-workspace`` bucket
+  - If the collection does not exist it will be created
 - There should be two users available
-
   - one user should be added to the ``editors`` group of the available collection
   - the other should be added to the ``reviewers`` group of the available collection
   - the credentials of these users should be passed in the ``EDITOR_AUTH`` and
     ``REVIEWER_AUTH`` config options respectively
 
-Running integration tests on the Remote Settings DEV server should look something like:
+Running browser tests on the Remote Settings DEV server should look something like:
 
 .. code-block:: shell
 
     docker run --rm \
         --env SERVER=https://remote-settings-dev.allizom.org/v1 \
         --env MAIL_DIR="" `#disables test cases related to emails` \
-        --env SKIP_SERVER_SETUP=true \
-        --env TO_REVIEW_ENABLED=false \
         --env EDITOR_AUTH=<username:password, credentials available in 1Password> \
         --env REVIEWER_AUTH=<username:password, available in 1Password> \
-    remotesettings/tests integration-test
+    remotesettings/tests browser-test
 
 
-Because the integration tests are capable of running against environments with existing data, there are limitations to what they can do. Examples:
- - Test server setup is global and may be skipped entirely against an existing server
+Because the tests are capable of running against environments with existing data, there are limitations to what they can do. Examples:
+ - Test setup is global 
+ - Test setup and may be partially skipped if the bucket, collection and users already exist
  - All tests have access to the same bucket, collection, and users
  - Tests are not allowed to delete the bucket(s), collection(s) or users
- - Test records may not be purged if the remote server disables this ability
+ - Test collection records are purged before each test
 
 
 
@@ -160,7 +150,6 @@ The simplest form of debugging is to run a suite of tests against the Kinto serv
 
 .. code-block:: shell
 
-    make integration-test
     make browser-test
 
 Debugging Locally (advanced)

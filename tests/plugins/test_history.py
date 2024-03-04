@@ -1,21 +1,11 @@
-import pytest
-
-from ...conftest import Auth, RemoteSettingsClient
+from ..conftest import Auth, RemoteSettingsClient
 
 
-pytestmark = pytest.mark.asyncio
-
-
-async def test_history_plugin(
+def test_history_plugin(
     setup_client: RemoteSettingsClient,
     editor_client: RemoteSettingsClient,
     editor_auth: Auth,
-    keep_existing: bool,
-    skip_server_setup: bool,
 ):
-    if not skip_server_setup and not keep_existing:
-        setup_client.purge_history()
-
     # Reset collection status.
     collection = editor_client.get_collection()
     timestamp_start = collection["data"]["last_modified"]

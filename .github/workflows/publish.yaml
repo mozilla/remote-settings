@@ -49,7 +49,7 @@ jobs:
           push: true
           tags: ${{ steps.docker-metadata.outputs.tags }}
   
-  integration_test_container:
+  browser_test_container:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -62,7 +62,7 @@ jobs:
         id: docker-metadata
         uses: docker/metadata-action@v5
         with:
-          images: mozilla/remote-settings-integration-tests
+          images: mozilla/remote-settings-browser-tests
           tags: |
             type=raw,value=${{ env.LATEST_TAG }}
             type=raw,value=latest
@@ -75,6 +75,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: IntegrationTests.Dockerfile
+          file: BrowserTests.Dockerfile
           push: true
           tags: ${{ steps.docker-metadata.outputs.tags }}
