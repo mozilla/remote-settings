@@ -1594,9 +1594,9 @@ class BatchCreationTest(PostgresWebTest, unittest.TestCase):
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
 
-        settings[
-            "kinto.signer.resources"
-        ] = "/buckets/main-workspace -> /buckets/main-preview -> /buckets/main"
+        settings["kinto.signer.resources"] = (
+            "/buckets/main-workspace -> /buckets/main-preview -> /buckets/main"
+        )
 
         return settings
 

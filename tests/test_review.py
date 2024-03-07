@@ -38,7 +38,8 @@ def test_login_and_submit_review(
 
     # create a record
     page.get_by_text("Create record").first.click()
-    page.get_by_label("JSON record").fill('{"prop": "val"}')
+    page.get_by_label("Title").fill("val")
+    page.get_by_label("File attachment*").set_input_files("kinto-logo.svg")
     page.get_by_text("Create record").click()
 
     # request a review
@@ -66,7 +67,7 @@ def test_review_requested_changes(
     editor_auth,
 ):
     # setup changes to review
-    editor_client.create_record(data={"prop": "val"})
+    editor_client.create_record(data={"title": "val"})
     editor_client.patch_collection(data={"status": "to-review"})
 
     # load login page

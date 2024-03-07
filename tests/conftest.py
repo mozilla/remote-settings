@@ -200,7 +200,55 @@ def _setup_server(
         if_not_exists=True,
     )
 
-    setup_client.create_collection(if_not_exists=True)
+    setup_client.create_collection(
+        if_not_exists=True,
+        data={
+            "attachment": {"enabled": True, "required": True},
+            "cache_expires": 0,
+            "displayFields": ["title", "attachment.filename"],
+            "id": "integration-tests",
+            "schema": {
+                "description": "Integration test data",
+                "properties": {
+                    "attachment": {
+                        "additionalProperties": False,
+                        "description": "Information about the attached file.",
+                        "properties": {
+                            "filename": {"title": "Filename", "type": "string"},
+                            "hash": {"title": "Hash", "type": "string"},
+                            "location": {"title": "URL", "type": "string"},
+                            "mimetype": {"title": "MIME type", "type": "string"},
+                            "original": {
+                                "additionalProperties": False,
+                                "properties": {
+                                    "filename": {"title": "Filename", "type": "string"},
+                                    "hash": {"title": "Hash", "type": "string"},
+                                    "mimetype": {
+                                        "title": "MIME type",
+                                        "type": "string",
+                                    },
+                                    "size": {"title": "Size (bytes)", "type": "number"},
+                                },
+                                "title": "Pre-gzipped file",
+                                "type": "object",
+                            },
+                            "size": {"title": "Size (bytes)", "type": "number"},
+                        },
+                        "title": "The attachment itself",
+                        "type": "object",
+                    },
+                    "title": {
+                        "description": "Some text title",
+                        "title": "Title",
+                        "type": "string",
+                    },
+                },
+                "type": "object",
+            },
+            "sort": "-last_modified",
+            "uiSchema": {},
+        },
+    )
 
     editor_id = (editor_client.server_info())["user"]["id"]
     data = JSONPatch([{"op": "add", "path": "/data/members/0", "value": editor_id}])

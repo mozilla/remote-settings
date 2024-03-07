@@ -140,6 +140,7 @@ Because the tests are capable of running against environments with existing data
  - All tests have access to the same bucket, collection, and users
  - Tests are not allowed to delete the bucket(s), collection(s) or users
  - Test collection records are purged before each test
+ - Test collection is expected to have one property named "title" and a required file attachment
 
 
 
