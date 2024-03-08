@@ -30,6 +30,7 @@ RUN pip install ./kinto-remote-settings
 # We build the Kinto Admin assets at the specific
 # version specified in `kinto-admin/VERSION`.
 FROM debian:latest as get-admin
+RUN apt update && apt install -y wget
 WORKDIR /opt
 COPY bin/pull-kinto-admin.sh .
 COPY kinto-admin/ kinto-admin/
