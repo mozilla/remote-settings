@@ -33,9 +33,9 @@ class ResourceEventsTest(BaseWebTest, unittest.TestCase):
         settings["signer.ecdsa.private_key"] = os.path.join(here, "ecdsa.private.pem")
 
         settings["event_listeners"] = "ks"
-        settings[
-            "event_listeners.ks.use"
-        ] = "kinto_remote_settings.testing.mock_listener"
+        settings["event_listeners.ks.use"] = (
+            "kinto_remote_settings.testing.mock_listener"
+        )
         return settings
 
     def setUp(self):
