@@ -27,9 +27,8 @@ COPY ./kinto-remote-settings ./kinto-remote-settings
 COPY version.json .
 RUN pip install ./kinto-remote-settings
 
-# We build the Kinto Admin assets at the specific
-# version specified in `kinto-admin/VERSION`.
-FROM node:21.6.2 as build-admin
+# We pull the Kinto Admin assets at the version specified in `kinto-admin/VERSION`.
+FROM alpine:3 as get-admin
 WORKDIR /opt
 COPY bin/pull-kinto-admin.sh .
 COPY kinto-admin/ kinto-admin/
@@ -61,7 +60,7 @@ RUN chown 10001:10001 /app && \
 COPY --chown=app:app . .
 COPY --from=compile /opt/dogstatsd_plugin.so .
 
-COPY --from=build-admin /opt/kinto-admin/build $KINTO_ADMIN_ASSETS_PATH
+COPY --from=get-admin /opt/kinto-admin/build $KINTO_ADMIN_ASSETS_PATH
 
 # Generate local key pair to simplify running without Autograph out of the box (see `config/testing.ini`)
 RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.pem /app/ecdsa.public.pem
