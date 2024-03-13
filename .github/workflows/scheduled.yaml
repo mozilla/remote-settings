@@ -69,6 +69,7 @@ jobs:
             echo "pr_needed=true" >> $GITHUB_OUTPUT
           fi
       
+      # making an API request so the commit is signed
       - name: Commit change
         if: ${{ steps.compare_versions.outputs.update_needed == 'true' && steps.create_branch.outputs.pr_needed == 'true'}}
         env: 
@@ -80,10 +81,10 @@ jobs:
           SHA=$(git rev-parse $BRANCH_NAME:kinto-admin/VERSION)
           CONTENT=$(base64 -i kinto-admin/VERSION)
           gh api --method PUT /repos/:owner/:repo/contents/kinto-admin/VERSION \
-            --field message="Update Kinto Admin to $LATEST_RELEASE"
-            --field content="$CONTENT" 
-            --field encoding="base64" 
-            --field branch="$BRANCH_NAME" 
+            --field message="Update Kinto Admin to $LATEST_RELEASE" \
+            --field content="$CONTENT" \
+            --field encoding="base64" \
+            --field branch="$BRANCH_NAME" \
             --field sha="$SHA"
 
       - name: Create pull request
@@ -94,7 +95,7 @@ jobs:
         run: |
           gh pr create \
             --title "Update Kinto Admin version to ${{ steps.latest_release_version.outputs.version }}" \
-            --body "" \
+            --body "Updating kinto-admin to latest release" \
             --base "main" \
             --head "$BRANCH_NAME" \
             --label "dependencies"
