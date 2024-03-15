@@ -16,8 +16,9 @@ EXTRA_SIGNATURE_FIELDS = ["mode", "public_key", "type", "signer_id", "ref"]
 
 
 class AutographSigner(SignerBase):
-    def __init__(self, server_url, hawk_id, hawk_secret):
+    def __init__(self, server_url, hawk_id, hawk_secret, keyid):
         self.server_url = server_url
+        self.key_id = keyid
         self.auth = HawkAuth(id=hawk_id, key=hawk_secret)
 
     def healthcheck(self, request):
@@ -68,7 +69,14 @@ class AutographSigner(SignerBase):
         b64_payload = base64.b64encode(payload)
         url = urljoin(self.server_url, "/sign/data")
         resp = requests.post(
-            url, auth=self.auth, json=[{"input": b64_payload.decode("utf-8")}]
+            url,
+            auth=self.auth,
+            json=[
+                {
+                    "input": b64_payload.decode("utf-8"),
+                    "keyid": self.key_id,
+                }
+            ],
         )
         resp.raise_for_status()
         signature_bundle = resp.json()[0]
@@ -109,5 +117,11 @@ def load_from_settings(settings, prefix="", *, prefixes=None):
         hawk_id=get_first_matching_setting("autograph.hawk_id", settings, prefixes),
         hawk_secret=get_first_matching_setting(
             "autograph.hawk_secret", settings, prefixes
+        ),
+        keyid=get_first_matching_setting(
+            "autograph.key_id",
+            settings,
+            prefixes,
+            default="remote-settings",
         ),
     )

@@ -144,7 +144,12 @@ class AutographSignerTest(unittest.TestCase):
         requests.post.assert_called_with(
             "http://localhost:8000/sign/data",
             auth=self.signer.auth,
-            json=[{"input": "dGVzdCBkYXRh"}],
+            json=[
+                {
+                    "input": "dGVzdCBkYXRh",
+                    "keyid": "remote-settings",
+                }
+            ],
         )
         assert signature_bundle["signature"] == SIGNATURE
 

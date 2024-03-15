@@ -235,6 +235,8 @@ To do so, use the following settings:
 +------------------------------------+--------------------------------------------------------------------------+
 | kinto.signer.autograph.hawk_secret | The hawk secret used to issue the requests.                              |
 +------------------------------------+--------------------------------------------------------------------------+
+| kinto.signer.autograph.key_id      | The Autograph key ID (default: "remote-settings")                        |
++------------------------------------+--------------------------------------------------------------------------+
 
 
 Workflows
@@ -308,6 +310,7 @@ Settings can be prefixed with bucket id:
 
     kinto.signer.<bucket-id>.autograph.hawk_id = bob
     kinto.signer.<bucket-id>.autograph.hawk_secret = a-secret
+    kinto.signer.<bucket-id>.autograph.key_id = cas_cur_remote-settings
 
 
 Or prefixed with bucket and collection:
