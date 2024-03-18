@@ -133,6 +133,7 @@ class AutographSignerTest(unittest.TestCase):
             hawk_id="alice",
             hawk_secret="fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
             server_url="http://localhost:8000",
+            keyid="remote-settings",
         )
 
     @mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
@@ -169,4 +170,5 @@ class AutographSignerTest(unittest.TestCase):
             server_url=mock.sentinel.server_url,
             hawk_id=mock.sentinel.hawk_id,
             hawk_secret=mock.sentinel.hawk_secret,
+            keyid="remote-settings",
         )
