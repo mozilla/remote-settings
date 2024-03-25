@@ -1317,13 +1317,13 @@ referencing = ">=0.31.0"
 
 [[package]]
 name = "kinto"
-version = "18.0.0"
+version = "18.1.0"
 description = "Kinto Web Service - Store, Sync, Share, and Self-Host."
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto-18.0.0-py3-none-any.whl", hash = "sha256:d24cd945883a63033bc98c15e566caa8cefc609f8b08688eb8f745db42d96dd2"},
-    {file = "kinto-18.0.0.tar.gz", hash = "sha256:cbfa27a565bdfeb6e75c36cca8a514247e108803baac30dba948f2399289f98c"},
+    {file = "kinto-18.1.0-py3-none-any.whl", hash = "sha256:4a425a08e65793cb7a42bc1a9c94126e0e3b42ce9af473eb5ef507d165df6b1c"},
+    {file = "kinto-18.1.0.tar.gz", hash = "sha256:2f6717ec4e157637901f11aa08b658f5e4f2ff8c83041b57f8ce5e1d22056090"},
 ]
 
 [package.dependencies]
@@ -1359,7 +1359,7 @@ memcached = ["python-memcached"]
 monitoring = ["newrelic", "sentry-sdk[sqlalchemy]", "statsd", "werkzeug"]
 postgresql = ["SQLAlchemy (<3)", "psycopg2", "zope.sqlalchemy"]
 redis = ["kinto-redis"]
-test = ["bravado", "pytest", "pytest-cache", "pytest-cov", "selenium", "webtest"]
+test = ["bravado", "playwright", "pytest", "pytest-cache", "pytest-cov", "webtest"]
 
 [[package]]
 name = "kinto-attachment"
@@ -3236,4 +3236,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11, <3.13"
-content-hash = "47f07869b91d6992e471920c5bc8b20425bbecb38a743a6bf86263dc24cf6258"
+content-hash = "52416b9d44663cddc774e82c250707944f3c96e94f77b008b4deb23fd849f073"
