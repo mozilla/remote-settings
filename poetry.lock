@@ -2954,12 +2954,12 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "uwsgi"
-version = "2.0.24"
+version = "2.0.25"
 description = "The uWSGI server"
 optional = false
 python-versions = "*"
 files = [
-    {file = "uwsgi-2.0.24.tar.gz", hash = "sha256:77b6dd5cd633f4ae87ee393f7701f617736815499407376e78f3d16467523afe"},
+    {file = "uwsgi-2.0.25.tar.gz", hash = "sha256:a0463d00a31f382a560b631adfbcf0a342c748ce04b3408e5bae1b401653d217"},
 ]
 
 [[package]]
@@ -3242,4 +3242,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11, <3.13"
-content-hash = "105ba502bc1ad6257c3616d6734af1e7750492f47353ae996ce2ef4e526ca707"
+content-hash = "bf4cbb08f4f344c89222a5b1bdbaf0d54f1a5dac3d7076824176d08879a59c4e"
