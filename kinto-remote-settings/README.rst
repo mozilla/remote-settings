@@ -99,7 +99,7 @@ Returns the list of timestamps.
 
 Returns the following response for the collection:
 
-- ``changes``: list of records, optionnally filtered with ``?_since="{timestamp}"``
+- ``changes``: list of records, optionally filtered with ``?_since="{timestamp}"``
 - ``metadata``: collection attributes
 - ``timestamp``: records timestamp
 
