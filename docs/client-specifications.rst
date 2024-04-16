@@ -10,7 +10,7 @@ For years, the sole and unique client was Gecko (the platform behind Firefox, Th
 Despite our efforts to provide this fully featured, cross-platform client, new clients still emerged that obliged us to admit that our idea of having a single client of reference is dead.
 Instead, we are going to provide specifications for Remote Settings clients, to at least mitigate the consequences of clients fragmentation.
 
-That being said, we still **strongly discourage** the implementation of ad-hoc clients.
+That being said, we still **strongly discourage** the implementation of new ad-hoc clients.
 
 We distinguish two major use-cases:
 
@@ -18,6 +18,14 @@ We distinguish two major use-cases:
 - anonymous read operations, ie. fetch data from within our products.
 
 Since the former does not take place on clients, it matters less than the latter, which has a major impact on traffic and our servers load.
+
+Before launching your own implementation, please keep in consideration that:
+
+* client fragmentation hinders our cohesive view of the service (from server to clients)
+* heterogenous implementations slow down the roll out of API changes
+* having multiple code bases for one service raises the cost of code review, maintenance, support, feature parity, security assurance
+* the Remote Settings team has to be consulted to validate the implementation
+
 
 Existing Clients
 ----------------
