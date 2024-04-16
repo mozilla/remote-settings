@@ -62,7 +62,7 @@ As of April 2024:
 Specifications
 --------------
 
-Remote Settings is a layer on top of the Kinto API. Although every read-only operation offered by the Kinto API is available on our Remote Settings server, clients must restrict the amount of distinct interactions. Millions of devices sending arbitrary requests could have a significant impact on infrastructure.
+Remote Settings is a layer on top of the `Kinto API <https://docs.kinto-storage.org/en/stable/api/1.x/index.html#full-reference>`_. Although every read-only operation offered by the Kinto API is available on our Remote Settings server, clients must restrict the amount of distinct interactions. Millions of devices sending arbitrary requests could have a significant impact on infrastructure.
 
 That's why clients developers MUST keep their implementation as close as possible to the existing ones, or at least get in touch with us if there is a solid reason to derive from it.
 
@@ -73,7 +73,7 @@ Clients MUST set their ``User-Agent`` request header, mentioning application nam
 
 Clients SHOULD leverage Gzip transport using the ``Accept-Encoding: gzip`` request header.
 
-The following two endpoints MUST be used to retrieve data. Clients SHOULD NOT use other endpoints.
+The following two endpoints MUST be used to retrieve data. Clients MUST NOT use other endpoints.
 
 **Fetch collection**:
 
