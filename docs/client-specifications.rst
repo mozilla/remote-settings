@@ -6,7 +6,7 @@ Client Specifications
 Foreword
 --------
 
-During years, the sole and unique client was Gecko (the platform behind Firefox, Thunderbird..). In order to reach out new platforms and products, a fully-featured Rust client was built, using the application-services components (Viaduct, NSS, ...).
+For years, the sole and unique client was Gecko (the platform behind Firefox, Thunderbird..). In order to reach out new platforms and products, a fully-featured Rust client was built, using the application-services components (Viaduct, NSS, ...).
 Unfortunately, this cross-platform was not leveraged by the experimentation team, which built another ad-hoc client. In front of this situation, we are obliged to admit that our idea of having a single client of reference is dead. Instead, we are going to provide specifications for Remote Settings clients, to at least mitigate the consequences of clients fragmentation.
 
 That being said, we still **strongly discourage** the implementation of ad-hoc clients.
@@ -42,9 +42,9 @@ Existing Clients
 Specifications
 --------------
 
-Remote Settings is a layer on top of the Kinto API. Although every read-only operation offered by Kinto is technically available on the Remote Settings server, clients must take into consideration that once ran on millions of devices, the impact on our infrastructure can be significant.
+Remote Settings is a layer on top of the Kinto API. Although every read-only operation offered by the Kinto API is available on our Remote Settings server, clients must restrict the amount of distinct interactions. Millions of devices sending arbitrary requests could have a significant impact on infrastructure.
 
-Clients developers MUST keep their implementation as close as possible to the existing ones, or at least get in touch with us if there is a solid reason to derive from it.
+That's why clients developers MUST keep their implementation as close as possible to the existing ones, or at least get in touch with us if there is a solid reason to derive from it.
 
 Endpoints
 '''''''''
@@ -53,7 +53,7 @@ Clients MUST set their ``User-Agent`` request header, mentioning application nam
 
 Clients SHOULD leverage Gzip transport using the ``Accept-Encoding: gzip`` request header.
 
-The following two endpoints MUST be used to retrieve data. Clients SHOULD not use other endpoints.
+The following two endpoints MUST be used to retrieve data. Clients SHOULD NOT use other endpoints.
 
 **Fetch collection**:
 
@@ -144,9 +144,9 @@ Without push notifications:
 Environment Switching
 '''''''''''''''''''''
 
-Clients MAY offer a convenient way to switch before DEV, STAGE, or PROD environments, in order to facilitate the work of QA teams.
+Clients MAY offer a convenient way to switch between DEV, STAGE, or PROD environments, in order to facilitate the work of QA teams.
 
-Clients SHOULD use PROD by default. And for security reasons, they must be some protection in place to prevent users to switch environments.
+Clients SHOULD use PROD by default. And for security reasons, there must be some protection in place to prevent users to switch environments.
 
 
 Signature Verification
@@ -235,7 +235,7 @@ Deprecation Headers
 
 Client SHOULD react on deprecation headers. Ideally make it visible to the final users that the version of their product is relying on a service that is going away.
 
-When enabled, he server sends a ``Alert`` header with a JSON serialized value, that contains extra-information (eg. ``message``, ``url``).
+When enabled, the server sends a ``Alert`` header with a JSON serialized value, that contains extra-information (eg. ``message``, ``url``).
 
 Examples:
 
