@@ -7,7 +7,8 @@ Foreword
 --------
 
 For years, the sole and unique client was Gecko (the platform behind Firefox, Thunderbird..). In order to reach out new platforms and products, a fully-featured Rust client was built, using the application-services components (Viaduct, NSS, ...).
-Unfortunately, this cross-platform was not leveraged by the experimentation team, which built another ad-hoc client. In front of this situation, we are obliged to admit that our idea of having a single client of reference is dead. Instead, we are going to provide specifications for Remote Settings clients, to at least mitigate the consequences of clients fragmentation.
+Despite our efforts to provide this fully featured, cross-platform client, new clients still emerged that obliged us to admit that our idea of having a single client of reference is dead.
+Instead, we are going to provide specifications for Remote Settings clients, to at least mitigate the consequences of clients fragmentation.
 
 That being said, we still **strongly discourage** the implementation of ad-hoc clients.
 
