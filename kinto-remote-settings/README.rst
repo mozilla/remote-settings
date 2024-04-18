@@ -103,8 +103,9 @@ Returns the following response for the collection:
 - ``metadata``: collection attributes
 - ``timestamp``: records timestamp
 
-Note: the ``_expected={}`` querystring parameter is mandatory but can contain any
-arbitrary value (used for cache busting).
+.. note::
+
+    The ``_expected={}`` querystring parameter is mandatory. Either you receive a Push notification from the server, and pass the timestamp value in order to bust the CDN cache, or you use a hard-coded value (eg. ``0``) and rely on the cache TTL.
 
 
 Data Signatures

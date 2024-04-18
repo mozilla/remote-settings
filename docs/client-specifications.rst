@@ -87,7 +87,7 @@ Returns the following response for the collection ``{cid}`` in the bucket ``{bid
 
 .. note::
 
-    The ``_expected={}`` querystring parameter is mandatory but can be set to ``0`` if unknown. See section below about cache busting.
+    The ``_expected={}`` querystring parameter is mandatory. Either you pass the current collection timestamp value obtained when polling for changes in order to bust the CDN cache, or you use a hard-coded value (eg. ``0``) and rely on the cache TTL. See section below about cache busting.
 
 Examples:
 
@@ -108,7 +108,7 @@ Returns the list of collections and their current timestamp.
 
 .. note::
 
-    The ``_expected={}`` querystring parameter is mandatory but can be set to ``0`` if unknown. See next section about cache busting.
+    The ``_expected={}`` querystring parameter is mandatory. Either you receive a Push notification from the server, and pass the timestamp value in order to bust the CDN cache, or you use a hard-coded value (eg. ``0``) and rely on the cache TTL. See section below about cache busting.
 
 Examples:
 
@@ -140,7 +140,7 @@ Using push notifications:
 ..     Remote Settings-->>CDN:
 ..     CDN-->>-Client: Changeset [data, metadata, timestamp]
 
-Without push notifications:
+Without push notifications (cached polling):
 
 .. image:: images/client-specifications-cache-poll.png
 
@@ -156,10 +156,25 @@ Without push notifications:
 ..     Remote Settings-->>CDN:
 ..     CDN-->>-Client: Modified collections [Array[timestamp]]
 ..     Client->>+CDN: Fetch collection changeset [timestamp]
-..     CDN->>Remote Settings: TTL expired|hit [url]
+..     CDN->>Remote Settings: Cache miss|hit [url]
 ..     Remote Settings-->>CDN:
 ..     CDN-->>-Client: Changeset [data, metadata, timestamp]
 
+Without push notifications nor polling for changes (cached fetching):
+
+.. image:: images/client-specifications-cache-ttl.png
+
+.. https://mermaid-js.github.io/mermaid-live-editor/
+.. sequenceDiagram
+..     participant Remote Settings
+
+..     participant CDN
+..     participant Client
+
+..     Client->>+CDN: Fetch collection changeset [timestamp=0]
+..     CDN->>Remote Settings: TTL expired|hit [url]
+..     Remote Settings-->>CDN:
+..     CDN-->>-Client: Changeset [data, metadata, timestamp]
 
 Environment Switching
 '''''''''''''''''''''
