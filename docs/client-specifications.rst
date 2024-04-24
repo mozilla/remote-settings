@@ -87,7 +87,7 @@ Returns the following response for the collection ``{cid}`` in the bucket ``{bid
 
 .. note::
 
-    The ``_expected={}`` querystring parameter is mandatory but can be set to ``0`` if unknown. See section below about cache busting.
+    The ``_expected={}`` querystring parameter is mandatory. Either you pass the current collection timestamp value obtained when polling for changes in order to bust the CDN cache, or you use a hard-coded value (eg. ``0``) and rely on the cache TTL. See section below about cache busting.
 
 Examples:
 
@@ -95,6 +95,10 @@ Examples:
 * `fetch_changeset() in Gecko <https://searchfox.org/mozilla-central/rev/c09764753ea40725eb50decad2c51edecbd33308/services/settings/RemoteSettingsClient.sys.mjs#1187-1209>`_
 
 Clients SHOULD NOT rely on arbitrary server side filtering. In Remote Settings, collections are quite small anyway, and can usually be fetched entirely to be filtered on the client side. This helps us reduce our CDN cache cardinality.
+
+Client MAY filter the list of changes to only obtain the changes since the last polling, using the ``?_since=`` querystring parameter. The value is a timestamp obtained from a previous changeset response.
+
+For each collection, the amount of possible values for the timestamps is finite. Indeed, each timestamp value corresponds to the date and time of the data publication (reviewer approving changes on the server). Some collections change several times a day, but that still allows a lot of caching. The push notifications are debounced too, in case several users approve changes in a short amount of time.
 
 
 **Poll for changes**:
@@ -104,11 +108,34 @@ Clients SHOULD NOT rely on arbitrary server side filtering. In Remote Settings, 
 Returns the list of collections and their current timestamp.
 
 - ``changes``: list of collections and their timestamp, optionally filtered with ``?_since="{timestamp}"``
-- ``tiemstamp``: highest collections timestamp
+- ``timestamp``: highest collections timestamp
 
 .. note::
 
-    The ``_expected={}`` querystring parameter is mandatory but can be set to ``0`` if unknown. See next section about cache busting.
+    The ``_expected={}`` querystring parameter is mandatory. Either you receive a Push notification from the server, and pass the timestamp value in order to bust the CDN cache, or you use a hard-coded value (eg. ``0``) and rely on the cache TTL. See section below about cache busting.
+
+.. code-block:: JSON
+
+    {
+      "metadata": {},
+      "timestamp": 1713532462683,
+      "changes": [
+        {
+          "id": "19e79f22-62cf-92e1-c12c-a3b4b9cf51be",
+          "last_modified": 1603126502200,
+          "bucket": "blocklists",
+          "collection": "plugins",
+          "host": "firefox.settings.services.mozilla.com"
+        },
+        {
+          "id": "b7f595f9-5fc5-d863-b5dd-e5425dcf427a",
+          "last_modified": 1604940558744,
+          "bucket": "blocklists",
+          "collection": "addons",
+          "host": "firefox.settings.services.mozilla.com"
+        }
+      ]
+    }
 
 Examples:
 
@@ -119,7 +146,14 @@ Examples:
 Cache Busting
 '''''''''''''
 
-Using push notifications:
+**Using push notifications**
+
+With push notification, we want the first requests to bust the CDN cache of the polling endpoint with the received value.
+
+* The push notification payload contains the highest of all collections
+* This timestamp is passed to the ``?_expected={}`` querystring param when polling for changes
+* The polling endpoint will return the list of collections with their respective timestamps (`last_modified` field):
+* Each collection can now be fetched using the timestamp obtained from the polling endpoint (eg. using the above example: ``/buckets/blocklists/plugins/changeset?_expected=1603126502200``)
 
 .. image:: images/client-specifications-cache-bust.png
 
@@ -140,7 +174,11 @@ Using push notifications:
 ..     Remote Settings-->>CDN:
 ..     CDN-->>-Client: Changeset [data, metadata, timestamp]
 
-Without push notifications:
+
+**Without push notifications (cached polling)**
+
+Without push notification, we use hard-coded value  (``?_expected=0``) and rely on the cache TTL of the polling endpoint.
+And use the timestamps obtained in the polling endpoint response as described above with push notifications.
 
 .. image:: images/client-specifications-cache-poll.png
 
@@ -156,10 +194,32 @@ Without push notifications:
 ..     Remote Settings-->>CDN:
 ..     CDN-->>-Client: Modified collections [Array[timestamp]]
 ..     Client->>+CDN: Fetch collection changeset [timestamp]
+..     CDN->>Remote Settings: Cache miss|hit [url]
+..     Remote Settings-->>CDN:
+..     CDN-->>-Client: Changeset [data, metadata, timestamp]
+
+
+**Without push notifications nor polling for changes (cached fetching)**
+
+With this approach, we skip the step that poll for changes, and rely on the cache TTL for the collection data.
+
+.. image:: images/client-specifications-cache-ttl.png
+
+.. https://mermaid-js.github.io/mermaid-live-editor/
+.. sequenceDiagram
+..     participant Remote Settings
+
+..     participant CDN
+..     participant Client
+
+..     Client->>+CDN: Fetch collection changeset [timestamp=0]
 ..     CDN->>Remote Settings: TTL expired|hit [url]
 ..     Remote Settings-->>CDN:
 ..     CDN-->>-Client: Changeset [data, metadata, timestamp]
 
+.. note::
+
+    As the service owners, we don't guarantee that we will keep the collection TTL under X hours.
 
 Environment Switching
 '''''''''''''''''''''
