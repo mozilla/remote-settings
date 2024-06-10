@@ -133,10 +133,10 @@ With regards to the script:
 
 - MUST read the following environment variables:
 
-  * ``AUTHORIZATION``: Credentials for building the Authorization Header (eg. ``Bearer f8435u30596``, ``some-user:some-password``)
+  * ``AUTHORIZATION``: Credentials for building the Authorization Header (eg. ``Bearer f8435u30596``, ``Basic some-user:some-password``)
   * ``SERVER``: Writer server URL (eg. ``https://remote-settings.allizom.org/v1``)
   * ``ENVIRONMENT`` (optional): ``dev``, ``stage``, ``prod``
-  * ``DRY_RUN`` (optional): do not perform operations is set to ``1``
+  * ``DRY_RUN`` (optional): do not perform operations if set to ``1``
 
 - MUST exit with a ``0`` for success and a ``1`` if there were any errors.
 - MUST be idempotent (ie. no-op if no change)
@@ -150,7 +150,7 @@ See :ref:`multi-signoff tutorial <tutorial-multi-signoff-request-review>` for mo
 With regards to the repository:
 
 - MUST build a Docker container
-- MUST contain a Github Action that will publish to Dockerhub once credentials are setup by Ops
+- MUST have Github Webhook configured so that container gets redeployed on version tag
 
 We recommend the use of `kinto-http.py <https://github.com/Kinto/kinto-http.py>`_ (`script example <https://gist.github.com/leplatrem/f3cf7ac5b0b9b0b27ff6456f47f719ca>`_), but Node JS is also possible (See `mdn-browser-compat-data <https://github.com/firefox-devtools/remote-settings-mdn-browser-compat-data/>`_ or `HIBP <https://github.com/mozilla/blurts-server/blob/c33a85b/scripts/updatebreaches.js>`_ examples).
 
