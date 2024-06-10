@@ -236,5 +236,8 @@ In order to deploy to production:
 1. Go to `deployment workflow page <https://github.com/mozilla-sre-deploy/deploy-remote-settings/actions/workflows/gcp.yaml>`_
 2. Click on ``Run workflow``
 3. Pick ``Branch=main``, ``Environment=prod``, ``ref=refs/tags/vX.Y.Z``, and click ``Run workflow``
+4. Go to `deployment workflow page <https://github.com/mozilla-sre-deploy/deploy-remote-settings/actions/workflows/gcp.yaml>`_
+5. Click on the latest ``prod`` run
+6. Review pending deployments and click ``Approve and deploy``
 
 See `Environments <https://remote-settings.readthedocs.io/en/latest/getting-started.html#environments>`_ section for more details about deployments.
