@@ -133,7 +133,7 @@ With regards to the script:
 
 - MUST read the following environment variables:
 
-  * ``AUTHORIZATION``: Credentials for building the Authorization Header (eg. ``Bearer f8435u30596``, ``Basic some-user:some-password``)
+  * ``AUTHORIZATION``: Credentials for building the Authorization Header (passed as ``"Bearer f8435u30596"`` for LDAP OAuth, or as ``"some-user:some-password"`` for Kinto Accounts)
   * ``SERVER``: Writer server URL (eg. ``https://remote-settings.allizom.org/v1``)
   * ``ENVIRONMENT`` (optional): ``dev``, ``stage``, ``prod``
   * ``DRY_RUN`` (optional): do not perform operations if set to ``1``
