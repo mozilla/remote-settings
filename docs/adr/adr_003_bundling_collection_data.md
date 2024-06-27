@@ -59,7 +59,6 @@ For the collections records bundle, clients with empty profiles will simply pull
 
 For the attachments, bundling would be opt-in, and leveraged explicitly by consumers in their code. Clients would have a new method `client.attachments.cacheAll()` that would:
 - Pull the attachment bundle for the current collection timestamp
-- Resume a previously failed download
 - Be resilient to missing bundles (eg. not yet available or exceeding configured server size limits)
 - Extract it on disk (TODO: find example of zip extraction in Gecko)
 - Put files contents in attachments cache ([source](https://searchfox.org/mozilla-central/rev/8ec3cc0472ad4f51b254728d024b696eaba82ba0/services/settings/Attachments.sys.mjs#259-261))
