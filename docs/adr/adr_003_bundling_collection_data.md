@@ -37,16 +37,18 @@ Also, since [usage quotas](https://docs.kinto-storage.org/en/stable/api/1.x/quot
 
 
 ### Bundle Formats
+After some research and testing, we've decided to go with Zip compression. Zip is very easy to implement and allows for good flexibility moving forward. We could change our minds or add other bundle types in the future with very little effort.
 
+- Zip - Reduces text content up to 17%.
+    - Pros: Easy to work with. Easy to decompress client side.
+    - Cons: Not as much compression as lzma. Need to decompress after receiving.
 - Tar - When gzipped (automatically by cdn dynamic compression), we can expect to save around 43% size for text content. Probably not much for images.
-    - Pros: very easy to work with server side and client side. Compression and decompression are essentially free at the transport layer.
-    - Cons: doesn’t save as much as lzma
+    - Pros: very easy to work with server side and client side. Compression and decompression should be free at the transport layer.
+    - Cons: doesn’t save as much as lzma.
 - LZMA (7z) - Reduces text content up to 70%.
     - Pros: Very compressed
-    - Cons: More compute intense to compress and decompress. Likely need to ship another library to decompress.
-- Zip - Reduces text content up to 17%.
-    - Pros: Easy to work with and probably decompress client side.
-    - Cons: Not much compression. Probably doesn’t make sense over tar. Need to decompress after receiving.
+    - Cons: More compute intense to compress and decompress. Likely need to ship another library to decompress. Need to decompress after receiving.
+
 
 ### Client Implementation
 This ADR mostly covers the server parts, since the client implementation to fetch and leverage bundling does not have many different possible approaches.
