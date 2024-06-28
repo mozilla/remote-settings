@@ -86,14 +86,14 @@ References
 - [Download of all addons suggestions files](https://searchfox.org/mozilla-central/rev/8ec3cc0472ad4f51b254728d024b696eaba82ba0/browser/components/urlbar/private/AddonSuggestions.sys.mjs#87-101)
 
 ### Metrics To Measure Before/After
-CPU usage, bandwidth, usage for full synchronization. Power and performance profiles on different clients.
-    - Mac Desktop
-    - Linux Desktop
-    - Windows Desktop
-    - Android Mobile
+We want to measure CPU usage, total bandwidth used, duration of syncronization on fresh profiles, and battery usage for full synchronization. We should be able to gather most of this by running power and performance profiles on different hardware.
+
+Hardware to include:
+- Mac Desktop/Laptop
+- Linux Desktop/Laptop
+- Windows Desktop/Laptop
+- Android Mobile
 - iOS Mobile (does it use remote-settings?)
-- How much collections are compressed
-- Total duration of synchronization on fresh profiles
 
 
 ## Non Goals
