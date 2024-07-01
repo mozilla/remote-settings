@@ -16,6 +16,7 @@ When a new Firefox client comes online for the first time, it makes over 1,700 H
 
 If we can bundle these downloads together by collection, we could reduce the number of requests for certain collections from almost thousands to a few. This should reduce the overall time required to download the data (less time establishing connections), which will reduce power usage and improve the user experience.
 
+Note: This improvement is primarily targeting new clients, or clients that are very out of date. Clients that are established and updating daily will not see improvement from this. However, we will be working on new binary replication logic that will help established clients in the future.
 
 ### Data Bundling
 We distinguish two parts for this data bundling:
@@ -40,11 +41,11 @@ Also, since [usage quotas](https://docs.kinto-storage.org/en/stable/api/1.x/quot
 After some research and testing, we've decided to go with Zip compression. Zip is very easy to implement and allows for good flexibility moving forward. We could change our minds or add other bundle types in the future with very little effort.
 
 - Zip - Reduces text content up to 17%.
-    - Pros: Easy to work with. Easy to decompress client side.
+    - Pros: Easy to work with. Easy to decompress client side. General compression for a variety of data.
     - Cons: Not as much compression as lzma. Need to decompress after receiving.
 - Tar - When gzipped (automatically by cdn dynamic compression), we can expect to save around 43% size for text content. Probably not much for images.
-    - Pros: very easy to work with server side and client side. Compression and decompression should be free at the transport layer.
-    - Cons: doesn’t save as much as lzma.
+    - Pros: very easy to work with server side and client side. Compression and decompression should be free at the transport layer if we're under 10MB.
+    - Cons: Doesn’t compress as well as as lzma. Dynamic compression only works under 10MB.
 - LZMA (7z) - Reduces text content up to 70%.
     - Pros: Very compressed
     - Cons: More compute intense to compress and decompress. Likely need to ship another library to decompress. Need to decompress after receiving.
@@ -115,14 +116,19 @@ Hardware to include:
     - How complicated it is to know which bundle URL to pull
 
 ## Considered Options
-1. Build bundles on attachment upload/removal
-2. Build bundles on Cloud storage event
+1. Synchronously build bundles on attachment upload/removal (in request / response cycle)
+2. Aynchronously build bundles on attachment upload/removal (via Cloud Storage event)
 3. Build bundles on RS changes approval
 4. Add new API endpoint to build or serve last bundle
 5. Build bundles on schedule
 
 ## Decision Outcome
-Chosen option: [Option 5](#Option-5) because it is easy to reason about, trivial to implement, does not affect user experience, and would not increase the overall service complexity. 
+Chosen option: [Option 5](#Option-5) because it's:
+1. Easy to reason about
+2. Trivial to implement
+3. Does not negatively affect user experience
+4. Would not increase the overall service complexity
+5. Is modular, could be changed/implemented differently down the road easily
 
 ### Positive Consequences
 - We provide records and attachments bundling without increasing our team maintenance
@@ -132,7 +138,7 @@ Chosen option: [Option 5](#Option-5) because it is easy to reason about, trivial
 
 ## Pros and Cons of the Options
 ### Option 1 - Build bundles on attachment upload/removal
-Everytime an attachment is uploaded or removed, the attachment is added or removed to the bundle, within the request/response cycle.
+Every time an attachment is uploaded or removed, the attachment is added to or removed from the bundle, within the request/response cycle.
 
 This would be implemented in `kinto-attachment` code, in charge of uploading the attachments to the storage backend.
 
@@ -183,7 +189,7 @@ More alternatively, we could use event-driven architecture. The API would submit
 - Bad, because we have to introduce some complexity in order to prevent building several bundles in parallel
 
 ### Option 5 - Build bundles on schedule
-A scheduled job iterates through the collections with the `attachment.bundle == true` flag and operates with the following logics:
+A scheduled job iterates through the collections with the `attachment.bundle == true` flag and operates with the following logic:
 - If there is a bundle for the current collection timestamp, nothing to do.
 - If there isn’t, pull all attachments from storage, build a bundle with all current attachments, store it at `{folder}/attachments.zip` in cloud storage
 - (repeat for each bucket, including preview buckets)
