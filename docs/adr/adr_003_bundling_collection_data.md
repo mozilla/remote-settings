@@ -41,14 +41,29 @@ Also, since [usage quotas](https://docs.kinto-storage.org/en/stable/api/1.x/quot
 After some research and testing, we've decided to go with Zip compression. Zip is very easy to implement and allows for good flexibility moving forward. We could change our minds or add other bundle types in the future with very little effort.
 
 - Zip - Reduces text content up to 17%.
-    - Pros: Easy to work with. Easy to decompress client side. General compression for a variety of data.
-    - Cons: Not as much compression as lzma. Need to decompress after receiving.
-- Tar - When gzipped (automatically by cdn dynamic compression), we can expect to save around 43% size for text content. Probably not much for images.
-    - Pros: very easy to work with server side and client side. Compression and decompression should be free at the transport layer if we're under 10MB.
-    - Cons: Doesn’t compress as well as as lzma. Dynamic compression only works under 10MB.
+    - Pros: 
+        - Interface available in gecko
+        - Decent compression for our use case
+        - Allows for range requests in the future
+        - Universal format
+    - Cons: 
+        - Not as much compression as lzma.
+        - Double compression if dynamic compression is used
+- Tar - When gzipped (automatically by cdn dynamic compression), we can expect to save around 43% size for text content. Probably not much for other data.
+    - Pros: 
+        - Only bundles, doesn't compress
+        - No CPU used to decompress
+        - Compression done by CDN when using dynamic compression
+    - Cons: 
+        - No existing interface in gecko.
+        - Requires dynamic compression.
 - LZMA (7z) - Reduces text content up to 70%.
-    - Pros: Very compressed
-    - Cons: More compute intense to compress and decompress. Likely need to ship another library to decompress. Need to decompress after receiving.
+    - Pros: 
+        - Very compressed
+    - Cons: 
+        - More compute intense to compress and decompress
+        - Likely need to ship another library to decompress
+        - Need to decompress after receiving
 
 
 ### Client Implementation
