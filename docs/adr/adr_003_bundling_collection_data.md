@@ -16,7 +16,7 @@ When a new Firefox client comes online for the first time, it makes over 1,700 H
 
 If we can bundle these downloads together by collection, we could reduce the number of requests for certain collections from almost thousands to a few. This should reduce the overall time required to download the data (less time establishing connections), which will reduce power usage and improve the user experience.
 
-Note: This improvement is primarily targeting new clients, or clients that are very out of date. Clients that are established and updating daily will not see improvement from this. However, we will be working on new binary replication logic that will help established clients in the future.
+Note: This improvement is primarily targeting new clients, or clients that are very out of date. Clients that are established and updating daily will not see improvement from this.
 
 ### Data Bundling
 We distinguish two parts for this data bundling:
@@ -64,6 +64,7 @@ After some research and testing, we've decided to go with Zip compression. Zip i
         - More compute intense to compress and decompress
         - Likely need to ship another library to decompress
         - Need to decompress after receiving
+        - Double compression if dynamic compression is used
 
 
 ### Client Implementation
@@ -117,7 +118,7 @@ Hardware to include:
 - Reduce client performance (ex: we shouldn't increase power usage for clients)
 
 ## Assumptions
-- We will find a way for Gecko clients to extract at least one archive format (very likely using third-party library)
+None at this time
 
 ## Decision Drivers
 - Keep costs low
