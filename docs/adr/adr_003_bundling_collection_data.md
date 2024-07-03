@@ -215,7 +215,7 @@ And creates a records bundle with all collections data (~6MB) for each bucket (`
 
 This job would require GCloud credentials (Service Accounts credentials JSON file) and unlike `kinto-attachment` would be vendor-specific (ie. GCP Cloud storage using the `google-cloud-storage` Python library).
 
-We would have to duplicate some of the `kinto-attachment` configuration values (eg. `kinto.attachment.gcloud.bucket_name` and `kinto.attachment.folder`) in order to store the bundles along attachments (ie. in the right folder `{bucket id}/{collections id}`), so that the final bundle URL remains straightforward for clients (eg. `capabilities.attachments.base_url` + `bucket_id/collection_id /bundle.zip`)
+We would have to duplicate some of the `kinto-attachment` configuration values (eg. `kinto.attachment.gcloud.bucket_name` and `kinto.attachment.folder`) so that the final bundle URL remains straightforward for clients (eg. `capabilities.attachments.base_url` + `bundles/{bucket-id}--{collection-id}.zip`)
 
 The clients would pull the records bundle on first sync, and the attachments bundle URL when `attachments.cacheAll()` is called. 
 - Good, because ultra simple
