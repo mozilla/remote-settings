@@ -381,7 +381,7 @@ class LocalUpdater(object):
         new_collection["signature"] = signature
         for attr in PUBLISHED_COLLECTION_FIELDS:
             if attr in source_attributes:
-                new_collection.setdefault(attr, source_attributes[attr])
+                new_collection[attr] = source_attributes[attr]
 
         updated = self.storage.update(
             parent_id=parent_id,

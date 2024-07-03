@@ -161,7 +161,7 @@ class LocalUpdaterTest(unittest.TestCase):
             obj={
                 "id": 1234,
                 "signature": mock.sentinel.signature,
-                "sort": "-age",
+                "sort": "size",
                 "displayFields": ["name"],
             },
         )
