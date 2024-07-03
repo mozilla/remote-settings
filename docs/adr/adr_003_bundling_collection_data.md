@@ -209,7 +209,7 @@ A scheduled job iterates through the collections with the `attachment.bundle == 
 - If there isn’t, pull all attachments from storage, build a bundle with all current attachments, store it at `bundles/{bucket-id}--{collection-id}.zip` in cloud storage
 - (repeat for each bucket, including preview buckets)
 
-And creates a records bundle with all collections data (~6MB) for each bucket (`{folder}/changesets.zip`).
+And creates a records bundle with all collections data (~6MB) for each bucket (`bundles/changesets.zip`).
 
 *Note: the job that is currently in charge of publishing the highest timestamp to the Push notification server, could first execute this attachment bundling job, in order to make sure bundles will be available when clients will pull changesets.*
 
