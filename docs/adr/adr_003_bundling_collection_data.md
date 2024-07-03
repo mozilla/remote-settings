@@ -32,7 +32,7 @@ Looking at existing use-cases, we can observe that bundling attachments may not 
 
 That’s why it would make sense for attachments bundling to be opt-in for stakeholders.
 
-There is already a collection metadata attribute to mark attachments as enabled and/or required. The flag would just consist in adding a new field attachment.bundle: true|false.
+There is already a collection metadata attribute to mark attachments as enabled and/or required. The flag would just consist in adding a new field `attachment.bundle: true|false`.
 
 Also, since [usage quotas](https://docs.kinto-storage.org/en/stable/api/1.x/quotas.html) are not enabled on the Remote Settings server, consumers can end up publishing huge files and bloat attachments bundles, we may want to have a server side configuration setting to fix a size limit for which the bundles won’t be built. For example, even when opted-in, if the target bundle exceeds 20MB, it won’t be built and published. Clients should thus be smart and fail soft if a bundle is not available.
 
