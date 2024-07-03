@@ -206,7 +206,7 @@ More alternatively, we could use event-driven architecture. The API would submit
 ### Option 5 - Build bundles on schedule
 A scheduled job iterates through the collections with the `attachment.bundle == true` flag and operates with the following logic:
 - If there is a bundle for the current collection timestamp, nothing to do.
-- If there isn’t, pull all attachments from storage, build a bundle with all current attachments, store it at `{folder}/attachments.zip` in cloud storage
+- If there isn’t, pull all attachments from storage, build a bundle with all current attachments, store it at `bundles/{bucket-id}--{collection-id}.zip` in cloud storage
 - (repeat for each bucket, including preview buckets)
 
 And creates a records bundle with all collections data (~6MB) for each bucket (`{folder}/changesets.zip`).
