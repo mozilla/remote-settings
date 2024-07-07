@@ -88,7 +88,7 @@ pytest = "8.2.2"
 webtest = "3.0.0"
 coverage = "7.5.4"
 detect-secrets = "^1.5.0"
-ruff = "^0.5.0"
+ruff = "^0.5.1"
 
 [tool.poetry.group.browser-tests]
 optional = true
@@ -98,12 +98,12 @@ aiohttp = "3.9.5"
 autograph-utils = "0.3.0"
 canonicaljson-rs = "0.6.0"
 httpie = "3.2.2"
-kinto-http = "11.1.0"
+kinto-http = "11.2.0"
 pytest = "8.2.2"
 pytest-asyncio = "0.23.7"
 webtest = "3.0.0"
-playwright = "^1.44.0"
-pytest-playwright = "^0.5.0"
+playwright = "^1.45.0"
+pytest-playwright = "^0.5.1"
 nest_asyncio="^1.6.0"
 
 [tool.poetry.group.docs]
