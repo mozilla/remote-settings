@@ -1,9 +1,9 @@
 # Bundling Collection Data for Download
 
 
-* Status: proposed
+* Status: approved
 * Deciders: mleplatre, gbeckley, acottner
-* Date: June 27 2024
+* Date: July 8 2024
 
 Tracking issue(s):
 -  [The initial remote settings download is inefficient](https://bugzilla.mozilla.org/show_bug.cgi?id=1889617)
