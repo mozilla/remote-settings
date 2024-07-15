@@ -1,7 +1,7 @@
 # Bundling Collection Data for Download
 
 
-* Status: approved
+* Status: building
 * Deciders: mleplatre, gbeckley, acottner
 * Date: July 8 2024
 
