@@ -37,7 +37,7 @@ There is already a collection metadata attribute to mark attachments as enabled 
 Also, since [usage quotas](https://docs.kinto-storage.org/en/stable/api/1.x/quotas.html) are not enabled on the Remote Settings server, consumers can end up publishing huge files and bloat attachments bundles, we may want to have a server side configuration setting to fix a size limit for which the bundles won’t be built. For example, even when opted-in, if the target bundle exceeds 20MB, it won’t be built and published. Clients should thus be smart and fail soft if a bundle is not available.
 
 
-### Bundle Formats
+### Bundle Format
 After some research and testing, we've decided to go with Zip compression. Zip is very easy to implement and allows for good flexibility moving forward. We could change our minds or add other bundle types in the future with very little effort.
 
 - Zip - Reduces text content up to 17%.
@@ -66,6 +66,10 @@ After some research and testing, we've decided to go with Zip compression. Zip i
         - Need to decompress after receiving
         - Double compression if dynamic compression is used
 
+#### Bundle content
+Each attachment bundle will consist of a collection's full set of attachments and associated records.
+ - {attachmentId}.meta.json - The record in JSON format.
+ - {attachmentId} - The binary attachment data.
 
 ### Client Implementation
 This ADR mostly covers the server parts, since the client implementation to fetch and leverage bundling does not have many different possible approaches.
