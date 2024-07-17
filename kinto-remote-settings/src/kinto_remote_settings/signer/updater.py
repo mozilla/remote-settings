@@ -16,7 +16,14 @@ logger = logging.getLogger(__name__)
 FIELD_ID = "id"
 FIELD_LAST_MODIFIED = "last_modified"
 # Source collection fields to be copied to destination.
-PUBLISHED_COLLECTION_FIELDS = ("schema", "sort", "displayFields", "attachment")
+PUBLISHED_COLLECTION_FIELDS = (
+    "flags",  # used in build_bundles lambda.
+    # Admin UI fields
+    "attachment",  # also used in build_bundles lambda.
+    "schema",
+    "sort",
+    "displayFields",
+)
 
 
 class TRACKING_FIELDS(Enum):
