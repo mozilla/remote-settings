@@ -39,6 +39,7 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
         assert "metadata" in data
         assert "timestamp" in data
         assert "changes" in data
+        assert data["metadata"]["bucket"] == "blocklists"
         assert data["metadata"]["id"] == "certificates"
         assert len(data["changes"]) == 1
         assert data["changes"][0]["dev-edition"] is True

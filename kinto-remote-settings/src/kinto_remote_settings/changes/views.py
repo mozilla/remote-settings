@@ -376,7 +376,10 @@ def get_changeset(request):
     request.response.last_modified = last_modified / 1000.0
 
     data = {
-        "metadata": metadata,
+        "metadata": {
+            **metadata,
+            "bucket": bid,
+        },
         "timestamp": records_timestamp,
         "changes": changes,
     }
