@@ -1,7 +1,7 @@
 # Bundling Collection Data for Download
 
 
-* Status: building
+* Status: landed, target version 130
 * Deciders: mleplatre, gbeckley, acottner
 * Date: July 8 2024
 
