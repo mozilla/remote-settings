@@ -166,6 +166,28 @@ class LocalUpdaterTest(unittest.TestCase):
             },
         )
 
+    def test_set_destination_signature_copies_flags_field(self):
+        self.storage.get.return_value = {
+            "id": 1234,
+            "last_modified": 1234,
+        }
+        self.updater.set_destination_signature(
+            mock.sentinel.signature,
+            {"flags": ["startup"]},
+            DummyRequest(),
+        )
+
+        self.storage.update.assert_called_with(
+            resource_name="collection",
+            object_id="destcollection",
+            parent_id="/buckets/destbucket",
+            obj={
+                "id": 1234,
+                "signature": mock.sentinel.signature,
+                "flags": ["startup"],
+            },
+        )
+
     def test_update_source_status_modifies_the_source_collection(self):
         self.storage.get.return_value = {
             "id": 1234,
