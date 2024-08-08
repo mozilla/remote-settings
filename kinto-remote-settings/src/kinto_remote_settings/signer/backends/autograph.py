@@ -1,14 +1,17 @@
 import base64
 import datetime
+import logging
 import warnings
 from urllib.parse import urljoin
 
 import requests
-from kinto import logger
 from requests_hawk import HawkAuth
 
 from ..utils import fetch_cert, get_first_matching_setting
 from .base import SignerBase
+
+
+logger = logging.getLogger(__name__)
 
 
 SIGNATURE_FIELDS = ["signature", "x5u"]
@@ -57,7 +60,7 @@ class AutographSigner(SignerBase):
             msg = "Only %s days before Autograph certificate expires (%s)"
             logger.warning(msg, remaining_days, end)
 
-        logger.debug(
+        logger.info(
             f"Certificate lasts {lifespan} days and ends in {remaining_days} days "
             f"({remaining_days - clamped_minimum} days before alert)."
         )
@@ -68,6 +71,12 @@ class AutographSigner(SignerBase):
 
         b64_payload = base64.b64encode(payload)
         url = urljoin(self.server_url, "/sign/data")
+        logger.info(
+            "Sign %s bytes using Autograph %s with key %r",
+            len(b64_payload),
+            url,
+            self.key_id,
+        )
         resp = requests.post(
             url,
             auth=self.auth,
@@ -93,8 +102,9 @@ class AutographSigner(SignerBase):
             }
         )
         logger.info(
-            "Obtained %s response from Autograph %s"
-            % (resp.status_code, signature_bundle["ref"])
+            "Obtained %s response from Autograph %s",
+            resp.status_code,
+            signature_bundle["ref"],
         )
         return infos
 

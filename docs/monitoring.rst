@@ -26,6 +26,7 @@ Server Logs
 
 Servers logs are available in the Google Cloud Console `Logs Explorer <https://console.cloud.google.com/logs/>`_.
 
+First, check the *Refine Scope*, select the appropriate storage bucket for the logs (eg. ``_AllLogs`` ``gke-remote-settings-dev-log-bucket``).
 
 Writer Instances
 ''''''''''''''''
