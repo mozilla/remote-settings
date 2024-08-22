@@ -49,7 +49,7 @@ def test_signer_plugin_capabilities(anonymous_client: RemoteSettingsClient):
     assert capability["group_check_enabled"]
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_signer_plugin_full_workflow(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
@@ -162,7 +162,7 @@ async def test_signer_plugin_full_workflow(
         raise
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_workflow_without_review(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
