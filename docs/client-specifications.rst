@@ -30,7 +30,7 @@ Before launching your own implementation, please keep in consideration that:
 Existing Clients
 ----------------
 
-As of April 2024:
+As of August 2024:
 
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 |                        | Gecko | Rust Client | application-services/remote-settings | kinto-http.py | kinto.js |
@@ -49,9 +49,15 @@ As of April 2024:
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Signature Verification | ✅    | ✅ Optional | ❌                                   | ❌            | ❌       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
-| Local State            | ✅    | ✅ Optional | ❌                                   | ❌            | ✅       |
+| Local cache            | ✅    | ✅ Optional | ❌                                   | ❌            | ✅       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Fetch Attachments      | ✅    | ✅          | ✅ Without integrity check           | ❌            | ✅       |
++------------------------+-------+-------------+--------------------------------------+---------------+----------+
+| Attachments bundles    | ✅    | ❌          | ❌                                   | ❌            | ❌       |
++------------------------+-------+-------------+--------------------------------------+---------------+----------+
+| JEXL support           | ✅    | ❌          | ❌                                   | ❌            | ❌       |
++------------------------+-------+-------------+--------------------------------------+---------------+----------+
+| Packaged binary dumps  | ✅    | ❌          | ❌                                   | N/A           | N/A      |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Backoff                | ✅    | ✅          | ✅                                   | ✅            | ✅       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
@@ -295,6 +301,20 @@ Examples:
 
 * `fetch_attachment() in remote-settings-client <https://github.com/mozilla-services/remote-settings-client/blob/2538d6a07c28a3966b996d52596807df8c37130d/src/client.rs#L645-L718>`_
 * `fetchAttachment() in Gecko <https://searchfox.org/mozilla-central/rev/1f27a4022f9f1269d897526c1c892a57743e650c/services/settings/Attachments.sys.mjs#198-314>`_
+
+
+Attachments bundles
+'''''''''''''''''''
+
+For collections where attachments bundling is enabled, the clients can download a Zip bundle:
+
+``GET {{ attachments.base_url }}/bundles/{{ bucket }}--{{ collection }}.zip``
+
+It returns a Zip with the attachment files and their metadata, and can be used to fill the local attachment cache using a single network request.
+
+Examples:
+
+* `cacheAll() in Gecko <https://searchfox.org/mozilla-central/rev/e968519d806b140c402c3b3932cd5f6cd7cc42ac/services/settings/Attachments.sys.mjs#181-273>`_
 
 
 Backoff Headers
