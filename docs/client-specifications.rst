@@ -51,6 +51,8 @@ As of August 2024:
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Local cache            | ✅    | ✅ Optional | ❌                                   | ❌            | ✅       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
+| Push notifications     | ✅    | ❌          | ❌                                   | N/A           | N/A      |
++------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Fetch Attachments      | ✅    | ✅          | ✅ Without integrity check           | ❌            | ✅       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Attachments bundles    | ✅    | ❌          | ❌                                   | ❌            | ❌       |
@@ -58,6 +60,8 @@ As of August 2024:
 | JEXL support           | ✅    | ❌          | ❌                                   | ❌            | ❌       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Packaged binary dumps  | ✅    | ❌          | ❌                                   | N/A           | N/A      |
++------------------------+-------+-------------+--------------------------------------+---------------+----------+
+| Uptake telemetry       | ✅    | ❌          | ❌                                   | ❌            | ❌       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Backoff                | ✅    | ✅          | ✅                                   | ✅            | ✅       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
@@ -315,6 +319,45 @@ It returns a Zip with the attachment files and their metadata, and can be used t
 Examples:
 
 * `cacheAll() in Gecko <https://searchfox.org/mozilla-central/rev/e968519d806b140c402c3b3932cd5f6cd7cc42ac/services/settings/Attachments.sys.mjs#181-273>`_
+
+
+Push Notifications
+''''''''''''''''''
+
+Clients MAY listen to push notifications from and initiate synchronizations when a payload is received.
+
+The broadcast ID is ``"remote-settings/monitor_changes"`` and the PROD server ``wss://push.services.mozilla.com``.
+
+The payload contains the highest timestamp of all collections as quoted string (ie. ETag). See the *Cache busting* section on how to use the received timestamp.
+
+Examples:
+
+* `Push timestamp Telescope check in Python <https://github.com/mozilla-services/telescope/blob/364f3c6865e56e6c3914cc4139ba977de4bcb03f/checks/remotesettings/push_timestamp.py#L27-L40>`_
+
+
+Uptake Telemetry
+''''''''''''''''
+
+Clients MAY report the status of the synchronization:
+
+- ``up-to-date``
+- ``success``
+- ``error``
+
+See additional statuses in `Desktop clients <https://searchfox.org/mozilla-central/rev/45d6f8bf028e049f812aa26dced565d50068af5d/services/common/uptake-telemetry.sys.mjs#76-108>`_.
+
+Clients MAY report synchronization status for the following sources:
+
+- ``"settings-sync"``: as a global synchronization status
+- ``"settings-changes-monitoring"``: for polling from ``monitor/changes``
+- ``{bucket}/{id}``: for the synchronization of a single collection
+
+Clients MAY attach additional information like:
+
+- ``duration``: duration of synchronization in milliseconds
+- ``timestamp``: current timestamp value
+- ``trigger``: what triggered the synchronization (``startup``, ``timer``, ``broadcast``, ``manual``)
+- ``errorName``: an error identifier, such as the exception class name
 
 
 Backoff Headers
