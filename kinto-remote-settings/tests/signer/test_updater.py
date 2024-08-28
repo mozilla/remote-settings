@@ -308,7 +308,6 @@ class LocalUpdaterTest(unittest.TestCase):
 
         self.updater.refresh_signature(DummyRequest(), "work-in-progress")
 
-        breakpoint()
         self.storage.update.assert_any_call(
             resource_name="collection",
             parent_id="/buckets/destbucket",
