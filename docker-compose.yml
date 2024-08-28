@@ -18,9 +18,11 @@ services:
       retries: 30
 
   memcached:
+    platform: linux/amd64
     image: memcached:1
 
   autograph:
+    platform: linux/amd64
     image: mozilla/autograph
     user: root
     volumes:
