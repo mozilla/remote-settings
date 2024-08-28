@@ -285,3 +285,37 @@ class LocalUpdaterTest(unittest.TestCase):
             object_id="sourcecollection",
             obj=new_attrs,
         )
+
+    def test_refresh_signature_copies_published_attributes_too(self):
+        self.storage.list_all.return_value = []
+        self.storage.get.side_effect = (
+            # while getting source_attributes
+            {
+                "id": "sourcecollection",
+                "attachment": {"bundle": True},
+                "field": "ignored",
+            },
+            # while getting dest attributes
+            {
+                "id": "destcollection",
+            },
+            # while updating source attributes
+            {
+                "id": "sourcecollection",
+            },
+        )
+        self.updater.signer.sign.return_value = {}
+
+        self.updater.refresh_signature(DummyRequest(), "work-in-progress")
+
+        breakpoint()
+        self.storage.update.assert_any_call(
+            resource_name="collection",
+            parent_id="/buckets/destbucket",
+            object_id="destcollection",
+            obj={
+                "id": "destcollection",
+                "attachment": {"bundle": True},
+                "signature": {},
+            },
+        )

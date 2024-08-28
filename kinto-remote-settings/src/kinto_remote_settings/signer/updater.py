@@ -142,11 +142,19 @@ class LocalUpdater(object):
 
     def refresh_signature(self, request, next_source_status=None):
         """Refresh the signature without moving records."""
+        source_attributes = self.storage.get(
+            parent_id="/buckets/%s" % self.source["bucket"],
+            resource_name="collection",
+            object_id=self.source["collection"],
+        )
+
         records, timestamp = self.get_destination_records(empty_none=False)
         serialized_records = canonical_json(records, timestamp)
         logger.debug(f"{self.source_collection_uri}:\t'{serialized_records}'")
         signature = self.signer.sign(serialized_records)
-        self.set_destination_signature(signature, request=request, source_attributes={})
+        self.set_destination_signature(
+            signature, request=request, source_attributes=source_attributes
+        )
 
         if next_source_status is not None:
             current_userid = request.prefixed_userid
