@@ -274,7 +274,7 @@ class IncludeMeTest(unittest.TestCase):
         assert signer2.server_url == "http://localhost"
         assert signer2.auth.credentials["id"] == "bob"
 
-    def test_a_statsd_timer_is_used_for_signature_if_configured(self):
+    def test_a_metrics_timer_is_used_for_signature_if_configured(self):
         settings = {
             "statsd_url": "udp://127.0.0.1:8125",
             "signer.resources": (
@@ -283,17 +283,19 @@ class IncludeMeTest(unittest.TestCase):
             "signer.ecdsa.public_key": "/path/to/key",
             "signer.ecdsa.private_key": "/path/to/private",
         }
-        config = self.includeme(settings)
 
-        payload = dict(resource_name="collection", action="update", bucket_id="foo")
-        event = ResourceChanged(
-            payload=payload, impacted_objects=[], request=mock.MagicMock()
-        )
-        statsd_client = config.registry.statsd._client
-        with mock.patch.object(statsd_client, "timing") as mocked:
+        with mock.patch("kinto.plugins.statsd.StatsDService") as mocked:
+            config = self.includeme(settings)
+
+            mocked().timer.assert_called_with("plugins.signer")
+
+            payload = dict(resource_name="collection", action="update", bucket_id="foo")
+            event = ResourceChanged(
+                payload=payload, impacted_objects=[], request=mock.MagicMock()
+            )
             config.registry.notify(event)
-            timers = set(c[0][0] for c in mocked.call_args_list)
-            assert "plugins.signer" in timers
+
+            mocked()._client.timing.assert_called_with("plugins.signer")
 
 
 class ConfigFromEnvironment(BaseWebTest, unittest.TestCase):

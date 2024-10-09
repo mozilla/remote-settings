@@ -25,16 +25,15 @@ DEFAULT_SETTINGS = {
 
 
 def on_review_approved(event):
-    statsd_client = event.request.registry.statsd
-    if statsd_client is not None:
+    metrics_service = event.request.registry.metrics
+    if metrics_service is not None:
         count = event.changes_count
         bid = event.resource["destination"]["bucket"]
         cid = event.resource["destination"]["collection"]
         # Report into a global counter.
-        statsd_client.count("plugins.signer.approved_changes", count)
+        metrics_service.count("plugins.signer.approved_changes", count)
         # Report for this collection.
-        # TODO: when using Datadog, we could annotate the above with tags instead.
-        statsd_client.count(f"plugins.signer.approved_changes.{bid}.{cid}", count)
+        metrics_service.count(f"plugins.signer.approved_changes.{bid}.{cid}", count)
 
 
 def includeme(config):
@@ -230,16 +229,16 @@ def includeme(config):
         listeners.sign_collection_data, resources=resources, **global_settings
     )
 
-    # If StatsD is enabled, monitor execution time of listener.
-    if config.registry.statsd:
+    # If metrics are enabled, monitor execution time of listener.
+    if config.registry.metrics:
         # Due to https://github.com/jsocol/pystatsd/issues/85
         for attr in ("__module__", "__name__"):
             origin = getattr(listeners.sign_collection_data, attr)
             setattr(sign_data_listener, attr, origin)
 
-        statsd_client = config.registry.statsd
+        metrics_service = config.registry.metrics
         key = "plugins.signer"
-        sign_data_listener = statsd_client.timer(key)(sign_data_listener)
+        sign_data_listener = metrics_service.timer(key)(sign_data_listener)
 
     config.add_subscriber(
         sign_data_listener,
