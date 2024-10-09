@@ -57,12 +57,12 @@ The **recommended way** to setup Firefox to pull data from STAGE is to use the `
 
     On Beta and Release, you have to run Firefox with the environment variable ``MOZ_REMOTE_SETTINGS_DEVTOOLS=1`` to toggle environments.
 
-Alternatively, in order to point STAGE before on fresh profiles for example, you can set the `appropriate preferences <https://github.com/mozilla/remote-settings-devtools/blob/1.7.0/extension/experiments/remotesettings/api.js#L173-L184>`_ in a ``user.js`` file:
+Alternatively, in order to point STAGE before on fresh profiles for example, you can set the `appropriate preferences <https://github.com/mozilla-extensions/remote-settings-devtools/blob/1.10.0/extension/experiments/remotesettings/api.js#L126-L131>`_ in a ``user.js`` file:
 
 ::
 
     user_pref("services.settings.server", "https://firefox.settings.services.allizom.org/v1");
-    user_pref("dom.push.serverURL", "https://autopush.stage.mozaws.net");
+    user_pref("dom.push.serverURL", "wss://autoconnect.stage.mozaws.net");
 
 See `developer docs <https://firefox-source-docs.mozilla.org/services/settings/#trigger-a-synchronization-manually>`_ to trigger a synchronization manually.
 
