@@ -57,9 +57,9 @@ And in order to create a record with both attributes and attachment, you'll have
 
 .. code-block:: bash
 
-    RECORD=`uuidgen`
+    RECORD_ID=`uuidgen`
 
-    curl -X POST ${SERVER}/buckets/${BUCKET}/collections/${COLLECTION}/records/${RECORD}/attachment \
+    curl -X POST ${SERVER}/buckets/${BUCKET}/collections/${COLLECTION}/records/${RECORD_ID}/attachment \
          -H 'Content-Type:multipart/form-data' \
          -F attachment=@$FILEPATH \
          -F 'data={"name": "Mac Fly", "age": 42}' \
@@ -100,15 +100,17 @@ Attachments can be downloaded when the ``"sync"`` event is received.
       );
     });
 
+And if the collection has many records, it is possible to enable server side attachments bundling, in order to download them all in a single network request, using ``client.attachments.cacheAll()``.
+
 See more details in `client documentation <https://firefox-source-docs.mozilla.org/services/settings/#file-attachments>`_.
 
 
 About compression
 -----------------
 
-The server does not compress the files.
+We rely on `CDN dynamic compression <https://cloud.google.com/cdn/docs/dynamic-compression>`_, and the clients fetch the attachments using ``Accept-Encoding: gzip`` header.
 
-We plan to enable compression at the HTTP level (`Bug 1339114 <https://bugzilla.mozilla.org/show_bug.cgi?id=1339114>`_) for when clients fetch the attachment using the ``Accept-Encoding: gzip`` request header.
+As of october 2024, not all mime types are compressed (See *Compressible content types* in provider docs), and file size must be > 1KB and <= 10MB.
 
 
 In the admin tool
