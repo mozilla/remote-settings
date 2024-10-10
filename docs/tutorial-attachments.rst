@@ -19,7 +19,7 @@ This guide assumes that you have already installed the following commands:
 
 And that you are familiar with the Remote Settings API, at least on the dev server.
 
-We'll refer the running instance as ``$SERVER`` (eg. ``https://kinto.dev.mozaws.net/v1``).
+We'll refer the running instance as ``$SERVER`` (eg. ``https://remote-settings-dev.allizom.org/v1``).
 
 
 Introduction
@@ -67,7 +67,7 @@ And in order to create a record with both attributes and attachment, you'll have
 
 .. note::
 
-    Since the dev server is open to anyone and runs on ``.mozaws.net``, we only allow certain types of files (images, audio, video, archives, ``.bin``, ``.json``, ``.gz``).
+    Since the dev server is open to anyone and runs on ``.allizom.org``, we only allow certain types of files (images, audio, video, archives, ``.bin``, ``.json``, ``.gz``).
 
     If you need to upload files with a specific extension, let us know and we will add it to the whitelist (except ``.html``, ``.js``).
 

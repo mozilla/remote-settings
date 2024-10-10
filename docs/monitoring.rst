@@ -6,7 +6,7 @@ Monitoring
 Delivery Checks
 ---------------
 
-The Remote Settings ecosystem can be monitored from the `Delivery Checks dashboard <https://delivery-checks.prod.mozaws.net/>`_.
+The Remote Settings ecosystem can be monitored from the `Delivery Checks dashboard <https://telescope.prod.webservices.mozgcp.net/>`_.
 
 Each environment has its own set of checks, and generally speaking if the checks pass, the service is operating without issues.
 
