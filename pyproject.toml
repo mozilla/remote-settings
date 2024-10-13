@@ -86,7 +86,7 @@ kinto-remote-settings = {path = "./kinto-remote-settings", develop = true}
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.3"
 webtest = "3.0.1"
-coverage = "7.6.1"
+coverage = "7.6.2"
 detect-secrets = "^1.5.0"
 ruff = "^0.6.9"
 
@@ -94,7 +94,7 @@ ruff = "^0.6.9"
 optional = true
 
 [tool.poetry.group.browser-tests.dependencies]
-aiohttp = "3.10.9"
+aiohttp = "3.10.10"
 autograph-utils = "1.0.1"
 canonicaljson-rs = "0.6.0"
 httpie = "3.2.3"
@@ -111,7 +111,7 @@ optional = true
 
 [tool.poetry.group.docs.dependencies]
 docutils = "0.21.2"
-sphinx = "8.0.2"
+sphinx = "8.1.2"
 
 [build-system]
 requires = ["poetry-core"]
