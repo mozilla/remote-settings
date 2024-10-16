@@ -2160,19 +2160,20 @@ dev = ["pytest", "pytest-cache", "pytest-cov", "ruff"]
 
 [[package]]
 name = "pyramid-storage"
-version = "1.3.0"
+version = "1.3.2"
 description = "File storage package for Pyramid"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pyramid_storage-1.3.0-cp3-none-any.whl", hash = "sha256:dd3de2f1947d2c89e456d9fd6a9ee2af8a4e24d9d67254d831b71ccaa5aa3b4e"},
-    {file = "pyramid_storage-1.3.0.tar.gz", hash = "sha256:0a356de73787931c5460ff27e62cfb58f5cb3386a8ad3e8582b1802d1745673c"},
+    {file = "pyramid_storage-1.3.2-py3-none-any.whl", hash = "sha256:dd4fff0d19290c102948d746bf1f32d15ae5b2173d0c1ebc48a136a00643c6bc"},
+    {file = "pyramid_storage-1.3.2.tar.gz", hash = "sha256:31030f38448dc1f7eee8c82f13c1c2a0168233e4a92058234c8bef87cd20bdaf"},
 ]
 
 [package.dependencies]
 pyramid = "*"
 
 [package.extras]
+dev = ["pytest", "ruff"]
 docs = ["Sphinx", "docutils", "repoze.sphinx.autointerface"]
 gcloud = ["google-cloud-storage"]
 s3 = ["boto"]
