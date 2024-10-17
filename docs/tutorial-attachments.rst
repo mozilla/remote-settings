@@ -50,10 +50,12 @@ Suppose that we want to attach a file (``/home/mathieu/DAFSA.bin``) to the exist
 
     curl -X POST ${SERVER}/buckets/${BUCKET}/collections/${COLLECTION}/records/${RECORD}/attachment \
          -H 'Content-Type:multipart/form-data' \
-         -F attachment=@$FILEPATH \
+         -F attachment=@$FILEPATH;type=application/vnd.dafsa \
          -u user:pass
 
-And in order to create a record with both attributes and attachment, you'll have a generate a record id yourself.
+If not specified, the file type of the uploaded attachment is determined from the file extension, with ``application/octet-stream`` by default (see *CDN compression* below).
+
+And in order to create a new record with both attributes and attachment, you'll have a generate a record id yourself.
 
 .. code-block:: bash
 
@@ -61,7 +63,7 @@ And in order to create a record with both attributes and attachment, you'll have
 
     curl -X POST ${SERVER}/buckets/${BUCKET}/collections/${COLLECTION}/records/${RECORD_ID}/attachment \
          -H 'Content-Type:multipart/form-data' \
-         -F attachment=@$FILEPATH \
+         -F attachment=@$FILEPATH;type=application/vnd.dafsa \
          -F 'data={"name": "Mac Fly", "age": 42}' \
          -u user:pass
 
