@@ -3,6 +3,7 @@ import functools
 import re
 import sys
 
+from kinto.core import metrics as core_metrics
 from kinto.core import utils as core_utils
 from pyramid.authorization import Authenticated
 from pyramid.events import ApplicationCreated
@@ -228,20 +229,12 @@ def includeme(config):
     sign_data_listener = functools.partial(
         listeners.sign_collection_data, resources=resources, **global_settings
     )
-
-    # If metrics are enabled, monitor execution time of listener.
-    if config.registry.metrics:
-        # Due to https://github.com/jsocol/pystatsd/issues/85
-        for attr in ("__module__", "__name__"):
-            origin = getattr(listeners.sign_collection_data, attr)
-            setattr(sign_data_listener, attr, origin)
-
-        metrics_service = config.registry.metrics
-        key = "plugins.signer"
-        sign_data_listener = metrics_service.timer(key)(sign_data_listener)
+    timed_listener = core_metrics.listener_with_timer(
+        config, "plugins.signer", sign_data_listener
+    )
 
     config.add_subscriber(
-        sign_data_listener,
+        timed_listener,
         ResourceChanged,
         for_actions=(ACTIONS.CREATE, ACTIONS.UPDATE),
         for_resources=("collection",),

@@ -284,18 +284,17 @@ class IncludeMeTest(unittest.TestCase):
             "signer.ecdsa.private_key": "/path/to/private",
         }
 
-        with mock.patch("kinto.plugins.statsd.StatsDService") as mocked:
-            config = self.includeme(settings)
+        config = self.includeme(settings)
 
-            mocked().timer.assert_called_with("plugins.signer")
+        payload = dict(resource_name="collection", action="update", bucket_id="foo")
+        event = ResourceChanged(
+            payload=payload, impacted_objects=[], request=mock.MagicMock()
+        )
 
-            payload = dict(resource_name="collection", action="update", bucket_id="foo")
-            event = ResourceChanged(
-                payload=payload, impacted_objects=[], request=mock.MagicMock()
-            )
+        with mock.patch.object(config.registry.metrics, "timer") as mocked:
             config.registry.notify(event)
 
-            mocked()._client.timing.assert_called_with("plugins.signer")
+            mocked.assert_called_with("plugins.signer")
 
 
 class ConfigFromEnvironment(BaseWebTest, unittest.TestCase):
