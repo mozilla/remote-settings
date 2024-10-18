@@ -1347,13 +1347,13 @@ referencing = ">=0.31.0"
 
 [[package]]
 name = "kinto"
-version = "18.1.1"
+version = "19.2.0"
 description = "Kinto Web Service - Store, Sync, Share, and Self-Host."
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto-18.1.1-py3-none-any.whl", hash = "sha256:deb16051d79d459b31a9c40c1779c6983aa6098a04d707a12a74079b31187b8f"},
-    {file = "kinto-18.1.1.tar.gz", hash = "sha256:bdc6ce11a1a4e6d34b1d7e90b8cec8fab092d449fd3dbc5b37a75c1e462b87b2"},
+    {file = "kinto-19.2.0-py3-none-any.whl", hash = "sha256:5bdf354a1e51df209dd3c76aa337174c5e83304c4842bff322da6ec7be2f064c"},
+    {file = "kinto-19.2.0.tar.gz", hash = "sha256:6cad4896195837b8d90902cf33cd6a12cc555b1c665b21a46de8e4ec29061e2d"},
 ]
 
 [package.dependencies]
@@ -1366,6 +1366,7 @@ jsonpatch = "*"
 jsonschema = "*"
 logging-color-formatter = "*"
 newrelic = {version = "*", optional = true, markers = "extra == \"monitoring\""}
+prometheus-client = {version = "*", optional = true, markers = "extra == \"monitoring\""}
 psycopg2 = {version = "*", optional = true, markers = "extra == \"postgresql\""}
 pyramid = "*"
 pyramid-mailer = "*"
@@ -1386,7 +1387,7 @@ werkzeug = {version = "*", optional = true, markers = "extra == \"monitoring\""}
 [package.extras]
 dev = ["build", "ruff", "twine"]
 memcached = ["python-memcached"]
-monitoring = ["newrelic", "sentry-sdk[sqlalchemy]", "statsd", "werkzeug"]
+monitoring = ["newrelic", "prometheus-client", "sentry-sdk[sqlalchemy]", "statsd", "werkzeug"]
 postgresql = ["SQLAlchemy (<3)", "psycopg2", "zope.sqlalchemy"]
 redis = ["kinto-redis"]
 test = ["bravado", "playwright", "pytest", "pytest-cache", "pytest-cov", "webtest"]
@@ -1861,6 +1862,20 @@ files = [
 [package.extras]
 dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
+
+[[package]]
+name = "prometheus-client"
+version = "0.21.0"
+description = "Python client for the Prometheus monitoring system."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "prometheus_client-0.21.0-py3-none-any.whl", hash = "sha256:4fa6b4dd0ac16d58bb587c04b1caae65b8c5043e85f778f42f5f632f6af2e166"},
+    {file = "prometheus_client-0.21.0.tar.gz", hash = "sha256:96c83c606b71ff2b0a433c98889d275f51ffec6c5e267de37c7a2b5c9aa9233e"},
+]
+
+[package.extras]
+twisted = ["twisted"]
 
 [[package]]
 name = "propcache"
@@ -3431,4 +3446,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11, <3.13"
-content-hash = "5e42b43c428db955674905a30eab365402d347fab373ff6484d609affe89849a"
+content-hash = "4693fab7eac8cf857f31e33692832e16e8ba064f63518c9a0e8269c87af7a2f0"

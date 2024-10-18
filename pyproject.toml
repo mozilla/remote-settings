@@ -74,7 +74,7 @@ python = ">=3.11, <3.13"
 canonicaljson-rs = "0.6.0"
 cryptography = "43.0.1"
 ecdsa = "0.19.0"
-kinto = {version = "^18.1.1", extras = ["postgresql","memcached","monitoring"]}
+kinto = {version = "^19.2.0", extras = ["postgresql","memcached","monitoring"]}
 kinto-attachment = "6.4.0"
 kinto-emailer = "3.0.1"
 requests-hawk = "1.2.1"
