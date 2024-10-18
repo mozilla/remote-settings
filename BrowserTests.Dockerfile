@@ -1,4 +1,4 @@
-FROM python:3.12.7 as build
+FROM python:3.13.0 as build
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -17,7 +17,7 @@ WORKDIR /opt
 COPY pyproject.toml poetry.lock ./
 RUN $POETRY_HOME/bin/poetry install --only browser-tests --no-root
 
-FROM python:3.12.7
+FROM python:3.13.0
 
 ENV PATH="/opt/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
