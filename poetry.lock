@@ -1394,13 +1394,13 @@ test = ["bravado", "playwright", "pytest", "pytest-cache", "pytest-cov", "webtes
 
 [[package]]
 name = "kinto-attachment"
-version = "6.4.0"
+version = "7.0.0"
 description = "Attach files to Kinto records"
 optional = false
 python-versions = "*"
 files = [
-    {file = "kinto-attachment-6.4.0.tar.gz", hash = "sha256:c5240e042c585b4bf5f0e95614aa186f755316b99f37b98b9767c26c4defa14a"},
-    {file = "kinto_attachment-6.4.0-py3-none-any.whl", hash = "sha256:8bbc649528afa2f95e9a01d80ded1a84bf856a2f2f4f57b0f7ccac71bc98b38f"},
+    {file = "kinto_attachment-7.0.0-py3-none-any.whl", hash = "sha256:32c0c000cee38b3b1e06644132ece39f24bfd55ec6a25107989b3c2828092a25"},
+    {file = "kinto_attachment-7.0.0.tar.gz", hash = "sha256:e11f8e0726ce3e1579987e9a41cb2fa41ec58356fd982367563cf80183874143"},
 ]
 
 [package.dependencies]
@@ -3446,4 +3446,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11, <3.13"
-content-hash = "4136648506611c74a1e2e17b8df92769045053f7c51caf309fec9901f9dbc310"
+content-hash = "8d6db4344b3eef8ffad734f569968e2a15fa1e6a6664859373eca96648ca3ce3"
