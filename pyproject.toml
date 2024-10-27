@@ -86,9 +86,9 @@ kinto-remote-settings = {path = "./kinto-remote-settings", develop = true}
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.3"
 webtest = "3.0.1"
-coverage = "7.6.3"
+coverage = "7.6.4"
 detect-secrets = "^1.5.0"
-ruff = "^0.7.0"
+ruff = "^0.7.1"
 
 [tool.poetry.group.browser-tests]
 optional = true
@@ -102,7 +102,7 @@ kinto-http = "11.2.0"
 pytest = "8.3.3"
 pytest-asyncio = "0.24.0"
 webtest = "3.0.1"
-playwright = "^1.47.0"
+playwright = "^1.48.0"
 pytest-playwright = "^0.5.2"
 nest_asyncio="^1.6.0"
 
