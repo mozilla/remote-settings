@@ -397,8 +397,86 @@ function is the value being transformed.
 
    .. _Object.keys: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
 
-Preference Filters
-^^^^^^^^^^^^^^^^^^
+.. js:function:: values(obj)
+
+   Return an array of the given object's own values (specifically, its enumerable
+   properties values). Similar to `Object.values`_, except that if given a non-object,
+   ``values`` will return ``undefined``.
+
+   :param obj:
+      Object to get the values for.
+
+   .. code-block:: javascript
+
+      // Evaluates to [1, 2]
+      {foo: 1, bar:2}|values
+
+   .. _Object.values: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/values
+
+.. js:function:: length(arr)
+
+   Return the length of an array or ``undefined`` if given a non-array.
+
+   :param arr:
+      Array to get the length for.
+
+   .. code-block:: javascript
+
+      // Evaluates to 2
+      [1, 2]|length
+
+.. js:function:: mapToProperty(arr, prop)
+
+   Given an input array and property name, return an array with each element of
+   the original array replaced with the given property of that element.
+   Return ``undefined`` if given a non-array.
+
+   :param arr:
+      Array to extract the properties from.
+
+   :param prop:
+      Properties name.
+
+   .. code-block:: javascript
+
+      // Evaluates to ["foo", "bar"]
+      [{"name": "foo"}, {"name": "bar"}]|mapToProperty("name")
+
+.. js:function:: regExpMatch(str, pattern, flags)
+
+   Matches a string against a regular expression. Returns null if there are no matches or an Array of matches.
+
+   :param str:
+      Input string.
+
+   :param pattern:
+      Regular expression.
+
+   :param flags:
+      `JS regexp flags <regexpFlags>`_
+
+   .. code-block:: javascript
+
+      // Evaluates to ["abbBBC"]
+      "abbBBC"|regExpMatch("ab+c", "i")
+
+      .. _regexpFlags: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags
+
+.. js:function:: versionCompare(v1, v2)
+
+   Compares v1 to v2 and returns 0 if they are equal, a negative number if v1 < v2 or a positive number if v1 > v2.
+
+   :param v1:
+      Input version.
+
+   :param v2:
+      Version to compare it with.
+
+   .. code-block:: javascript
+
+      // Evaluates to 1
+      "128.0.1"|versionCompare("127.0a1")
+
 .. js:function:: preferenceValue(prefKey, defaultValue)
 
    :param prefKey:
