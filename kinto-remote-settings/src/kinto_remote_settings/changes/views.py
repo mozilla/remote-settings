@@ -228,8 +228,8 @@ class ChangeSetRoute(RouteFactory):
 
     def __init__(self, request):
         super().__init__(request)
-        bid = request.matchdict["bid"]
-        cid = request.matchdict["cid"]
+        bid = request.matchdict["bucket_id"]
+        cid = request.matchdict["collection_id"]
         collection_uri = instance_uri(request, "collection", bucket_id=bid, id=cid)
         # This route context will be the same as when reaching the collection URI.
         self.permission_object_id = collection_uri
@@ -279,8 +279,8 @@ class ChangeSetSchema(colander.MappingSchema):
     schema=ChangeSetSchema(), permission="read", validators=(colander_validator,)
 )
 def get_changeset(request):
-    bid = request.matchdict["bid"]
-    cid = request.matchdict["cid"]
+    bid = request.matchdict["bucket_id"]
+    cid = request.matchdict["collection_id"]
 
     storage = request.registry.storage
 
