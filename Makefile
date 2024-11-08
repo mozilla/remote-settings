@@ -75,8 +75,8 @@ start:  ## Run the services using Docker
 stop:  ## Stop the services
 	docker compose stop
 
-down:  ## Shutwdown all containers
-	docker compose down
+down:  ## Shutdown all containers and remove volumes
+	docker compose down --volumes
 
 install-docs: $(VENV)/bin/python $(DOC_STAMP)  ## Install documentation build dependencies
 $(DOC_STAMP): poetry.lock
