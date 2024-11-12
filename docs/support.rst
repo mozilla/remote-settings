@@ -122,12 +122,12 @@ If it is a one time run, then you can run the script as if it was you:
 How do I automate the publication of records? (forever)
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-If the automation is meant to last (eg. cronjob, lambda, server to server) then the procedure would look like this:
+If the automation is meant to last (eg. cronjob, server to server) then the procedure would look like this:
 
 1. Get in touch with us on ``#delivery`` ;)
-2. Fork `this repo <https://github.com/firefox-devtools/remote-settings-mdn-browser-compat-data>`_ as a base example
-3. `Request a dedicated Kinto internal account <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ to be created for you (eg. ``password-rules-publisher``). Secret password should remain in a vault and managed by Ops.
-4. Request the Ops team to run your ingestion job (`Bugzilla template <https://bugzilla.mozilla.org/enter_bug.cgi?assigned_to=rmuller%40mozilla.com&bug_ignored=0&bug_severity=--&bug_status=NEW&cf_accessibility_severity=---&cf_fx_iteration=---&cf_fx_points=---&cf_status_firefox119=---&cf_status_firefox120=---&cf_status_firefox121=---&cf_status_firefox_esr115=---&cf_tracking_firefox119=---&cf_tracking_firefox120=---&cf_tracking_firefox121=---&cf_tracking_firefox_esr115=---&cf_tracking_firefox_relnote=---&comment=Collection%3A%20%20main%2Fmy-collection%0D%0A%0D%0A%2A%20Account%20was%20created%3A%20Bug%20XXXX%0D%0A%2A%20Account%20is%20listed%20as%20editor%20for%20this%20collection%3A%20https%3A%2F%2Fgithub.com%2Fmozilla-services%2Fremote-settings-permissions%2Fpull%2FXXX%20%0D%0A%0D%0AScript%3A%20%20%20https%3A%2F%2Fgithub.com%2FXXXX%2FYYYY%0D%0A%0D%0A%2A%20Frequency%3A%20Every%20X%20hours%0D%0A%2A%20Contact%20team%3A%20_____%0D%0A%0D%0APlease%20setup%20the%20scheduled%20execution%3A%0D%0A%0D%0A1.%20Configure%20Github%20Action%20for%20Docker%20image%20publication%20%28create%20credentials%20and%20repo%20on%20dockerhub%29%0D%0A2.%20Add%20secrets%20%60DOCKERHUB_USERNAME%60%20and%20%60DOCKERHUB_TOKEN%60%20to%20the%20GH%20repo%0D%0A3.%20Execute%20the%20docker%20default%20command%20of%20the%20container%2C%20with%20the%20%5Bappropriate%20env%20vars%5D%28https%3A%2F%2Fremote-settings.readthedocs.io%2Fen%2Flatest%2Fsupport.html%23how-do-i-automate-the-publication-of-records-forever%29%0D%0A%0D%0A%0D%0A&component=Server%3A%20Remote%20Settings&contenttypemethod=list&contenttypeselection=text%2Fplain&defined_groups=1&filed_via=standard_form&flag_type-37=X&flag_type-607=X&flag_type-708=X&flag_type-721=X&flag_type-737=X&flag_type-748=X&flag_type-787=X&flag_type-800=X&flag_type-803=X&flag_type-846=X&flag_type-864=X&flag_type-936=X&flag_type-963=X&form_name=enter_bug&maketemplate=Remember%20values%20as%20bookmarkable%20template&op_sys=Unspecified&priority=--&product=Cloud%20Services&rep_platform=Unspecified&short_desc=Please%20schedule%20the%20ingestion%20script%20for%20collection%20XXXX&target_milestone=---&version=unspecified>`_)
+2. Fork `this repo <https://github.com/leplatrem/remote-settings-cronjob-example>`_ as a base example (or `this Node.js one <https://github.com/firefox-devtools/remote-settings-mdn-browser-compat-data>`_)
+3. Rename the repo ``remote-settings-{collection-id}-updater``
+4. Request a deployment of your job `using this Bugzilla template <https://bugzilla.mozilla.org/enter_bug.cgi?assigned_to=rmuller%40mozilla.com&bug_ignored=0&bug_severity=--&bug_status=NEW&cf_accessibility_severity=---&cf_fx_iteration=---&cf_fx_points=---&cf_status_conduit_push=---&cf_status_firefox132=---&cf_status_firefox133=---&cf_status_firefox134=---&cf_status_firefox_esr115=---&cf_status_firefox_esr128=---&cf_tracking_conduit_push=---&cf_tracking_firefox132=---&cf_tracking_firefox133=---&cf_tracking_firefox134=---&cf_tracking_firefox_esr115=---&cf_tracking_firefox_esr128=---&cf_tracking_firefox_relnote=---&comment=The%20script%20already%20follows%20%5Bthe%20specifications%5D%28https%3A%2F%2Fremote-settings.readthedocs.io%2Fen%2Flatest%2Fsupport.html%23how-do-i-automate-the-publication-of-records-forever%29%2C%20and%20is%20ready%20to%20be%20deployed.%0D%0A%0D%0A%2A%20Collection%3A%20%20main%2F%7Bcollection-id%7D%0D%0A%2A%20Script%3A%20%20https%3A%2F%2Fgithub.com%2Fmozilla%2F%7Brepo-name%7D%0D%0A%2A%20Frequency%3A%20every%2010min%20%2F%201day%0D%0A%0D%0A----------%0D%0A%0D%0ANotes%20for%20the%20Remote%20Settings%20DEV%20%2F%20SREs%3A%0D%0A%0D%0A1.%20Create%20the%20%60%7Brepo-name%7D-publisher%60%20Kinto%20Account%20on%20the%203%20environments%0D%0A2.%20Add%20the%20credentials%20to%201Password%20%60%7Benv%7D%20-%20%7Baccount%20name%7D%60%0D%0A3.%20Add%20%60account%3A%7Brepo-name%7D-publisher%60%20as%20editor%20for%20this%20collection%20to%20https%3A%2F%2Fgithub.com%2Fmozilla-services%2Fremote-settings-permissions%0D%0A4.%20Create%20the%20cronjob%20on%20the%20%5BRemote%20Settings%20Helm%20chart%5D%28https%3A%2F%2Fgithub.com%2Fmozilla-it%2Fwebservices-infra%2Ftree%2Fmain%2Fremote-settings%2Fk8s%2Fremote-settings%29%0D%0A5.%20Create%20the%20GKE%20secret%20in%20the%20form%20of%20%60%7Benv%7D-gke-cronjob-%7Brepo-name%7D-secrets%60%20with%20payload%20%60%7B%22AUTHORIZATION%22%3A%20%22%7Baccount%7D%3A%7Bpasswd%7D%22%7D%60%0D%0A6.%20Create%20a%20GKE%20event%20router%20secret%20and%20add%20the%20Webhook%20to%20the%20repo%0D%0A7.%20Enable%20building%20and%20publishing%20of%20container%20in%20%5Bcronjobs%20deploy%20repo%5D%28https%3A%2F%2Fgithub.com%2Fmozilla-sre-deploy%2Fdeploy-remote-settings-cronjobs%2Fpull%2F14%29%0D%0A%0D%0A%5BMore%20details%5D%28https%3A%2F%2Fmozilla-hub.atlassian.net%2Fwiki%2Fspaces%2FSRE%2Fpages%2F834961436%2Fcreate%2Ba%2Bremote-settings%2Bcronjob%2Bingestion%2Bpipeline%29%0D%0A%0D%0A&component=Server%3A%20Remote%20Settings&contenttypemethod=list&contenttypeselection=text%2Fplain&defined_groups=1&filed_via=standard_form&flag_type-37=X&flag_type-607=X&flag_type-708=X&flag_type-721=X&flag_type-737=X&flag_type-748=X&flag_type-787=X&flag_type-803=X&flag_type-846=X&flag_type-864=X&flag_type-936=X&flag_type-963=X&flag_type-967=X&needinfo_role=other&needinfo_type=needinfo_from&op_sys=Unspecified&priority=--&product=Cloud%20Services&rep_platform=Unspecified&short_desc=Please%20schedule%20the%20ingestion%20script%20for%20collection%20XXXX&target_milestone=---&version=unspecified>`_
 
 With regards to the script:
 
@@ -147,20 +147,27 @@ With regards to the script:
 
 See :ref:`multi-signoff tutorial <tutorial-multi-signoff-request-review>` for more information about requesting and approving review.
 
-With regards to the repository:
+With regards to the Github repository:
 
 - MUST build a Docker container
-- MUST have Github Webhook configured so that container gets redeployed on version tag
-
-We recommend the use of `kinto-http.py <https://github.com/Kinto/kinto-http.py>`_ (`script example <https://gist.github.com/leplatrem/f3cf7ac5b0b9b0b27ff6456f47f719ca>`_), but Node JS is also possible (See `mdn-browser-compat-data <https://github.com/firefox-devtools/remote-settings-mdn-browser-compat-data/>`_ or `HIBP <https://github.com/mozilla/blurts-server/blob/c33a85b/scripts/updatebreaches.js>`_ examples).
+- MUST give admin permissions to `Remote Settings SREs <https://mozilla-hub.atlassian.net/wiki/people/team/11d438c7-c347-4dc8-a25c-984b3d0a8e2d>`_
+- MUST have version tag format ``vX.Y.Z``
 
 .. note::
 
 	Even if publication of records is done by a script, a human will have to approve the changes manually.
 	Generally speaking, disabling dual sign-off is possible, but only in **very** specific cases.
 
-	If you want to skip manual approval, request a review of your design by the cloud operations security team.
+	If you want to skip manual approval, you will have to request a review of your design by the cloud operations security team.
 
+  They will need answers to the following points:
+
+    - summary / context / problem statement
+    - data dictionary (name, private/public, comments)
+    - threat scenarios (what impact, what happens if...)
+    - `See more details <https://mozilla-hub.atlassian.net/wiki/spaces/SECENGOPS/pages/610074988/How+to+request+start+a+Rapid+Risk+Assessment+RRA>`_
+
+  For the threat scenarios, think of what would be the impact if bad/malicious data is published, in terms of product, integrity, availability (eg. perfs if 100000 items are published), etc...
 
 .. _duplicate_data:
 
