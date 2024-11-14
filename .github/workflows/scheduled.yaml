@@ -93,9 +93,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_NAME: updates/kinto-admin-${{ steps.latest_release_version.outputs.version }}
         run: |
-          gh pr create \
+          PR_REF=$(gh pr create \
             --title "Update Kinto Admin version to ${{ steps.latest_release_version.outputs.version }}" \
             --body "Updating kinto-admin to latest release" \
             --base "main" \
             --head "$BRANCH_NAME" \
-            --label "dependencies"
+            --label "dependencies")
+          gh pr merge --auto --squash $PR_REF
