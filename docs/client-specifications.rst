@@ -244,26 +244,55 @@ Signature Verification
 
 Clients SHOULD verify the integrity of the downloaded data.
 
+Signature verification allows to guarantee:
+
+- authenticity (+integrity) of data obtained from the server;
+- that client local data was not tempered between two syncs.
+
 .. note::
 
-    Although Gecko on desktop is not exposed to the same risks as on mobile where applications and data are jailed, verifying signatures is a keystone in the chain of trust for data. It is the only way to guarantee the authenticity (and/or integrity) of the data.
+    Although Gecko on desktop is not exposed to the same risks as on mobile where applications and data are jailed, verifying signatures is a keystone in the chain of trust for data that we pull from remote servers.
+
+.. image:: images/client-specifications-signature-verification.svg
+   :width: 50%
+
+.. https://mermaid-js.github.io/mermaid-live-editor/
+.. graph TD
+..   0[Sync] --> |diff + signature| pull;
+..   pull[Pull changes] --> merge[Merge with local]
+..   merge --> valid{Is signature valid?};
+..   valid -->|Yes| Success;
+..   valid -->|No| clear[“factory reset“ <br>#40;clear or binary data#41;];
+..   clear --> |retry<br>once only| 0;
+..   style 0 fill:#00ff00;
+..   style Success fill:#00ff00;
+
 
 Signature validation steps are:
 
-- Download the certificates chain provided in metadata
-- Verify the certificates chain: each certificate must be valid, and the SHA-256 root hash of the root certificate should match one of the hardcoded values at build time.
-- Serialize the downloaded data using Canonical JSON
-- Verification that the signature provided in metadata matches the one computed on downloaded data
+- Download the certificates chain provided from the ``x5u`` URL in metadata, and parse the PEM bytes as DER-encoded X.509 Certificate
+- Verify the certificates chain:
 
-Examples:
+  1. each certificate must be valid at the current date
+  2. each child signature must match its parent's public key for each pair in the chain
+  3. root certificate must match hard-coded value
+
+- Verify that the subject alternate name of the chain's end-entity (leaf) certificate matches the ``signer_id`` provided in metadata
+- Use the chain's end-entity (leaf) certificate to verify that the "signature" value provided in metadata matches the contents of the local data:
+
+  1. Serialize the local data ``{"data": records_sorted_by_id, "last_modified": timestamp}`` using `Canonical JSON <https://github.com/mozilla-services/canonicaljson-rs>`_
+  2. The message to verify is the concatenation of ``Content-Signature:\x00 + serialized_data``
+  3. Decode the base64 ``signature`` string provided in metadata (using URL safe)
+  4. Verify using the leaf certificate public key that the message matches the decoded signature using the `ECDSA_P384_SHA384_FIXED` algorithm
+
+Examples with 3rd party crypto library:
 
 - `In Rust from scratch using Ring <https://github.com/mozilla-services/remote-settings-client/blob/2538d6a07c28a3966b996d52596807df8c37130d/src/client/signatures/ring_verifier.rs#L19-L136>`_
 - `In Python, using cryptography <https://github.com/mozilla-services/python-autograph-utils/blob/95ddfddb39f25b8c9661deafb2cea4f9f71c66f1/src/autograph_utils/__init__.py#L279-L320>`_
 
-
 Clients embedded in products SHOULD use NSS (true in ~2023), and its high level API for signature verification.
 
-Examples:
+Examples with Mozilla NSS:
 
 - `_validateCollectionSignature() in Gecko client <https://searchfox.org/mozilla-central/rev/058ab60e5020d7c5c98cf82d298aa84626e0cd79/services/settings/RemoteSettingsClient.sys.mjs#994-1022>`_
 - `Verification Trait in Remote Settings client <https://github.com/mozilla-services/remote-settings-client/blob/2538d6a07c28a3966b996d52596807df8c37130d/src/client/signatures/rc_crypto_verifier.rs#L14-L33>`_
