@@ -59,7 +59,6 @@ services:
     profiles: [browser-test]
     depends_on:
       - web
-      - certchains
     environment:
       - SERVER=http://web:8888/v1
       - MAIL_DIR=/var/debug-mail/
