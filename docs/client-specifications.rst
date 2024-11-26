@@ -316,6 +316,11 @@ For collections where attachments bundling is enabled, the clients can download 
 
 It returns a Zip with the attachment files and their metadata, and can be used to fill the local attachment cache using a single network request.
 
+Filenames are:
+
+- ``{record[id]}`` for the attachment binary data
+- ``{record[id]}.meta.json`` for the metadata
+
 Examples:
 
 * `cacheAll() in Gecko <https://searchfox.org/mozilla-central/rev/e968519d806b140c402c3b3932cd5f6cd7cc42ac/services/settings/Attachments.sys.mjs#181-273>`_
