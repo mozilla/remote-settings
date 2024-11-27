@@ -36,7 +36,7 @@ def canonical_json(records, last_modified):
 
 
 async def verify_signature(records, timestamp, signature):
-    x5u = signature["x5u"].replace("file:///tmp/autograph/", "http://certchains/")
+    x5u = signature["x5u"]
     serialized = canonical_json(records, timestamp).encode("utf-8")
 
     async with aiohttp.ClientSession() as session:
