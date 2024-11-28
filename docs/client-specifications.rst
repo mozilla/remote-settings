@@ -316,6 +316,21 @@ For collections where attachments bundling is enabled, the clients can download 
 
 It returns a Zip with the attachment files and their metadata, and can be used to fill the local attachment cache using a single network request.
 
+Filenames are:
+
+- ``{record[id]}`` for the attachment binary data
+- ``{record[id]}.meta.json`` for the metadata
+
+.. note::
+
+    In order to avoid facing a 404 when pulling the bundle, and know in advance whether a collection has a bundle available,
+    check the ``attachment.bundle`` field in the collection ``metadata`` (eg. from the changeset endpoint).
+
+    .. code-block::
+
+        $ curl -s "$SERVER/buckets/security-state/collections/intermediates/changeset?_expected=0" | jq .metadata.attachment.bundle
+        true
+
 Examples:
 
 * `cacheAll() in Gecko <https://searchfox.org/mozilla-central/rev/e968519d806b140c402c3b3932cd5f6cd7cc42ac/services/settings/Attachments.sys.mjs#181-273>`_
