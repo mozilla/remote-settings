@@ -253,7 +253,7 @@ Signature verification allows to guarantee:
 
     Although Gecko on desktop is not exposed to the same risks as on mobile where applications and data are jailed, verifying signatures is a keystone in the chain of trust for data that we pull from remote servers.
 
-.. image:: images/client-specifications-signature-verification.svg
+.. image:: images/client-specifications-signature-verification.png
    :width: 50%
 
 .. https://mermaid-js.github.io/mermaid-live-editor/
