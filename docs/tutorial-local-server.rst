@@ -65,15 +65,13 @@ With Multi-signoff (advanced)
 
 Using a different configuration, we can obtain a local instance that has proper authentication and multi-signoff that interacts with an `Autograph instance <https://github.com/mozilla-services/autograph/>`_ in order to sign the data, roughly like the STAGE server.
 
-We will run the Autograph container in a separate terminal. Since Autograph generates the ``x5u`` certificate chains on startup, we will use a volume mounted on the same location, so that Firefox can download them at the same location as the native ``x5u`` URLs (Autograph will point ``x5u`` URLs to ``file:///tmp/attachments``).
-
 .. code-block:: bash
 
     mkdir -m 777 /tmp/attachments  # world writable
 
 .. code-block:: bash
 
-    docker run -v /tmp/attachments:/tmp/attachments \
+    docker run -p 8000:8000 \
                --rm --name autograph mozilla/autograph
 
 And run the Remote Settings server with a link to ``autograph`` container:
@@ -108,6 +106,12 @@ Unlike with *Simple Mode*, we'll need an ``admin`` user:
 
 Prepare the client
 ------------------
+
+The server will refer to ``http://autograph:8000/`` in the certificate chains URLs. Since the browser is going to have to fetch them, this line has to be added in the *hosts* file:
+
+.. code-block:: bash
+
+    echo "127.0.0.1 autograph" >> /etc/hosts
 
 The official way to point the client at another server is using the
 `Remote Settings dev tools

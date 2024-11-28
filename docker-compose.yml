@@ -1,7 +1,6 @@
 volumes:
   db-data:
   debug-mail:
-  autograph-certs:
   attachments:
 services:
   db:
@@ -25,18 +24,8 @@ services:
     platform: linux/amd64
     image: mozilla/autograph
     user: root
-    volumes:
-      - autograph-certs:/tmp/autograph
-
-  certchains:
-    image: httpd:2
-    volumes:
-      - autograph-certs:/usr/local/apache2/htdocs/
-    depends_on:
-      - autograph
     ports:
-      - 9999:80
-
+      - 8000:8000
   web:
     build:
       dockerfile: RemoteSettings.Dockerfile
@@ -70,7 +59,6 @@ services:
     profiles: [browser-test]
     depends_on:
       - web
-      - certchains
     environment:
       - SERVER=http://web:8888/v1
       - MAIL_DIR=/var/debug-mail/

@@ -30,18 +30,18 @@ Before launching your own implementation, please keep in consideration that:
 Existing Clients
 ----------------
 
-As of August 2024:
+As of November 2024:
 
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 |                        | Gecko | Rust Client | application-services/remote-settings | kinto-http.py | kinto.js |
 +========================+=======+=============+======================================+===============+==========+
 | Write Operations       | ❌    | ✅          | ❌                                   | ✅            | ✅       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
-| Add/Remove Attachments | ❌    | ✅          | ❌                                   | ❌            | ✅       |
+| Add/Remove Attachments | ❌    | ✅          | ❌                                   | ✅            | ✅       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
-| Approve/Reject reviews | ❌    | ✅          | ❌                                   | ❌            | ❌       |
+| Approve/Reject reviews | ❌    | ✅          | ❌                                   | ✅            | ❌       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
-| Changesets Endpoints   | ✅    | ✅          | ❌                                   | ✅            | ❌       |
+| Changesets Endpoints   | ✅    | ✅          | ✅                                   | ✅            | ❌       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Cache Busting          | ✅    | ✅          | ❌                                   | ✅            | ❌       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
@@ -49,19 +49,19 @@ As of August 2024:
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Signature Verification | ✅    | ✅ Optional | ❌                                   | ❌            | ❌       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
-| Local cache            | ✅    | ✅ Optional | ❌                                   | ❌            | ✅       |
+| Local cache            | ✅    | ✅ Optional | ✅                                   | ❌            | ✅       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Push notifications     | ✅    | ❌          | ❌                                   | N/A           | N/A      |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
-| Fetch Attachments      | ✅    | ✅          | ✅ Without integrity check           | ❌            | ✅       |
+| Fetch Attachments      | ✅    | ✅          | ✅ Without integrity check           | ✅            | ✅       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Attachments bundles    | ✅    | ❌          | ❌                                   | ❌            | ❌       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
-| JEXL support           | ✅    | ❌          | ❌                                   | ❌            | ❌       |
+| JEXL support           | ✅    | ❌          | ✅                                   | N/A           | N/A      |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
-| Packaged binary dumps  | ✅    | ❌          | ❌                                   | N/A           | N/A      |
+| Packaged binary dumps  | ✅    | ❌          | ✅                                   | N/A           | N/A      |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
-| Uptake telemetry       | ✅    | ❌          | ❌                                   | ❌            | ❌       |
+| Uptake telemetry       | ✅    | ❌          | ❌                                   | N/A           | N/A      |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
 | Backoff                | ✅    | ✅          | ✅                                   | ✅            | ✅       |
 +------------------------+-------+-------------+--------------------------------------+---------------+----------+
@@ -344,6 +344,21 @@ For collections where attachments bundling is enabled, the clients can download 
 ``GET {{ attachments.base_url }}/bundles/{{ bucket }}--{{ collection }}.zip``
 
 It returns a Zip with the attachment files and their metadata, and can be used to fill the local attachment cache using a single network request.
+
+Filenames are:
+
+- ``{record[id]}`` for the attachment binary data
+- ``{record[id]}.meta.json`` for the metadata
+
+.. note::
+
+    In order to avoid facing a 404 when pulling the bundle, and know in advance whether a collection has a bundle available,
+    check the ``attachment.bundle`` field in the collection ``metadata`` (eg. from the changeset endpoint).
+
+    .. code-block::
+
+        $ curl -s "$SERVER/buckets/security-state/collections/intermediates/changeset?_expected=0" | jq .metadata.attachment.bundle
+        true
 
 Examples:
 
