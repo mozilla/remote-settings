@@ -258,14 +258,17 @@ Signature verification allows to guarantee:
 
 .. https://mermaid-js.github.io/mermaid-live-editor/
 .. graph TD
-..   0[Sync] --> |diff + signature| pull;
-..   pull[Pull changes] --> merge[Merge with local]
-..   merge --> valid{Is signature valid?};
-..   valid -->|Yes| Success;
-..   valid -->|No| clear[“factory reset“ <br>#40;clear or binary data#41;];
-..   clear --> |retry<br>once only| 0;
-..   style 0 fill:#00ff00;
-..   style Success fill:#00ff00;
+..     0[Sync] --> |diff + signature| pull;
+..     pull[Pull changes] --> merge[Merge with local]
+..     merge --> valid{Is signature valid?};
+..     valid -->|Yes| Success;
+..     valid -->|No| clear[“factory reset“ <br>#40;clear or binary data#41;];
+..     clear --> retry{Already<br>retried?};
+..     retry --> |No| 0;
+..     retry --> |Yes| Failure;
+..     style 0 fill:#00ff00;
+..     style Success fill:#00ff00;
+..     style Failure fill:#ff0000;
 
 
 Signature validation steps are:
