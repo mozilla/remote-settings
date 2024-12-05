@@ -310,14 +310,14 @@ class LocalUpdater(object):
     def get_destination_records(self, **kwargs):
         return self._get_records(self.destination, **kwargs)
 
-    def push_records_to_destination(self, request):
+    def push_records_to_destination(self, request) -> int:
         dest_records, _dest_timestamp = self.get_destination_records()
         source_records, _source_timestamp = self.get_source_records()
         new_records = records_diff(source_records, dest_records)
         changes_count = len(new_records)
 
         if len(new_records) == 0:
-            return None
+            return 0
 
         # Update the destination collection.
         for record in new_records:
