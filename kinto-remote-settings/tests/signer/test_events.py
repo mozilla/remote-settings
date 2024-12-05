@@ -498,6 +498,21 @@ class SignoffEventsTest(BaseWebTest, unittest.TestCase):
         assert isinstance(self.events[-1], signer_events.ReviewApproved)
         assert self.events[-1].changes_count == 2
 
+    def test_changes_count_is_zero_when_no_changes(self):
+        self.app.delete(
+            self.source_collection + "/records",
+            headers=self.headers,
+        )
+
+        self.app.patch_json(
+            self.source_collection,
+            {"data": {"status": "to-sign"}},
+            headers=self.headers,
+        )
+
+        assert isinstance(self.events[-1], signer_events.ReviewApproved)
+        assert self.events[-1].changes_count == 0
+
     def test_review_approved_is_not_triggered_on_resign(self):
         self.app.patch_json(
             self.source_collection,
