@@ -84,26 +84,26 @@ uwsgi = "2.0.28"
 kinto-remote-settings = {path = "./kinto-remote-settings", develop = true}
 
 [tool.poetry.group.dev.dependencies]
-pytest = "8.3.3"
-webtest = "3.0.1"
-coverage = "7.6.7"
+pytest = "8.3.4"
+webtest = "3.0.2"
+coverage = "7.6.9"
 detect-secrets = "^1.5.0"
-ruff = "^0.7.4"
+ruff = "^0.8.2"
 
 [tool.poetry.group.browser-tests]
 optional = true
 
 [tool.poetry.group.browser-tests.dependencies]
-aiohttp = "3.11.2"
+aiohttp = "3.11.10"
 autograph-utils = "1.0.1"
 canonicaljson-rs = "0.6.0"
 httpie = "3.2.4"
-kinto-http = "11.4.0"
-pytest = "8.3.3"
+kinto-http = "11.7.0"
+pytest = "8.3.4"
 pytest-asyncio = "0.24.0"
-webtest = "3.0.1"
-playwright = "^1.48.0"
-pytest-playwright = "^0.5.2"
+webtest = "3.0.2"
+playwright = "^1.49.0"
+pytest-playwright = "^0.6.2"
 nest_asyncio="^1.6.0"
 
 [tool.poetry.group.docs]
