@@ -6,7 +6,8 @@ ENV PIP_NO_CACHE_DIR=off \
     POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     VIRTUAL_ENV=/opt/.venv \
-    PATH="/opt/.venv/bin:$PATH"
+    PATH="/opt/.venv/bin:$PATH" \
+    PYTHONPATH="/app:$PYTHONPATH"
 
 # Install Poetry
 RUN python -m venv $POETRY_HOME && \
