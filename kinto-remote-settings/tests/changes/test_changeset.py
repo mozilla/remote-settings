@@ -231,3 +231,22 @@ class MonitorChangesetViewTest(BaseWebTest, unittest.TestCase):
             headers=self.headers,
         )
         assert len(resp.json["changes"]) == 1
+
+    def test_entries_are_sorted_by_timestamp_desc(self):
+        resp = self.app.get(
+            self.changeset_uri,
+            headers=self.headers,
+        )
+        data = resp.json
+        assert data["changes"][0]["collection"] == "certificates"
+
+        self.app.post_json(
+            self.records_uri.format(cid="cfr"), SAMPLE_RECORD, headers=self.headers
+        )
+
+        resp = self.app.get(
+            self.changeset_uri,
+            headers=self.headers,
+        )
+        data = resp.json
+        assert data["changes"][0]["collection"] == "cfr"
