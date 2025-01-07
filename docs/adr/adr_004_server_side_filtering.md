@@ -87,7 +87,7 @@ Then different collections can be populated using this field in [a querystring f
 - **Complexity**: Low. It is based on existing pieces of the current architecture.
 - **User experience**: Good, because editors only manipulate the main collection to assign datasets and to publish data.
 - **Cost of implementation**: Low. Creating collections is cheap and onboarding new instances of the `backport_records` job also.
-- **Cost of operation**: Low. Clients download only the subset of data, saving bandwidth, and running cronjobs is cheap.
+- **Cost of operation**: Low. Clients download only the subset of data, saving bandwidth, and running cronjobs is cheap ([example](https://github.com/mozilla-it/webservices-infra/pull/2953/files)).
 
 
 ### Option 3 - Implement notion of datasets
@@ -134,7 +134,7 @@ The clients would pull the subset of data, and use the specific signature to ver
 
 ### Option 4 - Implement dynamic signatures
 
-With this solution we sign every server response dynamically.
+With this solution we sign every server response dynamically, and put the signature in HTTP response headers.
 
 - **Complexity**: Medium. In terms of architecture, this would introduce any real complexity/
 - **User experience**: Good, users edit a single collection.
