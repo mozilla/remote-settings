@@ -65,24 +65,28 @@ Unlike *Option 1*, the additional collections are read-only. Editors publish dat
 
 The [`backport_records` cronjob](https://github.com/mozilla-services/remote-settings-lambdas?tab=readme-ov-file#backport_records) copies records from one collection to another and signs it. It can take querystring filters as parameters in order to only copy of subset of the source.
 
-For example, if records have a `regions` field:
+For example, if records have `regions` and `locales` fields:
 
 ```
 {
     "id": "shop-A",
     "regions": ["europe", "asia", "north-america"],
+    "locales": ["en", "fr", "de", "es"],
 },
 {
     "id": "shop-B",
     "regions": ["europe", "africa"],
+    "locales": ["fr"],
 }
 ```
 
 Then different collections can be populated using this field in [a querystring filter](https://docs.kinto-storage.org/en/latest/api/1.x/filtering.html#comparison):
 
+* `shops-asia`: `?contains_regions=["asia"]`
 * `shops-africa`: `?contains_regions=["africa"]`
 * `shops-europe`: `?contains_regions=["europe"]`
-* `shops-asia`: `?contains_regions=["asia"]`
+* `shops-europe-en`: `?contains_regions=["europe"]&contains_locales=["en"]`
+* `shops-europe-fr`: `?contains_regions=["europe"]&contains_locales=["fr"]`
 
 - **Complexity**: Low. It is based on existing pieces of the current architecture.
 - **User experience**: Good, because editors only manipulate the main collection to assign datasets and to publish data.
