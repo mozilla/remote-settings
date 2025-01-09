@@ -311,8 +311,13 @@ def get_changeset(request):
         last_modified = (
             records_timestamp  # The collection 'monitor/changes' is virtual.
         )
+        # Mimic records endpoint and sort by timestamp desc.
+        sorting = [Sort("last_modified", -1)]
         changes = model.get_objects(
-            filters=filters, limit=limit, include_deleted=include_deleted
+            filters=filters,
+            limit=limit,
+            include_deleted=include_deleted,
+            sorting=sorting,
         )
 
     else:
