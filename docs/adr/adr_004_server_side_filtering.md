@@ -64,6 +64,7 @@ With this solution, the main collection is maintained, and several "*side collec
 Unlike *Option 1*, the additional collections are read-only. Editors publish data in the main collection, and a scheduled job will copy the records at regular intervals to the side collections using filters.
 
 The [`backport_records` cronjob](https://github.com/mozilla-services/remote-settings-lambdas?tab=readme-ov-file#backport_records) copies records from one collection to another and signs it. It can take querystring filters as parameters in order to only copy of subset of the source.
+With this solution, we would configure manually one cronjob instance of `backport_records` for each side collection.
 
 For example, if records have `regions` and `locales` fields:
 
@@ -87,6 +88,21 @@ Then different collections can be populated using this field in [a querystring f
 * `shops-europe`: `?contains_regions=["europe"]`
 * `shops-europe-en`: `?contains_regions=["europe"]&contains_locales=["en"]`
 * `shops-europe-fr`: `?contains_regions=["europe"]&contains_locales=["fr"]`
+
+The client code would be in charge to pick the proper sub-collection. For this example, it could look like this:
+
+```js
+ChromeUtils.defineESModuleGetters(lazy, {
+  Region: "resource://gre/modules/Region.sys.mjs",
+});
+
+const region = lazy.Region.home || "europe";
+const locale = Services.locale?.appLocaleAsBCP47.substr(0, 2) || "en";
+
+client = RemoteSettings(`shops-${region}-${locale}`);
+```
+
+With this solution, the creation of the side collections, and the configuration of the associated cronjobs is done once manually. Onboarding new side collections would require intervention of admins/devs in the [permissions](https://github.com/mozilla-services/remote-settings-permissions) and [webservices-infra](https://github.com/mozilla-it/webservices-infra/blob/1d00ecf924391a8215347d3f44fc34dbf3504210/remote-settings/k8s/remote-settings/values-prod.yaml#L100-L127) repositories.
 
 - **Complexity**: Low. It is based on existing pieces of the current architecture.
 - **User experience**: Good, because editors only manipulate the main collection to assign datasets and to publish data.
