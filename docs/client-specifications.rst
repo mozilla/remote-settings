@@ -30,7 +30,7 @@ Before launching your own implementation, please keep in consideration that:
 Existing Clients
 ----------------
 
-As of November 2024 :
+As of January 2025:
 
 +------------------------+--------+--------------------------------------+---------------+----------+
 |                        | Gecko  | application-services/remote-settings | kinto-http.py | kinto.js |
