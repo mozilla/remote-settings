@@ -33,6 +33,8 @@ In order to choose our solution we considered the following criteria:
 
 Chosen option: if it fits the segmentation requirements, we would pick *Option 2*. We already have all the pieces in place, it is very low tech and low cost, while still providing a good user experiences for editors and publication of data.
 
+![A diagram showing how data flows from the admin user making a change via Kinto Admin UI. That causing an update in the source collection. Then a data copy cron-job pushes the data to read-only calculated collections. Those are then read by the client.](./adr_004_diagram.jpeg "Proposed Solution Diagram")
+
 ## Pros and Cons of the Options
 
 ### Option 0 - Do nothing
