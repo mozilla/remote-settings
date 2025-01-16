@@ -153,6 +153,39 @@ Examples:
 * `fetchLatestChanges() in Gecko <https://searchfox.org/mozilla-central/rev/1f27a4022f9f1269d897526c1c892a57743e650c/services/settings/Utils.sys.mjs#376-457>`_
 
 
+Server Error Responses
+''''''''''''''''''''''
+
+Every response is JSON.
+
+If the HTTP status is not OK (>=400), the response contains a JSON mapping, with the following attributes:
+
+- ``code``: matches the HTTP status code (e.g ``400``)
+- ``errno``: stable application-level error number (e.g. ``109``)
+- ``error``: string description of error type (e.g. ``"Bad request"``)
+- ``message``: context information (e.g. ``"Invalid request parameters"``)
+- ``info``: online resource (e.g. URL to error details)
+- ``details``: additional details (e.g. list of validation errors)
+
+**Example response**
+
+.. code-block:: json
+
+    {
+      "code": 400,
+      "errno": 107,
+      "error": "Invalid parameters",
+      "message": "_since in querystring: The value should be integer between double quotes.",
+      "details": [
+        {
+          "location": "querystring",
+          "name": "_since",
+          "description": "The value should be integer between double quotes."
+        }
+      ]
+    }
+
+
 Cache Busting
 '''''''''''''
 
