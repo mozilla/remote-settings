@@ -158,7 +158,7 @@ Server Error Responses
 
 Every response is JSON.
 
-If the HTTP status is not OK (<200 or >=400), the response contains a JSON mapping, with the following attributes:
+If the HTTP status is not OK (>=400), the response contains a JSON mapping, with the following attributes:
 
 - ``code``: matches the HTTP status code (e.g ``400``)
 - ``errno``: stable application-level error number (e.g. ``109``)
