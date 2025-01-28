@@ -3,16 +3,21 @@ import functools
 import re
 import sys
 
+import transaction
 from kinto.core import metrics as core_metrics
 from kinto.core import utils as core_utils
+from kinto.core.events import ACTIONS, ResourceChanged
 from pyramid.authorization import Authenticated
-from pyramid.events import ApplicationCreated
-from pyramid.settings import aslist
+from pyramid.events import ApplicationCreated, NewRequest
+from pyramid.settings import asbool, aslist
 
 from .. import __version__
+from . import listeners, utils
+from .backends import heartbeat
 from .events import ReviewApproved, ReviewRejected, ReviewRequested
-from .utils import storage_create_raw
 
+
+IS_RUNNING_MIGRATE = "migrate" in sys.argv
 
 DEFAULT_SETTINGS = {
     "allow_floats": False,
@@ -37,22 +42,10 @@ def on_review_approved(event):
         metrics_service.count(f"plugins.signer.approved_changes.{bid}.{cid}", count)
 
 
-def includeme(config):
-    # We import stuff here, so that kinto-signer can be installed with `--no-deps`
-    # and used without having this Pyramid ecosystem installed.
-    import transaction
-    from kinto.core.events import ACTIONS, ResourceChanged
-    from pyramid.events import NewRequest
-    from pyramid.settings import asbool
-
-    from . import listeners, utils
-    from .backends import heartbeat
-
-    # Register heartbeat to check signer integration.
-    config.registry.heartbeats["signer"] = heartbeat
+def load_signed_resources_configuration(config):
+    settings = config.get_settings()
 
     # Load settings from KINTO_SIGNER_* environment variables.
-    settings = config.get_settings()
     for setting, default_value in DEFAULT_SETTINGS.items():
         settings[f"signer.{setting}"] = utils.get_first_matching_setting(
             setting_name=setting,
@@ -60,6 +53,14 @@ def includeme(config):
             prefixes=["signer."],
             default=default_value,
         )
+
+    # Expand glob settings into concrete settings using existing objects in DB.
+    # (eg. "signer.main-workspace.magic-(\w+)" -> "signer.main-workspace.magic-word")
+    expanded_settings = utils.expand_collections_glob_settings(
+        config.registry.storage, settings
+    )
+    config.add_settings(expanded_settings)
+    settings.update(**expanded_settings)
 
     # Check source and destination resources are configured.
     resources = utils.parse_resources(settings["signer.resources"])
@@ -69,7 +70,7 @@ def includeme(config):
     # For example, consider the case where resource is ``/buckets/dev -> /buckets/prod``
     # and there is a setting ``signer.dev.recipes.signer_backend = foo``
     output_resources = resources.copy()
-    for key, resource in resources.items():
+    for resource in resources.values():
         # If collection is not None, there is nothing to expand :)
         if resource["source"]["collection"] is not None:
             continue
@@ -154,9 +155,11 @@ def includeme(config):
             r, ["source", "destination", "preview", "to_review_enabled"]
         )
         for r in resources.values()
+        if "(" not in str(r["source"])  # do not show patterns
     ]
     message = "Digital signatures for integrity and authenticity of records."
     docs = "https://github.com/Kinto/kinto-signer#kinto-signer"
+    config.registry.api_capabilities.pop("signer", None)
     config.add_api_capability(
         "signer",
         message,
@@ -166,6 +169,32 @@ def includeme(config):
         # Backward compatibility with < v26
         group_check_enabled=True,
         **global_settings,
+    )
+
+    return resources
+
+
+def includeme(config):
+    # Register heartbeat to check signer integration.
+    config.registry.heartbeats["signer"] = heartbeat
+
+    resources = load_signed_resources_configuration(config)
+
+    settings = config.get_settings()
+
+    global_settings = {
+        k: v
+        for k, v in config.registry.api_capabilities["signer"].items()
+        if k in ("editors_group", "reviewers_group", "to_review_enabled")
+    }
+
+    # Since we have settings that can contain glob patterns, we refresh the settings
+    # and exposed resources when a new collection is created.
+    config.add_subscriber(
+        lambda _: load_signed_resources_configuration(config),
+        ResourceChanged,
+        for_actions=(ACTIONS.CREATE,),
+        for_resources=("collection",),
     )
 
     config.add_subscriber(on_review_approved, ReviewApproved)
@@ -276,7 +305,7 @@ def includeme(config):
             collection = resource["source"]["collection"]
 
             bucket_uri = f"/buckets/{bucket}"
-            storage_create_raw(
+            utils.storage_create_raw(
                 storage_backend=storage,
                 permission_backend=permission,
                 resource_name="bucket",
@@ -289,7 +318,7 @@ def includeme(config):
             # If resource is configured for specific collection, create it too.
             if collection:
                 collection_uri = f"{bucket_uri}/collections/{collection}"
-                storage_create_raw(
+                utils.storage_create_raw(
                     storage_backend=storage,
                     permission_backend=permission,
                     resource_name="collection",
@@ -302,7 +331,7 @@ def includeme(config):
     # Create resources on startup (except when executing `migrate`).
     if (
         asbool(settings.get("signer.auto_create_resources", False))
-        and "migrate" not in sys.argv
+        and not IS_RUNNING_MIGRATE
     ):
         config.add_subscriber(
             functools.partial(

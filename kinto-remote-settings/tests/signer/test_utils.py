@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 
 import pytest
 from kinto_remote_settings.signer import utils
@@ -227,3 +228,38 @@ class ParseResourcesTest(unittest.TestCase):
         """
         with pytest.raises(ConfigurationError):
             utils.parse_resources(raw_resources)
+
+
+def test_expand_collections_glob_settings():
+    settings = {
+        "signer.some_setting": "foo",
+        "signer.some-bucket.to_review_enabled": False,
+        "signer.main-workspace.intermediates.to_review_enabled": True,
+        "signer.main-workspace.quicksuggest-(\\w+)-(desktop|mobile).to_review_enabled": True,
+        "signer.main-workspace.quicksuggest-(\\w+)-(desktop|mobile).some_other": 42,
+    }
+
+    storage = mock.MagicMock()
+    storage.list_all.side_effect = (
+        [{"id": "security-state"}, {"id": "main-workspace"}, {"id": "main"}],
+        [
+            {"id": "intermediates"},
+        ],
+        [
+            {"id": "quicksuggest-fr-mobile"},
+            {"id": "quicksuggest-en-desktop"},
+            {"id": "quicksuggest-fr-tablet"},
+        ],
+        [],
+    )
+
+    expanded_settings = utils.expand_collections_glob_settings(storage, settings)
+
+    assert expanded_settings == {
+        "signer.main-workspace.quicksuggest-fr-mobile.to_review_enabled": True,
+        "signer.main-workspace.quicksuggest-en-desktop.to_review_enabled": True,
+        "signer.main-workspace.quicksuggest-(\\w+)-(desktop|mobile).some_other": 42,
+        "signer.main-workspace.intermediates.to_review_enabled": True,
+        "signer.some-bucket.to_review_enabled": False,
+        "signer.some_setting": "foo",
+    }

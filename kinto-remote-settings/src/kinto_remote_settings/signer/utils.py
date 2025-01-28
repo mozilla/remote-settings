@@ -1,4 +1,5 @@
 import logging
+import re
 import ssl
 from collections import OrderedDict
 from enum import Enum
@@ -294,3 +295,53 @@ def fetch_cert(url):
         cert_pem.encode("utf8"), backend=crypto_default_backend()
     )
     return cert
+
+
+def expand_collections_glob_settings(
+    storage, settings: dict[str, any]
+) -> dict[str, any]:
+    r"""
+    Expand glob patterns in settings using actual bucket and collection names from storage.
+
+    Example:
+        "kinto.signer.main-workspace.quicksuggest-(\w+).to_review_enabled"
+        expands to:
+        "kinto.signer.main-workspace.quicksuggest-fr.to_review_enabled"
+        "kinto.signer.main-workspace.quicksuggest-en.to_review_enabled"
+    """
+    if (
+        hasattr(storage, "get_installed_version")
+        and storage.get_installed_version() is None
+    ):
+        # The DB is a memory backend, or is not ready yet, do not even try to list collections.
+        return settings
+
+    # Fetch all buckets
+    buckets = storage.list_all(parent_id="", resource_name="bucket")
+
+    # Fetch all collections for each bucket
+    collections = [
+        (bucket["id"], collection["id"])
+        for bucket in buckets
+        for collection in storage.list_all(
+            parent_id=f"/buckets/{bucket['id']}", resource_name="collection"
+        )
+    ]
+
+    expanded_settings = {}
+
+    for key, value in settings.items():
+        tokens = key.split(".")
+        # Skip if not a supported glob pattern (for simplicity, just for to_review_enabled now)
+        if "(" not in key or len(tokens) != 4 or tokens[-1] != "to_review_enabled":
+            expanded_settings[key] = value
+            continue
+
+        prefix, bucket_pattern, collection_pattern, setting = tokens
+
+        # Match and expand glob patterns
+        for bid, cid in collections:
+            if re.match(bucket_pattern, bid) and re.match(collection_pattern, cid):
+                expanded_settings[f"{prefix}.{bid}.{cid}.{setting}"] = value
+
+    return expanded_settings
