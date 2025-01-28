@@ -1,6 +1,6 @@
 # Server Side Filtering
 
-* Status: proposed
+* Status: accepted
 * Deciders: mleplatre, acottner, najiang
 * Date: Jan 3, 2024
 
@@ -31,7 +31,7 @@ In order to choose our solution we considered the following criteria:
 
 ## Decision Outcome
 
-Chosen option: if it fits the segmentation requirements, we would pick *Option 2*. We already have all the pieces in place, it is very low tech and low cost, while still providing a good user experiences for editors and publication of data.
+Chosen option: in the context of server to server publication, and if the source server can dispatch data in several collections, then *Option 1* is our preferred approach. Otherwise if it fits the segmentation requirements, we would pick *Option 2*. We already have all the pieces in place, it is very low tech and low cost, while still providing a good user experiences for editors and publication of data.
 
 ![A diagram showing how data flows from the admin user making a change via Kinto Admin UI. That causing an update in the source collection. Then a data copy cron-job pushes the data to read-only calculated collections. Those are then read by the client.](./adr_004_diagram.jpeg "Proposed Solution Diagram")
 
@@ -54,10 +54,9 @@ The single collections is split into several ones, and the client is able to det
 If a record is required in different subsets, it is duplicated in each collection.
 
 - **Complexity**: N/A
-- **User experience**: Bad, even if a script could automate the publication of records into several collections, editors don't have a single source of truth for the content, leading to duplicated actions and data.
+- **User experience**: Bad if done by human editors, since they don't have a single source of truth for the content, leading to duplicated actions and data. Good in the context of server-to-server publication where a script can automate the publication of records
 - **Cost of implementation**: Low. Creating collections is cheap.
 - **Cost of operation**: Low. Clients download only the subset of data, saving bandwidth.
-
 
 ### Option 2 - Read-only mirrors
 
