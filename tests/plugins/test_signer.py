@@ -1,9 +1,10 @@
+import asyncio
 import operator
 import random
+import threading
 
 import aiohttp
 import canonicaljson
-import nest_asyncio
 import pytest
 from autograph_utils import MemoryCache, SignatureVerifier
 from kinto_http import KintoException
@@ -11,10 +12,6 @@ from kinto_http.patch_type import JSONPatch
 
 from ..conftest import RemoteSettingsClient, signed_resource
 from ..utils import _rand, upload_records
-
-
-# nest_asyncio resolves a compatability issue with playwright
-nest_asyncio.apply()
 
 
 class FakeRootHash:
@@ -35,7 +32,23 @@ def canonical_json(records, last_modified):
     return dump
 
 
-async def verify_signature(records, timestamp, signature):
+def verify_signature(records, timestamp, signature):
+    thread = threading.Thread(
+        target=verify_signature_sync, args=(records, timestamp, signature)
+    )
+    thread.start()
+    thread.join()
+
+
+def verify_signature_sync(records, timestamp, signature):
+    """Runs the async verification function in a separate thread."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(_verify_signature(records, timestamp, signature))
+    loop.close()
+
+
+async def _verify_signature(records, timestamp, signature):
     x5u = signature["x5u"]
     serialized = canonical_json(records, timestamp).encode("utf-8")
 
@@ -49,8 +62,7 @@ def test_signer_plugin_capabilities(anonymous_client: RemoteSettingsClient):
     assert capability["group_check_enabled"]
 
 
-@pytest.mark.asyncio
-async def test_signer_plugin_full_workflow(
+def test_signer_plugin_full_workflow(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
@@ -91,7 +103,7 @@ async def test_signer_plugin_full_workflow(
         changeset = dest_client.fetch_changeset()
         timestamp = changeset["timestamp"]
         signature = changeset["metadata"]["signature"]
-        await verify_signature([], timestamp, signature)
+        verify_signature([], timestamp, signature)
 
     # 1. upload data
     records = upload_records(editor_client, 20)
@@ -103,14 +115,14 @@ async def test_signer_plugin_full_workflow(
     changeset = preview_client.fetch_changeset()
     preview_records = changeset["changes"]
     expected = existing + 20
-    assert (
-        len(preview_records) == expected
-    ), f"{len(preview_records)} != {expected} records"
+    assert len(preview_records) == expected, (
+        f"{len(preview_records)} != {expected} records"
+    )
     preview_timestamp = changeset["timestamp"]
     preview_signature = changeset["metadata"]["signature"]
     assert preview_signature, "Preview collection not signed"
     # Verify the preview collection
-    await verify_signature(preview_records, preview_timestamp, preview_signature)
+    verify_signature(preview_records, preview_timestamp, preview_signature)
 
     # 2.3 approve the review
     reviewer_client.patch_collection(data={"status": "to-sign"})
@@ -156,14 +168,13 @@ async def test_signer_plugin_full_workflow(
     assert signature, "Preview collection not signed"
 
     try:
-        await verify_signature(records, timestamp, signature)
+        verify_signature(records, timestamp, signature)
     except Exception:
         print("Signature KO")
         raise
 
 
-@pytest.mark.asyncio
-async def test_workflow_without_review(
+def test_workflow_without_review(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
@@ -188,7 +199,7 @@ async def test_workflow_without_review(
     signature = changeset["metadata"]["signature"]
 
     try:
-        await verify_signature(records, timestamp, signature)
+        verify_signature(records, timestamp, signature)
     except Exception:
         print("Signature KO")
         raise
