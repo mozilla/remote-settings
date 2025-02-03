@@ -195,7 +195,7 @@ class IncludeMeTest(unittest.TestCase):
     def test_includeme_doesnt_fail_when_expanding_collection(self):
         settings = {
             "signer.resources": (
-                "/buckets/sb1 -> /buckets/db1\n" "/buckets/sb2 -> /buckets/db2\n"
+                "/buckets/sb1 -> /buckets/db1\n/buckets/sb2 -> /buckets/db2\n"
             ),
             "signer.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.ecdsa.public_key": "/path/to/key",
@@ -209,7 +209,7 @@ class IncludeMeTest(unittest.TestCase):
     def test_includeme_sanitizes_exposed_settings(self):
         settings = {
             "signer.resources": (
-                "/buckets/sb1 -> /buckets/db1\n" "/buckets/sb2 -> /buckets/db2\n"
+                "/buckets/sb1 -> /buckets/db1\n/buckets/sb2 -> /buckets/db2\n"
             ),
             "signer.signer_backend": "kinto_remote_settings.signer.backends.local_ecdsa",
             "signer.ecdsa.public_key": "/path/to/key",

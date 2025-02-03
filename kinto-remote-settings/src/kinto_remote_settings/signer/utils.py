@@ -108,8 +108,7 @@ def parse_resources(raw_resources):
             != 3
         ):
             raise ConfigurationError(
-                error_msg % "cannot have same value for source, "
-                " preview or destination"
+                error_msg % "cannot have same value for source,  preview or destination"
             )
 
         # Resources info is returned as a mapping by bucket/collection URI.

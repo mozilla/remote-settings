@@ -63,9 +63,9 @@ def test_attachment_plugin_existing_record(
                 }
             },
         )
-        assert (
-            resp.status == 200
-        ), "Issue updating an existing record to include an attachment"
+        assert resp.status == 200, (
+            "Issue updating an existing record to include an attachment"
+        )
 
     record = editor_client.get_record(id="logo")
 

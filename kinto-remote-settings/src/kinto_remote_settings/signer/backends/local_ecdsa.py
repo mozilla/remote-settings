@@ -17,7 +17,7 @@ SIGN_PREFIX = b"Content-Signature:\x00"
 class ECDSASigner(SignerBase):
     def __init__(self, private_key=None, public_key=None):
         if private_key is None and public_key is None:
-            msg = "Please, specify either a private_key or public_key " "location."
+            msg = "Please, specify either a private_key or public_key location."
             raise ValueError(msg)
         self.private_key = private_key
         self.public_key = public_key

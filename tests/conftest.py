@@ -309,7 +309,7 @@ def signed_resource(client):
             if r["source"]["bucket"] == bid and r["source"]["collection"] is None
         ]
 
-    assert (
-        signed_resource
-    ), f"{source_bucket}/{source_collection} not configured to be signed"
+    assert signed_resource, (
+        f"{source_bucket}/{source_collection} not configured to be signed"
+    )
     return signed_resource[0]

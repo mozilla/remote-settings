@@ -35,7 +35,7 @@ class LocalUpdaterTest(unittest.TestCase):
 
     def test_updater_raises_if_resources_are_not_set_properly(self):
         with pytest.raises(
-            ValueError, match="Resources should contain both " "bucket and collection"
+            ValueError, match="Resources should contain both bucket and collection"
         ):
             LocalUpdater(
                 source={"bucket": "source"},
