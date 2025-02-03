@@ -143,15 +143,15 @@ def test_signer_plugin_full_workflow(
     editor_client.patch_collection(data={"status": "to-review"})
     # 2.2 check the preview collection
     preview_records = preview_client.get_records()
-    assert (
-        len(preview_records) == expected
-    ), f"{len(preview_records)} != {expected} records"
+    assert len(preview_records) == expected, (
+        f"{len(preview_records)} != {expected} records"
+    )
     # Diff size is 20 + 5 if updated records are also all deleted,
     # or 30 if deletions and updates apply to different records.
     diff_since_last = preview_client.get_records(_since=preview_timestamp)
-    assert (
-        25 <= len(diff_since_last) <= 30
-    ), "Changes since last signature are not consistent"
+    assert 25 <= len(diff_since_last) <= 30, (
+        "Changes since last signature are not consistent"
+    )
 
     metadata = (preview_client.get_collection())["data"]
     assert preview_signature != metadata["signature"], "Preview collection not updated"
