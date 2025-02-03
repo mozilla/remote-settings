@@ -731,3 +731,33 @@ class SourceCollectionHardDeletion(BaseWebTest, PatchAutographMixin, unittest.Te
         self.app.get(
             "/buckets/stage/groups/a-reviewers", headers=self.headers, status=404
         )
+
+
+class ExpandedSettingsTest(BaseWebTest, PatchAutographMixin, unittest.TestCase):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super(cls, ExpandedSettingsTest).get_app_settings(extras)
+        settings["signer.to_review_enabled"] = "true"
+        settings["signer.main-workspace.magic-(\\w+).to_review_enabled"] = "false"
+        return settings
+
+    def setUp(self):
+        super().setUp()
+        self.app.put_json("/buckets/main-workspace", headers=self.headers)
+
+    def test_expanded_settings_are_updated_on_collection_creation(self):
+        server_info = self.app.get("/").json
+        resources = server_info["capabilities"]["signer"]["resources"]
+        source_collections = {entry["source"]["collection"] for entry in resources}
+        assert "magic-word" not in source_collections
+        assert "magic-(\\w+)" not in source_collections
+
+        self.app.put_json(
+            "/buckets/main-workspace/collections/magic-word", headers=self.headers
+        )
+
+        server_info = self.app.get("/").json
+        resources = server_info["capabilities"]["signer"]["resources"]
+        source_collections = {entry["source"]["collection"] for entry in resources}
+        assert "magic-word" in source_collections
+        assert "magic-(\\w+)" not in source_collections
