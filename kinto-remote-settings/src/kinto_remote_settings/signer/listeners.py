@@ -425,9 +425,9 @@ def prevent_collection_delete(event, resources):
         ]
 
         if specific_signers:
-            assert (
-                len(specific_signers) == 1
-            ), f"Inconsistent signers: multiple signers touch {bid} and {cid}"
+            assert len(specific_signers) == 1, (
+                f"Inconsistent signers: multiple signers touch {bid} and {cid}"
+            )
             in_use = specific_signers[0]
 
         if not in_use:
@@ -441,9 +441,9 @@ def prevent_collection_delete(event, resources):
                 and signer_impacts_resource(v, bid, cid)
             ]
             if bucket_signers:
-                assert (
-                    len(bucket_signers) == 1
-                ), f"Inconsistent signers: multiple signers touch {bid}"
+                assert len(bucket_signers) == 1, (
+                    f"Inconsistent signers: multiple signers touch {bid}"
+                )
                 in_use = bucket_signers[0]
 
             if in_use:

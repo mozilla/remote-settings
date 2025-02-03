@@ -74,9 +74,9 @@ python = ">=3.11, <3.13"
 canonicaljson-rs = "0.6.0"
 cryptography = "44.0.0"
 ecdsa = "0.19.0"
-kinto = {version = "^19.3.0", extras = ["postgresql","memcached","monitoring"]}
+kinto = {version = "^19.4.0", extras = ["postgresql","memcached","monitoring"]}
 kinto-attachment = "7.0.0"
-kinto-emailer = "3.0.1"
+kinto-emailer = "3.0.2"
 requests-hawk = "1.2.1"
 uwsgi = "2.0.28"
 
@@ -85,26 +85,24 @@ kinto-remote-settings = {path = "./kinto-remote-settings", develop = true}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.4"
-webtest = "3.0.2"
-coverage = "7.6.9"
+webtest = "3.0.3"
+coverage = "7.6.10"
 detect-secrets = "^1.5.0"
-ruff = "^0.8.2"
+ruff = "^0.9.4"
 
 [tool.poetry.group.browser-tests]
 optional = true
 
 [tool.poetry.group.browser-tests.dependencies]
-aiohttp = "3.11.10"
+aiohttp = "3.11.11"
 autograph-utils = "1.0.1"
 canonicaljson-rs = "0.6.0"
 httpie = "3.2.4"
-kinto-http = "11.7.0"
+kinto-http = "11.7.1"
 pytest = "8.3.4"
-pytest-asyncio = "0.24.0"
-webtest = "3.0.2"
+webtest = "3.0.3"
 playwright = "1.49.1"
-pytest-playwright = "0.6.2"
-nest_asyncio="^1.6.0"
+pytest-playwright = "0.7.0"
 
 [tool.poetry.group.docs]
 optional = true
