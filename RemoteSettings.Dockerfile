@@ -1,4 +1,4 @@
-FROM python:3.12.7 AS compile
+FROM python:3.13.1 AS compile
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -10,7 +10,7 @@ ENV PIP_NO_CACHE_DIR=off \
 
 # Install Poetry
 RUN python -m venv $POETRY_HOME && \
-    $POETRY_HOME/bin/pip install poetry==1.4.1 && \
+    $POETRY_HOME/bin/pip install poetry==2.0.1 && \
     $POETRY_HOME/bin/poetry --version
 
 WORKDIR /opt
@@ -35,7 +35,7 @@ COPY kinto-admin/ kinto-admin/
 RUN ./pull-kinto-admin.sh
 
 
-FROM python:3.12.7-slim AS production
+FROM python:3.13.1-slim AS production
 
 ENV KINTO_INI=config/local.ini \
     KINTO_ADMIN_ASSETS_PATH=/app/kinto-admin/build/ \
