@@ -11,7 +11,7 @@ ENV PIP_NO_CACHE_DIR=off \
 
 # Install Poetry
 RUN python -m venv $POETRY_HOME && \
-    $POETRY_HOME/bin/pip install poetry==1.4.1 && \
+    $POETRY_HOME/bin/pip install poetry==2.0.1 && \
     $POETRY_HOME/bin/poetry --version
 
 WORKDIR /opt

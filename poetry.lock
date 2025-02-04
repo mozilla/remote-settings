@@ -979,7 +979,10 @@ files = [
 [package.dependencies]
 google-auth = ">=2.14.1,<3.0.dev0"
 googleapis-common-protos = ">=1.56.2,<2.0.dev0"
-proto-plus = ">=1.22.3,<2.0.0dev"
+proto-plus = [
+    {version = ">=1.25.0,<2.0.0dev", markers = "python_version >= \"3.13\""},
+    {version = ">=1.22.3,<2.0.0dev", markers = "python_version < \"3.13\""},
+]
 protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<6.0.0.dev0"
 requests = ">=2.18.0,<3.0.0.dev0"
 
@@ -1526,6 +1529,19 @@ requests_hawk = "*"
 [package.source]
 type = "directory"
 url = "kinto-remote-settings"
+
+[[package]]
+name = "legacy-cgi"
+version = "2.6.2"
+description = "Fork of the standard library cgi and cgitb modules, being deprecated in PEP-594"
+optional = false
+python-versions = ">=3.10"
+groups = ["main", "browser-tests", "dev", "kinto-remote-settings"]
+markers = "python_version >= \"3.13\""
+files = [
+    {file = "legacy_cgi-2.6.2-py3-none-any.whl", hash = "sha256:a7b83afb1baf6ebeb56522537c5943ef9813cf933f6715e88a803f7edbce0bff"},
+    {file = "legacy_cgi-2.6.2.tar.gz", hash = "sha256:9952471ceb304043b104c22d00b4f333cac27a6abe446d8a528fc437cf13c85f"},
+]
 
 [[package]]
 name = "logging-color-formatter"
@@ -3213,6 +3229,7 @@ files = [
     {file = "typing_extensions-4.12.2-py3-none-any.whl", hash = "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d"},
     {file = "typing_extensions-4.12.2.tar.gz", hash = "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"},
 ]
+markers = {kinto-remote-settings = "python_version < \"3.13\""}
 
 [[package]]
 name = "unidecode"
@@ -3298,6 +3315,9 @@ files = [
     {file = "WebOb-1.8.9-py2.py3-none-any.whl", hash = "sha256:45e34c58ed0c7e2ecd238ffd34432487ff13d9ad459ddfd77895e67abba7c1f9"},
     {file = "webob-1.8.9.tar.gz", hash = "sha256:ad6078e2edb6766d1334ec3dee072ac6a7f95b1e32ce10def8ff7f0f02d56589"},
 ]
+
+[package.dependencies]
+legacy-cgi = {version = ">=2.6", markers = "python_version >= \"3.13\""}
 
 [package.extras]
 docs = ["Sphinx (>=1.7.5)", "pylons-sphinx-themes"]
@@ -3537,5 +3557,5 @@ test = ["zope.testing"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.11, <3.13"
-content-hash = "950fcbab8ec7243057fc58b5fea3f60eb1d5acafc292c64ba4ed517d01232eed"
+python-versions = ">=3.11, <3.14"
+content-hash = "9b031d5244741eed9eab883e8a6bf91ae3ccb11a3e8b0419812d1c063ddc377c"
