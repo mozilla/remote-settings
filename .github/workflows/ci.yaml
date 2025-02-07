@@ -6,7 +6,7 @@ jobs:
   run_lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check workflow files
         run: |
           bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
@@ -14,7 +14,7 @@ jobs:
         shell: bash
       - name: Install poetry
         run: pipx install poetry
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         # We need to use this caching strategy (rather than setting `cache: poetry` in setup-python)
         # because our use of dependency groups. We want separate caches for each dependency group.
         # https://github.com/actions/setup-python/issues/505
@@ -26,7 +26,7 @@ jobs:
             ~/.cache/pypoetry/cache
             ~/.cache/pypoetry/artifacts
           key: poetry-dev-${{ hashFiles('poetry.lock') }}
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install dependencies
@@ -36,13 +36,13 @@ jobs:
   docs_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install poetry
         run: pipx install poetry
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         # We need to use this caching strategy (rather than setting `cache: poetry`` in setup-python)
         # because our use of dependency groups. We want separate caches for each dependency group.
         # https://github.com/actions/setup-python/issues/505
@@ -76,13 +76,13 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install poetry
         run: pipx install poetry
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         # We need to use this caching strategy (rather than setting `cache: poetry`` in setup-python)
         # because our use of dependency groups. We want separate caches for each dependency group.
         # https://github.com/actions/setup-python/issues/505
@@ -104,13 +104,13 @@ jobs:
     env:
       DOCKER_CACHE: /tmp/docker-cache
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Compute cache key
         # Create hash of hashes of checked in files not in Dockerignore
-        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f RemoteSettings.dockerignore | awk '{print $3}' | git hash-object --stdin)" >> $GITHUB_ENV
+        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f RemoteSettings.dockerignore | awk '{print $3}' | git hash-object --stdin)" >> "$GITHUB_ENV"
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ${{ env.DOCKER_CACHE}}
           key: docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'BrowserTests.Dockerfile') }}-${{ env.CACHE_KEY }}
