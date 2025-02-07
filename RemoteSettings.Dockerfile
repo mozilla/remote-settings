@@ -1,4 +1,4 @@
-FROM python:3.13.1 AS compile
+FROM python:3.13.2 AS compile
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -35,7 +35,7 @@ COPY kinto-admin/ kinto-admin/
 RUN ./pull-kinto-admin.sh
 
 
-FROM python:3.13.1-slim AS production
+FROM python:3.13.2-slim AS production
 
 ENV KINTO_INI=config/local.ini \
     KINTO_ADMIN_ASSETS_PATH=/app/kinto-admin/build/ \
