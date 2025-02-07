@@ -51,7 +51,6 @@ jobs:
           platforms:
             - linux/amd64
             - linux/arm64
-
   browser_test_container:
     runs-on: ubuntu-latest
     steps:
