@@ -1,0 +1,39 @@
+
+[tool.ruff]
+line-length = 99
+extend-exclude = [
+    "__pycache__",
+    ".venv/",
+]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E", "W",
+    # flake8
+    "F",
+    # isort
+    "I",
+]
+ignore = [
+    # `format` will wrap lines.
+    "E501",
+]
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+
+[pytest]
+addopts = "-rsxX --showlocals --tb=native"
+
+[tool.pytest_env]
+# Environment variables (thanks to pytest-env)
+# Basically, undo anything that might get dragged in
+# from a personal .env file.
+DEBUG = false
+REDASH_API_KEY = "shhhuhsecret" # pragma: allowlist secret
+REDASH_API_QUERY_URL = "https://sql.telemetry.example.com/api/queries/001/"
+EXCLUDE_SOURCES = "trouble/*"
+DEFAULT_ERROR_THRESHOLD_PERCENT = 3.0
+SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # pragma: allowlist secret
+GOOGLE_CLOUD_PROJECT = "remote-settings"
