@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set tag version
-        run: echo "LATEST_TAG=$(git describe --tags --abbrev=4)" >> $GITHUB_ENV
+        run: echo "LATEST_TAG=$(git describe --tags --abbrev=4)" >> "$GITHUB_ENV"
       - name: Create version.json
         run: |
             # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/main/docs/version_object.md
@@ -48,9 +48,7 @@ jobs:
           target: production
           push: true
           tags: ${{ steps.docker-metadata.outputs.tags }}
-          platforms:
-            - linux/amd64
-            - linux/arm64
+          platforms: linux/amd64,linux/arm64
 
   browser_test_container:
     runs-on: ubuntu-latest
@@ -60,7 +58,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set tag version
-        run: echo "LATEST_TAG=$(git describe --tags --abbrev=4)" >> $GITHUB_ENV
+        run: echo "LATEST_TAG=$(git describe --tags --abbrev=4)" >> "$GITHUB_ENV"
       - name: Docker metadata
         id: docker-metadata
         uses: docker/metadata-action@v5
