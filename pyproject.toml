@@ -88,7 +88,7 @@ pytest = "8.3.4"
 webtest = "3.0.4"
 coverage = "7.6.11"
 detect-secrets = "^1.5.0"
-ruff = "^0.9.5"
+ruff = "^0.9.6"
 
 [tool.poetry.group.browser-tests]
 optional = true
