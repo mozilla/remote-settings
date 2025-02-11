@@ -49,6 +49,8 @@ jobs:
           push: true
           tags: ${{ steps.docker-metadata.outputs.tags }}
           platforms: linux/amd64,linux/arm64
+          cache-from: type=gha # Load cache from GitHub Actions
+          cache-to: type=gha,mode=max # Save cache to GitHub Actions
 
   browser_test_container:
     runs-on: ubuntu-latest
@@ -79,3 +81,5 @@ jobs:
           file: BrowserTests.Dockerfile
           push: true
           tags: ${{ steps.docker-metadata.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
