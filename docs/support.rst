@@ -233,8 +233,6 @@ By default, settings are delivered to every user.
 
 You can add :ref:`JEXL filters on records <target-filters>` to define targets. Every record will be downloaded but the list obtained with ``.get()`` will only contain entries that match.
 
-In order to limit the users that will download the records, you can check out our :ref:`dedicated tutorial <tutorial-normandy-integration>`.
-
 
 How does the client choose the collections to synchronize?
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
