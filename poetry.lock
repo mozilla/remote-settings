@@ -1461,14 +1461,14 @@ dev = ["kinto-http", "kinto[postgresql]", "moto[s3,server] (<5)", "pytest", "pyt
 
 [[package]]
 name = "kinto-emailer"
-version = "3.0.2"
+version = "3.0.4"
 description = "Kinto emailer plugin"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "kinto_emailer-3.0.2-py3-none-any.whl", hash = "sha256:ecc639f498ec37ac09c326662b4bc211e3670a4f5197c2422ccb3f7a88e0dc40"},
-    {file = "kinto_emailer-3.0.2.tar.gz", hash = "sha256:c85446c408fb65ffda761e51d46389b447f739153ea87e298faad3a6e4a5739c"},
+    {file = "kinto_emailer-3.0.4-py3-none-any.whl", hash = "sha256:84931ac6ff68cf1be65802297c7b370595765372d1d8aca536caaf7f776a63c9"},
+    {file = "kinto_emailer-3.0.4.tar.gz", hash = "sha256:faad1050a7a3370b09ff6faf06239bc267dce7ab259169d64d2eabfbc41854f8"},
 ]
 
 [package.dependencies]
@@ -1476,7 +1476,7 @@ kinto = "*"
 pyramid_mailer = "*"
 
 [package.extras]
-dev = ["kinto-client", "kinto-signer", "mock", "pytest", "pytest-cache", "pytest-cov", "ruff", "webtest"]
+dev = ["kinto-client", "kinto-signer", "kinto[postgresql]", "mock", "pytest", "pytest-cache", "pytest-cov", "ruff", "webtest"]
 
 [[package]]
 name = "kinto-http"
@@ -3546,4 +3546,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11, <3.14"
-content-hash = "cdb869169af11eafa2a9548ad80398c25c5426680c7b7a659a35eff6d6a65ade"
+content-hash = "bc923900cef2b5024967c41ca9e07f7d4fd03d432cc2f2a6a8b5ac12c689e60f"
