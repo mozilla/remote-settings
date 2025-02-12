@@ -283,11 +283,11 @@ def includeme(config):
     config.add_subscriber(on_new_request, NewRequest)
 
     try:
-        from kinto_emailer import send_notification
+        from kinto_emailer import build_notification
 
-        config.add_subscriber(send_notification, ReviewRequested)
-        config.add_subscriber(send_notification, ReviewApproved)
-        config.add_subscriber(send_notification, ReviewRejected)
+        config.add_subscriber(build_notification, ReviewRequested)
+        config.add_subscriber(build_notification, ReviewApproved)
+        config.add_subscriber(build_notification, ReviewRejected)
     except ImportError:  # pragma: no cover
         pass
 
