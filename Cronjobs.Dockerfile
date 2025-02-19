@@ -28,10 +28,8 @@ ENV PATH="/opt/.venv/bin:$PATH" \
 
 COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
 
-WORKDIR /lambda
-RUN mkdir /lambda/commands
-ADD commands/*.py /lambda/commands/
+WORKDIR /app
+ADD cronjobs/src ./
 
-# ./cronjobs/run.sh, not ./bin/run.sh
-ENTRYPOINT ["/app/run.sh"]
+ENTRYPOINT ["/app/main.py"]
 CMD ["help"]

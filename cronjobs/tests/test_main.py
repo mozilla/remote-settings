@@ -1,8 +1,8 @@
-import aws_lambda
+import main
 
 
 def test_help(capsys):
-    return_code = aws_lambda.main("help")
+    return_code = main.main("help")
     assert not return_code
     captured = capsys.readouterr()
     assert "Available commands:" in captured.out
@@ -10,7 +10,7 @@ def test_help(capsys):
 
 
 def test_unknown_command(capsys):
-    return_code = aws_lambda.main("neverheardof")
+    return_code = main.main("neverheardof")
     assert return_code
     captured = capsys.readouterr()
     assert "Available commands:" in captured.out

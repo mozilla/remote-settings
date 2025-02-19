@@ -5,8 +5,10 @@ import os
 import sys
 
 import sentry_sdk
+from sentry_sdk.integrations.gcp import GcpIntegration
 from decouple import config
 
+HERE = os.path.dirname(os.path.realpath(__file__))
 
 SENTRY_DSN = config("SENTRY_DSN", default=None)
 SENTRY_ENV = config("SENTRY_ENV", default=None)
@@ -19,19 +21,9 @@ if SENTRY_DSN:
     env_option = {}
     if SENTRY_ENV:
         env_option = {"environment": SENTRY_ENV}
-    if os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
-        # We're running in AWS. See https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html
-        from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 
-        integrations = [AwsLambdaIntegration()]
-    elif os.getenv("FUNCTION_TARGET", os.getenv("GOOGLE_CLOUD_PROJECT")):
-        # We're running in Google Cloud. See https://cloud.google.com/functions/docs/configuring/env-var
-        from sentry_sdk.integrations.gcp import GcpIntegration
-
-        integrations = [GcpIntegration()]
-    else:
-        raise RuntimeError("Could not determine Cloud environment for Sentry")
-    sentry_sdk.init(SENTRY_DSN, integrations=integrations, **env_option)
+    # We're running in Google Cloud. See https://cloud.google.com/functions/docs/configuring/env-var
+    sentry_sdk.init(SENTRY_DSN, integrations=[GcpIntegration()], **env_option)
 
 
 def help_(**kwargs):
@@ -41,7 +33,7 @@ def help_(**kwargs):
         return f"\033[1m\x1b[37m{s}\033[0;0m"
 
     entrypoints = [
-        os.path.splitext(os.path.basename(f))[0] for f in glob.glob("./commands/[a-z]*.py")
+        os.path.splitext(os.path.basename(f))[0] for f in glob.glob(f"{HERE}/commands/[a-z]*.py")
     ]
     commands = [
         getattr(importlib.import_module(f"commands.{entrypoint}"), entrypoint)

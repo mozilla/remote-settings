@@ -3,6 +3,7 @@ import unittest
 
 import pytest
 import responses
+
 from commands.backport_records import backport_records
 
 
@@ -328,7 +329,7 @@ def test_correct_multiline_mappings(mapping_env, expected_calls):
 )
 def test_incorrect_multiline_mappings(mapping_env):
     with unittest.mock.patch("commands.backport_records.execute_backport"):
-        with pytest.raises(match="Invalid syntax"):
+        with pytest.raises(expected_exception=ValueError, match="Invalid syntax"):
             backport_records(
                 event={
                     "server": "http://server",

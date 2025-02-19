@@ -199,7 +199,7 @@ version = "2.2.1"
 description = "Function decoration for backoff and retry"
 optional = false
 python-versions = ">=3.7,<4.0"
-groups = ["browser-tests"]
+groups = ["browser-tests", "cronjobs"]
 files = [
     {file = "backoff-2.2.1-py3-none-any.whl", hash = "sha256:63579f9a0628e06278f7e47b7d7d5b6ce20dc65c5e96a6f3ca99a6adca0396e8"},
     {file = "backoff-2.2.1.tar.gz", hash = "sha256:03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba"},
@@ -285,7 +285,7 @@ version = "5.5.1"
 description = "Extensible memoizing collections and decorators"
 optional = false
 python-versions = ">=3.7"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "cachetools-5.5.1-py3-none-any.whl", hash = "sha256:b76651fdc3b24ead3c648bbdeeb940c1b04d365b38b4af66788f9ec4a81d42bb"},
     {file = "cachetools-5.5.1.tar.gz", hash = "sha256:70f238fbba50383ef62e55c6aff6d9673175fe59f7c6782c7a0b9e38f4a9df95"},
@@ -368,7 +368,7 @@ version = "2025.1.31"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.6"
-groups = ["main", "browser-tests", "dev", "docs", "kinto-remote-settings"]
+groups = ["main", "browser-tests", "cronjobs", "dev", "docs", "kinto-remote-settings"]
 files = [
     {file = "certifi-2025.1.31-py3-none-any.whl", hash = "sha256:ca78db4565a652026a4db2bcdf68f2fb589ea80d0be70e03929ed730746b84fe"},
     {file = "certifi-2025.1.31.tar.gz", hash = "sha256:3d5da6925056f6f18f119200434a4780a94263f10d1c21d032a6f6b2baa20651"},
@@ -461,7 +461,7 @@ version = "3.4.1"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 optional = false
 python-versions = ">=3.7"
-groups = ["main", "browser-tests", "dev", "docs", "kinto-remote-settings"]
+groups = ["main", "browser-tests", "cronjobs", "dev", "docs", "kinto-remote-settings"]
 files = [
     {file = "charset_normalizer-3.4.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:91b36a978b5ae0ee86c394f5a54d6ef44db1de0815eb43de826d41d21e4af3de"},
     {file = "charset_normalizer-3.4.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7461baadb4dc00fd9e0acbe254e3d7d2112e7f92ced2adc96e54ef6501c5f176"},
@@ -954,7 +954,7 @@ version = "2.24.1"
 description = "Google API client core library"
 optional = false
 python-versions = ">=3.7"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "google_api_core-2.24.1-py3-none-any.whl", hash = "sha256:bc78d608f5a5bf853b80bd70a795f703294de656c096c0968320830a4bc280f1"},
     {file = "google_api_core-2.24.1.tar.gz", hash = "sha256:f8b36f5456ab0dd99a1b693a40a31d1e7757beea380ad1b38faaf8941eae9d8a"},
@@ -982,7 +982,7 @@ version = "2.38.0"
 description = "Google Authentication Library"
 optional = false
 python-versions = ">=3.7"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "google_auth-2.38.0-py2.py3-none-any.whl", hash = "sha256:e7dae6694313f434a2727bf2906f27ad259bae090d7aa896590d86feec3d9d4a"},
     {file = "google_auth-2.38.0.tar.gz", hash = "sha256:8285113607d3b80a3f1543b75962447ba8a09fe85783432a784fdeef6ac094c4"},
@@ -1007,7 +1007,7 @@ version = "2.4.1"
 description = "Google Cloud API client core library"
 optional = false
 python-versions = ">=3.7"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "google-cloud-core-2.4.1.tar.gz", hash = "sha256:9b7749272a812bde58fff28868d0c5e2f585b82f37e09a1f6ed2d4d10f134073"},
     {file = "google_cloud_core-2.4.1-py2.py3-none-any.whl", hash = "sha256:a9e6a4422b9ac5c29f79a0ede9485473338e2ce78d91f2370c01e730eab22e61"},
@@ -1026,7 +1026,7 @@ version = "3.0.0"
 description = "Google Cloud Storage API client library"
 optional = false
 python-versions = ">=3.7"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "google_cloud_storage-3.0.0-py2.py3-none-any.whl", hash = "sha256:f85fd059650d2dbb0ac158a9a6b304b66143b35ed2419afec2905ca522eb2c6a"},
     {file = "google_cloud_storage-3.0.0.tar.gz", hash = "sha256:2accb3e828e584888beff1165e5f3ac61aa9088965eb0165794a82d8c7f95297"},
@@ -1050,7 +1050,7 @@ version = "1.6.0"
 description = "A python wrapper of the C library 'Google CRC32C'"
 optional = false
 python-versions = ">=3.9"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "google_crc32c-1.6.0-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:5bcc90b34df28a4b38653c36bb5ada35671ad105c99cfe915fb5bed7ad6924aa"},
     {file = "google_crc32c-1.6.0-cp310-cp310-macosx_12_0_x86_64.whl", hash = "sha256:d9e9913f7bd69e093b81da4535ce27af842e7bf371cde42d1ae9e9bd382dc0e9"},
@@ -1090,7 +1090,7 @@ version = "2.7.2"
 description = "Utilities for Google Media Downloads and Resumable Uploads"
 optional = false
 python-versions = ">=3.7"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "google_resumable_media-2.7.2-py2.py3-none-any.whl", hash = "sha256:3ce7551e9fe6d99e9a126101d2536612bb73486721951e9562fee0f90c6ababa"},
     {file = "google_resumable_media-2.7.2.tar.gz", hash = "sha256:5280aed4629f2b60b847b0d42f9857fd4935c11af266744df33d8074cae92fe0"},
@@ -1109,7 +1109,7 @@ version = "1.66.0"
 description = "Common protobufs used in Google APIs"
 optional = false
 python-versions = ">=3.7"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "googleapis_common_protos-1.66.0-py2.py3-none-any.whl", hash = "sha256:d7abcd75fabb2e0ec9f74466401f6c119a0b498e27370e9be4c94cb7e382b8ed"},
     {file = "googleapis_common_protos-1.66.0.tar.gz", hash = "sha256:c3e7b33d15fdca5374cc0a7346dd92ffa847425cc4ea941d970f13680052ec8c"},
@@ -1259,7 +1259,7 @@ version = "3.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.6"
-groups = ["main", "browser-tests", "dev", "docs", "kinto-remote-settings"]
+groups = ["main", "browser-tests", "cronjobs", "dev", "docs", "kinto-remote-settings"]
 files = [
     {file = "idna-3.10-py3-none-any.whl", hash = "sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3"},
     {file = "idna-3.10.tar.gz", hash = "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9"},
@@ -1480,7 +1480,7 @@ version = "11.7.1"
 description = "Kinto client"
 optional = false
 python-versions = "*"
-groups = ["browser-tests"]
+groups = ["browser-tests", "cronjobs"]
 files = [
     {file = "kinto_http-11.7.1-py3-none-any.whl", hash = "sha256:837ba12bea4eaafa8a4ce67730f8a40c9cf00c60f506ad42be03426c7236bc41"},
     {file = "kinto_http-11.7.1.tar.gz", hash = "sha256:8e2cb010969c433bc65f7191e7b3314e214ecc5c035dd22d891d1cca27f821f0"},
@@ -1544,6 +1544,52 @@ colorama = "*"
 
 [package.extras]
 dev = ["pytest"]
+
+[[package]]
+name = "lz4"
+version = "4.4.3"
+description = "LZ4 Bindings for Python"
+optional = false
+python-versions = ">=3.9"
+groups = ["cronjobs"]
+files = [
+    {file = "lz4-4.4.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:1ebf23ffd36b32b980f720a81990fcfdeadacafe7498fbeff7a8e058259d4e58"},
+    {file = "lz4-4.4.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:8fe3caea61427057a9e3697c69b2403510fdccfca4483520d02b98ffae74531e"},
+    {file = "lz4-4.4.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e86c7fbe46f6e2e9dfb5377ee690fb8987e8e8363f435886ab91012b88f08a26"},
+    {file = "lz4-4.4.3-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:a46f48740584eab3194fbee91c61f7fa396dbb1c5e7aa76ca08165d4e63fb40f"},
+    {file = "lz4-4.4.3-cp310-cp310-win32.whl", hash = "sha256:434a1d1547a0547164866f1ccc31bbda235ac5b9087f24a84956756b52371f40"},
+    {file = "lz4-4.4.3-cp310-cp310-win_amd64.whl", hash = "sha256:0aea6f283abd6acb1883b70d7a117b913e20c770845559f9421394bc9c522b24"},
+    {file = "lz4-4.4.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:b1b98f0a4137d01b84c680813eef6198e1e00f1f28bc20ce7b5c436459a0d146"},
+    {file = "lz4-4.4.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:20e385cb8bd8321593788f11101d8c89a823a56191978e427e3c5141e129f14b"},
+    {file = "lz4-4.4.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5c9e32989df06c57f10aa09ad9b30e8a25baf1aefe850e13b0ea5de600477d6a"},
+    {file = "lz4-4.4.3-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c3d2d5df5476b065aae9d1ad551fdc7b17c151b84e8edd9212108946b2337c66"},
+    {file = "lz4-4.4.3-cp311-cp311-win32.whl", hash = "sha256:e365850166729fa82be618f476966161d5c47ea081eafc4febfc542bc85bac5d"},
+    {file = "lz4-4.4.3-cp311-cp311-win_amd64.whl", hash = "sha256:7f5c05bd4b0909b682608c453acc31f1a9170d55f56d27cd701213e0683fc66a"},
+    {file = "lz4-4.4.3-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:43461e439ef71d49bb0ee3a1719494cd952a58d205496698e0cde866f22006bc"},
+    {file = "lz4-4.4.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:2ae50a175fb7b900f7aa42575f4fe99c32ca0ff57e5a8c1fd25e1243e67409db"},
+    {file = "lz4-4.4.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:38df5929ffefa9dda120ba1790a2e94fda81916c5aaa1ee652f4b1e515ebb9ed"},
+    {file = "lz4-4.4.3-cp312-cp312-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:2b45914f25d916324531d0259072b402c5f99b67c6e9ac8cbc3d49935aeb1d97"},
+    {file = "lz4-4.4.3-cp312-cp312-win32.whl", hash = "sha256:848c5b040d2cfe35097b1d65d1095d83a3f86374ce879e189533f61405d8763b"},
+    {file = "lz4-4.4.3-cp312-cp312-win_amd64.whl", hash = "sha256:b1d179bdefd9ddb8d11d7de7825e73fb957511b722a8cb484e417885c210e68c"},
+    {file = "lz4-4.4.3-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:174b7ce5456671c73b81bb115defac8a584363d8b38a48ed3ad976e08eea27cd"},
+    {file = "lz4-4.4.3-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:ab26b4af13308b8296688b03d74c3b0c8e8ed1f6b2d1454ef97bdb589db409db"},
+    {file = "lz4-4.4.3-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:61e08d84e3bf8ca9f43dc6b33f8cd7ba19f49864e2c91eb2160f83b6f9a268fa"},
+    {file = "lz4-4.4.3-cp313-cp313-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:71ebdaadf546d6d393b9a21796172723724b737e84f68f36caf367d1c87a86a1"},
+    {file = "lz4-4.4.3-cp313-cp313-win32.whl", hash = "sha256:1f25e1b571a8be2c3d60d46679ef2471ae565f7ba9ba8382596695413523b188"},
+    {file = "lz4-4.4.3-cp313-cp313-win_amd64.whl", hash = "sha256:da091dd8c96dbda124d766231f38619afd5c544051fb4424d2566c905957d342"},
+    {file = "lz4-4.4.3-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:699d26ac579eb42c71d131f9fb7b6e1c495a14e257264206a3c3bfcc146ed9bb"},
+    {file = "lz4-4.4.3-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:c4be1e5d9c8ad61345730c41c9ef21bdbb022cced4df70431110888d3ad5c0fb"},
+    {file = "lz4-4.4.3-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:de86400c8b60c7707665e63934a82ae6792e7102c17a72e9b361a7f40d3c6049"},
+    {file = "lz4-4.4.3-cp39-cp39-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:fe6080299a25fd7cbb1957c921cca6a884acbfcd44cc23de48079389d322e326"},
+    {file = "lz4-4.4.3-cp39-cp39-win32.whl", hash = "sha256:447993c4dda0b6b0e1bd862752c855df8745f2910bea5015344f83ff3e99f305"},
+    {file = "lz4-4.4.3-cp39-cp39-win_amd64.whl", hash = "sha256:3f21e503c18157512d2e34ae4c301e44a826c7b87e1d8998981367e3c9fe0932"},
+    {file = "lz4-4.4.3.tar.gz", hash = "sha256:91ed5b71f9179bf3dbfe85d92b52d4b53de2e559aa4daa3b7de18e0dd24ad77d"},
+]
+
+[package.extras]
+docs = ["sphinx (>=1.6.0)", "sphinx_bootstrap_theme"]
+flake8 = ["flake8"]
+tests = ["psutil", "pytest (!=3.3.0)", "pytest-cov"]
 
 [[package]]
 name = "markdown-it-py"
@@ -2038,7 +2084,7 @@ version = "1.26.0"
 description = "Beautiful, Pythonic protocol buffers"
 optional = false
 python-versions = ">=3.7"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "proto_plus-1.26.0-py3-none-any.whl", hash = "sha256:bf2dfaa3da281fc3187d12d224c707cb57214fb2c22ba854eb0c105a3fb2d4d7"},
     {file = "proto_plus-1.26.0.tar.gz", hash = "sha256:6e93d5f5ca267b54300880fff156b6a3386b3fa3f43b1da62e680fc0c586ef22"},
@@ -2056,7 +2102,7 @@ version = "5.29.3"
 description = ""
 optional = false
 python-versions = ">=3.8"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "protobuf-5.29.3-cp310-abi3-win32.whl", hash = "sha256:3ea51771449e1035f26069c4c7fd51fba990d07bc55ba80701c78f886bf9c888"},
     {file = "protobuf-5.29.3-cp310-abi3-win_amd64.whl", hash = "sha256:a4fa6f80816a9a0678429e84973f2f98cbc218cca434abe8db2ad0bffc98503a"},
@@ -2096,7 +2142,7 @@ version = "0.6.1"
 description = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
 optional = false
 python-versions = ">=3.8"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "pyasn1-0.6.1-py3-none-any.whl", hash = "sha256:0d632f46f2ba09143da3a8afe9e33fb6f92fa2320ab7e886e2d0f7672af84629"},
     {file = "pyasn1-0.6.1.tar.gz", hash = "sha256:6f580d2bdd84365380830acf45550f2511469f673cb4a5ae3857a3170128b034"},
@@ -2108,7 +2154,7 @@ version = "0.4.1"
 description = "A collection of ASN.1-based protocols modules"
 optional = false
 python-versions = ">=3.8"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "pyasn1_modules-0.4.1-py3-none-any.whl", hash = "sha256:49bfa96b45a292b711e986f222502c1c9a5e1f4e568fc30e2574a6c7d07838fd"},
     {file = "pyasn1_modules-0.4.1.tar.gz", hash = "sha256:c28e2dbf9c06ad61c71a075c7e0f9fd0f1b0bb2d2ad4377f240d33ac2ab60a7c"},
@@ -2357,6 +2403,18 @@ files = [
 six = ">=1.5"
 
 [[package]]
+name = "python-decouple"
+version = "3.8"
+description = "Strict separation of settings from code."
+optional = false
+python-versions = "*"
+groups = ["cronjobs"]
+files = [
+    {file = "python-decouple-3.8.tar.gz", hash = "sha256:ba6e2657d4f376ecc46f77a3a615e058d93ba5e465c01bbe57289bfb7cce680f"},
+    {file = "python_decouple-3.8-py3-none-any.whl", hash = "sha256:d0d45340815b25f4de59c974b855bb38d03151d81b037d9e3f463b0c9f8cbd66"},
+]
+
+[[package]]
 name = "python-memcached"
 version = "1.62"
 description = "Pure python memcached client"
@@ -2576,7 +2634,7 @@ version = "2.32.3"
 description = "Python HTTP for Humans."
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "browser-tests", "dev", "docs", "kinto-remote-settings"]
+groups = ["main", "browser-tests", "cronjobs", "dev", "docs", "kinto-remote-settings"]
 files = [
     {file = "requests-2.32.3-py3-none-any.whl", hash = "sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6"},
     {file = "requests-2.32.3.tar.gz", hash = "sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760"},
@@ -2623,6 +2681,26 @@ files = [
 
 [package.dependencies]
 requests = ">=2.0.1,<3.0.0"
+
+[[package]]
+name = "responses"
+version = "0.25.6"
+description = "A utility library for mocking out the `requests` Python library."
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "responses-0.25.6-py3-none-any.whl", hash = "sha256:9cac8f21e1193bb150ec557875377e41ed56248aed94e4567ed644db564bacf1"},
+    {file = "responses-0.25.6.tar.gz", hash = "sha256:eae7ce61a9603004e76c05691e7c389e59652d91e94b419623c12bbfb8e331d8"},
+]
+
+[package.dependencies]
+pyyaml = "*"
+requests = ">=2.30.0,<3.0"
+urllib3 = ">=1.25.10,<3.0"
+
+[package.extras]
+tests = ["coverage (>=6.0.0)", "flake8", "mypy", "pytest (>=7.0.0)", "pytest-asyncio", "pytest-cov", "pytest-httpserver", "tomli", "tomli-w", "types-PyYAML", "types-requests"]
 
 [[package]]
 name = "rich"
@@ -2762,7 +2840,7 @@ version = "4.9"
 description = "Pure-Python RSA implementation"
 optional = false
 python-versions = ">=3.6,<4"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "rsa-4.9-py3-none-any.whl", hash = "sha256:90260d9058e514786967344d0ef75fa8727eed8a7d2e43ce9f4bcf1b536174f7"},
     {file = "rsa-4.9.tar.gz", hash = "sha256:e38464a49c6c85d7f1351b0126661487a7e0a14a50f1675ec50eb34d4f20ef21"},
@@ -2805,7 +2883,7 @@ version = "2.20.0"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
-groups = ["main"]
+groups = ["main", "cronjobs"]
 files = [
     {file = "sentry_sdk-2.20.0-py2.py3-none-any.whl", hash = "sha256:c359a1edf950eb5e80cffd7d9111f3dbeef57994cb4415df37d39fda2cf22364"},
     {file = "sentry_sdk-2.20.0.tar.gz", hash = "sha256:afa82713a92facf847df3c6f63cec71eb488d826a50965def3d7722aa6f0fdab"},
@@ -3221,7 +3299,7 @@ version = "1.3.8"
 description = "ASCII transliterations of Unicode text"
 optional = false
 python-versions = ">=3.5"
-groups = ["browser-tests"]
+groups = ["browser-tests", "cronjobs"]
 files = [
     {file = "Unidecode-1.3.8-py3-none-any.whl", hash = "sha256:d130a61ce6696f8148a3bd8fe779c99adeb4b870584eeb9526584e9aa091fd39"},
     {file = "Unidecode-1.3.8.tar.gz", hash = "sha256:cfdb349d46ed3873ece4586b96aa75258726e2fa8ec21d6f00a591d98806c2f4"},
@@ -3233,7 +3311,7 @@ version = "2.3.0"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "browser-tests", "dev", "docs", "kinto-remote-settings"]
+groups = ["main", "browser-tests", "cronjobs", "dev", "docs", "kinto-remote-settings"]
 files = [
     {file = "urllib3-2.3.0-py3-none-any.whl", hash = "sha256:1cee9ad369867bfdbbb48b7dd50374c0967a0bb7710050facf0dd6911440e3df"},
     {file = "urllib3-2.3.0.tar.gz", hash = "sha256:f8c5449b3cf0861679ce7e0503c7b44b5ec981bec0d1d3795a07f1ba96f0204d"},
@@ -3542,4 +3620,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11, <3.14"
-content-hash = "14e2d604ab531ba01082aafe6fe795062f0907526cd0c6ac9d332137e20700a9"
+content-hash = "116328785e5e81355323f71b383d7bc96f2e955607120e28558c34fc90ff6dd6"

@@ -44,7 +44,7 @@ lint: $(INSTALL_STAMP)  ## Analyze code base
 	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v poetry.lock` --baseline .secrets.baseline
 
 test: $(INSTALL_STAMP)  ## Run unit tests
-	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings
+	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings cronjobs
 	$(VENV)/bin/coverage report -m --fail-under 99
 
 browser-test:  ## Run browser tests using Docker

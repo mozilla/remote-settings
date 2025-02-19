@@ -35,6 +35,18 @@ addopts = "-ra --showlocals --tb=native"
 sensitive_url = ".mozaws.net"
 asyncio_mode = "strict"
 
+[tool.pytest_env]
+# Environment variables (thanks to pytest-env)
+# Basically, undo anything that might get dragged in
+# from a personal .env file.
+DEBUG = false
+REDASH_API_KEY = "shhhuhsecret" # pragma: allowlist secret
+REDASH_API_QUERY_URL = "https://sql.telemetry.example.com/api/queries/001/"
+EXCLUDE_SOURCES = "trouble/*"
+DEFAULT_ERROR_THRESHOLD_PERCENT = 3.0
+SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # pragma: allowlist secret
+GOOGLE_CLOUD_PROJECT = "remote-settings"
+
 [tool.coverage]
 # https://github.com/nedbat/coveragepy
     [tool.coverage.run]
@@ -89,6 +101,7 @@ webtest = "3.0.3"
 coverage = "7.6.10"
 detect-secrets = "^1.5.0"
 ruff = "^0.9.4"
+responses = "^0.25.6"
 
 [tool.poetry.group.browser-tests]
 optional = true
@@ -110,6 +123,15 @@ optional = true
 [tool.poetry.group.docs.dependencies]
 docutils = "0.21.2"
 sphinx = "8.1.3"
+
+[tool.poetry.group.cronjobs.dependencies]
+backoff = "^2.2.1"
+python-decouple = "^3.8"
+kinto-http = "^11.7.0"
+requests = "^2.32.3"
+sentry_sdk = "^2.20.0"
+google-cloud-storage = "^3.0.0"
+lz4 = "^4.3.3"
 
 [build-system]
 requires = ["poetry-core"]

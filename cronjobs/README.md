@@ -14,7 +14,7 @@ All commands use Sentry to report any unexpected errors. Sentry can be configure
 Each command can be run, either with Python:
 
 ```
-$ python aws_lambda.py validate_signature
+$ python src/main.py validate_signature
 ```
 
 or via the Docker container:
@@ -40,7 +40,7 @@ Environment config:
 Example:
 
 ```
-$ REFRESH_SIGNATURE_AUTH=reviewer:pass  python aws_lambda.py refresh_signature
+$ REFRESH_SIGNATURE_AUTH=reviewer:pass  python src/main.py refresh_signature
 
 Looking at /buckets/monitor/collections/changes:
 Looking at /buckets/source/collections/source: to-review at 2018-03-05 13:56:08 UTC ( 1520258168885 )
@@ -76,7 +76,7 @@ Environment config:
 Example:
 
 ```
-$ BACKPORT_RECORDS_SOURCE_AUTH=user:pass BACKPORT_RECORDS_SOURCE_BUCKET=blocklists BACKPORT_RECORDS_SOURCE_COLLECTION=certificates BACKPORT_RECORDS_DEST_BUCKET=security-state BACKPORT_RECORDS_DEST_COLLECTION=onecrl  python3 aws_lambda.py backport_records
+$ BACKPORT_RECORDS_SOURCE_AUTH=user:pass BACKPORT_RECORDS_SOURCE_BUCKET=blocklists BACKPORT_RECORDS_SOURCE_COLLECTION=certificates BACKPORT_RECORDS_DEST_BUCKET=security-state BACKPORT_RECORDS_DEST_COLLECTION=onecrl  python3 src/main.py backport_records
 
 Batch #0: PUT /buckets/security-state/collections/onecrl/records/003234b2-f425-eae6-9596-040747dab2b9 - 201
 Batch #1: PUT /buckets/security-state/collections/onecrl/records/00ac492e-04f7-ee6d-5fd2-bb12b97a4b7f - 201
@@ -86,7 +86,7 @@ Done. 3 changes applied.
 ```
 
 ```
-$ BACKPORT_RECORDS_SOURCE_AUTH=user:pass BACKPORT_RECORDS_SOURCE_BUCKET=blocklists BACKPORT_RECORDS_SOURCE_COLLECTION=certificates BACKPORT_RECORDS_DEST_BUCKET=security-state BACKPORT_RECORDS_DEST_COLLECTION=onecrl  python3 aws_lambda.py backport_records
+$ BACKPORT_RECORDS_SOURCE_AUTH=user:pass BACKPORT_RECORDS_SOURCE_BUCKET=blocklists BACKPORT_RECORDS_SOURCE_COLLECTION=certificates BACKPORT_RECORDS_DEST_BUCKET=security-state BACKPORT_RECORDS_DEST_COLLECTION=onecrl  python3 src/main.py backport_records
 
 Records are in sync. Nothing to do.
 
@@ -111,36 +111,5 @@ Environment config:
 Example:
 
 ```
-$ SERVER=https://settings.prod.mozaws.net/v1 MEGAPHONE_URL="https://push.services.mozilla.com/v1" MEGAPHONE_READER_AUTH="a-b-c" MEGAPHONE_BROADCASTER_AUTH="d-e-f" python aws_lambda.py sync_megaphone
+$ SERVER=https://settings.prod.mozaws.net/v1 MEGAPHONE_URL="https://push.services.mozilla.com/v1" MEGAPHONE_READER_AUTH="a-b-c" MEGAPHONE_BROADCASTER_AUTH="d-e-f" python src/main.py sync_megaphone
 ```
-
-
-## Test locally
-
-```
-$ make test
-
-$ SERVER=https://firefox.settings.services.mozilla.com/v1/  python aws_lambda.py validate_signature
-```
-
-### Local Kinto server
-
-Best way to obtain a local setup that looks like a writable Remote Settings instance is to follow [this tutorial](https://remote-settings.readthedocs.io/en/latest/tutorial-local-server.html)
-
-It is possible to initialize the server with some fake data, like for the Kinto Dist smoke tests:
-
-```
-$ bash /path/to/kinto-dist/tests/smoke-test.sh
-```
-
-## Releasing
-
-1. Create a release on Github on https://github.com/mozilla-services/remote-settings-lambdas/releases/new
-2. Create a new tag `X.Y.Z` (*This tag will be created from the target when you publish this release.*)
-3. Generate release notes
-4. Publish release
-
-## License 
-
-Apache 2.0
-

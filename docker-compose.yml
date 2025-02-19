@@ -64,4 +64,9 @@ services:
       - MAIL_DIR=/var/debug-mail/
     volumes:
       - debug-mail:/var/debug-mail/
-
+  cronjobs:
+    build:
+      dockerfile: Cronjobs.Dockerfile
+      context: .
+    image: remotesettings/cronjobs
+    profiles: [cronjobs]
