@@ -125,6 +125,21 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get(self.changeset_uri + "&_limit=1", headers=self.headers)
         assert len(resp.json["changes"]) == 1
 
+    def test_limit_has_to_be_positive(self):
+        self.app.get(
+            self.changeset_uri + "&_limit=-1", headers=self.headers, status=400
+        )
+        self.app.get(
+            self.changeset_uri + f"&_limit={2**65}", headers=self.headers, status=400
+        )
+
+    def test_limit_is_bounded(self):
+        with mock.patch.object(self.app.app.registry.storage, "list_all") as mocked:
+            self.app.get(self.changeset_uri + "&_limit=42000", headers=self.headers)
+            mocked.assert_called()
+        _, kwargs = mocked.call_args
+        assert kwargs["limit"] == 10_000  # Default in kinto.core
+
     def test_extra_param_is_allowed(self):
         self.app.get(self.changeset_uri + "&_extra=abc", headers=self.headers)
 
