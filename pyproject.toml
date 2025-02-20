@@ -84,11 +84,11 @@ readme = "README.rst"
 [tool.poetry.dependencies]
 python = ">=3.11, <3.14"
 canonicaljson-rs = "0.7.1"
-cryptography = "44.0.0"
+cryptography = "44.0.1"
 ecdsa = "0.19.0"
-kinto = {version = "^19.4.0", extras = ["postgresql","memcached","monitoring"]}
+kinto = {version = "^19.5.0", extras = ["postgresql","memcached","monitoring"]}
 kinto-attachment = "7.0.0"
-kinto-emailer = "3.0.2"
+kinto-emailer = "3.0.4"
 requests-hawk = "1.2.1"
 uwsgi = "2.0.28"
 
@@ -97,24 +97,24 @@ kinto-remote-settings = {path = "./kinto-remote-settings", develop = true}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.4"
-webtest = "3.0.3"
-coverage = "7.6.10"
+webtest = "3.0.4"
+coverage = "7.6.12"
 detect-secrets = "^1.5.0"
-ruff = "^0.9.4"
+ruff = "^0.9.6"
 responses = "^0.25.6"
 
 [tool.poetry.group.browser-tests]
 optional = true
 
 [tool.poetry.group.browser-tests.dependencies]
-aiohttp = "3.11.11"
+aiohttp = "3.11.12"
 autograph-utils = "1.0.1"
 canonicaljson-rs = "0.7.1"
 httpie = "3.2.4"
 kinto-http = "11.7.1"
 pytest = "8.3.4"
-webtest = "3.0.3"
-playwright = "1.49.1"
+webtest = "3.0.4"
+playwright = "1.50.0"
 pytest-playwright = "0.7.0"
 
 [tool.poetry.group.docs]

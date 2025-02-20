@@ -36,38 +36,6 @@ Misc
 * `searchengine devtools <https://github.com/mozilla-extensions/searchengine-devtools/>`_
 
 
-Normandy Recipes
-----------------
-
-The list of ongoing experimentations is managed via the ``normandy-recipes-capabilities`` collection.
-
-
-Implementation
-''''''''''''''
-
-* Synchronization happens on first startup because no initial data is packaged:
-
-  - ``Normandy.init()`` in BrowserGlue (`source <https://searchfox.org/mozilla-central/rev/0db73daa4b03ce7513a7dd5f31109143dc3b149e/browser/components/BrowserGlue.jsm#1359-1361>`_)
-  - Calling ``.get()`` with implicit ``syncIfEmpty: true`` option will initialize the local DB by synchronizing the collection  for Normandy (`source <https://searchfox.org/mozilla-central/rev/8a4aa0c699d9ec281d1f576c9be1c6c1f289e4e7/toolkit/components/normandy/lib/RecipeRunner.jsm#319-326>`__)
-
-* In order to guarantee that the records are published from Normandy, each record is signed individually on the server side (`source <https://github.com/mozilla/normandy/blob/526eaeb4a5d4e28fd4266e0191557150120d37e7/normandy/recipes/exports.py#L15-L33>`__). Records are published from Django using ``kinto-http.py``.
-
-* Signature verification for the whole collection is done as usual, and the per-record one is verified on read when recipe eligibility is checked (`source <https://searchfox.org/mozilla-central/rev/8a4aa0c699d9ec281d1f576c9be1c6c1f289e4e7/toolkit/components/normandy/lib/RecipeRunner.jsm#519-524>`__)
-
-
-Configuration
-'''''''''''''
-
-* Multi signoff is disabled (`config <https://github.com/mozilla-services/cloudops-deployment/blob/febea7143d9c048f917d8358f46272d50f617906/projects/kinto/puppet/modules/kinto/templates/kinto.ini.erb#L186-L188>`__)
-* A scheduled task backports certain recipes into a legacy collection for old clients (`source <https://github.com/mozilla-services/remote-settings-lambdas/blob/93b6997/commands/backport_records.py>`__, `config <https://github.com/mozilla-services/cloudops-deployment/blob/9e61fb2fe213ba15c74431b3cdfe889e67c2d7e6/projects/kinto-lambda/ansible/envs/default.yml#L23-L27>`__)
-
-
-Misc
-''''
-
-* `Poucave checks for Normandy <https://github.com/mozilla-services/poucave/tree/v1.32.0/checks/normandy>`_
-
-
 HIBP Monitor Breaches
 ---------------------
 
