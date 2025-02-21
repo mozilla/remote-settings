@@ -54,7 +54,7 @@ browser-test:  ## Run browser tests using Docker
 
 build:  ## Build containers
 	docker build --file RemoteSettings.Dockerfile --target production --tag remotesettings/server .
-	docker compose --profile browser-test build
+	docker compose --profile browser-tests build
 
 build-db:  ## Initialize database 'postgresql://postgres@localhost/testdb'
 ifdef PSQL_INSTALLED

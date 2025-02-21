@@ -56,7 +56,7 @@ services:
       dockerfile: BrowserTests.Dockerfile
       context: .
     image: remotesettings/tests
-    profiles: [browser-test]
+    profiles: [browser-tests]
     depends_on:
       - web
     environment:
