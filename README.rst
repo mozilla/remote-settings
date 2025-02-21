@@ -17,7 +17,7 @@ This *Remote Settings* repository contains the following files and directories o
 * ``config/``: example configuration file(s)
 * ``docs/``: documentation source files
 * ``kinto-remote-settings/``: Kinto plugin specific to Remote Settings
-* ``tests/``: browser/integration/gatekeeper tests
+* ``browser-tests/``: browser/integration/gatekeeper tests
 * ``pyproject.toml``: contains dependency information and (most) config settings
 * ``VERSION``: SemVer version number that serves as both the version of the service and the ``kinto-remote-settings`` plugin
 
@@ -103,7 +103,7 @@ or download a pre-built container from `Dockerhub <https://hub.docker.com/r/mozi
 
 Next run the tests, supplying config values as necessary. Config values are
 set as environment variables provided to the Docker container. See
-``tests/conftest.py`` for descriptions of all of the config options that are
+``browser-tests/conftest.py`` for descriptions of all of the config options that are
 available.
 
 Note that the tests assume that the server has the ``attachments``,

@@ -33,6 +33,6 @@ COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
 RUN playwright install --with-deps firefox
 
 WORKDIR /app
-COPY tests/ pyproject.toml ./
-# ./tests/run.sh, not ./bin/run.sh
+COPY browser-tests/ pyproject.toml ./
+# ./browser-tests/run.sh, not ./bin/run.sh
 ENTRYPOINT ["/app/run.sh"]
