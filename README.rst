@@ -76,7 +76,7 @@ With Docker and docker-compose, test that all components are working as expected
     ``curl -XPOST http://localhost:8888/v1/__flush__``
 
 That will start ``memcached``, ``postgresql``, ``autograph`` and Kinto (at ``web:8888``)
-and lastly the ``tests`` container that primarily
+and lastly the ``browser-tests`` container that primarily
 uses ``pytest`` to test various things against ``http://web:8888/v1``.
 
 When you're done running the above command, the individual servers will still
@@ -97,7 +97,7 @@ To run the test suite, first build the tests container
 
 .. code-block:: shell
 
-    docker-compose build tests
+    docker-compose build browser-tests
 
 or download a pre-built container from `Dockerhub <https://hub.docker.com/r/mozilla/remote-settings-browser-tests>`_.
 
@@ -110,8 +110,8 @@ Note that the tests assume that the server has the ``attachments``,
 ``changes``, ``history``, and ``signer`` plugins enabled. It may optionally
 have the ``email`` plugin installed.
 
-The credentials passed in ``SETUP_AUTH`` should have the permission to create users, 
-buckets, and collections. These credentials will be in the form 
+The credentials passed in ``SETUP_AUTH`` should have the permission to create users,
+buckets, and collections. These credentials will be in the form
 ``SETUP_AUTH=username:password`` or ``SETUP_AUTH="Bearer some_token"``
 
 - All tests will run under the ``integration-tests`` collection in the ``main-workspace`` bucket
@@ -135,7 +135,7 @@ Running browser tests on the Remote Settings DEV server should look something li
 
 
 Because the tests are capable of running against environments with existing data, there are limitations to what they can do. Examples:
- - Test setup is global 
+ - Test setup is global
  - Test setup and may be partially skipped if the bucket, collection and users already exist
  - All tests have access to the same bucket, collection, and users
  - Tests are not allowed to delete the bucket(s), collection(s) or users
@@ -174,12 +174,12 @@ manually with ``kinto start``:
 
     kinto start --ini config/local.ini
 
-Another thing you might want to debug is the ``tests`` container that tests
+Another thing you might want to debug is the ``browser-tests`` container that tests
 against the Kinto server.
 
 .. code-block:: shell
 
-    docker-compose run --rm tests bash
+    docker-compose run --rm browser-tests bash
 
 Now, from that ``bash`` session you can reach the other services like:
 

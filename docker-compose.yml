@@ -51,7 +51,7 @@ services:
       - debug-mail:/app/mail
       - attachments:/tmp/attachments
 
-  tests:
+  browser-tests:
     build:
       dockerfile: BrowserTests.Dockerfile
       context: .
