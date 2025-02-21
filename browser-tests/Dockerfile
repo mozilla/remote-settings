@@ -16,7 +16,7 @@ RUN python -m venv $POETRY_HOME && \
 
 WORKDIR /opt
 COPY pyproject.toml poetry.lock ./
-RUN $POETRY_HOME/bin/poetry install --only browser-tests --no-root
+RUN $POETRY_HOME/bin/poetry install --no-root
 
 FROM python:3.13.2
 
@@ -25,14 +25,12 @@ ENV PATH="/opt/.venv/bin:$PATH" \
     VIRTUAL_ENV=/opt/.venv \
     PYTHONPATH="/app:$PYTHONPATH"
 
-COPY /bin/update_and_install_system_packages.sh /opt
-RUN /opt/update_and_install_system_packages.sh wget
+RUN apt-get update && apt-get -y install wget
 
 COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
 
 RUN playwright install --with-deps firefox
 
 WORKDIR /app
-COPY tests/ pyproject.toml ./
-# ./tests/run.sh, not ./bin/run.sh
+COPY . .
 ENTRYPOINT ["/app/run.sh"]

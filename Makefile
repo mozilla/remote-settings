@@ -21,7 +21,7 @@ distclean: clean ## Delete packaging and cache files
 maintainer-clean: distclean ## Delete all non versioned files
 	deactivate ; rm -rf .venv/
 	rm -rf .pytest_cache
-	rm -rf tests/.pytest_cache
+	rm -rf browser-tests/.pytest_cache
 	find . -name '*.orig' -delete
 	docker compose down --remove-orphans --volumes --rmi all
 
@@ -35,12 +35,12 @@ $(INSTALL_STAMP): poetry.lock
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)  ## Format code base
-	$(VENV)/bin/ruff check --fix kinto-remote-settings tests
-	$(VENV)/bin/ruff format kinto-remote-settings tests
+	$(VENV)/bin/ruff check --fix kinto-remote-settings browser-tests
+	$(VENV)/bin/ruff format kinto-remote-settings browser-tests
 
 lint: $(INSTALL_STAMP)  ## Analyze code base
-	$(VENV)/bin/ruff check kinto-remote-settings tests
-	$(VENV)/bin/ruff format kinto-remote-settings tests
+	$(VENV)/bin/ruff check kinto-remote-settings browser-tests
+	$(VENV)/bin/ruff format kinto-remote-settings browser-tests
 	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v poetry.lock` --baseline .secrets.baseline
 
 test: $(INSTALL_STAMP)  ## Run unit tests
@@ -48,13 +48,13 @@ test: $(INSTALL_STAMP)  ## Run unit tests
 	$(VENV)/bin/coverage report -m --fail-under 99
 
 browser-test:  ## Run browser tests using Docker
-	docker compose build tests -q
+	docker compose build browser-tests -q
 	docker compose run --rm web migrate
-	docker compose run --rm tests
+	docker compose run --rm browser-tests
 
 build:  ## Build containers
 	docker build --file RemoteSettings.Dockerfile --target production --tag remotesettings/server .
-	docker compose --profile browser-test build
+	docker compose --profile browser-tests build
 
 build-db:  ## Initialize database 'postgresql://postgres@localhost/testdb'
 ifdef PSQL_INSTALLED

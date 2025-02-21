@@ -51,12 +51,11 @@ services:
       - debug-mail:/app/mail
       - attachments:/tmp/attachments
 
-  tests:
+  browser-tests:
     build:
-      dockerfile: BrowserTests.Dockerfile
-      context: .
-    image: remotesettings/tests
-    profiles: [browser-test]
+      context: browser-tests/
+    image: remotesettings/browser-tests
+    profiles: [browser-tests]
     depends_on:
       - web
     environment:

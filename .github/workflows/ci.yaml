@@ -113,10 +113,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ env.DOCKER_CACHE}}
-          key: docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'BrowserTests.Dockerfile') }}-${{ env.CACHE_KEY }}
+          key: docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'browser-tests/Dockerfile') }}-${{ env.CACHE_KEY }}
           restore-keys: |
-            docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'BrowserTests.Dockerfile') }}-${{ env.CACHE_KEY }}
-            docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'BrowserTests.Dockerfile') }}-
+            docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'browser-tests/Dockerfile') }}-${{ env.CACHE_KEY }}
+            docker-build-${{ hashFiles('RemoteSettings.Dockerfile', 'browser-tests/Dockerfile') }}-
             docker-build-
 
       - name: Set up Docker Buildx
@@ -137,8 +137,7 @@ jobs:
         with:
           cache-from: type=local,src=${{ env.DOCKER_CACHE}}/tests
           cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/tests,mode=max
-          file: BrowserTests.Dockerfile
-          context: .
+          context: browser-tests/
 
       - name: Run browser tests
         run: make browser-test

@@ -68,7 +68,6 @@ target/
 
 # misc
 autograph-certs/chains
-tests/pyproject.toml
 mail/*.eml
 attachments/
 .DS_Store
