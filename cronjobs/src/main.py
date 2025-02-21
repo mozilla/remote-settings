@@ -5,8 +5,9 @@ import os
 import sys
 
 import sentry_sdk
-from sentry_sdk.integrations.gcp import GcpIntegration
 from decouple import config
+from sentry_sdk.integrations.gcp import GcpIntegration
+
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 
@@ -33,13 +34,16 @@ def help_(**kwargs):
         return f"\033[1m\x1b[37m{s}\033[0;0m"
 
     entrypoints = [
-        os.path.splitext(os.path.basename(f))[0] for f in glob.glob(f"{HERE}/commands/[a-z]*.py")
+        os.path.splitext(os.path.basename(f))[0]
+        for f in glob.glob(f"{HERE}/commands/[a-z]*.py")
     ]
     commands = [
         getattr(importlib.import_module(f"commands.{entrypoint}"), entrypoint)
         for entrypoint in entrypoints
     ]
-    func_listed = "\n - ".join([f"{white_bold(f.__name__)}: {f.__doc__}" for f in commands])
+    func_listed = "\n - ".join(
+        [f"{white_bold(f.__name__)}: {f.__doc__}" for f in commands]
+    )
     print(
         f"""
 Remote Settings lambdas.

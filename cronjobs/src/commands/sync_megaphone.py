@@ -37,7 +37,9 @@ class Megaphone:
         resp = requests.put(url, auth=self.broadcaster_auth, data=version)
         resp.raise_for_status()
         logger.info(
-            "Sent version {} to megaphone. Response was {}".format(version, resp.status_code)
+            "Sent version {} to megaphone. Response was {}".format(
+                version, resp.status_code
+            )
         )
 
     def get_version(self):
@@ -51,13 +53,19 @@ class Megaphone:
 
 def get_remotesettings_timestamp(uri):
     client = KintoClient(server_url=uri)
-    changeset = client.get_changeset(bucket="monitor", collection="changes", bust_cache=True)
+    changeset = client.get_changeset(
+        bucket="monitor", collection="changes", bust_cache=True
+    )
     # We want to filter out preview entries, because we don't want to notify all clients
     # when a review is requested. Therefore we can't use the `timestamp` field and must
     # get it from filtered entries.
     # https://github.com/mozilla/remote-settings/blob/45841c04/kinto-remote-settings/src/kinto_remote_settings/changes/views.py#L40-L44
     return str(
-        max(e["last_modified"] for e in changeset["changes"] if "preview" not in e["bucket"])
+        max(
+            e["last_modified"]
+            for e in changeset["changes"]
+            if "preview" not in e["bucket"]
+        )
     )
 
 
@@ -72,7 +80,9 @@ def sync_megaphone(event, context):
     megaphone_broadcaster_auth = event.get("megaphone_broadcaster_auth") or os.getenv(
         "MEGAPHONE_BROADCASTER_AUTH"
     )
-    broadcaster_id = event.get("broadcaster_id") or os.getenv("BROADCASTER_ID", BROADCASTER_ID)
+    broadcaster_id = event.get("broadcaster_id") or os.getenv(
+        "BROADCASTER_ID", BROADCASTER_ID
+    )
     channel_id = event.get("channel_id") or os.getenv("CHANNEL_ID", CHANNEL_ID)
     broadcast_id = f"{broadcaster_id}/{channel_id}"
 

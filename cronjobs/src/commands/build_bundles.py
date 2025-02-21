@@ -43,7 +43,8 @@ def fetch_all_changesets(client):
     print("%s collections" % len(monitor_changeset["changes"]))
 
     args_list = [
-        (c["bucket"], c["collection"], c["last_modified"]) for c in monitor_changeset["changes"]
+        (c["bucket"], c["collection"], c["last_modified"])
+        for c in monitor_changeset["changes"]
     ]
     all_changesets = call_parallel(
         lambda bid, cid, ts: client.get_changeset(bid, cid, _expected=ts), args_list
@@ -202,7 +203,10 @@ def build_bundles(event, context):
         write_zip(
             attachments_bundle_filename,
             [(f"{record['id']}.meta.json", json.dumps(record)) for record in records]
-            + [(record["id"], attachment) for record, attachment in zip(records, all_attachments)],
+            + [
+                (record["id"], attachment)
+                for record, attachment in zip(records, all_attachments)
+            ],
         )
         bundles_to_upload.append(attachments_bundle_filename)
 
@@ -248,5 +252,8 @@ def build_bundles(event, context):
 
     if not SKIP_UPLOAD:
         sync_cloud_storage(
-            STORAGE_BUCKET_NAME, DESTINATION_FOLDER, bundles_to_upload, bundles_to_delete
+            STORAGE_BUCKET_NAME,
+            DESTINATION_FOLDER,
+            bundles_to_upload,
+            bundles_to_delete,
         )

@@ -35,12 +35,12 @@ $(INSTALL_STAMP): poetry.lock
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)  ## Format code base
-	$(VENV)/bin/ruff check --fix kinto-remote-settings tests
-	$(VENV)/bin/ruff format kinto-remote-settings tests
+	$(VENV)/bin/ruff check --fix kinto-remote-settings cronjobs tests
+	$(VENV)/bin/ruff format kinto-remote-settings cronjobs tests
 
 lint: $(INSTALL_STAMP)  ## Analyze code base
-	$(VENV)/bin/ruff check kinto-remote-settings tests
-	$(VENV)/bin/ruff format kinto-remote-settings tests
+	$(VENV)/bin/ruff check kinto-remote-settings cronjobs tests
+	$(VENV)/bin/ruff format kinto-remote-settings cronjobs tests
 	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v poetry.lock` --baseline .secrets.baseline
 
 test: $(INSTALL_STAMP)  ## Run unit tests

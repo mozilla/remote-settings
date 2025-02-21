@@ -3,7 +3,6 @@ import unittest
 
 import pytest
 import responses
-
 from commands.backport_records import backport_records
 
 

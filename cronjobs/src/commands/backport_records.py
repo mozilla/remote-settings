@@ -12,14 +12,17 @@ from . import KintoClient as Client
 def parse_querystring(qs):
     query_dict = urllib.parse.parse_qs(qs.lstrip("?"))
     # Convert the list values to single values for convenience
-    return {key: value[0] if len(value) == 1 else value for key, value in query_dict.items()}
+    return {
+        key: value[0] if len(value) == 1 else value for key, value in query_dict.items()
+    }
 
 
 def backport_records(event, context, **kwargs):
     """Backport records creations, updates and deletions from one collection to another."""
     server_url = event["server"]
     source_auth = (
-        event.get("backport_records_source_auth") or os.environ["BACKPORT_RECORDS_SOURCE_AUTH"]
+        event.get("backport_records_source_auth")
+        or os.environ["BACKPORT_RECORDS_SOURCE_AUTH"]
     )
     dest_auth = event.get(
         "backport_records_dest_auth",
@@ -29,7 +32,8 @@ def backport_records(event, context, **kwargs):
     mappings = []
 
     if mappings_env := (
-        event.get("backport_records_mappings") or os.getenv("BACKPORT_RECORDS_MAPPINGS", "")
+        event.get("backport_records_mappings")
+        or os.getenv("BACKPORT_RECORDS_MAPPINGS", "")
     ):
         regexp = re.compile(
             r"^(?P<sbid>[^/]+)/(?P<scid>[^/\?]+)(?P<qs>\?.*)? -> (?P<dbid>[^/]+)/(?P<dcid>[^/]+)$"
@@ -77,7 +81,9 @@ def backport_records(event, context, **kwargs):
 
         mappings.append((sbid, scid, filters_dict, dbid, dcid))
 
-    safe_headers = event.get("safe_headers", config("SAFE_HEADERS", default=False, cast=bool))
+    safe_headers = event.get(
+        "safe_headers", config("SAFE_HEADERS", default=False, cast=bool)
+    )
 
     for mapping in mappings:
         execute_backport(server_url, source_auth, dest_auth, safe_headers, *mapping)
@@ -146,14 +152,16 @@ def execute_backport(
     signed_dest = [
         r
         for r in signer_resources
-        if r["source"]["bucket"] == dest_bucket and r["source"]["collection"] == dest_collection
+        if r["source"]["bucket"] == dest_bucket
+        and r["source"]["collection"] == dest_collection
     ]
     if len(signed_dest) == 0:
         # Not explicitly configured. Check if configured at bucket level?
         signed_dest = [
             r
             for r in signer_resources
-            if r["source"]["bucket"] == dest_bucket and r["source"]["collection"] is None
+            if r["source"]["bucket"] == dest_bucket
+            and r["source"]["collection"] is None
         ]
     # Destination has no signature enabled. Nothing to do.
     if len(signed_dest) == 0:

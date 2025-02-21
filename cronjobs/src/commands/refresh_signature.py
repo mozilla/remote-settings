@@ -12,7 +12,9 @@ class RefreshError(Exception):
 
 def timestamp_to_date(timestamp_milliseconds):
     timestamp_seconds = int(timestamp_milliseconds) / 1000
-    return datetime.utcfromtimestamp(timestamp_seconds).strftime("%Y-%m-%d %H:%M:%S UTC")
+    return datetime.utcfromtimestamp(timestamp_seconds).strftime(
+        "%Y-%m-%d %H:%M:%S UTC"
+    )
 
 
 def utcnow():
@@ -41,7 +43,9 @@ def refresh_signature(event, context, **kwargs):
     """Refresh the signatures of each collection."""
     server_url = event["server"]
     auth = event.get("refresh_signature_auth") or os.getenv("REFRESH_SIGNATURE_AUTH")
-    max_signature_age = int(event.get("max_signature_age", os.getenv("MAX_SIGNATURE_AGE", 7)))
+    max_signature_age = int(
+        event.get("max_signature_age", os.getenv("MAX_SIGNATURE_AGE", 7))
+    )
 
     # Look at the collections in the changes endpoint.
     bucket = event.get("bucket", "monitor")
