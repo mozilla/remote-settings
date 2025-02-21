@@ -31,7 +31,7 @@ $(VENV)/bin/python:  ## Create virtualenv
 install: $(VENV)/bin/python $(INSTALL_STAMP)  ## Install dependencies
 $(INSTALL_STAMP): poetry.lock
 	@if [ -z $(shell command -v poetry 2> /dev/null) ]; then echo "Poetry could not be found. See https://python-poetry.org/docs/"; exit 2; fi
-	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --no-root
+	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --with cronjobs --no-root
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)  ## Format code base
