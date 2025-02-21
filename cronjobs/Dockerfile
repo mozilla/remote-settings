@@ -16,7 +16,7 @@ RUN python -m venv $POETRY_HOME && \
 
 WORKDIR /opt
 COPY pyproject.toml poetry.lock ./
-RUN $POETRY_HOME/bin/poetry install --only cronjobs --no-root
+RUN $POETRY_HOME/bin/poetry install --no-root
 
 
 FROM python:3.13.1
@@ -29,7 +29,7 @@ ENV PATH="/opt/.venv/bin:$PATH" \
 COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
 
 WORKDIR /app
-ADD cronjobs/src ./
+ADD src ./
 
 ENTRYPOINT ["/app/main.py"]
 CMD ["help"]

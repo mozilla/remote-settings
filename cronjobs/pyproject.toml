@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "cronjobs"
+version = "0"
+
+[tool.poetry.dependencies]
+python = ">=3.11, <3.14"
+
+[tool.poetry.group.cronjobs.dependencies]
+backoff = "^2.2.1"
+python-decouple = "^3.8"
+kinto-http = "^11.7.0"
+requests = "^2.32.3"
+sentry_sdk = "^2.20.0"
+google-cloud-storage = "^3.0.0"
+lz4 = "^4.3.3"
+
+[tool.pytest_env]
+# Environment variables (thanks to pytest-env)
+# Basically, undo anything that might get dragged in
+# from a personal .env file.
+DEBUG = false
+REDASH_API_KEY = "shhhuhsecret" # pragma: allowlist secret
+REDASH_API_QUERY_URL = "https://sql.telemetry.example.com/api/queries/001/"
+EXCLUDE_SOURCES = "trouble/*"
+DEFAULT_ERROR_THRESHOLD_PERCENT = 3.0
+SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # pragma: allowlist secret
+GOOGLE_CLOUD_PROJECT = "remote-settings"
