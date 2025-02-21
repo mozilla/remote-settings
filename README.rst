@@ -131,7 +131,7 @@ Running browser tests on the Remote Settings DEV server should look something li
         --env MAIL_DIR="" `#disables test cases related to emails` \
         --env EDITOR_AUTH=<username:password, credentials available in 1Password> \
         --env REVIEWER_AUTH=<username:password, available in 1Password> \
-    remotesettings/tests browser-test
+    remotesettings/browser-tests browser-test
 
 
 Because the tests are capable of running against environments with existing data, there are limitations to what they can do. Examples:
