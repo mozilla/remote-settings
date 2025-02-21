@@ -53,8 +53,7 @@ services:
 
   browser-tests:
     build:
-      dockerfile: BrowserTests.Dockerfile
-      context: .
+      context: browser-tests/
     image: remotesettings/browser-tests
     profiles: [browser-tests]
     depends_on:
