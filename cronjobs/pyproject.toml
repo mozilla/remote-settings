@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "cronjobs"
 version = "0"
+description = "Remote Settings core cronjobs"
+authors = ["Contactless <postmaster@localhost>"]
 
 [tool.poetry.dependencies]
 python = ">=3.11, <3.14"
-
-[tool.poetry.group.cronjobs.dependencies]
 backoff = "^2.2.1"
 python-decouple = "^3.8"
 kinto-http = "^11.7.0"
