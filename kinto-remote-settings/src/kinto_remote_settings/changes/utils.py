@@ -1,8 +1,21 @@
 import hashlib
+from typing import Optional
 from uuid import UUID
 
 from kinto.core import utils as core_utils
 from pyramid.settings import aslist
+
+
+def bound_limit(settings: dict, value: Optional[int]) -> int:
+    """
+    ``_limit`` querystring value has to be within what is configured as
+    pagination size and max storage fetching size (respectively defaults
+    as `None` and 10000 in `kinto.core.DEFAULT_SETTINGS`)
+    """
+    max_fetch_size = settings["storage_max_fetch_size"]
+    paginate_by = settings["paginate_by"] or max_fetch_size
+    max_limit = min(paginate_by, max_fetch_size)
+    return min(abs(value), max_limit) if value is not None else max_limit
 
 
 def monitored_collections(registry):

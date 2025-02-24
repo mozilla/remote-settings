@@ -22,7 +22,11 @@ from . import (
     CHANGESET_PATH,
     MONITOR_BUCKET,
 )
-from .utils import changes_object, monitored_collections
+from .utils import bound_limit, changes_object, monitored_collections
+
+
+POSTGRESQL_MAX_INTEGER_VALUE = 2**63
+positive_big_integer = colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE)
 
 
 class ChangesModel(object):
@@ -265,7 +269,9 @@ class QuotedTimestamp(colander.SchemaNode):
 class ChangeSetQuerystring(colander.MappingSchema):
     _since = QuotedTimestamp(missing=colander.drop)
     _expected = colander.SchemaNode(colander.String())
-    _limit = colander.SchemaNode(colander.Integer(), missing=colander.drop)
+    _limit = colander.SchemaNode(
+        colander.Integer(), missing=colander.drop, validator=positive_big_integer
+    )
     # Query parameters used on monitor/changes endpoint.
     bucket = colander.SchemaNode(colander.String(), missing=colander.drop)
     collection = colander.SchemaNode(colander.String(), missing=colander.drop)
@@ -285,7 +291,7 @@ def get_changeset(request):
     storage = request.registry.storage
 
     queryparams = request.validated["querystring"]
-    limit = queryparams.get("_limit")
+    limit = bound_limit(request.registry.settings, queryparams.get("_limit"))
     filters = []
     include_deleted = False
     if "_since" in queryparams:
