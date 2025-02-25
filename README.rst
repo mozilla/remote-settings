@@ -18,7 +18,7 @@ This *Remote Settings* repository contains the following files and directories o
 * ``cronjobs/``: core cronjobs
 * ``docs/``: documentation source files
 * ``kinto-remote-settings/``: Kinto plugin specific to Remote Settings
-* ``tests/``: browser/integration/gatekeeper tests
+* ``browser-tests/``: browser/integration/gatekeeper tests
 * ``pyproject.toml``: contains dependency information and (most) config settings
 * ``VERSION``: SemVer version number that serves as both the version of the service and the ``kinto-remote-settings`` plugin
 
@@ -77,7 +77,7 @@ With Docker and docker-compose, test that all components are working as expected
     ``curl -XPOST http://localhost:8888/v1/__flush__``
 
 That will start ``memcached``, ``postgresql``, ``autograph`` and Kinto (at ``web:8888``)
-and lastly the ``tests`` container that primarily
+and lastly the ``browser-tests`` container that primarily
 uses ``pytest`` to test various things against ``http://web:8888/v1``.
 
 When you're done running the above command, the individual servers will still
@@ -98,21 +98,21 @@ To run the test suite, first build the tests container
 
 .. code-block:: shell
 
-    docker-compose build tests
+    docker-compose build browser-tests
 
 or download a pre-built container from `Dockerhub <https://hub.docker.com/r/mozilla/remote-settings-browser-tests>`_.
 
 Next run the tests, supplying config values as necessary. Config values are
 set as environment variables provided to the Docker container. See
-``tests/conftest.py`` for descriptions of all of the config options that are
+``browser-tests/conftest.py`` for descriptions of all of the config options that are
 available.
 
 Note that the tests assume that the server has the ``attachments``,
 ``changes``, ``history``, and ``signer`` plugins enabled. It may optionally
 have the ``email`` plugin installed.
 
-The credentials passed in ``SETUP_AUTH`` should have the permission to create users, 
-buckets, and collections. These credentials will be in the form 
+The credentials passed in ``SETUP_AUTH`` should have the permission to create users,
+buckets, and collections. These credentials will be in the form
 ``SETUP_AUTH=username:password`` or ``SETUP_AUTH="Bearer some_token"``
 
 - All tests will run under the ``integration-tests`` collection in the ``main-workspace`` bucket
@@ -132,11 +132,11 @@ Running browser tests on the Remote Settings DEV server should look something li
         --env MAIL_DIR="" `#disables test cases related to emails` \
         --env EDITOR_AUTH=<username:password, credentials available in 1Password> \
         --env REVIEWER_AUTH=<username:password, available in 1Password> \
-    remotesettings/tests browser-test
+    remotesettings/browser-tests browser-test
 
 
 Because the tests are capable of running against environments with existing data, there are limitations to what they can do. Examples:
- - Test setup is global 
+ - Test setup is global
  - Test setup and may be partially skipped if the bucket, collection and users already exist
  - All tests have access to the same bucket, collection, and users
  - Tests are not allowed to delete the bucket(s), collection(s) or users
@@ -175,12 +175,12 @@ manually with ``kinto start``:
 
     kinto start --ini config/local.ini
 
-Another thing you might want to debug is the ``tests`` container that tests
+Another thing you might want to debug is the ``browser-tests`` container that tests
 against the Kinto server.
 
 .. code-block:: shell
 
-    docker-compose run --rm tests bash
+    docker-compose run --rm browser-tests bash
 
 Now, from that ``bash`` session you can reach the other services like:
 

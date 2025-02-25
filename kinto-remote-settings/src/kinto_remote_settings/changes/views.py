@@ -3,10 +3,10 @@ from urllib.parse import urlencode
 
 import colander
 import kinto.core
-from cornice.validators import colander_validator
 from kinto.authorization import RouteFactory
 from kinto.core import resource
 from kinto.core import utils as core_utils
+from kinto.core.cornice.validators import colander_validator
 from kinto.core.storage import Filter, Sort
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.storage.memory import extract_object_set
