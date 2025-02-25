@@ -15,6 +15,7 @@ This *Remote Settings* repository contains the following files and directories o
 
 * ``bin/``: container entry point and script(s)
 * ``config/``: example configuration file(s)
+* ``cronjobs/``: core cronjobs
 * ``docs/``: documentation source files
 * ``kinto-remote-settings/``: Kinto plugin specific to Remote Settings
 * ``browser-tests/``: browser/integration/gatekeeper tests

@@ -31,20 +31,20 @@ $(VENV)/bin/python:  ## Create virtualenv
 install: $(VENV)/bin/python $(INSTALL_STAMP)  ## Install dependencies
 $(INSTALL_STAMP): poetry.lock
 	@if [ -z $(shell command -v poetry 2> /dev/null) ]; then echo "Poetry could not be found. See https://python-poetry.org/docs/"; exit 2; fi
-	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --no-root
+	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --with cronjobs --no-root
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)  ## Format code base
-	$(VENV)/bin/ruff check --fix kinto-remote-settings browser-tests
-	$(VENV)/bin/ruff format kinto-remote-settings browser-tests
+	$(VENV)/bin/ruff check --fix kinto-remote-settings cronjobs browser-tests
+	$(VENV)/bin/ruff format kinto-remote-settings cronjobs browser-tests
 
 lint: $(INSTALL_STAMP)  ## Analyze code base
-	$(VENV)/bin/ruff check kinto-remote-settings browser-tests
-	$(VENV)/bin/ruff format kinto-remote-settings browser-tests
+	$(VENV)/bin/ruff check kinto-remote-settings cronjobs browser-tests
+	$(VENV)/bin/ruff format kinto-remote-settings cronjobs browser-tests
 	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v poetry.lock` --baseline .secrets.baseline
 
 test: $(INSTALL_STAMP)  ## Run unit tests
-	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings
+	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings cronjobs
 	$(VENV)/bin/coverage report -m --fail-under 99
 
 browser-test:  ## Run browser tests using Docker

@@ -83,12 +83,19 @@ uwsgi = "2.0.28"
 [tool.poetry.group.kinto-remote-settings.dependencies]
 kinto-remote-settings = {path = "./kinto-remote-settings", develop = true}
 
+[tool.poetry.group.cronjobs]
+optional = true
+
+[tool.poetry.group.cronjobs.dependencies]
+cronjobs = {path = "./cronjobs", develop = true}
+
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.4"
 webtest = "3.0.4"
 coverage = "7.6.12"
 detect-secrets = "^1.5.0"
 ruff = "^0.9.7"
+responses = "^0.25.6"
 
 [tool.poetry.group.docs]
 optional = true
