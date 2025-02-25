@@ -74,7 +74,7 @@ python = ">=3.11, <3.14"
 canonicaljson-rs = "0.7.1"
 cryptography = "44.0.1"
 ecdsa = "0.19.0"
-kinto = {version = "^19.5.0", extras = ["postgresql","memcached","monitoring"]}
+kinto = {version = "^19.6.0", extras = ["postgresql","memcached","monitoring"]}
 kinto-attachment = "7.0.0"
 kinto-emailer = "3.0.4"
 requests-hawk = "1.2.1"
@@ -88,14 +88,14 @@ pytest = "8.3.4"
 webtest = "3.0.4"
 coverage = "7.6.12"
 detect-secrets = "^1.5.0"
-ruff = "^0.9.6"
+ruff = "^0.9.7"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
 docutils = "0.21.2"
-sphinx = "8.1.3"
+sphinx = "8.2.1"
 
 [build-system]
 requires = ["poetry-core"]
