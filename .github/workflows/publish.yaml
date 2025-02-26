@@ -26,6 +26,7 @@ jobs:
       DOCKERHUB_IMAGE_NAME: mozilla/remote-settings
       GAR_IMAGE_NAME: remote-settings
     runs-on: ubuntu-latest
+    environment: build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -96,6 +97,7 @@ jobs:
       GAR_IMAGE_NAME: remote-settings-browser-tests
       LATEST_TAG: ""  # Set after checkout step
     runs-on: ubuntu-latest
+    environment: build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -140,6 +142,7 @@ jobs:
       GAR_IMAGE_NAME: remote-settings-core-cronjobs
       LATEST_TAG: ""  # Set after checkout step
     runs-on: ubuntu-latest
+    environment: build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
