@@ -96,7 +96,7 @@ jobs:
 
   cronjobs_container:
     env:
-      GAR_IMAGE_NAME: remote-settings-browser-tests
+      GAR_IMAGE_NAME: remote-settings-core-cronjobs
       LATEST_TAG: ""  # Set after checkout step
     runs-on: ubuntu-latest
     environment: build
@@ -142,7 +142,7 @@ jobs:
 
   browser_test_container:
     env:
-      GAR_IMAGE_NAME: remote-settings-core-cronjobs
+      GAR_IMAGE_NAME: remote-settings-browser-tests
       LATEST_TAG: ""  # Set after checkout step
     runs-on: ubuntu-latest
     environment: build
