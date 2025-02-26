@@ -92,8 +92,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: BrowserTests.Dockerfile
+          context: browser-tests/
           push: true
           tags: ${{ steps.docker-metadata.outputs.tags }}
           cache-from: type=gha
