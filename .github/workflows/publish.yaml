@@ -61,6 +61,8 @@ jobs:
           tags: |
             type=raw,value=latest
             type=raw,value=${{ env.LATEST_TAG }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Authenticate on GCP
         id: gcp_auth
         uses: google-github-actions/auth@v2
@@ -113,6 +115,8 @@ jobs:
           tags: |
             type=raw,value=latest
             type=raw,value=${{ env.LATEST_TAG }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Authenticate on GCP
         id: gcp_auth
         uses: google-github-actions/auth@v2
@@ -158,6 +162,8 @@ jobs:
           tags: |
             type=raw,value=${{ env.LATEST_TAG }}
             type=raw,value=latest
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Authenticate on GCP
         id: gcp_auth
         uses: google-github-actions/auth@v2
