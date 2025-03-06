@@ -697,6 +697,12 @@ class SourceCollectionHardDeletion(BaseWebTest, PatchAutographMixin, unittest.Te
 
         self.create_records_and_sign()
 
+        # oncrl doesn't have preview in config.ini
+        self.app.put_json("/buckets/security-state-workspace", headers=self.headers)
+        self.app.put_json(
+            "/buckets/security-state-workspace/collections/onecrl", headers=self.headers
+        )
+
     def create_records_and_sign(self):
         body = {"permissions": {"write": [self.other_userid]}}
         self.app.put_json("/buckets/stage/collections/a", body, headers=self.headers)
@@ -730,6 +736,26 @@ class SourceCollectionHardDeletion(BaseWebTest, PatchAutographMixin, unittest.Te
         )
         self.app.get(
             "/buckets/stage/groups/a-reviewers", headers=self.headers, status=404
+        )
+
+    def test_do_not_fail_if_group_already_deleted(self):
+        self.app.delete("/buckets/stage/groups/a-editors", headers=self.headers)
+
+        self.app.delete("/buckets/stage/collections/a", headers=self.headers)
+
+        self.app.get(
+            "/buckets/stage/groups/a-reviewers", headers=self.headers, status=404
+        )
+
+    def test_do_not_fail_if_collection_doesnt_have_preview(self):
+        self.app.delete(
+            "/buckets/security-state-workspace/collections/onecrl", headers=self.headers
+        )
+
+        self.app.get(
+            "/buckets/security-state/collections/onecrl",
+            headers=self.headers,
+            status=404,
         )
 
 

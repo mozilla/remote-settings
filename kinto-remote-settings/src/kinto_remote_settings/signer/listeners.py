@@ -639,18 +639,17 @@ def cleanup_preview_destination(event, resources):
         should_hard_delete = asbool(
             settings["signer.hard_delete_destination_on_source_deletion"]
         )
-        storage.delete(
-            resource_name="group",
-            parent_id=source_bucket_uri,
-            object_id=f"{source_cid}-editors",
-            with_deleted=not should_hard_delete,
-        )
-        storage.delete(
-            resource_name="group",
-            parent_id=source_bucket_uri,
-            object_id=f"{source_cid}-reviewers",
-            with_deleted=not should_hard_delete,
-        )
+        for obj_id in (f"{source_cid}-editors", f"{source_cid}-reviewers"):
+            try:
+                storage.delete(
+                    resource_name="group",
+                    parent_id=source_bucket_uri,
+                    object_id=obj_id,
+                    with_deleted=not should_hard_delete,
+                )
+            except ObjectNotFoundError:
+                # Already deleted
+                pass
 
         for k in ("preview", "destination"):
             if k not in resource:  # pragma: no cover
@@ -667,12 +666,16 @@ def cleanup_preview_destination(event, resources):
                 storage.delete_all(
                     resource_name="record", parent_id=collection_uri, with_deleted=False
                 )
-                storage.delete(
-                    resource_name="collection",
-                    parent_id=bucket_uri,
-                    object_id=cid,
-                    with_deleted=False,
-                )
+                try:
+                    storage.delete(
+                        resource_name="collection",
+                        parent_id=bucket_uri,
+                        object_id=cid,
+                        with_deleted=False,
+                    )
+                except ObjectNotFoundError:
+                    # Already deleted
+                    pass
             else:
                 # Delete records with tombstones.
                 storage.delete_all(
