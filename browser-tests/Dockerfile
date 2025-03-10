@@ -27,9 +27,15 @@ ENV PATH="/opt/.venv/bin:$PATH" \
 
 RUN apt-get update && apt-get -y install wget
 
-COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
+RUN addgroup --gid 10001 app && \
+    adduser --disabled-password --gecos '' --gid 10001 --home /app --uid 10001 app
 
-RUN playwright install --with-deps firefox
+COPY --from=build --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
+
+RUN playwright install-deps firefox
+
+USER app
+RUN playwright install firefox
 
 WORKDIR /app
 COPY . .
