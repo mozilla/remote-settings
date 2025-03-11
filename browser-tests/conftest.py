@@ -103,6 +103,11 @@ def source_collection(request) -> str:
 
 
 @pytest.fixture(scope="session")
+def preview_bucket(request) -> str:
+    return "main-preview"
+
+
+@pytest.fixture(scope="session")
 def server_config(browser, server) -> dict:
     resp = browser.new_context().request.get(server)
     return resp.json()
