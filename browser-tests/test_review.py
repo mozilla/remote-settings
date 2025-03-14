@@ -1,4 +1,5 @@
 import re
+import time
 
 from playwright.sync_api import expect
 
@@ -154,6 +155,7 @@ def test_review_existing_record(
     page.get_by_text("Request review").last.click()
 
     # Check that preview record has the appropriate values
+    time.sleep(1) # wait 1 second as the preview collection can take a few ms to sync
     record = editor_client.get_record(id=record_id, bucket=preview_bucket)
     assert record["data"]["title"] == "new val"
     assert record["data"]["attachment"]["filename"] == "kinto-logo.jpg"
