@@ -14,7 +14,7 @@ from email.utils import parsedate_to_datetime
 
 import lz4.block
 import requests
-from google.cloud import storage
+from google.cloud import storage, compute_v1
 
 from . import KintoClient, call_parallel, retry_timeout
 
@@ -30,6 +30,11 @@ DESTINATION_FOLDER = os.getenv("DESTINATION_FOLDER", "bundles")
 # Flags for local development
 BUILD_ALL = os.getenv("BUILD_ALL", "0") in "1yY"
 SKIP_UPLOAD = os.getenv("SKIP_UPLOAD", "0") in "1yY"
+
+# URL map name is "{application}-{realm}-{environment}-{cdn_name}-cdn"
+# See https://github.com/mozilla-it/webservices-infra/blob/1eafab1688d164a0f3e2f8dfcfb6ad1647837b67/remote-settings/tf/modules/backend_bucket_cdn/main.tf#L2
+# and https://github.com/mozilla-it/webservices-infra/blob/1eafab1688d164a0f3e2f8dfcfb6ad1647837b67/remote-settings/tf/modules/backend_bucket_cdn/main.tf#L72
+CDN_URL_MAP_NAME = f"remote-settings-{REALM}-{ENVIRONMENT}-attachments-cdn"
 
 
 def fetch_all_changesets(client):
@@ -122,6 +127,7 @@ def sync_cloud_storage(
         blob = bucket.blob(remote_file_path)
         blob.upload_from_filename(filename)
         print(f"Uploaded {filename} to gs://{storage_bucket}/{remote_file_path}")
+        invalidate_cdn_url(remote_file_path)
 
     to_delete = {os.path.join(remote_folder, f) for f in to_delete}
     blobs = bucket.list_blobs(prefix=remote_folder)
@@ -129,6 +135,21 @@ def sync_cloud_storage(
         if blob.name in to_delete:
             blob.delete()
             print(f"Deleted gs://{storage_bucket}/{blob.name}")
+
+
+def invalidate_cdn_url(url_to_invalidate):
+    client = compute_v1.UrlMapsClient()
+
+    request = compute_v1.InvalidateCacheUrlMapRequest(
+        # use default project_id
+        url_map=CDN_URL_MAP_NAME,
+        cache_invalidation_rule=compute_v1.CacheInvalidationRule(
+            path=url_to_invalidate  # Example: "/images/logo.png"
+        )
+    )
+    operation = client.invalidate_cache(request=request)
+    print(f"Invalidation request sent for: {url_to_invalidate}")
+    return operation
 
 
 def build_bundles(event, context):
