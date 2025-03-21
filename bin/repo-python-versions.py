@@ -29,6 +29,10 @@ def main():
     for path in Path(".").rglob("Dockerfile"):
         versions += extract_versions_from_dockerfile(path)
 
+    # We don't verify `pyproject.toml` files, since they provide a range
+    # for developers convenience, and won't build if CI or Dockerfiles
+    # don't match.
+
     cleaned_versions = sorted(set(v for v in versions if v))
     print("Extracted Python versions:")
     for v in cleaned_versions:
