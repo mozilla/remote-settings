@@ -28,7 +28,7 @@ jobs:
           key: poetry-dev-${{ hashFiles('poetry.lock') }}
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.13.2"
       - name: Install dependencies
         run: make install
       - name: Run linting and formatting checks
@@ -41,7 +41,7 @@ jobs:
         run: pipx install poetry
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.13.2"
       - uses: actions/cache@v4
         # We need to use this caching strategy (rather than setting `cache: poetry`` in setup-python)
         # because our use of dependency groups. We want separate caches for each dependency group.
@@ -81,7 +81,7 @@ jobs:
         run: pipx install poetry
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.13.2"
       - uses: actions/cache@v4
         # We need to use this caching strategy (rather than setting `cache: poetry`` in setup-python)
         # because our use of dependency groups. We want separate caches for each dependency group.
