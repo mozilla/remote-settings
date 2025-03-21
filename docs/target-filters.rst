@@ -164,6 +164,17 @@ filter expressions.
 
    **Example:** ``env.appinfo.OS != 'Android'``
 
+.. important::
+
+   **How to add a new field?**
+
+   1. Put Remote Settings stakeholders in the loop (would allow to avoid disparities like casing, etc.)
+   2. Add the field on Gecko `in the environment object <https://searchfox.org/mozilla-central/rev/dd8b5213e4e7760b5fe5743fbc313398b85f8a14/toolkit/components/utils/ClientEnvironment.sys.mjs#31>`_ (even as constant or empty value)
+   3. Add the field on Application-Services RS component `in the RemoteSettingsContext struct <https://github.com/mozilla/application-services/blob/43aa6da9690b2f52d1b3e6255ab2d698f46f47a8/components/remote_settings/src/lib.rs#L43-L78>`_
+   4. Add the field on the Android app `in the RemoteSettingsAppContext <https://searchfox.org/mozilla-central/rev/dd8b5213e4e7760b5fe5743fbc313398b85f8a14/mobile/android/android-components/components/support/remotesettings/src/main/java/mozilla/components/support/remotesettings/RemoteSettingsService.kt#47-69>`_
+   5. Add the field on the iOS app `in the RemoteSettingsContext object <https://github.com/mozilla-mobile/firefox-ios/blob/3a2cbe040acb999c6f1589d128f1cfc749e993e5/firefox-ios/Providers/Profile.swift#L782-L799>`_
+   6. Mention the field in `this documentation <https://github.com/mozilla/remote-settings/blob/ee84d042261c27cbe7c8c433f646183d82dde3a9/docs/target-filters.rst>`_
+
 Transforms
 ~~~~~~~~~~
 This section describes the transforms available to filter expressions, and what
