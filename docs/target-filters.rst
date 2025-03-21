@@ -26,8 +26,8 @@ In order to restrict a setting to a particular audience, just write the proper f
     {
         id: "68b19efa-1067-401b-b1c1-8d7b4263bb86",
         last_modified: 1531762863373,
-        title: "Only for users of 57",
-        filter_expression: "env.version == 57"
+        title: "Not for Android users",
+        filter_expression: "env.appinfo.OS != 'Android'"
     }
 
 When calling ``RemoteSettings("key").get()`` or listening to ``sync`` events, you will only see the settings entries whose ``filter_expression`` resolved to a truthy value (and those who don't have any as by default).
@@ -111,6 +111,7 @@ additional arguments passed in the expression:
 .. code-block:: javascript
 
    '1980-01-07'|date // == a date object
+   env.version|versionCompare("110.0a1") >= 0
 
 .. _JEXL Readme: https://github.com/TechnologyAdvice/Jexl#jexl---
 
@@ -143,19 +144,211 @@ filter expressions.
    * ``'nightly'``
    * ``'default'`` (self-built or automated testing builds)
 
+   **Example:** ``env.channel == 'default' || env.channel == 'nightly'``
+
+.. js:attribute:: env.locale
+
+   **Example:** ``'en-US'``
+
+   String containing the user's locale.
+
+.. js:attribute:: env.appinfo.OS
+
+   String containing the Operating System identifier:
+
+   * ``Android``
+   * ``Darwin``
+   * ``iOS``
+   * ``Linux``
+   * ``WINNT``
+
+   **Example:** ``env.appinfo.OS != 'Android'``
+
+Transforms
+~~~~~~~~~~
+This section describes the transforms available to filter expressions, and what
+they do. They're documented as functions, and the first parameter to each
+function is the value being transformed.
+
+.. js:function:: versionCompare(v1, v2)
+
+   Compares v1 to v2 and returns 0 if they are equal, a negative number if v1 < v2 or a positive number if v1 > v2.
+
+   :param v1:
+      Input version.
+
+   :param v2:
+      Version to compare it with.
+
+   .. code-block:: javascript
+
+      // Evaluates to 1
+      '128.0.1'|versionCompare('127.0a1')
+
+
+Examples
+~~~~~~~~
+This section lists some examples of commonly-used filter expressions.
+
+.. code-block:: javascript
+
+   // Match users using the en-US locale
+   env.locale == 'en-US'
+
+   // Match users in any English locale using Firefox Beta
+   (
+      env.locale in ['en-US', 'en-AU', 'en-CA', 'en-GB', 'en-NZ', 'en-ZA']
+      && env.channel == 'beta'
+   )
+
+   // Specific version range
+   env.version|versionCompare('137.0a1') >= 0 && env.version|versionCompare('138.0a1') < 0
+
+
+.. _target-filters-debugging:
+
+Advanced: Testing Filter Expressions in the Browser Console
+-----------------------------------------------------------
+
+#. Open the browser console
+
+   * Tools > Web Developer > Browser Console
+   * :kbd:`Cmd + Shift + J`
+
+#. Run the following in the console:
+
+   .. code-block:: javascript
+
+        const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js", {});
+        const client = RemoteSettings("a-key");
+
+   The following lines create a local record with a filter expression field and fetch the current settings list.
+
+   .. code-block:: javascript
+
+        let FILTER_TO_TEST = `
+            env.locale == "fr-FR"
+        `;
+
+        (
+          async function () {
+            await client.db.clear();
+            await client.db.importChanges({}, 42);
+
+            const record = await client.db.create({
+              id: "68b19efa-1067-401b-b1c1-8d7b4263bb86",  // random uuidgen
+              filter_expression: FILTER_TO_TEST
+            };
+
+            const filtered = await client.get();
+            console.log(filtered.length == 1);
+          }
+        )();
+
+#. The console will log ``true`` or ``false`` depending on whether the expression passed for your client or not.
+
+
+Advanced: Platform Specific Fields and Transforms
+-------------------------------------------------
+
+.. warning::
+
+   The use of fields, operators, and transforms described in this section is **not recommended**,
+   until they are implemented in all clients (See `Bug 1944609 <https://bugzilla.mozilla.org/show_bug.cgi?id=1944609>`_).
+
+
+Application Services Only
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+(*as of 2025-03-21*)
+
+.. js:attribute:: env.appName
+
+   * ``'Firefox Fenix'``
+   * ``'Firefox iOS'``
+
+.. js:attribute:: env.appId
+
+   * ``'org.mozilla.fenix.debug'``
+   * ``'org.mozilla.ios.FennecEnterprise'``
+
+.. js:attribute:: env.appVersion
+
+   * ``138.0a1``
+
+.. js:attribute:: env.appBuild
+.. js:attribute:: env.architecture
+
+   * ``'x86_64'``
+
+.. js:attribute:: env.deviceManufacturer
+
+   * ``'Apple'``
+
+.. js:attribute:: env.os
+
+   * ``'Android'``
+
+.. js:attribute:: env.osVersion
+
+   * ``14``
+
+.. js:attribute:: env.androidSdkVersion
+
+   * ``34``
+
+.. js:attribute:: env.debugTag
+
+   * ``null``
+
+.. js:attribute:: env.installationDate
+
+   * ``1718396105298``
+
+.. js:attribute:: env.form_factor
+
+   * ``'phone'``
+   * ``'tablet'``
+   * ``'desktop'``
+
+.. js:attribute:: env.homeDirectory
+
+   * ``null``
+
+.. js:attribute:: env.country
+
+   * ``'US'``
+   * ``'GB'``
+
+Desktop Only
+~~~~~~~~~~~~
+
+(*as of 2025-03-21*)
+
 .. js:attribute:: env.isDefaultBrowser
 
    Boolean specifying whether Firefox is set as the user's default browser.
 
-.. js:attribute:: env.appinfo
+.. js:attribute:: env.appinfo.ID
 
-   Object containing application details:
+   String containing the XUL application ID
 
-   - ``ID``: String containing the XUL application ID, eg. Firefox is ``"{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"``.
-   - ``platformVersion``: The version of the XULRunner platform
-   - ``platformBuildID``: The build ID/date of gecko and the XULRunner platform
-   - ``version``: The version of the XUL application. It is different than the version of the XULRunner platform. Be careful about which one you want.
-   - `more... <https://searchfox.org/mozilla-central/source/dom/webidl/AppInfo.webidl>`_
+   * ``"{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"`` (Firefox)
+   * ``"{3550f703-e582-4d05-9a08-453d09bdfdc6}"`` (Thunderbird)
+
+.. js:attribute:: env.appinfo.version
+
+   The version of the XUL application.
+
+   It is different than the version of the XULRunner platform. Be careful about which one you want.
+
+.. js:attribute:: env.appinfo.platformVersion
+
+   The version of the XULRunner platform
+
+.. js:attribute:: env.appinfo.platformBuildID
+
+   The version of the XULRunner platform
 
 .. js:attribute:: env.searchEngine
 
@@ -198,12 +391,6 @@ filter expressions.
 
    An object mapping of plugin names to plugin objects describing
    the plugins installed on the client.
-
-.. js:attribute:: env.locale
-
-   **Example:** ``'en-US'``
-
-   String containing the user's locale.
 
 .. js:attribute:: env.distribution
 
@@ -278,11 +465,20 @@ filter expressions.
          "some-other-addon@example.com"
       ]
 
-Operators
-~~~~~~~~~
-This section describes the special operators available to filter expressions on
-top of the standard operators in JEXL. They're documented as functions, and the
-parameters correspond to the operands.
+.. js:function:: preferenceValue(prefKey, defaultValue)
+
+   :param prefKey:
+      Full dotted-path name of the preference to read.
+   :param defaultValue:
+      The value to return if the preference does not have a value. Defaults to
+      ``undefined``.
+   :returns:
+      The value of the preference.
+
+   .. code-block:: javascript
+
+      // Match users with more than 2 content processes
+      'dom.ipc.processCount'|preferenceValue > 2
 
 .. js:function:: intersect(list1, list2)
 
@@ -299,12 +495,6 @@ parameters correspond to the operands.
 
       // Evaluates to [2, 3]
       [1, 2, 3, 4] intersect [5, 6, 2, 7, 3]
-
-Transforms
-~~~~~~~~~~
-This section describes the transforms available to filter expressions, and what
-they do. They're documented as functions, and the first parameter to each
-function is the value being transformed.
 
 .. js:function:: stableSample(input, rate)
 
@@ -462,36 +652,6 @@ function is the value being transformed.
 
       .. _regexpFlags: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags
 
-.. js:function:: versionCompare(v1, v2)
-
-   Compares v1 to v2 and returns 0 if they are equal, a negative number if v1 < v2 or a positive number if v1 > v2.
-
-   :param v1:
-      Input version.
-
-   :param v2:
-      Version to compare it with.
-
-   .. code-block:: javascript
-
-      // Evaluates to 1
-      "128.0.1"|versionCompare("127.0a1")
-
-.. js:function:: preferenceValue(prefKey, defaultValue)
-
-   :param prefKey:
-      Full dotted-path name of the preference to read.
-   :param defaultValue:
-      The value to return if the preference does not have a value. Defaults to
-      ``undefined``.
-   :returns:
-      The value of the preference.
-
-   .. code-block:: javascript
-
-      // Match users with more than 2 content processes
-      'dom.ipc.processCount'|preferenceValue > 2
-
 .. js:function:: preferenceIsUserSet(prefKey)
 
    :param prefKey:
@@ -518,67 +678,3 @@ function is the value being transformed.
       // Match users with an HTTP proxy
       'network.proxy.http'|preferenceExists
 
-Examples
-~~~~~~~~
-This section lists some examples of commonly-used filter expressions.
-
-.. code-block:: javascript
-
-   // Match users using the en-US locale
-   env.locale == 'en-US'
-
-   // Match users in any English locale using Firefox Beta
-   (
-      env.locale in ['en-US', 'en-AU', 'en-CA', 'en-GB', 'en-NZ', 'en-ZA']
-      && env.channel == 'beta'
-   )
-
-   // Match users located in the US who have Firefox as their default browser
-   env.country == 'US' && env.isDefaultBrowser
-
-   // Match users with the Flash plugin installed. If Flash is missing, the
-   // plugin list returns `undefined`, which is a falsy value in JavaScript and
-   // fails the match. Otherwise, it returns a plugin object, which is truthy.
-   env.plugins['Shockwave Flash']
-
-.. _target-filters-debugging:
-
-Advanced: Testing Filter Expressions in the Browser Console
------------------------------------------------------------
-
-#. Open the browser console
-
-   * Tools > Web Developer > Browser Console
-   * :kbd:`Cmd + Shift + J`
-
-#. Run the following in the console:
-
-   .. code-block:: javascript
-
-        const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js", {});
-        const client = RemoteSettings("a-key");
-
-   The following lines create a local record with a filter expression field and fetch the current settings list.
-
-   .. code-block:: javascript
-
-        let FILTER_TO_TEST = `
-            env.locale == "fr-FR"
-        `;
-
-        (
-          async function () {
-            await client.db.clear();
-            await client.db.importChanges({}, 42);
-
-            const record = await client.db.create({
-              id: "68b19efa-1067-401b-b1c1-8d7b4263bb86",  // random uuidgen
-              filter_expression: FILTER_TO_TEST
-            };
-
-            const filtered = await client.get();
-            console.log(filtered.length == 1);
-          }
-        )();
-
-#. The console will log ``true`` or ``false`` depending on whether the expression passed for your client or not.
