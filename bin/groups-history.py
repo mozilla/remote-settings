@@ -4,6 +4,7 @@ that don't modify any attribute, and can thus be deleted.
 
 See mozilla/remote-settings#804
 """
+
 import asyncio
 import difflib
 import itertools
@@ -118,7 +119,7 @@ async def main():
 
     if to_delete:
         print(len(to_delete), "history entries can be deleted")
-        sql = f"DELETE FROM objects WHERE resource_name = 'history' AND id IN ({','.join(f"'{uuid}'" for uuid in to_delete)});"
+        sql = f"UPDATE objects SET delete=true WHERE resource_name = 'history' AND id IN ({','.join(f"'{uuid}'" for uuid in to_delete)});"
         print(sql)
 
 
