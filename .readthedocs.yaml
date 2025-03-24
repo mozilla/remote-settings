@@ -12,4 +12,4 @@ build:
       - pip install poetry
       - poetry config virtualenvs.create false
     post_install:
-      - poetry install --only docs
+      - poetry install --no-root --only docs
