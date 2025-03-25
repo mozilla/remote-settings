@@ -94,7 +94,7 @@ class ResourceEventsTest(BaseWebTest, unittest.TestCase):
             and e.payload["action"] == "create"
         )
         assert len(event.impacted_objects) == 1
-        assert event.payload["user_id"] == "plugin:kinto-signer"
+        assert event.payload["user_id"] == "plugin:remote-settings"
 
     def test_resource_changed_is_triggered_for_work_in_progress(self):
         events = [
@@ -108,7 +108,7 @@ class ResourceEventsTest(BaseWebTest, unittest.TestCase):
         # The first event is when the signer updates the source to mark it as signed.
         assert events[0].impacted_objects[0]["old"].get("status") is None
         assert events[0].impacted_objects[0]["old"].get("last_edit_date") is None
-        assert events[0].payload["user_id"] == "plugin:kinto-signer"
+        assert events[0].payload["user_id"] == "plugin:remote-settings"
         assert events[0].impacted_objects[0]["new"]["status"] == "signed"
 
         # We created two records, for each of them we updated the ``last_edit_date``

@@ -63,7 +63,7 @@ def refresh_signature(event, context, **kwargs):
         # 0. Figure out which was the source collection of this signed collection.
         source = get_signed_source(server_info, change)
         if source is None:
-            # Skip if change is no kinto-signer destination (eg. review collection)
+            # Skip if change is not on a destination collection (eg. review collection)
             continue
 
         client = Client(

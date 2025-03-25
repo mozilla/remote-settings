@@ -18,7 +18,7 @@ from pyramid.exceptions import ConfigurationError
 logger = logging.getLogger(__name__)
 
 
-PLUGIN_USERID = "plugin:kinto-signer"
+PLUGIN_USERID = "plugin:remote-settings"
 FIELD_LAST_MODIFIED = "last_modified"
 
 
@@ -71,7 +71,7 @@ def parse_resources(raw_resources):
 
     lines = [line.strip() for line in raw_resources.strip().splitlines()]
     for res in lines:
-        error_msg = "Malformed resource: %%s (in %r). See kinto-signer README." % res
+        error_msg = "Malformed resource: %%s (in %r). See kinto-remote-settings README." % res
         if "->" not in res and ";" not in res:
             raise ConfigurationError(error_msg % "not separated with '->'")
 

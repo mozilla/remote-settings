@@ -479,37 +479,7 @@ The following events are thrown:
 Validating the signature
 ========================
 
-With `kinto.js <https://github.com/Kinto/kinto.js/>`_, it is possible to define
-incoming hooks that are executed when the data is retrieved from the server.
-
-.. code-block:: javascript
-
-    const kinto = new Kinto({
-      remote: "https://mykinto.com/v1",
-      bucket: "a-bucket"
-    });
-    const collection = kinto.collection("a-collection", {
-      hooks: {
-        "incoming-changes": [validateCollectionSignature]
-      }});
-
-.. code-block:: javascript
-
-    function validateCollectionSignature(payload, collection) {
-      // 1 - Fetch signature from collection endpoint
-      // 2 - Fetch public key certificate
-      // 3 - Merge incoming changes with local records
-      // 4 - Serialize as canonical JSON
-      // 5 - Verify the signature against the content with the public key
-      // 6 - Return `payload` if valid, throw error otherwise.
-    }
-
-The content of the ``demo/`` folder implements the signature verification with
-kinto.js and the WebCrypto API. It is `published online <https://kinto.github.io/kinto-signer/>`_
-but relies on a semi-public server instance.
-
-See also `the complete integration within Firefox <https://bugzilla.mozilla.org/show_bug.cgi?id=1263602>`_
-using the `Network Security Services <https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Overview>`_.
+See `client specifications <https://remote-settings.readthedocs.io/en/latest/client-specifications.html#signature-verification>`_ with implementation examples.
 
 
 Generating a keypair
