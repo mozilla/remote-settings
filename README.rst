@@ -8,6 +8,8 @@ https://remote-settings.readthedocs.io
 
 .. image:: https://img.shields.io/badge/Status-Sustain-green
 
+.. image:: https://readthedocs.org/projects/remote-settings/badge/?version=latest&style=flat
+
 Content
 -------
 
