@@ -31,7 +31,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         assert "signer" in capabilities
         expected = {
             "description": "Digital signatures for integrity and authenticity of records.",
-            "url": ("https://github.com/Kinto/kinto-signer#kinto-signer"),
+            "url": "https://github.com/mozilla/remote-settings/tree/main/kinto-remote-settings",
             "version": __version__,
             "group_check_enabled": True,
             "to_review_enabled": False,

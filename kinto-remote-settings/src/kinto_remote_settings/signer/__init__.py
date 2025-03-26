@@ -158,7 +158,7 @@ def load_signed_resources_configuration(config):
         if "(" not in str(r["source"])  # do not show patterns
     ]
     message = "Digital signatures for integrity and authenticity of records."
-    docs = "https://github.com/Kinto/kinto-signer#kinto-signer"
+    docs = "https://github.com/mozilla/remote-settings/tree/main/kinto-remote-settings"
     config.registry.api_capabilities.pop("signer", None)
     config.add_api_capability(
         "signer",
@@ -270,7 +270,7 @@ def includeme(config):
     )
 
     def on_new_request(event):
-        """Send the kinto-signer events in the before commit hook.
+        """Send the signer events in the before commit hook.
         This allows database operations done in subscribers to be automatically
         committed or rolledback.
         """
