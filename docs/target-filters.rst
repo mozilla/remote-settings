@@ -156,13 +156,32 @@ filter expressions.
 
    String containing the Operating System identifier:
 
-   * ``Android``
-   * ``Darwin``
-   * ``iOS``
-   * ``Linux``
-   * ``WINNT``
+   * ``'Android'``
+   * ``'Darwin'``
+   * ``'iOS'``
+   * ``'Linux'``
+   * ``'WINNT'``
 
    **Example:** ``env.appinfo.OS != 'Android'``
+
+.. js:attribute:: env.appinfo.osVersion
+
+   String containing the Operating System version:
+
+   * ``'11.0'``
+
+   **Example:** ``env.appinfo.osVersion == '10'``
+
+.. js:attribute:: env.formFactor
+
+   * ``'phone'``
+   * ``'tablet'``
+   * ``'desktop'``
+
+.. js:attribute:: env.country
+
+   * ``'US'``
+   * ``'GB'``
 
 .. important::
 
@@ -171,9 +190,10 @@ filter expressions.
    1. Put Remote Settings stakeholders in the loop (would allow to avoid disparities like casing, etc.)
    2. Add the field on Gecko `in the environment object <https://searchfox.org/mozilla-central/rev/dd8b5213e4e7760b5fe5743fbc313398b85f8a14/toolkit/components/utils/ClientEnvironment.sys.mjs#31>`_ (even as constant or empty value)
    3. Add the field on Application-Services RS component `in the RemoteSettingsContext struct <https://github.com/mozilla/application-services/blob/43aa6da9690b2f52d1b3e6255ab2d698f46f47a8/components/remote_settings/src/lib.rs#L43-L78>`_
-   4. Add the field on the Android app `in the RemoteSettingsAppContext <https://searchfox.org/mozilla-central/rev/dd8b5213e4e7760b5fe5743fbc313398b85f8a14/mobile/android/android-components/components/support/remotesettings/src/main/java/mozilla/components/support/remotesettings/RemoteSettingsService.kt#47-69>`_
-   5. Add the field on the iOS app `in the RemoteSettingsContext object <https://github.com/mozilla-mobile/firefox-ios/blob/3a2cbe040acb999c6f1589d128f1cfc749e993e5/firefox-ios/Providers/Profile.swift#L782-L799>`_
-   6. Mention the field in `this documentation <https://github.com/mozilla/remote-settings/blob/ee84d042261c27cbe7c8c433f646183d82dde3a9/docs/target-filters.rst>`_
+   4. Add the field on the Desktop app `in the RemoteSettingsContext <https://searchfox.org/mozilla-central/rev/b22ec3f983078ff98b04cee7dafe4b90342a42bf/browser/components/urlbar/private/SuggestBackendRust.sys.mjs#456-471>`_
+   5. Add the field on the Android app `in the RemoteSettingsAppContext <https://searchfox.org/mozilla-central/rev/dd8b5213e4e7760b5fe5743fbc313398b85f8a14/mobile/android/android-components/components/support/remotesettings/src/main/java/mozilla/components/support/remotesettings/RemoteSettingsService.kt#47-69>`_
+   6. Add the field on the iOS app `in the RemoteSettingsContext object <https://github.com/mozilla-mobile/firefox-ios/blob/3a2cbe040acb999c6f1589d128f1cfc749e993e5/firefox-ios/Providers/Profile.swift#L782-L799>`_
+   7. Mention the field in `this documentation <https://github.com/mozilla/remote-settings/blob/ee84d042261c27cbe7c8c433f646183d82dde3a9/docs/target-filters.rst>`_
 
 Transforms
 ~~~~~~~~~~
@@ -268,69 +288,6 @@ Advanced: Platform Specific Fields and Transforms
    until they are implemented in all clients (See `Bug 1944609 <https://bugzilla.mozilla.org/show_bug.cgi?id=1944609>`_).
 
 
-Application Services Only
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-(*as of 2025-03-21*)
-
-.. js:attribute:: env.appName
-
-   * ``'Firefox Fenix'``
-   * ``'Firefox iOS'``
-
-.. js:attribute:: env.appId
-
-   * ``'org.mozilla.fenix.debug'``
-   * ``'org.mozilla.ios.FennecEnterprise'``
-
-.. js:attribute:: env.appVersion
-
-   * ``138.0a1``
-
-.. js:attribute:: env.appBuild
-.. js:attribute:: env.architecture
-
-   * ``'x86_64'``
-
-.. js:attribute:: env.deviceManufacturer
-
-   * ``'Apple'``
-
-.. js:attribute:: env.os
-
-   * ``'Android'``
-
-.. js:attribute:: env.osVersion
-
-   * ``14``
-
-.. js:attribute:: env.androidSdkVersion
-
-   * ``34``
-
-.. js:attribute:: env.debugTag
-
-   * ``null``
-
-.. js:attribute:: env.installationDate
-
-   * ``1718396105298``
-
-.. js:attribute:: env.form_factor
-
-   * ``'phone'``
-   * ``'tablet'``
-   * ``'desktop'``
-
-.. js:attribute:: env.homeDirectory
-
-   * ``null``
-
-.. js:attribute:: env.country
-
-   * ``'US'``
-   * ``'GB'``
-
 Desktop Only
 ~~~~~~~~~~~~
 
@@ -360,6 +317,28 @@ Desktop Only
 .. js:attribute:: env.appinfo.platformBuildID
 
    The version of the XULRunner platform
+
+.. js:attribute:: env.os.name
+
+   Same as ``env.appinfo.OS``.
+
+.. js:attribute:: env.os.version
+
+   Same as ``env.appinfo.osVersion``.
+
+.. js:attribute:: env.os.darwinVersion
+
+.. js:attribute:: env.os.macVersion
+
+.. js:attribute:: env.os.windowsVersion
+
+.. js:attribute:: env.os.windowsBuildNumber
+
+.. js:attribute:: env.os.isWindows
+
+.. js:attribute:: env.os.isMac
+
+.. js:attribute:: env.os.isLinux
 
 .. js:attribute:: env.searchEngine
 
