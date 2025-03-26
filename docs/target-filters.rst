@@ -152,7 +152,7 @@ filter expressions.
 
    String containing the user's locale.
 
-.. js:attribute:: env.appinfo.OS
+.. js:attribute:: env.os.name
 
    String containing the Operating System identifier:
 
@@ -162,15 +162,21 @@ filter expressions.
    * ``'Linux'``
    * ``'WINNT'``
 
-   **Example:** ``env.appinfo.OS != 'Android'``
+   **Example:** ``env.os.name != 'Android'``
 
-.. js:attribute:: env.appinfo.osVersion
+   *Introduced in Gecko 138, see* ``env.appinfo.OS`` *to target older versions*
 
-   String containing the Operating System version:
+.. js:attribute:: env.os.version
 
-   * ``'11.0'``
+   String containing the Operating System version.
 
-   **Example:** ``env.appinfo.osVersion == '10'``
+   **Example:** ``env.os.version == '10'``
+
+   *Introduced in Gecko 138*
+
+.. js:attribute:: env.appinfo.OS
+
+   Same as ``env.os.name``.
 
 .. js:attribute:: env.formFactor
 
@@ -317,14 +323,6 @@ Desktop Only
 .. js:attribute:: env.appinfo.platformBuildID
 
    The version of the XULRunner platform
-
-.. js:attribute:: env.os.name
-
-   Same as ``env.appinfo.OS``.
-
-.. js:attribute:: env.os.version
-
-   Same as ``env.appinfo.osVersion``.
 
 .. js:attribute:: env.os.darwinVersion
 
