@@ -184,10 +184,14 @@ filter expressions.
    * ``'tablet'``
    * ``'desktop'``
 
+   *Introduced in Gecko 138*
+
 .. js:attribute:: env.country
 
    * ``'US'``
    * ``'GB'``
+
+   *Introduced in Gecko 138*
 
 .. important::
 
