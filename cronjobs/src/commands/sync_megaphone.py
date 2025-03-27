@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime, timezone
 
 import requests.auth
 
@@ -11,6 +12,10 @@ logger = logging.getLogger(__name__)
 
 BROADCASTER_ID = "remote-settings"
 CHANNEL_ID = "monitor_changes"
+
+
+def utcnow():
+    return datetime.now(timezone.utc)
 
 
 class BearerAuth(requests.auth.AuthBase):
@@ -70,6 +75,12 @@ def get_remotesettings_timestamp(uri):
 
 
 def sync_megaphone(event, context):
+    min_sync_interval = int(
+        os.getenv("MIN_SYNC_INTERVAL_SECONDS", "300")  # 5 min by default.
+    )
+    max_sync_interval = int(
+        os.getenv("MAX_SYNC_INTERVAL_SECONDS", "1200")  # 20 min by default.
+    )
     rs_server = event.get("server") or os.getenv("SERVER")
     rs_timestamp = get_remotesettings_timestamp(rs_server)
 
@@ -95,5 +106,30 @@ def sync_megaphone(event, context):
     if int(rs_timestamp) <= int(megaphone_timestamp):
         logger.info("Timestamps are in sync. Nothing to do.")
         return
+
+    # Do not push timestamp if one was published recently.
+    # This allows us to:
+    # - debounce many publications close together
+    # - decorrelate the frequency of the cronjob from the interval between two notifications
+    # - if changes are published continously for too long and megaphone becomes outdated, sync.
+    rs_age_seconds = (
+        utcnow() - datetime.fromtimestamp(int(rs_timestamp) / 1000, timezone.utc)
+    ).total_seconds()
+    megaphone_age_seconds = (
+        utcnow() - datetime.fromtimestamp(int(megaphone_timestamp) / 1000, timezone.utc)
+    ).total_seconds()
+
+    if (diff := min_sync_interval - rs_age_seconds) > 0:
+        print(f"A change was published recently (<{min_sync_interval}).", end=" ")
+        if megaphone_age_seconds < max_sync_interval:
+            print(
+                f"Megaphone is {megaphone_age_seconds} seconds old (<{max_sync_interval}). "
+                f"Can wait {diff} more seconds."
+            )
+            return
+        else:
+            print(
+                f"Megaphone is {megaphone_age_seconds} seconds old (>{max_sync_interval}). Sync!"
+            )
 
     megaphone_client.send_version(f'"{rs_timestamp}"')
