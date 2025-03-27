@@ -178,6 +178,16 @@ filter expressions.
 
    Same as ``env.os.name``.
 
+.. js:attribute:: env.appinfo.ID
+
+   String containing the application ID
+
+   * ``"{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"`` (Firefox)
+   * ``org.mozilla.fenix`` (Firefox for Android)
+   * ``"xpcshell@tests.mozilla.org"`` (Gecko tests)
+   * ``"{3550f703-e582-4d05-9a08-453d09bdfdc6}"`` (Thunderbird)
+   * etc.
+
 .. js:attribute:: env.formFactor
 
    * ``'phone'``
@@ -306,13 +316,6 @@ Desktop Only
 .. js:attribute:: env.isDefaultBrowser
 
    Boolean specifying whether Firefox is set as the user's default browser.
-
-.. js:attribute:: env.appinfo.ID
-
-   String containing the XUL application ID
-
-   * ``"{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"`` (Firefox)
-   * ``"{3550f703-e582-4d05-9a08-453d09bdfdc6}"`` (Thunderbird)
 
 .. js:attribute:: env.appinfo.version
 
