@@ -21,6 +21,15 @@ def bound_limit(settings: dict, value: Optional[int]) -> int:
 def monitored_collections(registry):
     storage = registry.storage
     resources_uri = aslist(registry.settings.get("changes.resources", ""))
+
+    excluded_collections_uri = aslist(
+        registry.settings.get("changes.excluded_collections", "")
+    )
+    excluded_collections = []
+    for uri in excluded_collections_uri:
+        _, matchdict = core_utils.view_lookup_registry(registry, uri)
+        excluded_collections.append((matchdict["bucket_id"], matchdict["id"]))
+
     collections = []
 
     for resource_uri in resources_uri:
@@ -37,7 +46,7 @@ def monitored_collections(registry):
         elif resource_name == "collection":
             collections.append((matchdict["bucket_id"], matchdict["id"]))
 
-    return collections
+    return [c for c in collections if c not in excluded_collections]
 
 
 def changes_object(request, bucket_id, collection_id, timestamp):

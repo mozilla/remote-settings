@@ -70,6 +70,24 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
         assert change_record["id"] == after["id"]
         assert change_record["last_modified"] == after["last_modified"]
 
+    def test_excluded_collections_are_not_monitored(self):
+        resp = self.app.get(self.changes_uri, headers=self.headers)
+        before_record = resp.json["data"][0]
+
+        self.app.put_json(
+            "/buckets/blocklists/collections/excluded", headers=self.headers
+        )
+        self.app.post_json(
+            "/buckets/blocklists/collections/excluded/records",
+            SAMPLE_RECORD,
+            headers=self.headers,
+        )
+
+        resp = self.app.get(self.changes_uri, headers=self.headers)
+        after = resp.json["data"][0]
+        assert before_record["id"] == after["id"]
+        assert before_record["last_modified"] == after["last_modified"]
+
     def test_the_resource_configured_can_be_a_collection_uri(self):
         with mock.patch.dict(
             self.app.app.registry.settings,
