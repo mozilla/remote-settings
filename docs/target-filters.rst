@@ -269,7 +269,7 @@ Advanced: Testing Filter Expressions in the Browser Console
             const record = await client.db.create({
               id: "68b19efa-1067-401b-b1c1-8d7b4263bb86",  // random uuidgen
               filter_expression: FILTER_TO_TEST
-            };
+            });
 
             const filtered = await client.get();
             console.log(filtered.length == 1);
