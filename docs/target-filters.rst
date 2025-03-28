@@ -250,7 +250,7 @@ Advanced: Testing Filter Expressions in the Browser Console
 
    .. code-block:: javascript
 
-        const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js", {});
+        const { RemoteSettings } = ChromeUtils.importESModule("resource://services-settings/remote-settings.sys.mjs")
         const client = RemoteSettings("a-key");
 
    The following lines create a local record with a filter expression field and fetch the current settings list.
@@ -269,7 +269,7 @@ Advanced: Testing Filter Expressions in the Browser Console
             const record = await client.db.create({
               id: "68b19efa-1067-401b-b1c1-8d7b4263bb86",  // random uuidgen
               filter_expression: FILTER_TO_TEST
-            };
+            });
 
             const filtered = await client.get();
             console.log(filtered.length == 1);
