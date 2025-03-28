@@ -1,12 +1,8 @@
-import logging
 import os
 
 import requests.auth
 
 from . import KintoClient
-
-
-logger = logging.getLogger(__name__)
 
 
 BROADCASTER_ID = "remote-settings"
@@ -36,7 +32,7 @@ class Megaphone:
         url = f"{self.url}/broadcasts/{self.broadcaster_id}"
         resp = requests.put(url, auth=self.broadcaster_auth, data=version)
         resp.raise_for_status()
-        logger.info(
+        print(
             "Sent version {} to megaphone. Response was {}".format(
                 version, resp.status_code
             )
@@ -90,10 +86,10 @@ def sync_megaphone(event, context):
         megaphone_url, megaphone_reader_auth, megaphone_broadcaster_auth, broadcast_id
     )
     megaphone_timestamp = megaphone_client.get_version()
-    logger.info(f"Remote Settings: {rs_timestamp}; Megaphone: {megaphone_timestamp}")
+    print(f"Remote Settings: {rs_timestamp}; Megaphone: {megaphone_timestamp}")
 
     if int(rs_timestamp) <= int(megaphone_timestamp):
-        logger.info("Timestamps are in sync. Nothing to do.")
+        print("Timestamps are in sync. Nothing to do.")
         return
 
     megaphone_client.send_version(f'"{rs_timestamp}"')
