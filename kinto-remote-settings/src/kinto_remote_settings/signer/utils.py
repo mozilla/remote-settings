@@ -71,7 +71,9 @@ def parse_resources(raw_resources):
 
     lines = [line.strip() for line in raw_resources.strip().splitlines()]
     for res in lines:
-        error_msg = "Malformed resource: %%s (in %r). See kinto-remote-settings README." % res
+        error_msg = (
+            "Malformed resource: %%s (in %r). See kinto-remote-settings README." % res
+        )
         if "->" not in res and ";" not in res:
             raise ConfigurationError(error_msg % "not separated with '->'")
 
