@@ -152,7 +152,7 @@ filter expressions.
 
    String containing the user's locale.
 
-.. js:attribute:: env.appinfo.OS
+.. js:attribute:: env.os.name
 
    String containing the Operating System identifier:
 
@@ -162,15 +162,31 @@ filter expressions.
    * ``'Linux'``
    * ``'WINNT'``
 
-   **Example:** ``env.appinfo.OS != 'Android'``
+   **Example:** ``env.os.name != 'Android'``
 
-.. js:attribute:: env.appinfo.osVersion
+   *Introduced in Gecko 138, see* ``env.appinfo.OS`` *to target older versions*
 
-   String containing the Operating System version:
+.. js:attribute:: env.os.version
 
-   * ``'11.0'``
+   String containing the Operating System version.
 
-   **Example:** ``env.appinfo.osVersion == '10'``
+   **Example:** ``env.os.version == '10'``
+
+   *Introduced in Gecko 138*
+
+.. js:attribute:: env.appinfo.OS
+
+   Same as ``env.os.name``.
+
+.. js:attribute:: env.appinfo.ID
+
+   String containing the application ID
+
+   * ``"{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"`` (Firefox)
+   * ``org.mozilla.fenix`` (Firefox for Android)
+   * ``"xpcshell@tests.mozilla.org"`` (Gecko tests)
+   * ``"{3550f703-e582-4d05-9a08-453d09bdfdc6}"`` (Thunderbird)
+   * etc.
 
 .. js:attribute:: env.formFactor
 
@@ -178,10 +194,14 @@ filter expressions.
    * ``'tablet'``
    * ``'desktop'``
 
+   *Introduced in Gecko 138*
+
 .. js:attribute:: env.country
 
    * ``'US'``
    * ``'GB'``
+
+   *Introduced in Gecko 138*
 
 .. important::
 
@@ -297,13 +317,6 @@ Desktop Only
 
    Boolean specifying whether Firefox is set as the user's default browser.
 
-.. js:attribute:: env.appinfo.ID
-
-   String containing the XUL application ID
-
-   * ``"{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"`` (Firefox)
-   * ``"{3550f703-e582-4d05-9a08-453d09bdfdc6}"`` (Thunderbird)
-
 .. js:attribute:: env.appinfo.version
 
    The version of the XUL application.
@@ -317,14 +330,6 @@ Desktop Only
 .. js:attribute:: env.appinfo.platformBuildID
 
    The version of the XULRunner platform
-
-.. js:attribute:: env.os.name
-
-   Same as ``env.appinfo.OS``.
-
-.. js:attribute:: env.os.version
-
-   Same as ``env.appinfo.osVersion``.
 
 .. js:attribute:: env.os.darwinVersion
 
