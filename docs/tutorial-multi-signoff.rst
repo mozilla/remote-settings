@@ -171,7 +171,7 @@ From your code, or the browser console, register the new collection by listening
 
 .. code-block:: bash
 
-    const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js", {});
+    const { RemoteSettings } = ChromeUtils.importESModule("resource://services-settings/remote-settings.sys.mjs")
 
     RemoteSettings("password-recipes").on("sync", ({ data }) => {
       data.current.forEach(r => dump(`${r.property}\n`));

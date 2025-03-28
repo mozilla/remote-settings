@@ -48,7 +48,7 @@ On the client side, listen for changes via an event listener:
 
 .. code-block:: javascript
 
-    const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js", {});
+    const { RemoteSettings } = ChromeUtils.importESModule("resource://services-settings/remote-settings.sys.mjs")
 
     RemoteSettings("my-collection")
       .on("sync", (e) => {

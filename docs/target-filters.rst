@@ -250,7 +250,7 @@ Advanced: Testing Filter Expressions in the Browser Console
 
    .. code-block:: javascript
 
-        const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js", {});
+        const { RemoteSettings } = ChromeUtils.importESModule("resource://services-settings/remote-settings.sys.mjs")
         const client = RemoteSettings("a-key");
 
    The following lines create a local record with a filter expression field and fetch the current settings list.

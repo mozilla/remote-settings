@@ -253,8 +253,8 @@ From a browser console, you can debug JEXL expressions using the raw libraries:
 
 .. code-block:: javascript
 
-    const { FilterExpressions } = ChromeUtils.import(
-      "resource://gre/modules/components-utils/FilterExpressions.jsm"
+    const { FilterExpressions } = ChromeUtils.importESModule(
+      "resource://gre/modules/components-utils/FilterExpressions.sys.mjs"
     );
 
     await FilterExpressions.eval("a.b == 1", {a: {b: 1}});
@@ -263,8 +263,8 @@ In order to test using a real application context instead of an arbitrary object
 
 .. code-block:: javascript
 
-    const { ClientEnvironmentBase } = ChromeUtils.import(
-      "resource://gre/modules/components-utils/ClientEnvironment.jsm"
+    const { ClientEnvironmentBase } = ChromeUtils.importESModule(
+      "resource://gre/modules/components-utils/ClientEnvironment.sys.mjs"
     );
 
     await FilterExpressions.eval("env.locale == 'fr-FR'", {env: ClientEnvironmentBase})
