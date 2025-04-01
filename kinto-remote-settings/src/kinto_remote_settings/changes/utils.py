@@ -38,12 +38,14 @@ def monitored_timestamps(request):
     results = []
     for parent_id, timestamp in all_resources_timestamps.items():
         matches_included = any(
-            parent_id.startswith(uri) for uri in included_resources_uri
+            parent_id.startswith(uri if "/collections/" in uri else f"{uri}/")
+            for uri in included_resources_uri
         )
         if not matches_included:
             continue
         matches_excluded = any(
-            parent_id.startswith(uri) for uri in excluded_collections_uri
+            parent_id.startswith(uri if "/collections/" in uri else f"{uri}/")
+            for uri in excluded_collections_uri
         )
         if matches_excluded:
             continue
