@@ -22,7 +22,7 @@ from . import (
     CHANGESET_PATH,
     MONITOR_BUCKET,
 )
-from .utils import bound_limit, changes_object, monitored_collections
+from .utils import bound_limit, change_entry_id, monitored_timestamps
 
 
 POSTGRESQL_MAX_INTEGER_VALUE = 2**63
@@ -66,24 +66,21 @@ class ChangesModel(object):
         return objs
 
     def _entries(self):
+        http_host = self.request.registry.settings.get("http_host") or ""
+
         if self.__entries is None:
-            self.__entries = {}
-
-            for bucket_id, collection_id in monitored_collections(
-                self.request.registry
-            ):
-                collection_uri = core_utils.instance_uri(
-                    self.request, "collection", bucket_id=bucket_id, id=collection_id
+            entries = [
+                dict(
+                    id=change_entry_id(self.request, http_host, bid, cid),
+                    last_modified=timestamp,
+                    bucket=bid,
+                    collection=cid,
+                    host=http_host,
                 )
-                timestamp = self.storage.resource_timestamp(
-                    parent_id=collection_uri, resource_name="record"
-                )
-                entry = changes_object(
-                    self.request, bucket_id, collection_id, timestamp
-                )
-                self.__entries[entry[self.id_field]] = entry
-
-        return self.__entries.values()
+                for bid, cid, timestamp in monitored_timestamps(self.request)
+            ]
+            self.__entries = entries
+        return self.__entries
 
 
 class ChangesSchema(resource.ResourceSchema):

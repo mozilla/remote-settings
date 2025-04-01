@@ -18,51 +18,59 @@ def bound_limit(settings: dict, value: Optional[int]) -> int:
     return min(abs(value), max_limit) if value is not None else max_limit
 
 
-def monitored_collections(registry):
-    storage = registry.storage
-    resources_uri = aslist(registry.settings.get("changes.resources", ""))
+def monitored_timestamps(request):
+    """
+    Return the list of collection timestamps based on the specified
+    lists of resources in settings.
 
-    excluded_collections_uri = aslist(
-        registry.settings.get("changes.excluded_collections", "")
-    )
-    excluded_collections = []
-    for uri in excluded_collections_uri:
-        _, matchdict = core_utils.view_lookup_registry(registry, uri)
-        excluded_collections.append((matchdict["bucket_id"], matchdict["id"]))
+    :rtype: list[tuple[str,str,int]]
+    """
+    settings = request.registry.settings
+    storage = request.registry.storage
 
-    collections = []
+    included_resources_uri = aslist(settings.get("changes.resources", ""))
+    excluded_collections_uri = aslist(settings.get("changes.excluded_collections", ""))
 
-    for resource_uri in resources_uri:
-        resource_name, matchdict = core_utils.view_lookup_registry(
-            registry, resource_uri
+    all_resources_timestamps = storage.all_resources_timestamps("record")
+
+    results = []
+    for parent_id, timestamp in all_resources_timestamps.items():
+        matches_included = any(
+            parent_id.startswith(uri) for uri in included_resources_uri
         )
-        if resource_name == "bucket":
-            # Every collections in this bucket.
-            result = storage.list_all(
-                resource_name="collection", parent_id=resource_uri
-            )
-            collections.extend([(matchdict["id"], obj["id"]) for obj in result])
+        if not matches_included:
+            continue
+        matches_excluded = any(
+            parent_id.startswith(uri) for uri in excluded_collections_uri
+        )
+        if matches_excluded:
+            continue
 
-        elif resource_name == "collection":
-            collections.append((matchdict["bucket_id"], matchdict["id"]))
+        _, matchdict = core_utils.view_lookup_registry(request.registry, parent_id)
+        bucket_id, collection_id = matchdict["bucket_id"], matchdict["id"]
 
-    return [c for c in collections if c not in excluded_collections]
+        results.append((bucket_id, collection_id, timestamp))
+    return results
 
 
-def changes_object(request, bucket_id, collection_id, timestamp):
-    """Generate an object for /buckets/monitor/collections/changes."""
-    http_host = request.registry.settings.get("http_host") or ""
-    collection_uri = core_utils.instance_uri(
-        request, "collection", bucket_id=bucket_id, id=collection_id
-    )
-    uniqueid = http_host + collection_uri
-    identifier = hashlib.md5(uniqueid.encode("utf-8")).hexdigest()
-    entry_id = str(UUID(identifier))
+_CHANGES_ENTRIES_ID_CACHE = {}
 
-    return dict(
-        id=entry_id,
-        last_modified=timestamp,
-        bucket=bucket_id,
-        collection=collection_id,
-        host=http_host,
-    )
+
+def change_entry_id(request, http_host, bucket_id, collection_id):
+    """Generates a deterministic UUID based on input parameters
+    and keeps it in cache.
+
+    :rtype: str
+    """
+    global _CHANGES_ENTRIES_ID_CACHE
+
+    cache_key = (http_host, bucket_id, collection_id)
+    if cache_key not in _CHANGES_ENTRIES_ID_CACHE:
+        collection_uri = core_utils.instance_uri(
+            request, "collection", bucket_id=bucket_id, id=collection_id
+        )
+        uniqueid = http_host + collection_uri
+        identifier = hashlib.md5(uniqueid.encode("utf-8")).hexdigest()
+        entry_id = str(UUID(identifier))
+        _CHANGES_ENTRIES_ID_CACHE[cache_key] = entry_id
+    return _CHANGES_ENTRIES_ID_CACHE[cache_key]
