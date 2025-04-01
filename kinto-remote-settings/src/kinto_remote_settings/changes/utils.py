@@ -31,6 +31,8 @@ def monitored_timestamps(request):
     included_resources_uri = aslist(settings.get("changes.resources", ""))
     excluded_collections_uri = aslist(settings.get("changes.excluded_collections", ""))
 
+    # In Kinto, the only parents of 'record' resources are collections. Therefore
+    # all `parent_id` values are going to be collection URIs.
     all_resources_timestamps = storage.all_resources_timestamps("record")
 
     results = []
@@ -46,7 +48,12 @@ def monitored_timestamps(request):
         if matches_excluded:
             continue
 
-        _, matchdict = core_utils.view_lookup_registry(request.registry, parent_id)
+        resource_name, matchdict = core_utils.view_lookup_registry(
+            request.registry, parent_id
+        )
+        assert resource_name == "collection", (
+            f"Record object parent inconsistency: {resource_name}"
+        )
         bucket_id, collection_id = matchdict["bucket_id"], matchdict["id"]
 
         results.append((bucket_id, collection_id, timestamp))
