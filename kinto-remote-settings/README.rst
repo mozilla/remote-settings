@@ -20,9 +20,9 @@ Settings
 
 .. code-block :: ini
 
-    # List of buckets/collections to show:
-    kinto.changes.resources = /buckets/settings
-                              /buckets/blocklists/collections/certificates
+    # List of buckets/collections to show (starts with URI match):
+    kinto.changes.resources = /buckets/settings/
+                              /buckets/blocklists/collections/certificates 
 
 Cache Control
 -------------
