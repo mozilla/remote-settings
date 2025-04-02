@@ -758,6 +758,27 @@ class SourceCollectionHardDeletion(BaseWebTest, PatchAutographMixin, unittest.Te
             status=404,
         )
 
+    def test_deleted_collection_does_not_show_up_in_monitored_changes(self):
+        monitored = self.app.get(
+            "/buckets/monitor/collections/changes/changeset?_expected=0"
+        )
+        cids = set(
+            f"{e['bucket']}/{e['collection']}" for e in monitored.json["changes"]
+        )
+        assert "preview/a" in cids
+        assert "prod/a" in cids
+
+        self.app.delete("/buckets/stage/collections/a", headers=self.headers)
+
+        monitored = self.app.get(
+            "/buckets/monitor/collections/changes/changeset?_expected=0"
+        )
+        cids = set(
+            f"{e['bucket']}/{e['collection']}" for e in monitored.json["changes"]
+        )
+        assert "preview/a" not in cids
+        assert "prod/a" not in cids
+
 
 class ExpandedSettingsTest(BaseWebTest, PatchAutographMixin, unittest.TestCase):
     @classmethod

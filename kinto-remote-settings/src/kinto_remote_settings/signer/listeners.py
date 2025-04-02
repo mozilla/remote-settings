@@ -617,6 +617,7 @@ def create_editors_reviewers_groups(event, resources, editors_group, reviewers_g
 
 def cleanup_preview_destination(event, resources):
     storage = event.request.registry.storage
+    permission = event.request.registry.permission
     settings = event.request.registry.settings
 
     for impacted in event.impacted_objects:
@@ -664,7 +665,7 @@ def cleanup_preview_destination(event, resources):
             if should_hard_delete:
                 # Delete the records and the collection.
                 storage.delete_all(
-                    resource_name="record", parent_id=collection_uri, with_deleted=False
+                    resource_name=None, parent_id=collection_uri, with_deleted=False
                 )
                 try:
                     storage.delete(
@@ -676,8 +677,18 @@ def cleanup_preview_destination(event, resources):
                 except ObjectNotFoundError:
                     # Already deleted
                     pass
+                # Delete all tombstones and timestamps of this collection.
+                storage.purge_deleted(resource_name=None, parent_id=collection_uri)
+                # As well as individual permissions on the collection.
+                permission.delete_object_permissions(collection_uri)
+                # And delete everything related to this collection and underneath
+                # (records, history, permissions on records, ...)
+                storage.purge_deleted(
+                    resource_name=None, parent_id=collection_uri + "/*"
+                )
+                permission.delete_object_permissions(collection_uri + "/*")
             else:
-                # Delete records with tombstones.
+                # Delete records and leave tombstones.
                 storage.delete_all(
                     resource_name="record", parent_id=collection_uri, with_deleted=True
                 )
