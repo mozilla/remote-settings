@@ -31,6 +31,9 @@ rs=# \d objects
 
 Over the years, this `objects` table grew significantly in production, reaching 840K+ rows in early 2025.
 
+
+![A diagram showing how the database grows over the years.](./adr_005_chart.png "DB size chart")
+
 ### Proportions
 
 Because some use-cases generate a lot of changes, a huge proportion of it were history entries:
@@ -62,6 +65,26 @@ rs=# SELECT resource_name, deleted, COUNT(*) AS count, ROUND(100.0 * COUNT(*) / 
 ---------------+---------+--------+------------
  ...
  record        | t       | 124846 |      82.18
+```
+
+Tombstones are growing significantly every year:
+
+```
+rs=# SELECT EXTRACT(YEAR FROM last_modified) AS year, COUNT(*) FROM objects WHERE deleted IS TRUE GROUP BY year ORDER BY 1 DESC;
+ year | count
+------+-------
+ 2025 | 39974
+ 2024 | 41205
+ 2023 |  8860
+ 2022 | 15962
+ 2021 |  5370
+ 2020 |  3969
+ 2019 |  4994
+ 2018 |  4396
+ 2017 |   240
+ 2016 |     2
+ 2015 |     1
+(11 rows)
 ```
 
 ### Architecture
@@ -141,12 +164,12 @@ PostgreSQL would copy data between the source database and this new one using a 
 
 Objects used by the writer, like accounts, history, attachments links, etc. would not be replicated.
 
-We would have some flexibility to control the final dataset (eg. do not include tombstones that are more than 2 years old).
+Logical replication gives us a lot of control over read scaling and future flexibility. We would control the final dataset, for example exclude tombstones that are more than 2 years old.
 
 Since performance on the writer is not critical, we could adjust the database resources according to their respective load.
 Any CPU spike on the reader database would not affect user experience.
 
 - **Complexity**: Low. This setup a classic read/write split architecture
 - **Cost of implementation**: Medium-Low. We have done similar work for the CTMS project already
-- **Cost of operation**: Medium-Low. We would have one more database to monitor. And although they don't have often, we would have to run schema migrations manually on the reader replica (??)
+- **Cost of operation**: Medium-Low. We would have one more database to monitor. And although they don't have often, we would have to run schema migrations manually on the reader replica (could consider `pglogical` or tools like `Sqitch` to sync migrations with replication in mind)
 - **Future-resilience**: Medium-High. We control the amount of data that are exposed to readers using queries.
