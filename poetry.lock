@@ -533,7 +533,7 @@ develop = true
 [package.dependencies]
 backoff = "^2.2.1"
 google-cloud-storage = "^3.0.0"
-kinto-http = "^11.7.0"
+kinto-http = "^11.8.0"
 lz4 = "^4.3.3"
 python-decouple = "^3.8"
 requests = "^2.32.3"
@@ -1167,14 +1167,14 @@ dev = ["kinto-client", "kinto-signer", "kinto[postgresql]", "mock", "pytest", "p
 
 [[package]]
 name = "kinto-http"
-version = "11.7.1"
+version = "11.8.0"
 description = "Kinto client"
 optional = false
 python-versions = "*"
 groups = ["cronjobs"]
 files = [
-    {file = "kinto_http-11.7.1-py3-none-any.whl", hash = "sha256:837ba12bea4eaafa8a4ce67730f8a40c9cf00c60f506ad42be03426c7236bc41"},
-    {file = "kinto_http-11.7.1.tar.gz", hash = "sha256:8e2cb010969c433bc65f7191e7b3314e214ecc5c035dd22d891d1cca27f821f0"},
+    {file = "kinto_http-11.8.0-py3-none-any.whl", hash = "sha256:9eb24aa8e9a34c9760342df523b8e36826e7f942d090475711da32843a0a30e3"},
+    {file = "kinto_http-11.8.0.tar.gz", hash = "sha256:39ad4594dd63f4e6debfff1b1c7842d73fe3ab6ecb8997892c22460ba498cd27"},
 ]
 
 [package.dependencies]

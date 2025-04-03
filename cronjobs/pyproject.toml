@@ -8,7 +8,7 @@ authors = ["Contactless <postmaster@localhost>"]
 python = ">=3.11, <3.14"
 backoff = "^2.2.1"
 python-decouple = "^3.8"
-kinto-http = "^11.7.0"
+kinto-http = "^11.8.0"
 requests = "^2.32.3"
 sentry_sdk = "^2.20.0"
 google-cloud-storage = "^3.0.0"
