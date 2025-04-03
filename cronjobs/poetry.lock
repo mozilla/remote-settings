@@ -328,14 +328,14 @@ all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2
 
 [[package]]
 name = "kinto-http"
-version = "11.7.1"
+version = "11.8.0"
 description = "Kinto client"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "kinto_http-11.7.1-py3-none-any.whl", hash = "sha256:837ba12bea4eaafa8a4ce67730f8a40c9cf00c60f506ad42be03426c7236bc41"},
-    {file = "kinto_http-11.7.1.tar.gz", hash = "sha256:8e2cb010969c433bc65f7191e7b3314e214ecc5c035dd22d891d1cca27f821f0"},
+    {file = "kinto_http-11.8.0-py3-none-any.whl", hash = "sha256:9eb24aa8e9a34c9760342df523b8e36826e7f942d090475711da32843a0a30e3"},
+    {file = "kinto_http-11.8.0.tar.gz", hash = "sha256:39ad4594dd63f4e6debfff1b1c7842d73fe3ab6ecb8997892c22460ba498cd27"},
 ]
 
 [package.dependencies]
@@ -597,4 +597,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11, <3.14"
-content-hash = "7f1bc603472a67937541e0e1fad4cd3c72787cc2fd6f63ae0cb430f54047ce79"
+content-hash = "84a91156c18614ecdeae3ab14a62750517e9cb178dca678e112883a9d06c7553"

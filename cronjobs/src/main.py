@@ -26,6 +26,11 @@ if SENTRY_DSN:
     # We're running in Google Cloud. See https://cloud.google.com/functions/docs/configuring/env-var
     sentry_sdk.init(SENTRY_DSN, integrations=[GcpIntegration()], **env_option)
 
+ENTRYPOINTS = [
+    os.path.splitext(os.path.basename(f))[0]
+    for f in glob.glob(f"{HERE}/commands/[a-z]*.py")
+]
+
 
 def help_(**kwargs):
     """Show this help."""
@@ -33,13 +38,9 @@ def help_(**kwargs):
     def white_bold(s):
         return f"\033[1m\x1b[37m{s}\033[0;0m"
 
-    entrypoints = [
-        os.path.splitext(os.path.basename(f))[0]
-        for f in glob.glob(f"{HERE}/commands/[a-z]*.py")
-    ]
     commands = [
         getattr(importlib.import_module(f"commands.{entrypoint}"), entrypoint)
-        for entrypoint in entrypoints
+        for entrypoint in ENTRYPOINTS
     ]
     func_listed = "\n - ".join(
         [f"{white_bold(f.__name__)}: {f.__doc__}" for f in commands]
@@ -75,27 +76,7 @@ def run(command, event=None, context=None):
     if event.get("force_fail") or os.getenv("FORCE_FAIL"):
         raise Exception("Found forced failure flag")
 
-    command(event, context)
-
-
-def backport_records(*args, **kwargs):
-    return run("backport_records", *args, **kwargs)
-
-
-def blockpages_generator(*args, **kwargs):
-    return run("blockpages_generator", *args, **kwargs)
-
-
-def refresh_signature(*args, **kwargs):
-    return run("refresh_signature", *args, **kwargs)
-
-
-def sync_megaphone(*args, **kwargs):
-    return run("sync_megaphone", *args, **kwargs)
-
-
-def build_bundles(*args, **kwargs):
-    return run("build_bundles", *args, **kwargs)
+    return command(event, context)
 
 
 def main(*args):
@@ -107,14 +88,14 @@ def main(*args):
     if not args or args[0] in ("help", "--help"):
         help_()
         return
+
     entrypoint = args[0]
-    try:
-        command = globals()[entrypoint]
-    except KeyError:
+    if entrypoint not in ENTRYPOINTS:
         print(f"Unknown function {entrypoint!r}", file=sys.stderr)
         help_()
         return 1
-    command()
+
+    return run(entrypoint)
 
 
 if __name__ == "__main__":

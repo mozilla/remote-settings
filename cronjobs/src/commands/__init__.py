@@ -70,6 +70,10 @@ class KintoClient(kinto_http.Client):
     def request_review(self, *args, **kwargs):
         return super().request_review(*args, **kwargs)
 
+    @retry_timeout
+    def purge_history(self, *args, **kwargs):
+        return super().purge_history(*args, **kwargs)
+
 
 def call_parallel(func, args_list, max_workers=PARALLEL_REQUESTS):
     results = []
