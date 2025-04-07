@@ -208,3 +208,16 @@ Any CPU spike on the reader database would not affect user experience.
 - **Cost of implementation**: Medium. This requires some Terraform knowledge that may go beyond our team's, and we may have to rely on the SRE team to set it up correctly.
 - **Cost of operation**: Medium-Low. We would have one more database to monitor. And although they don't have often, we would have to run schema migrations manually on the reader replica (could consider `pglogical` or tools like `Sqitch` to sync migrations with replication in mind)
 - **Future-resilience**: Medium-High. We control the amount of data that are exposed to readers using queries.
+
+### Option 4 - Full replicas for readers
+
+We create a full replica for our readers. This is mostly built-in functionality in GCP CloudSQL, so we'd just need to enable the replica and update the reader's connection string.
+
+This would also allow us to down-size our writer instances (probably 2-3x) to keep our costs at the same or lower levels.
+
+These replicas would not have exactly the data they need as in option 3. But we don't have much data to optimize.
+
+- **Complexity**: Low.
+- **Cost of implementation**: Low. Small changes in terraform and helm.
+- **Cost of operation**: Low. Costs should not increase and may decrease slightly since we can downscale the main instance.
+- **Future-resilience**: Medium-High. We can independetly scale the reader replicas. Our workload is 99% read and 1% write, so the ability to scale the readers specifically is nice. We could also implement autoscaling in the future (if needed) with some alert listeners that would change cloud state.
