@@ -1,6 +1,6 @@
 # Handle Growing Objects Table
 
-* Status: draft
+* Status: accepted
 * Deciders: mleplatre, acottner
 * Date: Apr 3, 2025
 
@@ -114,13 +114,16 @@ In order to choose our solution we considered the following criteria:
 ## Considered Options
 
 1. [Option 0 - Do nothing](#option-0---do-nothing)
-1. [Option 1 - Trim objects automatically](#option-2---xxx)
-1. [Option 2 - Partition the objects table by `resource_name`](#option-2---xxx)
-1. [Option 3 - Logical replicas for readers](#option-3---xxx)
+1. [Option 1 - Trim objects automatically](#option-1---trim-objects-automatically)
+1. [Option 2 - Partition the objects table by `resource_name`](#option-2---partition-the-objects-table-by-resource_name)
+1. [Option 3 - Logical replicas for readers](#option-3---logical-replicas-for-readers)
+1. [Option 4 - Full replicas for readers](#option-4---full-replicas-for-readers)
 
 ## Decision Outcome
 
-Chosen option: X
+Chosen option: We decided to go for [Option 4](#option-4---full-replicas-for-readers) as a first step. This solution does not require advanced Terraform skills, and brings us a lot of flexibility to adjust our database resources on writers (low frequency writes) and readers (constant reads).
+We also have started [Option 1](#option-1---trim-objects-automatically) with [mozilla/remote-settings#836](https://github.com/mozilla/remote-settings/issues/836). And it does not mean we won't implement [Option 2](#option-2---partition-the-objects-table-by-resource_name) in [Kinto/kinto#3516](https://github.com/Kinto/kinto/pull/3516).
+
 
 ## Pros and Cons of the Options
 
@@ -173,6 +176,8 @@ DECLARE
     partition_vals text[] := string_to_array('history,records', ',');
 BEGIN
     CREATE TABLE objects_partition_default PARTITION OF objects DEFAULT;
+    ALTER TABLE objects DISABLE TRIGGER tgr_objects_last_modified;
+
     FOREACH val IN ARRAY partition_vals LOOP
         EXECUTE format($sql$
             CREATE TABLE objects_partition_%I
@@ -180,6 +185,8 @@ BEGIN
             FOR VALUES IN (%L)
         $sql$, val, val);
     END LOOP;
+
+    ALTER TABLE objects ENABLE TRIGGER tgr_objects_last_modified;
 END $$;
 ```
 
