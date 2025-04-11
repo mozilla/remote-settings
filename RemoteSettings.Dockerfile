@@ -42,7 +42,8 @@ ENV KINTO_INI=config/local.ini \
     PATH="/opt/.venv/bin:$PATH" \
     PORT=8888 \
     PYTHONUNBUFFERED=1 \
-    VIRTUAL_ENV=/opt/.venv
+    VIRTUAL_ENV=/opt/.venv \
+    PROMETHEUS_MULTIPROC_DIR="/tmp/metrics"
 
 COPY /bin/update_and_install_system_packages.sh /opt
 RUN /opt/update_and_install_system_packages.sh \
