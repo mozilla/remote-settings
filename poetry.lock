@@ -1082,14 +1082,14 @@ referencing = ">=0.31.0"
 
 [[package]]
 name = "kinto"
-version = "20.3.0"
+version = "20.5.0"
 description = "Kinto Web Service - Store, Sync, Share, and Self-Host."
 optional = false
 python-versions = "*"
 groups = ["main", "kinto-remote-settings"]
 files = [
-    {file = "kinto-20.3.0-py3-none-any.whl", hash = "sha256:6adef3f2c33ab3fa2351d7a12f2c5b181b3aa7d334244e18143a637be1f928ab"},
-    {file = "kinto-20.3.0.tar.gz", hash = "sha256:5117d4ad0a06f6e48c94e75f1eeb6f752720076fd302c19c151e761bc5fc6b89"},
+    {file = "kinto-20.5.0-py3-none-any.whl", hash = "sha256:c8fd64215240e83219aa17e1bc0efcaf77c7a2144d48285e60e03efe81ee90b6"},
+    {file = "kinto-20.5.0.tar.gz", hash = "sha256:24d53b65ec83e022d272ef3f695a1f7b720080a657d6704321f9068835a9c5d0"},
 ]
 
 [package.dependencies]
@@ -2893,4 +2893,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11, <3.14"
-content-hash = "feb11e4274b00d94ed56fe6d04141d399e33e4c07dc163d8fcc6bdbe3a0a1976"
+content-hash = "9ac3783b3deaed85dec81f4695ad4693dbc96ccfb68742444b04437de211635e"
