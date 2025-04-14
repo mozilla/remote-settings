@@ -108,6 +108,12 @@ Consider the following summary table:
 
 - See our :ref:`tutorial for file attachments <tutorial-attachments>`
 
+.. warning::
+
+        The server will not return more than 10000 objects (records + tombstones) per response.
+        If your collection exceeds this limit, since our clients don't implement pagination, they
+        won't be able to synchronize your collection (signature verification will fail).
+
 
 .. _collection-manifests:
 
