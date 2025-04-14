@@ -25,9 +25,8 @@ def test_prometheus_collection(
     editor_client.server_info()  # This will authenticate user.
 
     r = request_session.get(f"{server}/__metrics__")
-    raw_content = r.text()
 
-    assert "remotesettingslocal_authentication_account_callback_count" in raw_content
+    assert "remotesettingslocal_authentication_account_callback_count" in r.text
 
 
 def test_permissions_endpoint(
