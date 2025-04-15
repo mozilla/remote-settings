@@ -237,7 +237,7 @@ class CollectionStatusTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCas
         resp = self.app.get(self.source_collection, headers=self.headers)
         assert resp.json["data"]["status"] == "work-in-progress"
 
-    def test_statsd_reports_number_of_records_approved(self):
+    def test_metrics_reports_number_of_records_approved(self):
         # Publish the changes to reset the setup.
         self.app.patch_json(
             self.source_collection,
@@ -251,17 +251,22 @@ class CollectionStatusTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCas
         )
 
         # Publish the changes again.
-        statsd_client = self.app.app.registry.statsd
-        with mock.patch.object(statsd_client, "count") as mocked:
+        metrics_client = self.app.app.registry.metrics
+        with mock.patch.object(metrics_client, "count") as mocked:
             self.app.patch_json(
                 self.source_collection,
                 {"data": {"status": "to-sign"}},
                 headers=self.headers,
             )
-        call_args = mocked.call_args_list[0][0]
 
-        # One creation and one deletion.
-        assert call_args == ("plugins.signer.approved_changes", 2)
+        mocked.assert_any_call(
+            "plugins.signer.approved_changes",
+            count=2,
+            unique=[
+                ("bucket_id", "alice"),  # destination bucket
+                ("collection_id", "dcid"),  # destination collection
+            ],
+        )
 
 
 class ForceReviewTest(SignoffWebTest, unittest.TestCase):
