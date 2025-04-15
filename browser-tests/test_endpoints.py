@@ -1,3 +1,4 @@
+import requests
 from playwright.sync_api import Browser, BrowserContext
 
 from .conftest import Auth
@@ -14,7 +15,18 @@ def test_config(server_config, to_review_enabled):
     assert server_config["project_version"]
     assert server_config["http_api_version"]
     assert server_config["url"]
+    assert "prometheus" in server_config["capabilities"]
     assert to_review_enabled == ("dev" not in server_config["project_name"].lower())
+
+
+def test_prometheus_collection(
+    request_session: requests.Session, server: str, editor_client
+):
+    editor_client.server_info()  # This will authenticate user.
+
+    r = request_session.get(f"{server}/__metrics__")
+
+    assert "remotesettingslocal_authentication_account_callback_count" in r.text
 
 
 def test_permissions_endpoint(

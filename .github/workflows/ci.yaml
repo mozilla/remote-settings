@@ -131,6 +131,7 @@ jobs:
           cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/web,mode=max
           file: RemoteSettings.Dockerfile
           context: .
+          tags: remotesettings/local  # Like with docker compose build web
 
       - name: Build test container
         uses: docker/build-push-action@v6
