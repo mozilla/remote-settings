@@ -36,10 +36,12 @@ def on_review_approved(event):
         count = event.changes_count
         bid = event.resource["destination"]["bucket"]
         cid = event.resource["destination"]["collection"]
-        # Report into a global counter.
-        metrics_service.count("plugins.signer.approved_changes", count)
         # Report for this collection.
-        metrics_service.count(f"plugins.signer.approved_changes.{bid}.{cid}", count)
+        metrics_service.count(
+            "plugins.signer.approved_changes",
+            count=count,
+            unique=[("bucket_id", bid), ("collection_id", cid)],
+        )
 
 
 def load_signed_resources_configuration(config):
