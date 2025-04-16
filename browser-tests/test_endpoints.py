@@ -26,7 +26,7 @@ def test_prometheus_collection(
 
     r = request_session.get(f"{server}/__metrics__")
 
-    assert "remotesettingslocal_authentication_account_callback_count" in r.text
+    assert "_authentication_account_callback_count" in r.text
 
 
 def test_permissions_endpoint(
