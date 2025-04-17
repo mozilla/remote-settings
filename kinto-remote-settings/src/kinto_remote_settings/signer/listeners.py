@@ -1,4 +1,5 @@
 import copy
+import logging
 
 from kinto.core import errors
 from kinto.core.errors import ERRORS
@@ -12,6 +13,9 @@ from pyramid.settings import asbool
 from . import events as signer_events
 from .updater import TRACKING_FIELDS, LocalUpdater
 from .utils import PLUGIN_USERID, STATUS, ensure_resource_exists
+
+
+logger = logging.getLogger(__name__)
 
 
 def raise_invalid(**kwargs):
@@ -166,6 +170,12 @@ def sign_collection_data(event, resources, **kwargs):
                 previous_source_status=old_status,
             )
             review_event_kw["changes_count"] = changes_count
+            logger.info(
+                "%s approved %s changes on %s",
+                current_user_id,
+                changes_count,
+                new_collection["id"],
+            )
 
         elif new_status == STATUS.TO_REVIEW:
             if has_preview_collection:
@@ -183,16 +193,28 @@ def sign_collection_data(event, resources, **kwargs):
             review_event_cls = signer_events.ReviewRequested
             review_event_kw["changes_count"] = changes_count
             review_event_kw["comment"] = new_collection.get("last_editor_comment", "")
+            logger.info(
+                "%s requested review for %s changes on %s",
+                current_user_id,
+                changes_count,
+                new_collection["id"],
+            )
 
         elif old_status == STATUS.TO_REVIEW and new_status == STATUS.WORK_IN_PROGRESS:
             review_event_cls = signer_events.ReviewRejected
             review_event_kw["comment"] = new_collection.get("last_reviewer_comment", "")
+            logger.info(
+                "%s rejected review on %s", current_user_id, new_collection["id"]
+            )
 
         elif new_status == STATUS.TO_REFRESH:
             updater.refresh_signature(event.request, next_source_status=old_status)
             if has_preview_collection:
                 updater.destination = resource["preview"]
                 updater.refresh_signature(event.request, next_source_status=old_status)
+            logger.info(
+                "%s refreshed signature on %s", current_user_id, new_collection["id"]
+            )
 
         elif new_status == STATUS.TO_ROLLBACK:
             # Reset source with destination content, and set status to SIGNED.
@@ -211,6 +233,12 @@ def sign_collection_data(event, resources, **kwargs):
             if changes_count > 0:
                 review_event_cls = signer_events.ReviewCanceled
                 review_event_kw["changes_count"] = changes_count
+            logger.info(
+                "%s rolledback %s changes on %s",
+                current_user_id,
+                changes_count,
+                new_collection["id"],
+            )
 
         # Notify request of review.
         if review_event_cls:
