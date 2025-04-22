@@ -47,10 +47,17 @@ def test_does_nothing_if_up_to_date():
         MONITOR_CHANGES_URI,
         json={
             "changes": [
+                # Skips -preview entries
                 {
                     "id": "a",
                     "bucket": "main-preview",
                     "collection": "cid",
+                    "last_modified": 10,
+                },
+                {
+                    "id": "a",
+                    "bucket": "main",
+                    "collection": "cid-preview",
                     "last_modified": 10,
                 },
                 {

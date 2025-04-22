@@ -65,7 +65,7 @@ def get_remotesettings_timestamp(uri):
         max(
             e["last_modified"]
             for e in changeset["changes"]
-            if "preview" not in e["bucket"]
+            if "-preview" not in f"{e['bucket']}/{e['collection']}"
         )
     )
 
