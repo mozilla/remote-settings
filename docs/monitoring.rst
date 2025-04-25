@@ -14,19 +14,55 @@ Each environment has its own set of checks, and generally speaking if the checks
 
     This is an instance of `Telescope <https://github.com/mozilla-services/telescope>`_, a generic health check service that you can use for your services!
 
+All endpoints return JSON that can be used from the command line. For example:
+
+.. code-block:: bash
+
+    # Latest approvals for a specific collection
+    curl -s https://telescope.prod.webservices.mozgcp.net/checks/remotesettings-prod/latest-approvals | jq '
+        .data[]
+            | select(.source | contains("-amp"))
+            | .datetime + " "
+            + .source + ": "
+            + " +" + ((.changes.create // 0) | tostring)
+            + " ~" + ((.changes.update // 0) | tostring)
+            + " -" + ((.changes.delete // 0) | tostring)' | head -n 5
+
+
 Server Metrics
 --------------
 
 Servers send live metrics which are visible in Grafana.
 
-We have a `remote-settings folder <https://earthangel-b40313e5.influxcloud.net/dashboards/f/09aCU2uVk/remote-settings>`_ with the main dashboards.
+We have `Yardstick dashboards <https://yardstick.mozilla.org>`_ for nonprod and prod, as well as alerts.
+
+Random notes
+''''''''''''
+
+* Counters are cumulative, so you need to use ``rate()`` or ``increase()`` to get the increase over time.
+* The ``$__range`` variable resolves to the whole time range you are showing, basically end time of your graph minus start time. 
+* For the increase since the previous data point in the graph, i.e. the interval between datapoints, use ``$__interval``.
+* The ``group by(...)`` function always returns a vector with all values set to 1. For counts, you most likely want ``sum by(...)``
+* ``increase()`` will sometimes miss individual events. Use subqueries as a workaround. ``some_metric[$__interval]`` evaluates to all datapoints for ``some_metric`` within the previous X seconds (eg. 120s). The function then computes the increase between the first and the last datapoint in the vector it sees, while accounting for possible counter resets. The function then extrapolates this to the whole 120 seconds interval by multiplying with ``120s / (timestamp of last datapoint in vector - timestamp of first datapoint in vector)``. The ``increase()`` function will thus miss the increases between two consecutive intervals, and it will "make up" for this by extrapolation. On average, this will be correct, but only on average.
+* In order to work for sporadic counter events, use a subquery like this one: ``sum(sum_over_time((some_metric{field="val"} - some_metric{field="val"} offset 30s >= 0 or sum without(__name__) (some_metric{field="val"}))[$__interval:30s]))``. It will get rather slow when used over longer time periods, so if we really want to use this on long period, we should probably set up recording rules for the counter increase.
+
+Links
+'''''
+
+* `About count and sum observations <https://prometheus.io/docs/practices/histograms/#count-and-sum-of-observations>`_
+
 
 Server Logs
 -----------
 
 Servers logs are available in the Google Cloud Console `Logs Explorer <https://console.cloud.google.com/logs/>`_.
 
-First, check the *Refine Scope*, select the appropriate storage bucket for the logs (eg. ``_AllLogs`` ``gke-remote-settings-dev-log-bucket``).
+Application logs are visible in the ``webservices- high-prod`` project (since they run on the ``webservices-high-prod`` GKE cluster).
+
+::
+
+    resource.labels.container_name="remote-settings"
+
 
 Writer Instances
 ''''''''''''''''
@@ -42,7 +78,7 @@ To filter out request summaries, and see application logs only:
 
 ::
 
-    jsonPayload.Type!="request.summary"
+    -jsonPayload.Type="request.summary"
 
 Specific status codes, for example errors:
 
@@ -59,17 +95,13 @@ Reader Instances
     labels."k8s-pod/app_kubernetes_io/component"="reader"
 
 
-Cronjobs / Lambdas
-''''''''''''''''''
+Cronjobs
+''''''''
 
-Filter ``labels."k8s-pod/app_kubernetes_io/component"`` with one of the following values:
+::
 
-- ``cron-backport-records``
-- ``cron-backport-records-normandy``
-- ``cron-cookie-banner-rules-list``
-- ``cron-refresh-signature``
-- ``cron-remote-settings-mdn-browser-compat-data``
-- ``cron-sync-megaphone``
+    labels."k8s-pod/app_kubernetes_io/component"=~"^cron-.*$"
+
 
 
 Attachments CDN Logs
@@ -78,6 +110,43 @@ Attachments CDN Logs
 ::
 
     httpRequest.requestUrl =~ "attachments"
+
+
+CDN Requests Logs in BiqQuery
+'''''''''''''''''''''''''''''
+
+The requests are sampled at 1 per 100, `as configured here <https://github.com/mozilla-it/webservices-infra/blob/03e515b70a08caaaf4d41bc91a5294d517e61977/remote-settings/tf/prod/logs.tf#L1-L5>`_.
+
+In order to unify the requests of the attachments CDN and the API CDN, we can use the following query:
+
+.. code-block:: sql
+
+    WITH attachments_urls AS (
+        SELECT
+            'attachments' AS source,
+            http_request.request_url AS url,
+            http_request.response_size AS size,
+            *
+        FROM `moz-fx-remote-settings-prod.remote_settings_prod_default_log_linked._AllLogs`
+    ),
+    api_urls AS (
+        SELECT
+            'api' AS source,
+            http_request.request_url AS url,
+            http_request.response_size AS size,
+            *
+        FROM `moz-fx-remote-settings-prod.gke_remote_settings_prod_log_linked._AllLogs`
+    ),
+    urls AS (
+        SELECT * FROM attachments_urls
+        UNION ALL
+        SELECT * FROM api_urls
+    )
+    SELECT *
+    FROM urls
+    WHERE timestamp >= TIMESTAMP(DATE_TRUNC(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH), MONTH))
+        AND timestamp < TIMESTAMP(DATE_TRUNC(CURRENT_DATE(), MONTH))
+        AND http_request.status = 200;
 
 
 Clients Telemetry
