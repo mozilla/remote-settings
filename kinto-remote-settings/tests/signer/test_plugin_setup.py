@@ -294,7 +294,7 @@ class IncludeMeTest(unittest.TestCase):
         with mock.patch.object(config.registry.metrics, "timer") as mocked:
             config.registry.notify(event)
 
-            mocked.assert_called_with("plugins.signer")
+            mocked.assert_called_with("plugins.signer.seconds")
 
 
 class ConfigFromEnvironment(BaseWebTest, unittest.TestCase):
