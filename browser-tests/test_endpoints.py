@@ -26,7 +26,7 @@ def test_prometheus_collection(
 
     r = request_session.get(f"{server}/__metrics__")
 
-    assert '_authentication_account_count{method="callback"}' in r.text
+    assert '_authentication_account_seconds_count{method="callback"}' in r.text
 
 
 def test_permissions_endpoint(
