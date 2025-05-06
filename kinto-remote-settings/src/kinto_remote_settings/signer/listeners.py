@@ -130,6 +130,11 @@ def sign_collection_data(event, resources, **kwargs):
         # Autorize kinto-attachment metadata write access. #190
         event.request._attachment_auto_save = True
 
+        # Logger JSON fields.
+        logger_fields = {
+            "user_id": current_user_id,
+            "collection_id": new_collection["id"],
+        }
         if is_new_collection:
             if has_preview_collection:
                 updater.destination = resource["preview"]
@@ -175,6 +180,11 @@ def sign_collection_data(event, resources, **kwargs):
                 current_user_id,
                 changes_count,
                 new_collection["id"],
+                extra={
+                    **logger_fields,
+                    "action": "approve",
+                    "changes_count": changes_count,
+                },
             )
 
         elif new_status == STATUS.TO_REVIEW:
@@ -198,13 +208,24 @@ def sign_collection_data(event, resources, **kwargs):
                 current_user_id,
                 changes_count,
                 new_collection["id"],
+                extra={
+                    **logger_fields,
+                    "action": "request",
+                    "changes_count": changes_count,
+                },
             )
 
         elif old_status == STATUS.TO_REVIEW and new_status == STATUS.WORK_IN_PROGRESS:
             review_event_cls = signer_events.ReviewRejected
             review_event_kw["comment"] = new_collection.get("last_reviewer_comment", "")
             logger.info(
-                "%s rejected review on %s", current_user_id, new_collection["id"]
+                "%s rejected review on %s",
+                current_user_id,
+                new_collection["id"],
+                extra={
+                    **logger_fields,
+                    "action": "reject",
+                },
             )
 
         elif new_status == STATUS.TO_REFRESH:
@@ -213,7 +234,13 @@ def sign_collection_data(event, resources, **kwargs):
                 updater.destination = resource["preview"]
                 updater.refresh_signature(event.request, next_source_status=old_status)
             logger.info(
-                "%s refreshed signature on %s", current_user_id, new_collection["id"]
+                "%s refreshed signature on %s",
+                current_user_id,
+                new_collection["id"],
+                extra={
+                    **logger_fields,
+                    "action": "refresh",
+                },
             )
 
         elif new_status == STATUS.TO_ROLLBACK:
@@ -238,6 +265,11 @@ def sign_collection_data(event, resources, **kwargs):
                 current_user_id,
                 changes_count,
                 new_collection["id"],
+                extra={
+                    **logger_fields,
+                    "action": "rollback",
+                    "changes_count": changes_count,
+                },
             )
 
         # Notify request of review.
