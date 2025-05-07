@@ -105,7 +105,7 @@ jobs:
           type: custom
           color: "#a72841"
           message: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
-          channel_id: ${{ env.SLACK_CHANNEL_ID_DEVELOPER }}
+          channel_id: ${{ vars.SLACK_CHANNEL_ID_DEVELOPER }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
 
   cronjobs_container:
@@ -164,7 +164,7 @@ jobs:
           type: custom
           color: "#a72841"
           message: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
-          channel_id: ${{ env.SLACK_CHANNEL_ID_DEVELOPER }}
+          channel_id: ${{ vars.SLACK_CHANNEL_ID_DEVELOPER }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
 
   browser_test_container:
@@ -219,7 +219,7 @@ jobs:
           type: custom
           color: "#a72841"
           message: "❤️ This is Mat trying Slack notif from GHA"
-          channel_id: ${{ env.SLACK_CHANNEL_ID_DEVELOPER }}
+          channel_id: ${{ vars.SLACK_CHANNEL_ID_DEVELOPER }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
       - name: Notify DEVs of build failure
         uses: mozilla-it/deploy-actions/slack@v3.13.0
@@ -231,5 +231,5 @@ jobs:
           type: custom
           color: "#a72841"
           message: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
-          channel_id: ${{ env.SLACK_CHANNEL_ID_DEVELOPER }}
+          channel_id: ${{ vars.SLACK_CHANNEL_ID_DEVELOPER }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
