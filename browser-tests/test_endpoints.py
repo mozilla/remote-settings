@@ -28,6 +28,11 @@ def test_prometheus_collection(
 
     assert '_authentication_account_seconds_count{method="callback"}' in r.text
 
+    # Make sure that the metrics are not duplicated (eg. definitions etc.)
+    all_lines = r.text.splitlines()
+    unique_lines = set(all_lines)
+    assert len(unique_lines) == len(all_lines)
+
 
 def test_permissions_endpoint(
     server: str,
