@@ -216,11 +216,10 @@ jobs:
       - name: Try Slack token
         uses: slackapi/slack-github-action@v2.1.0
         with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
           payload: |
-            channel: ${{ vars.SLACK_CHANNEL_ID_DEVELOPER }}
-            text: "❤️ This is Mat trying Slack notif from GHA"
+            text: "❤️ This is Mat trying Slack notif from GHA (image=${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }})"
       - name: Notify DEVs of build failure
         uses: mozilla-it/deploy-actions/slack@v3.13.0
         if: failure()
