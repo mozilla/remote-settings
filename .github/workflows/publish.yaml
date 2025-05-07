@@ -106,7 +106,7 @@ jobs:
           color: "#a72841"
           message: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
           channel_id: ${{ env.SLACK_CHANNEL_ID_DEVELOPER }}
-          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN_BUGID_1796141_20221019 }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
 
   cronjobs_container:
     env:
@@ -165,7 +165,7 @@ jobs:
           color: "#a72841"
           message: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
           channel_id: ${{ env.SLACK_CHANNEL_ID_DEVELOPER }}
-          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN_BUGID_1796141_20221019 }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
 
   browser_test_container:
     env:
@@ -224,4 +224,4 @@ jobs:
           color: "#a72841"
           message: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
           channel_id: ${{ env.SLACK_CHANNEL_ID_DEVELOPER }}
-          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN_BUGID_1796141_20221019 }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
