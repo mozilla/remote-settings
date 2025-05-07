@@ -96,17 +96,13 @@ jobs:
           cache-from: type=gha # Load cache from GitHub Actions
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
       - name: Notify DEVs of build failure
-        uses: mozilla-it/deploy-actions/slack@v3.13.0
         if: failure()
+        uses: slackapi/slack-github-action@v2.1.0
         with:
-          app_name: ${{ env.GAR_IMAGE_NAME }}
-          env_name: build
-          ref: ${{ env.LATEST_TAG }}
-          type: custom
-          color: "#a72841"
-          message: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
-          channel_id: ${{ vars.SLACK_CHANNEL_ID_DEVELOPER }}
-          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
 
   cronjobs_container:
     env:
@@ -155,17 +151,13 @@ jobs:
           cache-from: type=gha # Load cache from GitHub Actions
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
       - name: Notify DEVs of build failure
-        uses: mozilla-it/deploy-actions/slack@v3.13.0
         if: failure()
+        uses: slackapi/slack-github-action@v2.1.0
         with:
-          app_name: ${{ env.GAR_IMAGE_NAME }}
-          env_name: build
-          ref: ${{ env.LATEST_TAG }}
-          type: custom
-          color: "#a72841"
-          message: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
-          channel_id: ${{ vars.SLACK_CHANNEL_ID_DEVELOPER }}
-          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
 
   browser_test_container:
     env:
@@ -213,22 +205,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha # Load cache from GitHub Actions
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
-      - name: Try Slack token
+      - name: Notify DEVs of build failure
+        if: failure()
         uses: slackapi/slack-github-action@v2.1.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
           payload: |
-            text: "❤️ This is Mat trying Slack notif from GHA (image=${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }})"
-      - name: Notify DEVs of build failure
-        uses: mozilla-it/deploy-actions/slack@v3.13.0
-        if: failure()
-        with:
-          app_name: ${{ env.GAR_IMAGE_NAME }}
-          env_name: build
-          ref: ${{ env.LATEST_TAG }}
-          type: custom
-          color: "#a72841"
-          message: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
-          channel_id: ${{ vars.SLACK_CHANNEL_ID_DEVELOPER }}
-          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
