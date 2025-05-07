@@ -95,6 +95,14 @@ jobs:
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha # Load cache from GitHub Actions
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
+      - name: Notify DEVs of build failure
+        if: failure()
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
 
   cronjobs_container:
     env:
@@ -142,6 +150,14 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha # Load cache from GitHub Actions
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
+      - name: Notify DEVs of build failure
+        if: failure()
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
 
   browser_test_container:
     env:
@@ -189,3 +205,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha # Load cache from GitHub Actions
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
+      - name: Notify DEVs of build failure
+        if: failure()
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
