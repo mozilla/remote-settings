@@ -213,6 +213,14 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha # Load cache from GitHub Actions
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
+      - name: Try Slack token
+        uses: mozilla-it/deploy-actions/slack@v3.13.0
+        with:
+          type: custom
+          color: "#a72841"
+          message: "❤️ This is Mat trying Slack notif from GHA"
+          channel_id: ${{ env.SLACK_CHANNEL_ID_DEVELOPER }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
       - name: Notify DEVs of build failure
         uses: mozilla-it/deploy-actions/slack@v3.13.0
         if: failure()
