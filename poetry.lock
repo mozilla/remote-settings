@@ -1084,14 +1084,14 @@ referencing = ">=0.31.0"
 
 [[package]]
 name = "kinto"
-version = "22.0.0"
+version = "23.0.0"
 description = "Kinto Web Service - Store, Sync, Share, and Self-Host."
 optional = false
 python-versions = "*"
 groups = ["main", "kinto-remote-settings"]
 files = [
-    {file = "kinto-22.0.0-py3-none-any.whl", hash = "sha256:bc5ea4b6f45ecfac5eb6d9a7752ffb366d73a1b1b59dac96db6e1b1022486279"},
-    {file = "kinto-22.0.0.tar.gz", hash = "sha256:0e58f58945cf7d6c387bd353d01903709f29c0618ba44ba4beda1b6fed0ebac6"},
+    {file = "kinto-23.0.0-py3-none-any.whl", hash = "sha256:6a6a65736b2a69061e03f736ed26b7ca6e5487dafec7b293e3bcbb4e571d5f48"},
+    {file = "kinto-23.0.0.tar.gz", hash = "sha256:7b82261817d681da9959869beb4decdea6824ca16509345e1240fec45418a028"},
 ]
 
 [package.dependencies]
@@ -1120,7 +1120,7 @@ werkzeug = {version = "*", optional = true, markers = "extra == \"monitoring\""}
 "zope.sqlalchemy" = {version = "*", optional = true, markers = "extra == \"postgresql\""}
 
 [package.extras]
-dev = ["build", "ruff", "twine"]
+dev = ["build", "ruff", "twine", "uwsgi"]
 memcached = ["python-memcached"]
 monitoring = ["newrelic", "prometheus-client", "sentry-sdk[sqlalchemy]", "statsd", "werkzeug"]
 postgresql = ["SQLAlchemy (<3)", "psycopg2-binary", "zope.sqlalchemy"]
@@ -2895,4 +2895,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11, <3.14"
-content-hash = "a13bd38c3c2b73175cbab45782f3b7173a72fb75b7c44ff64dbc234f011a9ba6"
+content-hash = "250481e9ad92fb85ca6254d8708f9ee7d12c6da8b48b76abc652889116cb6590"
