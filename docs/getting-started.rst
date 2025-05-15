@@ -103,6 +103,11 @@ Consider the following summary table:
 |                                     |                                      |   (source_)                         |
 |                                     |                                      |                                     |
 +-------------------------------------+--------------------------------------+-------------------------------------+
+| Base 64 strings                     | - 1MB limit in string size           | - Embed small all clients will need |
+|                                     |                                      | - Partial record update support     |
+|                                     |                                      | - Hard to review changes in Admin   |
+|                                     |                                      |   UI                                |
++-------------------------------------+--------------------------------------+-------------------------------------+
 
 .. _source: https://searchfox.org/mozilla-central/rev/dd042f25a8da58d565d199dcfebe4f34db64863c/taskcluster/docker/periodic-updates/scripts/periodic_file_updates.sh#309-324
 
