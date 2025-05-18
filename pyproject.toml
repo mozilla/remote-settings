@@ -94,7 +94,7 @@ pytest = "8.3.5"
 webtest = "3.0.4"
 coverage = "7.8.0"
 detect-secrets = "^1.5.0"
-ruff = "^0.11.9"
+ruff = "^0.11.10"
 responses = "^0.25.7"
 
 [tool.poetry.group.docs]
