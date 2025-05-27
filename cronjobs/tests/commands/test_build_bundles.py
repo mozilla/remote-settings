@@ -12,6 +12,7 @@ from commands.build_bundles import (
     fetch_attachment,
     get_modified_timestamp,
     sync_cloud_storage,
+    write_json_mozlz4,
     write_zip,
 )
 
@@ -30,7 +31,11 @@ def mock_write_zip():
 
 @pytest.fixture
 def mock_write_json_mozlz4():
-    with patch("commands.build_bundles.write_json_mozlz4") as mock_write:
+    # Use wraps to just spy on the original function and see its
+    # calls to `print()` in `pytest -s` output
+    with patch(
+        "commands.build_bundles.write_json_mozlz4", wraps=write_json_mozlz4
+    ) as mock_write:
         yield mock_write
 
 
