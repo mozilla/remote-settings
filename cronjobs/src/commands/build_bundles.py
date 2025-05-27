@@ -103,7 +103,10 @@ def write_json_mozlz4(output_path: str, changesets):
     compressed = lz4.block.compress(json_str)
     with open(output_path, "wb") as f:
         f.write(header_magic_number + compressed)
-    print("Wrote %r" % output_path)
+    cids = ", ".join(
+        [f"{c['metadata']['bucket']}/{c['metadata']['id']}" for c in changesets]
+    )
+    print(f"Wrote {output_path!r} with {cids}")
 
 
 def sync_cloud_storage(
