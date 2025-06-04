@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+import logging
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 
 import colander
 import kinto.core
 from kinto.authorization import RouteFactory
-from kinto.core import resource
+from kinto.core import Service, resource
 from kinto.core import utils as core_utils
 from kinto.core.cornice.validators import colander_validator
 from kinto.core.storage import Filter, Sort
@@ -12,21 +13,31 @@ from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.storage.memory import extract_object_set
 from kinto.core.utils import COMPARISON, instance_uri
 from pyramid import httpexceptions
-from pyramid.security import IAuthorizationPolicy
+from pyramid.security import NO_PERMISSION_REQUIRED, IAuthorizationPolicy
 from zope.interface import implementer
 
 from . import (
+    BROADCASTER_ID,
     CHANGES_COLLECTION,
     CHANGES_COLLECTION_PATH,
     CHANGES_RECORDS_PATH,
     CHANGESET_PATH,
+    CHANNEL_ID,
     MONITOR_BUCKET,
 )
 from .utils import bound_limit, change_entry_id, monitored_timestamps
 
 
+DAY_IN_SECONDS = 24 * 60 * 60
 POSTGRESQL_MAX_INTEGER_VALUE = 2**63
 positive_big_integer = colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE)
+
+
+logger = logging.getLogger(__name__)
+
+
+def utcnow():
+    return datetime.datetime.now(datetime.timezone.utc)
 
 
 class ChangesModel(object):
@@ -392,3 +403,100 @@ def get_changeset(request):
         "changes": changes,
     }
     return data
+
+
+class BroadcastResponseSchema(colander.MappingSchema):
+    body = colander.SchemaNode(colander.Mapping())
+
+
+broadcasts_response_schemas = {
+    "200": BroadcastResponseSchema(
+        description="Return the current version number to be broadcasted via Push."
+    )
+}
+
+
+broadcasts = Service(name="broadcast", path="/__broadcasts__", description="broadcast")
+
+
+@broadcasts.get(
+    permission=NO_PERMISSION_REQUIRED,
+    tags=["Utilities"],
+    operation_id="broadcast_view",
+    response_schemas=broadcasts_response_schemas,
+)
+def broadcasts_view(request):
+    """
+    Implement the old Megaphone broacast endpoint,that the Push service will pull.
+
+    See https://github.com/mozilla-services/megaphone?tab=readme-ov-file#get-v1broadcasts
+    """
+    settings = request.registry.settings
+    min_debounce_interval = int(
+        settings.get(
+            "push_broadcast_min_debounce_interval_seconds", "300"
+        )  # 5 min by default.
+    )
+    max_debounce_interval = int(
+        settings.get(
+            "push_broadcast_max_debounce_interval_seconds", "1200"
+        )  # 20 min by default.
+    )
+
+    # Current highest timestamp in the monitored collections:
+    rs_timestamp = max(ts for _, _, ts in monitored_timestamps(request))
+    rs_age_seconds = (
+        utcnow() - datetime.fromtimestamp(rs_timestamp / 1000, timezone.utc)
+    ).total_seconds()
+
+    # Last published timestamp (from cache).
+    cache_key = f"{BROADCASTER_ID}/{CHANNEL_ID}/timestamp"
+    last_timestamp = request.registry.cache.get(cache_key)
+    if last_timestamp is None:
+        # If no timestamp was published ever, we use the current timestamp.
+        debounced_timestamp = rs_timestamp
+        logger.info(
+            "No previous timestamp found in cache. Publishing current timestamp."
+        )
+    else:
+        # Avoid publishing too many Push notifications in a short time:
+        # - if changes are published too close together (eg. < 5min), then we don't update the exposed timestamp
+        # - but if changes are published continuously for too long (eg. > 20min), then we update the exposed timestamp
+
+        last_timestamp_age_seconds = (
+            utcnow() - datetime.fromtimestamp(last_timestamp / 1000, timezone.utc)
+        ).total_seconds()
+
+        diff = min_debounce_interval - rs_age_seconds
+        if diff > 0:
+            log_msg = f"A change was published recently (<{min_debounce_interval}). "
+            if last_timestamp_age_seconds < max_debounce_interval:
+                log_msg += f"Last timestamp is {last_timestamp_age_seconds} seconds old (<{max_debounce_interval}). Can wait {diff} more seconds."
+                # Do not publish a new timestamp yet.
+                debounced_timestamp = last_timestamp
+            else:
+                log_msg += f"Last timestamp is {last_timestamp_age_seconds} seconds old (>{max_debounce_interval}). Publish!"
+                # Publish a new timestamp.
+                debounced_timestamp = rs_timestamp
+        else:
+            log_msg = f"Last timestamp is {last_timestamp_age_seconds} seconds old (>{min_debounce_interval}). Publish!"
+            debounced_timestamp = rs_timestamp
+
+        logger.info(
+            log_msg,
+            extra={
+                "min_debounce_interval": min_debounce_interval,
+                "max_debounce_interval": max_debounce_interval,
+                "rs_age_seconds": rs_age_seconds,
+                "last_timestamp_age_seconds": last_timestamp_age_seconds,
+                "wait_seconds": max(0, diff),
+            },
+        )
+
+    # Store the published timestamp in the cache for next calls.
+    request.registry.cache.set(cache_key, debounced_timestamp, ttl=DAY_IN_SECONDS)
+    # And expose it for the Push service to pull.
+    return {
+        "broadcasts": {f"{BROADCASTER_ID}/{CHANNEL_ID}": f'"{debounced_timestamp}"'},
+        "code": 200,
+    }

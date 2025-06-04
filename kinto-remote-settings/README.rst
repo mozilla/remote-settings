@@ -107,6 +107,13 @@ Returns the following response for the collection:
 
     The ``_expected={}`` querystring parameter is mandatory. Either you receive a Push notification from the server, and pass the timestamp value in order to bust the CDN cache, or you use a hard-coded value (eg. ``0``) and rely on the cache TTL.
 
+* ``GET /v1/__broadcasts__``.
+
+Returns the timestamp value to be sent in Push notifications. This replaces Megaphone and is meant to be consumed by the Push server.
+
+- ``broadcasts`` (list)
+  - ``remote-settings/monitor_changes``: quoted timestamp (eg. ``"1740558489816"``)
+
 
 Data Signatures
 ###############
@@ -170,35 +177,44 @@ The main setting configures the list of buckets/collections where multi-signoff 
       /buckets/source/collections/collection1 -> /buckets/destination/collections/collection2
       /buckets/bid/collections/cid            -> /buckets/bid/collections/cid2
 
-+-----------------------------------------------+--------------------------------------------------------------------------+
-| Setting name                                  | What does it do?                                                         |
-+===============================================+==========================================================================+
-| kinto.signer.resources                        | The source URIs (bucket or collection) on which signatures should be     |
-|                                               | triggered and the destination where the data and the signatures will     |
-|                                               | end-up.                                                                  |
-|                                               |                                                                          |
-|                                               | In the case buckets URIs are specified, every collection in the source   |
-|                                               | bucket will be reviewed/signed, review and destination will keep the     |
-|                                               | same id.                                                                 |
-+-----------------------------------------------+--------------------------------------------------------------------------+
-| kinto.signer.signer_backend                   | The python dotted location to the signer to use. By default, a local     |
-|                                               | ECDSA signer will be used. Choices are either                            |
-|                                               | ``kinto_remote_settings.signer.backends.local_ecdsa`` or                 |
-|                                               | ``kinto_remote_settings.signer.backends.autograph``                      |
-|                                               | Have a look at the sections below for more information.                  |
-+-----------------------------------------------+--------------------------------------------------------------------------+
-| kinto.signer.allow_floats                     | Allow float values in records (default: ``False``).                      |
-|                                               | Toggling this setting to ``True`` can lead to signature verification     |
-|                                               | errors in clients.                                                       |
-|                                               | See ``kinto_remote_settings.signer.listeners.prevent_float_value``       |
-+-----------------------------------------------+--------------------------------------------------------------------------+
-| kinto.signer.auto_create_resources            | Create the resources mentioned in the resources setting on startup.      |
-|                                               | This is useful for testing or when using disposable containers.          |
-|                                               | (Default: ``False``)                                                     |
-+-----------------------------------------------+--------------------------------------------------------------------------+
-| kinto.signer.auto_create_resources_principals | What principals should be given on resources created automatically,      |
-|                                               | comma separated (Default: ``system.Authenticated``)                      |
-+-----------------------------------------------+--------------------------------------------------------------------------+
++----------------------------------------------------+--------------------------------------------------------------------------+
+| Setting name                                       | What does it do?                                                         |
++====================================================+==========================================================================+
+| kinto.signer.resources                             | The source URIs (bucket or collection) on which signatures should be     |
+|                                                    | triggered and the destination where the data and the signatures will     |
+|                                                    | end-up.                                                                  |
+|                                                    |                                                                          |
+|                                                    | In the case buckets URIs are specified, every collection in the source   |
+|                                                    | bucket will be reviewed/signed, review and destination will keep the     |
+|                                                    | same id.                                                                 |
++----------------------------------------------------+--------------------------------------------------------------------------+
+| kinto.signer.signer_backend                        | The python dotted location to the signer to use. By default, a local     |
+|                                                    | ECDSA signer will be used. Choices are either                            |
+|                                                    | ``kinto_remote_settings.signer.backends.local_ecdsa`` or                 |
+|                                                    | ``kinto_remote_settings.signer.backends.autograph``                      |
+|                                                    | Have a look at the sections below for more information.                  |
++----------------------------------------------------+--------------------------------------------------------------------------+
+| kinto.signer.allow_floats                          | Allow float values in records (default: ``False``).                      |
+|                                                    | Toggling this setting to ``True`` can lead to signature verification     |
+|                                                    | errors in clients.                                                       |
+|                                                    | See ``kinto_remote_settings.signer.listeners.prevent_float_value``       |
++----------------------------------------------------+--------------------------------------------------------------------------+
+| kinto.signer.auto_create_resources                 | Create the resources mentioned in the resources setting on startup.      |
+|                                                    | This is useful for testing or when using disposable containers.          |
+|                                                    | (Default: ``False``)                                                     |
++----------------------------------------------------+--------------------------------------------------------------------------+
+| kinto.signer.auto_create_resources_principals      | What principals should be given on resources created automatically,      |
+|                                                    | comma separated (Default: ``system.Authenticated``)                      |
++----------------------------------------------------+--------------------------------------------------------------------------+
+| kinto.push_broadcast_min_debounce_interval_seconds | Minimum debounce interval in seconds for push broadcasts. This setting   |
+|                                                    | is used to prevent Push notifications to bet sent too frequently.        |
+|                                                    | (Default: 5 min)                                                         |
++----------------------------------------------------+--------------------------------------------------------------------------+
+| kinto.push_broadcast_max_debounce_interval_seconds | Maximum interval span of debounced push broadcasts. This setting is used |
+|                                                    | to sent a Push notification even if changes are published continuously.  |
+|                                                    | (Default: 20 min)                                                         |
++----------------------------------------------------+--------------------------------------------------------------------------+
+
 
 .. note::
 

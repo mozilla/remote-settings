@@ -12,6 +12,9 @@ CHANGES_COLLECTION_PATH = "{}/collections/{}".format(
 CHANGES_RECORDS_PATH = "{}/records".format(CHANGES_COLLECTION_PATH)
 CHANGESET_PATH = "/buckets/{bucket_id}/collections/{collection_id}/changeset"
 
+BROADCASTER_ID = "remote-settings"
+CHANNEL_ID = "monitor_changes"
+
 
 def includeme(config):
     settings = config.get_settings()
