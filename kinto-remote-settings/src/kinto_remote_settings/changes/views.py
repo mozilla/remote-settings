@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 def utcnow():
-    return datetime.now(datetime.timezone.utc)
+    return datetime.now(timezone.utc)
 
 
 class ChangesModel(object):
