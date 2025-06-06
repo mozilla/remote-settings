@@ -493,9 +493,10 @@ def broadcasts_view(request):
             },
         )
 
-    # Store the published timestamp in the cache for next calls.
-    request.registry.cache.set(cache_key, debounced_timestamp, ttl=DAY_IN_SECONDS)
-    # And expose it for the Push service to pull.
+    # Store the published timestamp in the cache for next calls (skip write if unchanged).
+    if debounced_timestamp != last_timestamp:
+        request.registry.cache.set(cache_key, debounced_timestamp, ttl=DAY_IN_SECONDS)
+    # Expose it for the Push service to pull.
     return {
         "broadcasts": {f"{BROADCASTER_ID}/{CHANNEL_ID}": f'"{debounced_timestamp}"'},
         "code": 200,
