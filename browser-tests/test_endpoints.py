@@ -19,6 +19,12 @@ def test_config(server_config, to_review_enabled):
     assert to_review_enabled == ("dev" not in server_config["project_name"].lower())
 
 
+def test_broadcasts(server: str, context: BrowserContext):
+    resp = context.request.get(f"{server}/__broadcasts__")
+    assert resp.status == 200
+    assert "remote-settings/monitor_changes" in resp.json()["broadcasts"]
+
+
 def test_prometheus_collection(
     request_session: requests.Session, server: str, editor_client
 ):
