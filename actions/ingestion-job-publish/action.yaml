@@ -1,0 +1,119 @@
+name: Build and Publish Docker Container
+description: |
+  Build the ingestion job container image and push it to Google Artifact Registry (GAR).
+  Make sure the repository was added to the Terraform configuration on STAGE and PROD.
+  See https://github.com/mozilla-it/webservices-infra/blob/e3403053/remote-settings/tf/prod/main.tf#L56-L78
+
+  This workflow is meant to be used on main branch and on version tags like this:
+
+  ```yaml
+  on:
+    pull_request:
+      branches:
+        - main
+    push:
+      branches:
+        - main
+      tags:
+        - v[0-9]+.[0-9]+.[0-9]+
+
+  jobs:
+    build-and-publish:
+      uses: mozilla/remote-settings/actions/ingestion-job-publish@main
+      with:
+        realm: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'prod' || 'nonprod' }}
+        publish: ${{ github.event_name != 'pull_request' }}
+  ```
+
+on:
+  workflow_call:
+    inputs:
+      realm:
+        description: "Realm (nonprod or prod) to use for the GCP project and GAR repository."
+        default: nonprod
+        type: string
+        options:
+          - nonprod
+          - prod
+        required: true
+      publish:
+        description: "Whether to publish the image to GAR. Set to false for testing purposes."
+        default: true
+        type: boolean
+
+    outputs:
+      image:
+        description: "The image tags that were built and pushed to GAR."
+        value: ${{ steps.meta.outputs.tags }}
+      digest:
+          description: "The digest of the pushed image"
+          value: ${{ steps.meta.outputs.digest }}
+
+env:
+  BUILDX_NO_DEFAULT_ATTESTATIONS: 1 # Reduce warnings from Docker Buildx
+  GAR_LOCATION: us
+  GCP_PROJECT_ID: moz-fx-remote-settings-${{ inputs.realm }}
+  GAR_REPOSITORY: ingestion-cronjob-${{ github.event.repository.name }}
+  GAR_IMAGE_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.tags }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch everything (tags)
+          fetch-tags: true
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.GAR_IMAGE_NAME }}
+          # https://github.com/marketplace/actions/docker-metadata-action#tags-input
+          tags: |
+            type=sha,prefix=,enable={{ inputs.publish }}
+            type=semver,pattern={{raw}},enable=${{ inputs.publish }}
+            type=raw,value=latest,enable={{ inputs.publish }}
+
+      - name: Set Service Account from Github repository
+        id: gcp-service-account
+        run: |
+            # Match how the service account is created in our Terraform code
+            # https://github.com/mozilla-it/webservices-infra/blob/main/remote-settings/tf/modules/remote_settings_infra/ingestion_jobs.tf
+            # Remove dashes and "remotesettings" from the repository name
+            cleaned_string=$(echo "${{ github.event.repository.name }}" | sed 's/-//g' | sed 's/remotesettings//g')
+            # Trim to 30 characters here too.
+            result=$(echo "ingest-job-${cleaned_string}" | cut -c 1-30)
+            echo "email=${result}@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com" >> "$GITHUB_OUTPUT"
+
+      - id: gcp_auth
+        name: Log into GCP
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          service_account: ${{ steps.gcp-service-account.outputs.email }}
+          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+
+      - name: Login to GAR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.GAR_LOCATION }}-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.gcp_auth.outputs.access_token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ inputs.publish }}
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha,buildkit=true
+          cache-to: type=gha,mode=max,buildkit=true
