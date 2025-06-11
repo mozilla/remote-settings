@@ -21,8 +21,8 @@ description: |
     build-and-publish:
       uses: mozilla/remote-settings/actions/ingestion-job-publish@main
       with:
-        realm: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'prod' || 'nonprod' }}
-        publish: ${{ github.event_name != 'pull_request' }}
+        realm: $\{{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'prod' || 'nonprod' }}
+        publish: $\{{ github.event_name != 'pull_request' }}
   ```
 
 on:
@@ -32,9 +32,6 @@ on:
         description: "Realm (nonprod or prod) to use for the GCP project and GAR repository."
         default: nonprod
         type: string
-        options:
-          - nonprod
-          - prod
         required: true
       publish:
         description: "Whether to publish the image to GAR. Set to false for testing purposes."
