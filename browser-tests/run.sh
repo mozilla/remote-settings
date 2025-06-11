@@ -11,4 +11,4 @@ wait_for_server () {
 }
 
 wait_for_server
-pytest --browser firefox $@
+pytest -s --browser firefox $@

@@ -44,9 +44,9 @@ def test_login_and_submit_review(
 
     # request a review
     page.get_by_text("Request review...").first.click()
-    page.get_by_placeholder("Comment...").last.fill("Review comment")
-    page.get_by_text("Request review").last.click()
-
+    page.get_by_placeholder("Comment...").filter(visible=True).first.fill("Review comment")
+    page.get_by_text("Request review", exact=True).filter(visible=True).first.click()
+    
     # verify that we are in-progress for review
     expect(page.locator(".bs-wizard-step.complete").first).to_contain_text(
         "Work in progress"
@@ -95,6 +95,13 @@ def test_review_requested_changes(
 
     # approve and verify no changes are pending
     page.get_by_text("Approve...").click()
+    # verify that we are aoorived
+    expect(page.locator(".bs-wizard-step.active").first).to_contain_text("Approved")
+    
+    # navigate to review page again and verify it says no changes
+    page.click(
+        f'[href="#/buckets/{source_bucket}/collections/{source_collection}/simple-review"]'
+    )
     expect(page.get_by_text("No changes to review")).to_be_visible()
 
 
@@ -142,16 +149,16 @@ def test_review_existing_record(
         )
     ).to_be_visible()
     expect(page.get_by_text("Update record")).to_be_visible()
-
+    
     # Update fields and overwrite attachment
     page.get_by_label("Title").fill("new val")
     page.get_by_label("File attachment").set_input_files("kinto-logo.jpg")
     page.get_by_text("Update record").click()
-
+    
     # request a review
     page.get_by_text("Request review...").first.click()
-    page.get_by_placeholder("Comment...").last.fill("Modified record and attachment")
-    page.get_by_text("Request review").last.click()
+    page.get_by_placeholder("Comment...").filter(visible=True).first.fill("Review comment")
+    page.get_by_text("Request review", exact=True).filter(visible=True).first.click()
     expect(page.get_by_text("Review requested.")).to_be_visible()
 
     # Check that preview record has the appropriate values
