@@ -59,9 +59,23 @@ Servers logs are available in the Google Cloud Console `Logs Explorer <https://c
 
 Application logs are visible in the ``webservices- high-prod`` project (since they run on the ``webservices-high-prod`` GKE cluster).
 
+
 ::
 
     resource.labels.container_name="remote-settings"
+
+Logs are also exposed to `yardstick <https://yardstick.mozilla.org/d/aeogevsa6rxfkf/cronjob-dashboard-examples?orgId=1&from=now-6h&to=now&timezone=browser>`_ via bigquery. This is useful for creating log-based dashboards/alerts, or if you don't have access to the ``webservices-high`` projects in GCP.
+
+::
+
+		select timestamp, JSON_VALUE(json_payload, '$.Type') Type, 
+		JSON_VALUE(json_payload, '$.Fields.path') Path,
+		JSON_VALUE(json_payload, '$.Fields.msg') Msg
+		from `moz-fx-remote-settings-prod.gke_remote_settings_prod_log_linked._AllLogs` l
+		where JSON_VALUE(resource.labels, '$.container_name') = 'remote-settings'
+		and $__timeFilter(timestamp)
+		order by timestamp desc
+		limit 100;
 
 
 Writer Instances
@@ -98,9 +112,20 @@ Reader Instances
 Cronjobs
 ''''''''
 
+Via log explorer:
 ::
 
     labels."k8s-pod/app_kubernetes_io/component"=~"^cron-.*$"
+
+Via `yardstick <https://yardstick.mozilla.org/d/aeogevsa6rxfkf/cronjob-dashboard-examples?orgId=1&from=now-6h&to=now&timezone=browser>`_:
+::
+
+		select timestamp, text_payload
+		from `moz-fx-remote-settings-prod.gke_remote_settings_prod_log_linked._AllLogs` l
+		where JSON_VALUE(resource.labels, '$.container_name') = 'cron-remote-settings-my-job'
+		and $__timeFilter(timestamp)
+		order by timestamp desc
+		limit 100;
 
 
 
