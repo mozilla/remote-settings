@@ -92,7 +92,7 @@ cronjobs = {path = "./cronjobs", develop = true}
 [tool.poetry.group.dev.dependencies]
 pytest = "8.4.0"
 webtest = "3.0.6"
-coverage = "7.8.2"
+coverage = "7.9.1"
 detect-secrets = "^1.5.0"
 ruff = "^0.11.13"
 responses = "^0.25.7"
