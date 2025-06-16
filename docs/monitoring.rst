@@ -66,16 +66,16 @@ Application logs are visible in the ``webservices- high-prod`` project (since th
 
 Logs are also exposed to `yardstick <https://yardstick.mozilla.org/d/aeogevsa6rxfkf/cronjob-dashboard-examples?orgId=1&from=now-6h&to=now&timezone=browser>`_ via bigquery. This is useful for creating log-based dashboards/alerts, or if you don't have access to the ``webservices-high`` projects in GCP.
 
-::
+.. code-block:: sql
 
-		select timestamp, JSON_VALUE(json_payload, '$.Type') Type, 
-		JSON_VALUE(json_payload, '$.Fields.path') Path,
-		JSON_VALUE(json_payload, '$.Fields.msg') Msg
-		from `moz-fx-remote-settings-prod.gke_remote_settings_prod_log_linked._AllLogs` l
-		where JSON_VALUE(resource.labels, '$.container_name') = 'remote-settings'
-		and $__timeFilter(timestamp)
-		order by timestamp desc
-		limit 100;
+		SELECT timestamp, JSON_VALUE(json_payload, '$.Type') Type, 
+		  JSON_VALUE(json_payload, '$.Fields.path') Path,
+		  JSON_VALUE(json_payload, '$.Fields.msg') Msg
+		FROM `moz-fx-remote-settings-prod.gke_remote_settings_prod_log_linked._AllLogs` l
+		WHERE JSON_VALUE(resource.labels, '$.container_name') = 'remote-settings'
+		AND $__timeFilter(timestamp)
+		ORDER BY timestamp DESC
+		LIMIT 100;
 
 
 Writer Instances
@@ -115,17 +115,18 @@ Cronjobs
 Via log explorer:
 ::
 
-    labels."k8s-pod/app_kubernetes_io/component"=~"^cron-.*$"
+    labels."k8s-pod/app_kubernetes_io/component"=~"^cron-<my-github-repo-name>$"
 
 Via `yardstick <https://yardstick.mozilla.org/d/aeogevsa6rxfkf/cronjob-dashboard-examples?orgId=1&from=now-6h&to=now&timezone=browser>`_:
-::
 
-		select timestamp, text_payload
-		from `moz-fx-remote-settings-prod.gke_remote_settings_prod_log_linked._AllLogs` l
-		where JSON_VALUE(resource.labels, '$.container_name') = 'cron-remote-settings-my-job'
-		and $__timeFilter(timestamp)
-		order by timestamp desc
-		limit 100;
+.. code-block:: sql
+
+		SELECT timestamp, text_payload
+		FROM `moz-fx-remote-settings-prod.gke_remote_settings_prod_log_linked._AllLogs` l
+		WHERE JSON_VALUE(resource.labels, '$.container_name') = 'cron-<my-github-repo-name>'
+		AND $__timeFilter(timestamp)
+		ORDER BY timestamp DESC
+		LIMIT 100;
 
 
 
