@@ -66,7 +66,7 @@ Application logs are visible in the ``webservices- high-prod`` project (since th
 
 Logs are also exposed to `yardstick <https://yardstick.mozilla.org/d/aeogevsa6rxfkf/cronjob-dashboard-examples?orgId=1&from=now-6h&to=now&timezone=browser>`_ via bigquery. This is useful for creating log-based dashboards/alerts, or if you don't have access to the ``webservices-high`` projects in GCP.
 
-.. code-block:: sql
+.. code-block::
 
 		SELECT timestamp, JSON_VALUE(json_payload, '$.Type') Type, 
 		  JSON_VALUE(json_payload, '$.Fields.path') Path,
@@ -119,7 +119,7 @@ Via log explorer:
 
 Via `yardstick <https://yardstick.mozilla.org/d/aeogevsa6rxfkf/cronjob-dashboard-examples?orgId=1&from=now-6h&to=now&timezone=browser>`_:
 
-.. code-block:: sql
+.. code-block::
 
 		SELECT timestamp, text_payload
 		FROM `moz-fx-remote-settings-prod.gke_remote_settings_prod_log_linked._AllLogs` l
