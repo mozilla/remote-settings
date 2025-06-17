@@ -103,21 +103,3 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha,buildkit=true
           cache-to: type=gha,mode=max,buildkit=true
-
-      - name: Notify DEVs of publication success
-        if: success() && inputs.publish
-        uses: slackapi/slack-github-action@v2.1.0
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-          webhook-type: incoming-webhook
-          payload: |
-            text: "Ingestion job image ${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.GAR_IMAGE_NAME }} published succesfully."
-
-      - name: Notify DEVs of build failure
-        if: failure()
-        uses: slackapi/slack-github-action@v2.1.0
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-          webhook-type: incoming-webhook
-          payload: |
-            text: "⚠️  Build of ${{ env.GAR_REPOSITORY }}/${{ env.GAR_IMAGE_NAME }} failed. Please review logs and correct issues."
