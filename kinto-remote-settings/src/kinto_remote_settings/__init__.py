@@ -1,7 +1,13 @@
-import pkg_resources
+import json
+from pathlib import Path
 
 
-__version__ = pkg_resources.get_distribution("kinto_remote_settings").version
+def get_version():
+    path = Path(__file__).parent.parent.parent.parent / "version.json"
+    return json.load(open(path))["version"].replace("v", "").split("-")[0]
+
+
+__version__ = get_version()
 
 
 def includeme(config):
