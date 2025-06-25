@@ -131,7 +131,7 @@ jobs:
         env:
           TAGS: |
             ${{ steps.metahub.outputs.tags }}
-          SRC: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
+          SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
         run: |
           crane digest $SRC
           crane manifest $SRC
@@ -143,7 +143,7 @@ jobs:
         env:
           TAGS: |
             ${{ steps.metagar.outputs.tags }}
-          SRC: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
+          SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
         run: |
           crane digest $SRC
           crane manifest $SRC
