@@ -128,7 +128,7 @@ jobs:
           PATH=${PATH}:${tmp}
           echo "${tmp}" >> "${GITHUB_PATH}"
           echo "${{ github.token }}" | crane auth login ghcr.io --username "dummy" --password-stdin
-      - name: Copy from Google Artifact Registory to Docker Hub
+      - name: Copy from Google Artifact Registry to Docker Hub
         if: github.event_name != 'pull_request'
         env:
           TAGS: |
@@ -140,7 +140,7 @@ jobs:
           for tag in $TAGS; do
             crane copy "${SRC}" "${tag}"
           done
-      - name: Copy image from Google Artifact Registory to Google Artifact Registory as semver tag
+      - name: Copy image from Google Artifact Registry to Google Artifact Registry as semver tag
         if: ${{ github.event_name == 'release' }}
         env:
           TAGS: |
