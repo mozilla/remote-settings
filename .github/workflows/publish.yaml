@@ -7,8 +7,9 @@ on:
   push:
     branches:
       - main
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+
+  release:
+    types:
+      - released
 
 permissions:
   contents: read
@@ -121,11 +122,11 @@ jobs:
           tag=$(curl -s -u "username:${{ github.token }}" https://api.github.com/repos/google/go-containerregistry/releases/latest | jq -r '.tag_name')
           arch=$(uname -m)
           tmp=$(mktemp -d)
-          cd ${tmp}
-          curl -fsL https://github.com/google/go-containerregistry/releases/download/${tag}/go-containerregistry_${os}_${arch}.tar.gz | tar xz ${out}
-          chmod +x ${tmp}/${out}
+          cd "${tmp}"
+          curl -fsL "https://github.com/google/go-containerregistry/releases/download/${tag}/go-containerregistry_${os}_${arch}.tar.gz" | tar xz "${out}"
+          chmod +x "${tmp}/${out}"
           PATH=${PATH}:${tmp}
-          echo "${tmp}" >> $GITHUB_PATH
+          echo "${tmp}" >> "${GITHUB_PATH}"
           echo "${{ github.token }}" | crane auth login ghcr.io --username "dummy" --password-stdin
       - name: Copy from Google Artifact Registory to Docker Hub
         env:
@@ -133,10 +134,10 @@ jobs:
             ${{ steps.metahub.outputs.tags }}
           SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
         run: |
-          crane digest $SRC
-          crane manifest $SRC
+          crane digest "${SRC}"
+          crane manifest "${SRC}"
           for tag in $TAGS; do
-            crane copy $SRC $tag
+            crane copy "${SRC}" "${tag}"
           done
       - name: Copy image from Google Artifact Registory to Google Artifact Registory as semver tag
         if: ${{ github.event_name == 'release' }}
@@ -145,19 +146,19 @@ jobs:
             ${{ steps.metagar.outputs.tags }}
           SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
         run: |
-          crane digest $SRC
-          crane manifest $SRC
+          crane digest "${SRC}"
+          crane manifest "${SRC}"
           for tag in $TAGS; do
-            crane copy $SRC $tag
+            crane copy "${SRC}" "${tag}"
           done
-      - name: Notify DEVs of build failure
-        if: failure()
-        uses: slackapi/slack-github-action@v2.1.0
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-          webhook-type: incoming-webhook
-          payload: |
-            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
+      # - name: Notify DEVs of build failure
+      #   if: failure()
+      #   uses: slackapi/slack-github-action@v2.1.0
+      #   with:
+      #     webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #     webhook-type: incoming-webhook
+      #     payload: |
+      #       text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
 
   cronjobs_container:
     env:
