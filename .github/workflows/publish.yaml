@@ -50,17 +50,31 @@ jobs:
             "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > ./version.json
             # Show complete version.json for debugging
             cat ./version.json
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
+      - name: Extract metadata for Google Artifact Registry
+        id: metagar
         uses: docker/metadata-action@v5
         with:
+          flavor:
+            # don't automatically tag with `latest`; we do this conditionally in the `tags` section
+            latest=false
+          images: |
+            ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.GAR_IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ env.LATEST_TAG }},enable=${{ github.event_name == 'push' }}
+            type=sha,format=long,enable=${{ github.event_name == 'push' }}
+            type=semver,pattern={{raw}},enable=${{ github.event_name == 'release' }}
+      - name: Docker Metadata for Docker Hub
+        id: metahub
+        uses: docker/metadata-action@v5
+        with:
+          flavor:
+            # don't automatically tag with `latest`; we do this conditionally in the `tags` section
+            latest=false
           images: |
             ${{ env.DOCKERHUB_IMAGE_NAME }}
-            ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.GAR_IMAGE_NAME }}
-          # https://github.com/marketplace/actions/docker-metadata-action#tags-input
           tags: |
-            type=raw,value=latest
-            type=raw,value=${{ env.LATEST_TAG }}
+            type=semver,pattern={{raw}},enable=${{ github.event_name == 'release' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Authenticate on GCP
@@ -83,18 +97,59 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push to GAR and Docker Hub
+      - name: Build and push to GAR
+        if: ${{ github.event_name == 'push' }}
         uses: docker/build-push-action@v6
         with:
           context: .
           file: RemoteSettings.Dockerfile
+          sbom: true
           target: production  # See multi-stage build
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.metagar.outputs.tags }}
+          labels: ${{ steps.metagar.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha # Load cache from GitHub Actions
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
+      - name: Set up crane # copied from https://github.com/imjasonh/setup-crane/blob/main/action.yml
+        shell: bash
+        run: |
+          set -ex
+
+          out=crane
+          os=${{ runner.os }}
+          tag=$(curl -s -u "username:${{ github.token }}" https://api.github.com/repos/google/go-containerregistry/releases/latest | jq -r '.tag_name')
+          arch=$(uname -m)
+          tmp=$(mktemp -d)
+          cd ${tmp}
+          curl -fsL https://github.com/google/go-containerregistry/releases/download/${tag}/go-containerregistry_${os}_${arch}.tar.gz | tar xz ${out}
+          chmod +x ${tmp}/${out}
+          PATH=${PATH}:${tmp}
+          echo "${tmp}" >> $GITHUB_PATH
+          echo "${{ github.token }}" | crane auth login ghcr.io --username "dummy" --password-stdin
+      - name: Copy from Google Artifact Registory to Docker Hub
+        env:
+          TAGS: |
+            ${{ steps.metahub.outputs.tags }}
+          SRC: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
+        run: |
+          crane digest $SRC
+          crane manifest $SRC
+          for tag in $TAGS; do
+            crane copy $SRC $tag
+          done
+      - name: Copy image from Google Artifact Registory to Google Artifact Registory as semver tag
+        if: ${{ github.event_name == 'release' }}
+        env:
+          TAGS: |
+            ${{ steps.metagar.outputs.tags }}
+          SRC: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
+        run: |
+          crane digest $SRC
+          crane manifest $SRC
+          for tag in $TAGS; do
+            crane copy $SRC $tag
+          done
       - name: Notify DEVs of build failure
         if: failure()
         uses: slackapi/slack-github-action@v2.1.0
@@ -160,6 +215,7 @@ jobs:
             text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
 
   browser_test_container:
+    if: ${{ github.event_name == 'push' }} # we use latest tag, not needed on release
     env:
       GAR_IMAGE_NAME: remote-settings-browser-tests
       LATEST_TAG: ""  # Set after checkout step
