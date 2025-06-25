@@ -152,14 +152,14 @@ jobs:
           for tag in $TAGS; do
             crane copy "${SRC}" "${tag}"
           done
-      # - name: Notify DEVs of build failure
-      #   if: failure()
-      #   uses: slackapi/slack-github-action@v2.1.0
-      #   with:
-      #     webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-      #     webhook-type: incoming-webhook
-      #     payload: |
-      #       text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
+      - name: Notify DEVs of build failure
+        if: failure()
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
 
   cronjobs_container:
     env:
