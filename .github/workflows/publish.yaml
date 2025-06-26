@@ -117,7 +117,7 @@ jobs:
         env:
           TAGS: |
             ${{ steps.metahub.outputs.tags }}
-          SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
+          SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:sha-${{ github.sha }}
         run: |
           for tag in $TAGS; do
             docker buildx imagetools create --tag "${tag}" "${SRC}" 
@@ -127,7 +127,7 @@ jobs:
         env:
           TAGS: |
             ${{ steps.metagar.outputs.tags }}
-          SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
+          SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:sha-${{ github.sha }}
         run: |
           for tag in $TAGS; do
             docker buildx imagetools create --tag "${tag}" "${SRC}" 
