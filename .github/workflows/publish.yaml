@@ -112,22 +112,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha # Load cache from GitHub Actions
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
-      - name: Set up crane # copied from https://github.com/imjasonh/setup-crane/blob/main/action.yml
-        shell: bash
-        run: |
-          set -ex
-
-          out=crane
-          os=${{ runner.os }}
-          tag=$(curl -s -u "username:${{ github.token }}" https://api.github.com/repos/google/go-containerregistry/releases/latest | jq -r '.tag_name')
-          arch=$(uname -m)
-          tmp=$(mktemp -d)
-          cd "${tmp}"
-          curl -fsL "https://github.com/google/go-containerregistry/releases/download/${tag}/go-containerregistry_${os}_${arch}.tar.gz" | tar xz "${out}"
-          chmod +x "${tmp}/${out}"
-          PATH=${PATH}:${tmp}
-          echo "${tmp}" >> "${GITHUB_PATH}"
-          echo "${{ github.token }}" | crane auth login ghcr.io --username "dummy" --password-stdin
       - name: Copy from Google Artifact Registry to Docker Hub
         if: github.event_name != 'pull_request'
         env:
@@ -135,10 +119,8 @@ jobs:
             ${{ steps.metahub.outputs.tags }}
           SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
         run: |
-          crane digest "${SRC}"
-          crane manifest "${SRC}"
           for tag in $TAGS; do
-            crane copy "${SRC}" "${tag}"
+            docker buildx imagetools create --tag "${tag}" "${SRC}" 
           done
       - name: Copy image from Google Artifact Registry to Google Artifact Registry as semver tag
         if: ${{ github.event_name == 'release' }}
@@ -147,10 +129,8 @@ jobs:
             ${{ steps.metagar.outputs.tags }}
           SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/autograph:sha-${{ github.sha }}
         run: |
-          crane digest "${SRC}"
-          crane manifest "${SRC}"
           for tag in $TAGS; do
-            crane copy "${SRC}" "${tag}"
+            docker buildx imagetools create --tag "${tag}" "${SRC}" 
           done
       - name: Notify DEVs of build failure
         if: failure()
