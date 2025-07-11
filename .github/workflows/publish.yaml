@@ -106,28 +106,33 @@ jobs:
           file: RemoteSettings.Dockerfile
           sbom: true
           target: production  # See multi-stage build
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.metagar.outputs.tags }}
           labels: ${{ steps.metagar.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha # Load cache from GitHub Actions
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
+      - name: Build and push release to GAR
+        if: ${{ github.event_name == 'release' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Release.Dockerfile
+          sbom: true
+          target: production  # See multi-stage build
+          push: true
+          tags: ${{ steps.metagar.outputs.tags }}
+          labels: ${{ steps.metagar.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha # Load cache from GitHub Actions
+          cache-to: type=gha,mode=max # Save cache to GitHub Actions
+          build-args: BASE_IMG=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:sha-${{ github.sha }}
       - name: Copy from Google Artifact Registry to Docker Hub
         if: github.event_name != 'pull_request'
         env:
           TAGS: |
             ${{ steps.metahub.outputs.tags }}
-          SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:sha-${{ github.sha }}
-        run: |
-          for tag in $TAGS; do
-            docker buildx imagetools create --tag "${tag}" "${SRC}" 
-          done
-      - name: Copy image from Google Artifact Registry to Google Artifact Registry as semver tag
-        if: ${{ github.event_name == 'release' }}
-        env:
-          TAGS: |
-            ${{ steps.metagar.outputs.tags }}
-          SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:sha-${{ github.sha }}
+          SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:${{ env.LATEST_TAG }}
         run: |
           for tag in $TAGS; do
             docker buildx imagetools create --tag "${tag}" "${SRC}" 
