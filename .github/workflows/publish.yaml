@@ -119,7 +119,6 @@ jobs:
           context: .
           file: Release.Dockerfile
           sbom: true
-          target: production  # See multi-stage build
           push: true
           tags: ${{ steps.metagar.outputs.tags }}
           labels: ${{ steps.metagar.outputs.labels }}
