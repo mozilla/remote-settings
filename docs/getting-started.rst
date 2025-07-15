@@ -103,6 +103,11 @@ Consider the following summary table:
 |                                     |                                      |   (source_)                         |
 |                                     |                                      |                                     |
 +-------------------------------------+--------------------------------------+-------------------------------------+
+| Base 64 strings in field            | - Easy and simple                    | - Limited to a few kilobytes        |
+|                                     | - ``"ui:widget": "base64file"`` in   | - Downloaded by all clients         |
+|                                     |   Admin schema                       | - Harder to review changes          |
+|                                     | - No extra step to download          |                                     |
++-------------------------------------+--------------------------------------+-------------------------------------+
 
 .. _source: https://searchfox.org/mozilla-central/rev/dd042f25a8da58d565d199dcfebe4f34db64863c/taskcluster/docker/periodic-updates/scripts/periodic_file_updates.sh#309-324
 
