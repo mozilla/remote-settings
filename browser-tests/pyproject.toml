@@ -6,7 +6,7 @@ authors = ["Contactless <postmaster@localhost>"]
 
 [tool.poetry.dependencies]
 python = ">=3.11, <3.14"
-aiohttp = "3.11.12"
+aiohttp = "3.12.14"
 autograph-utils = "1.0.1"
 canonicaljson-rs = "0.7.1"
 httpie = "3.2.4"
