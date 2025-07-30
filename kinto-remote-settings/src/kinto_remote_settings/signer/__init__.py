@@ -168,6 +168,7 @@ def load_signed_resources_configuration(config):
         docs,
         version=__version__,
         resources=exposed_resources,
+        plugin_userid=utils.PLUGIN_USERID,
         # Backward compatibility with < v26
         group_check_enabled=True,
         **global_settings,
