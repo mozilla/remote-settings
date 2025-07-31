@@ -37,6 +37,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
             "to_review_enabled": False,
             "editors_group": "{collection_id}-editors",
             "reviewers_group": "{collection_id}-reviewers",
+            "plugin_userid": "plugin:remote-settings",
             "resources": [
                 {
                     "destination": {"bucket": "alice", "collection": "destination"},
