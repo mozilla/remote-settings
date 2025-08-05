@@ -394,6 +394,27 @@ def get_changeset(request):
     # Set Last-Modified response header (Pyramid takes care of converting).
     request.response.last_modified = last_modified / 1000.0
 
+    # Log when ``?_expected`` doesn't match the served value.
+    try:
+        expected = int(
+            request.validated["querystring"].get("_expected", "0").strip('"')
+        )
+    except ValueError:
+        expected = -1
+    if (
+        expected
+        and expected > 0
+        and expected != last_modified
+        # Also exclude cache bust values (999xxx) from our clients.
+        # See https://github.com/mozilla-extensions/remote-settings-devtools/blob/70ec104fb3/extension/experiments/remotesettings/api.js#L114
+        # and https://github.com/Kinto/kinto-http.py/blob/1182c295f/src/kinto_http/client.py#L950
+        and not str(expected).startswith("999")
+    ):
+        logger.info(
+            f"Client expected {expected} but was served {last_modified} timestamp",
+            extra={"expected": expected, "timestamps": last_modified},
+        )
+
     data = {
         "metadata": {
             **metadata,

@@ -179,6 +179,21 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
             )
             self.app.get(changeset_uri, headers=self.headers, status=503)
 
+    def test_logs_info_when_client_is_not_served_expected_value(self):
+        changeset_uri = "/buckets/blocklists/collections/certificates/changeset"
+        with mock.patch("kinto_remote_settings.changes.views.logger") as mocked_logger:
+            # Ignored
+            self.app.get(changeset_uri + "?_expected=0", headers=self.headers)
+            self.app.get(changeset_uri + "?_expected=abc", headers=self.headers)
+            self.app.get(changeset_uri + "?_expected=99990", headers=self.headers)
+            # Logged
+            self.app.get(changeset_uri + "?_expected=42", headers=self.headers)
+            self.app.get(changeset_uri + "?_expected=%2258%22", headers=self.headers)
+
+        calls = [c[0][0] for c in mocked_logger.info.call_args_list]
+        assert len(calls) == 2
+        assert all(c.startswith("Client expected") for c in calls)
+
 
 class ReadonlyTest(BaseWebTest, unittest.TestCase):
     changeset_uri = "/buckets/monitor/collections/changes/changeset?_expected=42"
