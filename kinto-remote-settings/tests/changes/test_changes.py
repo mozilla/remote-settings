@@ -192,7 +192,9 @@ class CacheExpiresTest(BaseWebTest, unittest.TestCase):
         assert "max-age=60" in resp.headers["Cache-Control"]
 
     def test_cache_expires_header_is_maximum_with_cache_busting(self):
-        resp = self.app.get(self.changes_uri + f"?_since={HOUR_AGO}&_expected=42")
+        resp = self.app.get(
+            self.changes_uri + f"?_since={HOUR_AGO}&_expected={HOUR_AGO + 1}"
+        )
         assert "max-age=3600" in resp.headers["Cache-Control"]
 
     def test_cache_expires_header_is_default_with_filter(self):
@@ -236,10 +238,18 @@ class OldSinceRedirectTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get(self.changes_uri + f"?_since={timestamp}")
         assert resp.status_code == 307
 
-    def test_redirects_keep_other_querystring_params(self):
-        resp = self.app.get(self.changes_uri + "?_since=42&_expected=%22123456%22")
+    def test_redirects_and_drops_since_if_rewind(self):
+        resp = self.app.get(self.changes_uri + "?_since=42&_expected=1")
         assert resp.status_code == 307
-        assert "/records?_expected=%22123456%22" in resp.headers["Location"]
+        assert (
+            resp.headers["Location"]
+            == "https://cdn-host/v1/buckets/monitor/collections/changes/records?_expected=1"
+        )
+
+    def test_redirects_keep_other_querystring_params(self):
+        resp = self.app.get(self.changes_uri + "?_since=42&_foo=%22123456%22")
+        assert resp.status_code == 307
+        assert "/records?_foo=%22123456%22" in resp.headers["Location"]
 
     def test_does_not_redirect_if_not_old_enough(self):
         timestamp = int(
