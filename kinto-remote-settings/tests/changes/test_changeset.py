@@ -239,14 +239,9 @@ class MonitorChangesetViewTest(BaseWebTest, unittest.TestCase):
             "/buckets/monitor/collections/changes/changeset?_expected=42"
         )
 
-    def test_changeset_redirects_if_rewind(self):
-        resp = self.app.get(self.changeset_uri + '&_since="43"')
-
-        assert resp.status_code == 307
-        assert resp.headers["Location"] == (
-            "https://www.kinto-storage.org/v1"
-            "/buckets/monitor/collections/changes/changeset?_expected=42"
-        )
+    def test_changeset_bad_request_if_rewind(self):
+        resp = self.app.get(self.changeset_uri + '&_since="43"', expect_errors=True)
+        assert resp.status_code == 400
 
     def test_limit_is_supported(self):
         resp = self.app.get(self.changeset_uri + "&_limit=1", headers=self.headers)

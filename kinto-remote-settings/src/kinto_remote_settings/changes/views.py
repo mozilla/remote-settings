@@ -129,6 +129,8 @@ class Changes(resource.Resource):
     schema = ChangesSchema
 
     def __init__(self, request, context=None):
+        # Reject requests with stale expected value
+        _handle_stale_expected(request)
         # Bypass call to storage if _since is too old.
         _handle_old_since_redirect(request)
         # Inject custom model.
@@ -170,6 +172,23 @@ def _handle_cache_expires(request, bid, cid):
         request.response.cache_expires(seconds=int(global_expires))
 
 
+def _handle_stale_expected(request):
+    try:
+        # request.validated is not populated yet (resource was not instantiated yet,
+        # we want to bypass storage).
+        qs_since_str = request.GET.get("_since", "")
+        qs_since = int(qs_since_str.strip('"'))
+        qs_expected_str = request.GET.get("_expected", "0")
+        qs_expected = int(qs_expected_str.strip('"'))
+    except ValueError:
+        return
+
+    # check if client is trying to go back in time, return 400 response
+    if qs_expected > 0 and qs_expected < qs_since:
+        response = httpexceptions.HTTPBadRequest()
+        raise response
+
+
 def _handle_old_since_redirect(request):
     """
     In order to limit the number of possible combinations
@@ -195,24 +214,16 @@ def _handle_old_since_redirect(request):
         # Will fail later during resource querystring validation.
         return
 
-    # check if client is trying to go back in time
-    try:
-        qs_expected_str = request.GET.get("_expected", "0")
-        qs_expected = int(qs_expected_str.strip('"'))
-    except ValueError:
-        qs_expected = 0
-    not_rewind = qs_expected < 1 or qs_expected >= qs_since
-
     settings = request.registry.settings
     max_age_since = int(settings.get("changes.since_max_age_days", 21))
-    if not_rewind and max_age_since < 0:
+    if max_age_since < 0:
         # Redirect is disabled.
         return
 
     min_since_dt = datetime.now() - timedelta(days=max_age_since)
     min_since = min_since_dt.timestamp() * 1000
 
-    if not_rewind and qs_since >= min_since:
+    if qs_since >= min_since:
         # Since value is recent. No redirect.
         return
 
@@ -225,8 +236,6 @@ def _handle_old_since_redirect(request):
 
     queryparams = request.GET.copy()
     del queryparams["_since"]
-    if qs_expected > 0:
-        queryparams["_expected"] = qs_expected
     if queryparams:
         redirect += "?" + urlencode(queryparams)
 
@@ -318,6 +327,8 @@ def get_changeset(request):
         include_deleted = True
 
     if (bid, cid) == (MONITOR_BUCKET, CHANGES_COLLECTION):
+        # Reject requests with stale expected value
+        _handle_stale_expected(request)
         # Redirect old since, on monitor/changes only.
         _handle_old_since_redirect(request)
 

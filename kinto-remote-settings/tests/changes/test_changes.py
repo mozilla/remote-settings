@@ -238,13 +238,11 @@ class OldSinceRedirectTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get(self.changes_uri + f"?_since={timestamp}")
         assert resp.status_code == 307
 
-    def test_redirects_and_drops_since_if_rewind(self):
-        resp = self.app.get(self.changes_uri + "?_since=42&_expected=1")
-        assert resp.status_code == 307
-        assert (
-            resp.headers["Location"]
-            == "https://cdn-host/v1/buckets/monitor/collections/changes/records?_expected=1"
+    def test_bad_request_if_rewind(self):
+        resp = self.app.get(
+            self.changes_uri + "?_since=42&_expected=1", expect_errors=True
         )
+        assert resp.status_code == 400
 
     def test_redirects_keep_other_querystring_params(self):
         resp = self.app.get(self.changes_uri + "?_since=42&_foo=%22123456%22")
