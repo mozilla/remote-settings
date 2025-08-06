@@ -411,8 +411,13 @@ def get_changeset(request):
         and not str(expected).startswith("999")
     ):
         logger.info(
-            f"Client expected {expected} but was served {last_modified} timestamp",
-            extra={"expected": expected, "timestamps": last_modified},
+            f"Client expected {expected} on {bid}/{cid} but was served {last_modified} timestamp",
+            extra={
+                "expected": expected,
+                "timestamps": last_modified,
+                "bucket": bid,
+                "collection": cid,
+            },
         )
 
     data = {
