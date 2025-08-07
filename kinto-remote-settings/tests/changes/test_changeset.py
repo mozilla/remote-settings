@@ -260,7 +260,6 @@ class MonitorChangesetViewTest(BaseWebTest, unittest.TestCase):
             headers=self.headers,
         )
         data = resp.json
-        print(data)
         assert data["changes"][0]["collection"] == "certificates"
 
         self.app.post_json(
