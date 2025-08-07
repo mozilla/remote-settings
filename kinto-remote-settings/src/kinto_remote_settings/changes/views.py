@@ -8,6 +8,7 @@ from kinto.authorization import RouteFactory
 from kinto.core import Service, resource
 from kinto.core import utils as core_utils
 from kinto.core.cornice.validators import colander_validator
+from kinto.core.errors import raise_invalid
 from kinto.core.storage import Filter, Sort
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.storage.memory import extract_object_set
@@ -129,6 +130,8 @@ class Changes(resource.Resource):
     schema = ChangesSchema
 
     def __init__(self, request, context=None):
+        # Reject requests with stale expected value
+        _handle_stale_expected(request)
         # Bypass call to storage if _since is too old.
         _handle_old_since_redirect(request)
         # Inject custom model.
@@ -168,6 +171,28 @@ def _handle_cache_expires(request, bid, cid):
 
     elif global_expires := settings.get("record_cache_expires_seconds"):
         request.response.cache_expires(seconds=int(global_expires))
+
+
+def _handle_stale_expected(request):
+    try:
+        # `request.validated` is not populated yet (resource was not instantiated yet,
+        # we want to bypass storage).
+        qs_since_str = request.GET.get("_since", "")
+        qs_since = int(qs_since_str.strip('"'))
+        qs_expected_str = request.GET.get("_expected", "0")
+        qs_expected = int(qs_expected_str.strip('"'))
+    except ValueError:
+        # The resource and its schema will raise 400 later.
+        return
+
+    # Check if client is trying to go back in time, return 400 response
+    if qs_expected > 0 and qs_expected < qs_since:
+        raise_invalid(
+            request,
+            name="_expected",
+            location="querystring",
+            description="`_expected` parameter cannot be lower than `_since`",
+        )
 
 
 def _handle_old_since_redirect(request):
@@ -308,6 +333,8 @@ def get_changeset(request):
         include_deleted = True
 
     if (bid, cid) == (MONITOR_BUCKET, CHANGES_COLLECTION):
+        # Reject requests with stale expected value
+        _handle_stale_expected(request)
         # Redirect old since, on monitor/changes only.
         _handle_old_since_redirect(request)
 
