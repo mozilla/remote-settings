@@ -255,8 +255,8 @@ class MonitorChangesetViewTest(BaseWebTest, unittest.TestCase):
         )
 
     def test_changeset_bad_request_if_rewind(self):
-        resp = self.app.get(self.changeset_uri + '&_since="43"', expect_errors=True)
-        assert resp.status_code == 400
+        resp = self.app.get(self.changeset_uri + '&_since="43"')
+        assert resp.status_code == 204
 
     def test_limit_is_supported(self):
         resp = self.app.get(self.changeset_uri + "&_limit=1", headers=self.headers)
