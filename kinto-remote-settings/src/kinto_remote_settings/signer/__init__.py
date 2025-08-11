@@ -77,12 +77,14 @@ def load_signed_resources_configuration(config):
         if resource["source"]["collection"] is not None:
             continue
         bid = resource["source"]["bucket"]
-        # Match setting names like signer.stage.specific.autograph.hawk_id
-        matches = [
-            (v, re.search(rf"signer\.{bid}\.([^\.]+)\.(.+)", k))
-            for k, v in settings.items()
-        ]
-        found = [(v, m.group(1), m.group(2)) for (v, m) in matches if m]
+        # Match setting names like `signer.{bid}.{cid}.review_enabled`
+        # but not like `signer.{bid}.autograph.hawk_id`
+        found = []
+        for key, value in settings.items():
+            match = re.search(rf"signer\.{bid}\.([^\.]+)\.(.+)", key)
+            if match and match.group(1) != "autograph":
+                found.append((value, match.group(1), match.group(2)))
+
         # Expand the list of resources with the ones that contain collection
         # specific settings.
         for setting_value, cid, setting_name in found:
