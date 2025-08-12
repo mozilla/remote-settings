@@ -22,6 +22,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         settings = super().get_app_settings(extras)
         settings["signer.alice.source.to_review_enabled"] = "true"
         settings["signer.stage.normandy.to_review_enabled"] = "false"
+        settings["signer.stage.autograph.hawk_id"] = "boom"
         return settings
 
     def test_capability_is_exposed(self):
