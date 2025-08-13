@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 from urllib.parse import urlencode
 
 import colander
@@ -197,6 +198,61 @@ def _handle_stale_expected(request):
         raise response
 
 
+def redirect_with_new_queryparams(
+    request, queryparams: dict[str, Optional[str]], cache_seconds: int
+):
+    """
+    Redirect to the same URL with new query parameters.
+    Removes parameters with `None` value, and uses `http_host` setting to avoid redirecting to the
+    origin servers.
+    """
+    settings = request.registry.settings
+    http_scheme = settings.get("http_scheme") or "https"
+    http_host = settings.get(
+        "changes.http_host", request.registry.settings.get("http_host")
+    )
+    host_uri = f"{http_scheme}://{http_host}"
+    redirect = host_uri + request.matched_route.generate(request.matchdict)
+
+    queryparams = request.GET.copy()
+    for key, value in queryparams.items():
+        if value is None:
+            del queryparams[key]
+        else:
+            queryparams[key] = value
+    if queryparams:
+        redirect += "?" + urlencode(queryparams)
+
+    response = httpexceptions.HTTPTemporaryRedirect(redirect)
+    if cache_seconds >= 0:
+        response.cache_expires(cache_seconds)
+    return response
+
+
+def _handle_expected_0_redirect(request, latest_timestamp):
+    """
+    Redirect to the latest timestamp if `_expected` is 0.
+
+    This allows clients to avoid receiving different content for the same stable URL,
+    and let them cache content with the actual latest timestamp in the URL.
+    """
+    try:
+        qs_expected_str = request.GET.get("_expected", "0")
+        qs_expected = int(qs_expected_str.strip('"'))
+    except ValueError:
+        # The resource and its schema will raise 400 later.
+        return
+    if qs_expected != 0:
+        # Nothing to do here.
+        return
+
+    settings = request.registry.settings
+    cache_seconds = int(settings.get("changes.expected_0_redirect_ttl_seconds", -1))
+    raise redirect_with_new_queryparams(
+        request, {"_expected": str(latest_timestamp)}, cache_seconds
+    )
+
+
 def _handle_old_since_redirect(request):
     """
     In order to limit the number of possible combinations
@@ -235,26 +291,10 @@ def _handle_old_since_redirect(request):
         # Since value is recent. No redirect.
         return
 
-    http_scheme = settings.get("http_scheme") or "https"
-    http_host = settings.get(
-        "changes.http_host", request.registry.settings.get("http_host")
-    )
-    host_uri = f"{http_scheme}://{http_host}"
-    redirect = host_uri + request.matched_route.generate(request.matchdict)
-
-    queryparams = request.GET.copy()
-    del queryparams["_since"]
-    if queryparams:
-        redirect += "?" + urlencode(queryparams)
-
-    # Serve a redirection, with optional cache control headers.
-    response = httpexceptions.HTTPTemporaryRedirect(redirect)
     cache_seconds = int(
         settings.get("changes.since_max_age_redirect_ttl_seconds", 86400)
     )
-    if cache_seconds >= 0:
-        response.cache_expires(cache_seconds)
-    raise response
+    raise redirect_with_new_queryparams(request, {"_since": None}, cache_seconds)
 
 
 @implementer(IAuthorizationPolicy)
@@ -416,6 +456,8 @@ def get_changeset(request):
         # Do not serve inconsistent data.
         if before != records_timestamp:  # pragma: no cover
             raise storage_exceptions.IntegrityError(message="Inconsistent data. Retry.")
+
+    _handle_expected_0_redirect(request, last_modified)
 
     # Cache control.
     _handle_cache_expires(request, bid, cid)
