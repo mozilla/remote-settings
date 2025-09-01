@@ -51,6 +51,29 @@ Looking at /buckets/staging/collections/gfx: Trigger new signature: signed at 20
 
 ```
 
+### git_export
+
+```
+$ SERVER="https://firefox.settings.services.mozilla.com/v1" OUTPUT=/tmp/test.git python src/main.py git_export
+```
+
+Explore content:
+
+```
+git clone /tmp/test.git /tmp/test-wd
+git checkout buckets/main
+ls -l
+```
+
+List all content (relies on `tree`):
+```
+GIT_DIR=/tmp/test.git git for-each-ref --format='%(refname:short)' refs/heads |
+while read b; do
+  echo "### $b"
+  GIT_DIR=/tmp/test.git git ls-tree -r --name-only "$b" | tree --fromfile
+done
+```
+
 
 ### backport_records
 
