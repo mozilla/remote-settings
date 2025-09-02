@@ -91,25 +91,3 @@ $ BACKPORT_RECORDS_SOURCE_AUTH=user:pass BACKPORT_RECORDS_SOURCE_BUCKET=blocklis
 Records are in sync. Nothing to do.
 
 ```
-
-
-### sync_megaphone
-
-Send the current version of Remote Settings data to the Push server.
-
-Does nothing if versions are in sync.
-
-Environment config:
-
-- ``SERVER``: Remote Settings server URL (default: ``http://localhost:8888/v1``)
-- ``MEGAPHONE_URL``: Megaphone service URL
-- ``MEGAPHONE_READER_AUTH``: Bearer token for Megaphone read access
-- ``MEGAPHONE_BROADCASTER_AUTH``: Bearer token for Megaphone broadcaster access
-- ``BROADCASTER_ID``: Push broadcaster ID (default: ``remote-settings``)
-- ``CHANNEL_ID``: Push channel ID (default: ``monitor_changes``)
-
-Example:
-
-```
-$ SERVER=https://settings.prod.mozaws.net/v1 MEGAPHONE_URL="https://push.services.mozilla.com/v1" MEGAPHONE_READER_AUTH="a-b-c" MEGAPHONE_BROADCASTER_AUTH="d-e-f" python src/main.py sync_megaphone
-```
