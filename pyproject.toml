@@ -90,11 +90,11 @@ optional = true
 cronjobs = {path = "./cronjobs", develop = true}
 
 [tool.poetry.group.dev.dependencies]
-pytest = "8.4.1"
+pytest = "8.4.2"
 webtest = "3.0.6"
 coverage = "7.10.6"
 detect-secrets = "^1.5.0"
-ruff = "^0.12.11"
+ruff = "^0.12.12"
 responses = "^0.25.8"
 
 [tool.poetry.group.docs]
