@@ -6,7 +6,9 @@
 
 ## Context and Problem Statement
 
-When data is published, a content signature is computed on the server and exposed in the `signature` field of the collection metadata. The client synchronizes its local copy with the server and verifies the signature of the resulting dataset.
+When data is published, a content signature is computed on the server and exposed in the `signature` field of the collection metadata. The client synchronizes its local copy with the server and verifies the signature of the resulting dataset [^1].
+
+[^1]: See [Remote Settings + Autograph](https://docs.google.com/presentation/d/11x0dGRQ-yWzi7cAWYci6NeLN2mYH_Ba6Ml2gn9gOx30/edit?slide=id.p#slide=id.p).
 
 The `signature` field is an object obtained from the Autograph signing response that contains:
 - `x5u`: an absolute URL to the certificate chain
