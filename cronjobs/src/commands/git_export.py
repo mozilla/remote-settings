@@ -44,10 +44,8 @@ def git_export(event, context):
 
     # Clone remote repository into work dir.
     callbacks = RemoteCallbacks(credentials=credentials)
-    print(f"Clone {GIT_REMOTE_URL} into {WORK_DIR}...")
-    pygit2.clone_repository(
-        GIT_REMOTE_URL, WORK_DIR, checkout_branch=COMMON_BRANCH, callbacks=callbacks
-    )
+    print(f"Clone {GIT_REMOTE_URL} into {WORK_DIR} using {GIT_PUBKEY_PATH} with passphrase '{'*' * len(GIT_PASSPHRASE)}'...")
+    pygit2.clone_repository(GIT_REMOTE_URL, WORK_DIR, callbacks=callbacks)
 
     # TODO: use PGP key to sign commits
 
@@ -57,6 +55,8 @@ def git_export(event, context):
 
     push_mirror(callbacks=callbacks)
 
+    print("Done.")
+
 
 def push_mirror(callbacks):
     """
@@ -64,21 +64,15 @@ def push_mirror(callbacks):
     """
     repo = pygit2.Repository(WORK_DIR)
     remote = repo.remotes["origin"]
-    local_branches = {ref.shorthand for ref in repo.branches.local}
-    try:
-        remote_branches = {
-            ref.shorthand.split("/", 1)[1]
-            for ref in repo.branches.remote
-            if ref.shorthand.startswith("origin/")
-        }
-    except Exception as exc:
-        print(f"Failed to list remote branches: {exc}")
-        remote_branches = set()
-
+    local_branches = {ref for ref in repo.branches.local}
+    remote_branches = {
+        ref.split("/", 1)[1]
+        for ref in repo.branches.remote
+        if ref.startswith("origin/")
+    }
     refspecs = []
     for branch in local_branches:
         refspecs.append(f"refs/heads/{branch}:refs/heads/{branch}")
-
     stale_branches = remote_branches - local_branches
     for branch in stale_branches:
         # empty source (left side) deletes the remote ref
