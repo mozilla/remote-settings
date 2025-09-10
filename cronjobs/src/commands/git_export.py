@@ -12,6 +12,8 @@ from decouple import config
 from pygit2 import (
     GIT_FILEMODE_BLOB,
     GIT_FILEMODE_TREE,
+    Keypair,
+    RemoteCallbacks,
 )
 
 
@@ -21,18 +23,68 @@ HTTP_TIMEOUT_SECONDS = (5, 60)  # (connect, read) seconds for requests
 
 SERVER_URL = config("SERVER", default="http://localhost:8888/v1")
 GIT_AUTHOR = config("GIT_AUTHOR", default="User <user@example.com>")
-OUTPUT_FOLDER = config(
-    "OUTPUT", default="/tmp/git-export.git"
-)  # TODO: replace with clone --bare of existing repo
+WORK_DIR = config("WORK_DIR", default="/tmp/git-export.git")
+GIT_REMOTE_URL = config(
+    "GIT_REMOTE_URL", default="git@github.com:leplatrem/remote-settings-data.git"
+)
+GIT_SSH_USERNAME = config("GIT_SSH_USERNAME", default="git")
+GIT_PUBKEY_PATH = config("GIT_PUBKEY_PATH", default="~/.ssh/id_ed25519.pub")
+GIT_PRIVKEY_PATH = config("GIT_PRIVKEY_PATH", default="~/.ssh/id_ed25519")
+GIT_PASSPHRASE = config("GIT_PASSPHRASE", default="")
+COMMON_BRANCH = "common"
 
 
 def git_export(event, context):
-    asyncio.run(poc_git_export())
-    # TODO: clone existing repo instead of init
+    credentials = Keypair(
+        GIT_SSH_USERNAME,
+        os.path.expanduser(GIT_PUBKEY_PATH),
+        os.path.expanduser(GIT_PRIVKEY_PATH),
+        GIT_PASSPHRASE,
+    )
+
+    # Clone remote repository into work dir.
+    callbacks = RemoteCallbacks(credentials=credentials)
+    print(f"Clone {GIT_REMOTE_URL} into {WORK_DIR}...")
+    pygit2.clone_repository(
+        GIT_REMOTE_URL, WORK_DIR, checkout_branch=COMMON_BRANCH, callbacks=callbacks
+    )
+
     # TODO: use PGP key to sign commits
-    # TODO: use SSH key to authenticate with remote
-    # TODO: push to remote
+
+    asyncio.run(sync_git_content())
+
     # TODO: download attachments actual files and add them to LFS volume
+
+    push_mirror(callbacks=callbacks)
+
+
+def push_mirror(callbacks):
+    """
+    Equivalent of `git push --mirror`
+    """
+    repo = pygit2.Repository(WORK_DIR)
+    remote = repo.remotes["origin"]
+    local_branches = {ref.shorthand for ref in repo.branches.local}
+    try:
+        remote_branches = {
+            ref.shorthand.split("/", 1)[1]
+            for ref in repo.branches.remote
+            if ref.shorthand.startswith("origin/")
+        }
+    except Exception as exc:
+        print(f"Failed to list remote branches: {exc}")
+        remote_branches = set()
+
+    refspecs = []
+    for branch in local_branches:
+        refspecs.append(f"refs/heads/{branch}:refs/heads/{branch}")
+
+    stale_branches = remote_branches - local_branches
+    for branch in stale_branches:
+        # empty source (left side) deletes the remote ref
+        refspecs.append(f":refs/heads/{branch}")
+    print("Pushing refspecs:", refspecs)
+    remote.push(refspecs, callbacks=callbacks)
 
 
 def json_dumpb(obj: Any) -> bytes:
@@ -155,48 +207,39 @@ def upsert_blobs(
     return merge(updates_trie, base_tree)
 
 
-async def poc_git_export():
+async def sync_git_content():
     user, email = GIT_AUTHOR.split("<")
     user = user.strip()
     email = email.rstrip(">")
     author = pygit2.Signature(user, email)
     committer = author
 
-    common_branch = "refs/heads/common"
+    common_branch = f"refs/heads/{COMMON_BRANCH}"
 
-    if os.path.exists(OUTPUT_FOLDER):
-        print("Opening existing repository")
-        repo = pygit2.Repository(OUTPUT_FOLDER)
-        # The repo may exist without the 'common' ref (first run).
-        try:
-            common_tip = repo.lookup_reference(common_branch).target
-            common_base_tree = repo.get(common_tip).tree
-            parents = [common_tip]
-        except KeyError:
-            common_base_tree = None
-            parents = []
-
-        # Previous run timestamp, find latest tag starting with `timestamps/common/*`
-        refs = [ref.decode() for ref in repo.raw_listall_references()]
-        timestamps = [
-            int(t.split("/")[-1])
-            for t in refs
-            if t.startswith("refs/tags/timestamps/common/")
-        ]
-        if timestamps:
-            latest_timestamp = max(timestamps)
-            print(f"Found latest tag: {latest_timestamp}")
-        else:
-            print("No previous tags found.")
-            latest_timestamp = 0
-
-    else:
-        print("Creating new repository")
-        repo = pygit2.init_repository(
-            OUTPUT_FOLDER, bare=True, initial_head=common_branch
-        )
+    print(f"Opening existing repository in {WORK_DIR}")
+    repo = pygit2.Repository(WORK_DIR)
+    # The repo may exist without the 'common' ref (first run).
+    try:
+        common_tip = repo.lookup_reference(common_branch).target
+        common_base_tree = repo.get(common_tip).tree
+        parents = [common_tip]
+    except KeyError:
         common_base_tree = None
         parents = []
+
+    # Previous run timestamp, find latest tag starting with `timestamps/common/*`
+    refs = [ref.decode() for ref in repo.raw_listall_references()]
+    timestamps = [
+        int(t.split("/")[-1])
+        for t in refs
+        if t.startswith("refs/tags/timestamps/common/")
+    ]
+    if timestamps:
+        latest_timestamp = max(timestamps)
+        print(f"Found latest tag: {latest_timestamp}")
+    else:
+        print("No previous tags found.")
+        latest_timestamp = 0
 
     # Fetch content from Remote Settings server.
     client = kinto_http.AsyncClient(server_url=SERVER_URL)
