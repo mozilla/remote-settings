@@ -156,16 +156,6 @@ def upsert_blobs(
 
 
 async def poc_git_export():
-    client = kinto_http.AsyncClient(server_url=SERVER_URL)
-
-    attachments_base_url = (await client.server_info())["capabilities"]["attachments"][
-        "base_url"
-    ].rstrip("/")
-
-    monitor_changeset = await client.get_changeset(
-        bucket="monitor", collection="changes", bust_cache=True
-    )
-
     user, email = GIT_AUTHOR.split("<")
     user = user.strip()
     email = email.rstrip(">")
@@ -185,6 +175,21 @@ async def poc_git_export():
         except KeyError:
             common_base_tree = None
             parents = []
+
+        # Previous run timestamp, find latest tag starting with `timestamps/common/*`
+        refs = [ref.decode() for ref in repo.raw_listall_references()]
+        timestamps = [
+            int(t.split("/")[-1])
+            for t in refs
+            if t.startswith("refs/tags/timestamps/common/")
+        ]
+        if timestamps:
+            latest_timestamp = max(timestamps)
+            print(f"Found latest tag: {latest_timestamp}")
+        else:
+            print("No previous tags found.")
+            latest_timestamp = 0
+
     else:
         print("Creating new repository")
         repo = pygit2.init_repository(
@@ -192,6 +197,16 @@ async def poc_git_export():
         )
         common_base_tree = None
         parents = []
+
+    # Fetch content from Remote Settings server.
+    client = kinto_http.AsyncClient(server_url=SERVER_URL)
+
+    monitor_changeset = await client.get_changeset(
+        bucket="monitor", collection="changes", bust_cache=True
+    )
+    if monitor_changeset["timestamp"] == latest_timestamp:
+        print("No new changes since last run.")
+        return
 
     # Store the monitor changeset in `common` branch.
     # Anything from previous commits is lost.
@@ -206,13 +221,14 @@ async def poc_git_export():
     broadcasts = resp.json()
     common_content.append(("broadcasts.json", json_dumpb(broadcasts)))
 
-    print("Fetch all changesets")
+    new_changesets = [
+        entry
+        for entry in monitor_changeset["changes"]
+        if entry["last_modified"] > latest_timestamp
+    ]
+    print(f"Fetch {len(new_changesets)} changesets")
     all_changesets = await fetch_all_changesets(
-        client,
-        [
-            (entry["bucket"], entry["collection"])
-            for entry in monitor_changeset["changes"]
-        ],
+        client, [(entry["bucket"], entry["collection"]) for entry in new_changesets]
     )
 
     # Store the certificate chains.
@@ -243,6 +259,9 @@ async def poc_git_export():
 
     # Also store the bundles as LFS pointers.
     print("Fetching attachments bundles")
+    attachments_base_url = (await client.server_info())["capabilities"]["attachments"][
+        "base_url"
+    ].rstrip("/")
     bundles_locations: list[str] = ["bundles/startup.json.mozlz4"]
     for changeset in all_changesets:
         if not changeset["metadata"].get("bundles", False):
@@ -271,6 +290,20 @@ async def poc_git_export():
             parents,
         )
         print(f"Created commit common: {commit_oid}")
+
+        # Tag with current timestamp for next runs
+        tag_name = f"timestamps/common/{monitor_changeset['timestamp']}"
+        try:
+            repo.create_tag(
+                tag_name,
+                commit_oid,
+                pygit2.GIT_OBJECT_COMMIT,
+                author,
+                f"Common changes @ {monitor_changeset['timestamp']}",
+            )
+            print(f"Created tag common: {tag_name}")
+        except pygit2.AlreadyExistsError:
+            print(f"Tag {tag_name} already exists, skipping.")
 
     print("")
     for changeset in all_changesets:
