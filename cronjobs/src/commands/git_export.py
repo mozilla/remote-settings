@@ -1,8 +1,13 @@
 import asyncio
+import base64
 import hashlib
+import itertools
 import json
 import os
+import tempfile
+import time
 import urllib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 import kinto_http
@@ -15,19 +20,29 @@ from pygit2 import (
     Keypair,
     RemoteCallbacks,
 )
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 
 MAX_PARALLEL_REQUESTS = config("MAX_PARALLEL_REQUESTS", default=10, cast=int)
 LOG_LEVEL = config("LOG_LEVEL", default="INFO").upper()
 HTTP_TIMEOUT_SECONDS = (5, 60)  # (connect, read) seconds for requests
+HTTP_TIMEOUT_BATCH_SECONDS = (10, 180)  # (connect, read) seconds for requests
+HTTP_TIMEOUT_UPLOAD_SECONDS = (10, 600)  # (connect, read) seconds for requests
+HTTP_RETRY_MAX_COUNT = config("HTTP_RETRY_MAX_COUNT", default=10, cast=int)
 
 SERVER_URL = config("SERVER", default="http://localhost:8888/v1")
 GIT_AUTHOR = config("GIT_AUTHOR", default="User <user@example.com>")
 WORK_DIR = config("WORK_DIR", default="/tmp/git-export.git")
-GIT_REMOTE_URL = config(
-    "GIT_REMOTE_URL", default="git@github.com:leplatrem/remote-settings-data.git"
-)
+REPO_OWNER = config("REPO_OWNER", default="leplatrem")
+REPO_NAME = config("REPO_NAME", default="remote-settings-data")
 GIT_SSH_USERNAME = config("GIT_SSH_USERNAME", default="git")
+GIT_REMOTE_URL = config(
+    "GIT_REMOTE_URL",
+    default=f"{GIT_SSH_USERNAME}@github.com:{REPO_OWNER}/{REPO_NAME}.git",
+)
+GITHUB_TOKEN = config("GITHUB_TOKEN", default="")
+GITHUB_MAX_LFS_BATCH_SIZE = config("GITHUB_MAX_LFS_BATCH_SIZE", default=100, cast=int)
 GIT_PUBKEY_PATH = config("GIT_PUBKEY_PATH", default="~/.ssh/id_ed25519.pub")
 GIT_PRIVKEY_PATH = config("GIT_PRIVKEY_PATH", default="~/.ssh/id_ed25519")
 GIT_PASSPHRASE = config("GIT_PASSPHRASE", default="")
@@ -59,9 +74,10 @@ def git_export(event, context):
 
     # TODO: use PGP key to sign commits
 
-    asyncio.run(sync_git_content(repo))
+    collected_attachments = asyncio.run(sync_git_content(repo))
+    print(f"Collected {len(collected_attachments)} attachments.")
 
-    # TODO: download attachments actual files and add them to LFS volume
+    github_lfs_batch_upload_many(objects=collected_attachments)
 
     push_mirror(repo, callbacks=callbacks)
 
@@ -123,20 +139,25 @@ async def fetch_all_changesets(
     return await asyncio.gather(*[fetch(bid, cid) for bid, cid in collections])
 
 
-def fetch_attachment(url):
+def fetch_attachment(url, dest_file=None):
     """
     Fetch the attachment at the given URL and return its sha256 hash and size.
     """
+    if dest_file is None:
+        dest_file = os.devnull
+
     print("Fetch %r" % url)
     h = hashlib.sha256()
     total = 0
-    with requests.get(url, stream=True, timeout=HTTP_TIMEOUT_SECONDS) as r:
-        r.raise_for_status()
-        for chunk in r.iter_content(1024 * 64):
-            if not chunk:
-                continue
-            h.update(chunk)
-            total += len(chunk)
+    with open(dest_file, "wb") as f:
+        with requests.get(url, stream=True, timeout=HTTP_TIMEOUT_SECONDS) as r:
+            r.raise_for_status()
+            for chunk in r.iter_content(1024 * 64):
+                if not chunk:
+                    continue
+                f.write(chunk)
+                h.update(chunk)
+                total += len(chunk)
     return h.hexdigest(), total
 
 
@@ -163,6 +184,144 @@ def make_lfs_pointer(sha256_hex: str, size: int) -> pygit2.Oid:
         f"size {size}\n"
     )
     return pointer.encode("ascii")
+
+
+def github_lfs_batch_request(
+    session: requests.Session,
+    objects: Iterable[Dict[str, Any]],
+    operation: str,  # upload or download
+) -> Dict[str, Any]:
+    """
+    Generic Git LFS Batch call.
+    objects: [{"oid": "<sha256-hex>", "size": <int>}, ...]
+
+    https://github.com/git-lfs/git-lfs/blob/main/docs/api/batch.md#requests
+    """
+    url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}.git/info/lfs/objects/batch"
+    authz = f"Basic {base64.b64encode(f'{GIT_SSH_USERNAME}:{GITHUB_TOKEN}'.encode()).decode()}"
+    headers = {
+        "Accept": "application/vnd.git-lfs+json",
+        "Content-Type": "application/vnd.git-lfs+json",
+        "Authorization": authz,
+    }
+    payload = {
+        "operation": operation,
+        "transfers": ["basic"],
+        "objects": list(objects),
+    }
+    r = session.post(
+        url, headers=headers, json=payload, timeout=HTTP_TIMEOUT_BATCH_SECONDS
+    )
+    if r.status_code != 200:
+        print(f"LFS: batch failed with status {r.status_code}: {r.text}")
+    r.raise_for_status()
+    return r.json()
+
+
+def _download_and_upload_file(session, source, dest):
+    oid, size, src = source
+    upload_dest_url, upload_method, upload_headers = dest
+
+    time.sleep(0.5)
+
+    with tempfile.NamedTemporaryFile() as tmp_file:
+        tmp_path = tmp_file.name
+
+        downloaded_digest, downloaded_size = fetch_attachment(src, dest_file=tmp_path)
+        if downloaded_digest != oid:
+            print(f"LFS: {oid} has unexpected digest {downloaded_digest}")
+            return  # TODO: raise
+        if downloaded_size != size:
+            print(f"LFS: {oid} has unexpected size {downloaded_size}")
+            return  # TODO: raise
+        print(
+            f"LFS: uploading {oid} to {upload_dest_url} using {upload_method} ({size} bytes)"
+        )
+        with open(tmp_path, "rb") as f:
+            put = session.request(
+                upload_method,
+                upload_dest_url,
+                data=f,
+                headers=upload_headers,
+                timeout=HTTP_TIMEOUT_UPLOAD_SECONDS,
+            )
+            if put.status_code not in (200, 201, 204):
+                print(
+                    f"LFS: {oid} upload failed with status {put.status_code}: {put.text}"
+                )
+            put.raise_for_status()
+
+
+def github_lfs_batch_upload_many(
+    objects: Iterable[Tuple[str, int, str]],  # (sha256, size, source_url)
+) -> None:
+    """
+    Single batch call + parallel PUT uploads for those that need it.
+    """
+    session = requests.Session()
+    retries = Retry(
+        total=HTTP_RETRY_MAX_COUNT,
+        backoff_factor=1.5,
+        status_forcelist=[500, 502, 503, 504],
+        allowed_methods={"PUT", "POST"},
+    )
+    session.mount("https://", HTTPAdapter(max_retries=retries))
+
+    chunks_count = len(objects) // GITHUB_MAX_LFS_BATCH_SIZE + 1
+    chunks = itertools.batched(objects, GITHUB_MAX_LFS_BATCH_SIZE)
+    for i, chunk in enumerate(chunks):
+        objs = [{"oid": oid, "size": size} for (oid, size, _url) in chunk]
+
+        print(f"Uploading chunk {i + 1}/{chunks_count}")
+        resp = github_lfs_batch_request(session, objects=objs, operation="upload")
+        to_upload = []
+        to_verify = []
+        for api_obj, (oid, size, url) in zip(resp["objects"], chunk):
+            if error := api_obj.get("error", {}):
+                print(f"LFS: upload error {error['message']}")
+                continue
+
+            upload_action = api_obj.get("actions", {}).get("upload")
+            if upload_action:
+                upload_dest_url = upload_action["href"]
+                upload_method = upload_action.get("method", "PUT").upper()
+                upload_headers = upload_action["header"]
+                to_upload.append(
+                    ((oid, size, url), (upload_dest_url, upload_method, upload_headers))
+                )
+            verify_action = api_obj.get("actions", {}).get("verify")
+            if verify_action:
+                verify_dest_url = verify_action["href"]
+                verify_headers = verify_action["header"]
+                to_verify.append(((oid, size), (verify_dest_url, verify_headers)))
+
+        with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as pool:
+            upload_futures = [
+                pool.submit(_download_and_upload_file, session, *args)
+                for args in to_upload
+            ]
+            for f in as_completed(upload_futures):
+                f.result()  # will raise if upload failed
+
+            verify_futures = [
+                pool.submit(
+                    session.post,
+                    url,
+                    json={"oid": oid, "size": size},
+                    headers=headers,
+                    timeout=HTTP_TIMEOUT_SECONDS,
+                )
+                for (oid, size), (url, headers) in to_verify
+            ]
+            for f in as_completed(verify_futures):
+                resp = f.result()
+                if resp.status_code != 200:
+                    print(
+                        f"LFS: verify failed with status {resp.status_code}: {resp.text}"
+                    )
+                resp.raise_for_status()
+
+        print(f"LFS: uploaded {len(to_upload)} new objects")
 
 
 def upsert_blobs(
@@ -221,7 +380,11 @@ def upsert_blobs(
     return merge(updates_trie, base_tree)
 
 
-async def sync_git_content(repo):
+async def sync_git_content(repo) -> list[tuple[str, int, str]]:
+    """
+    Sync content from the remote server to the local git repository.
+    Return the list of collected attachments to be uploaded to LFS.
+    """
     user, email = GIT_AUTHOR.split("<")
     user = user.strip()
     email = email.rstrip(">")
@@ -263,7 +426,7 @@ async def sync_git_content(repo):
     )
     if not FORCE and monitor_changeset["timestamp"] == latest_timestamp:
         print("No new changes since last run.")
-        return
+        return []
 
     # Store the monitor changeset in `common` branch.
     # Anything from previous commits is lost.
@@ -295,6 +458,12 @@ async def sync_git_content(repo):
         common_content.append((f"cert-chains/{parsed.path.lstrip('/')}", pem.encode()))
 
     # Store all the attachments as LFS pointers.
+
+    collected_attachments: list[tuple[str, int, str]] = []
+    attachments_base_url = (await client.server_info())["capabilities"]["attachments"][
+        "base_url"
+    ].rstrip("/")
+
     # NOTE: This writes the pointer files, not the large object content itself.
     common_content.append(
         (".gitattributes", b"attachments/** filter=lfs diff=lfs merge=lfs -text\n")
@@ -313,12 +482,17 @@ async def sync_git_content(repo):
                     (f"attachments/{location}.meta.json", json_dumpb(record)),
                 ]
             )
+            collected_attachments.append(
+                (
+                    attachment["hash"],
+                    attachment["size"],
+                    f"{attachments_base_url}/{location}",
+                )
+            )
 
     # Also store the bundles as LFS pointers.
     print("Fetching attachments bundles")
-    attachments_base_url = (await client.server_info())["capabilities"]["attachments"][
-        "base_url"
-    ].rstrip("/")
+
     bundles_locations: list[str] = ["bundles/startup.json.mozlz4"]
     for changeset in all_changesets:
         if not changeset["metadata"].get("attachment", {}).get("bundle", False):
@@ -326,10 +500,11 @@ async def sync_git_content(repo):
         metadata = changeset["metadata"]
         bundles_locations.append(f"bundles/{metadata['bucket']}--{metadata['id']}.zip")
     for location in bundles_locations:
-        url = attachments_base_url + "/" + location
+        url = f"{attachments_base_url}/{location}"
         hash, size = fetch_attachment(url)
         blob = make_lfs_pointer(hash, size)
-        common_content.append((location, blob))
+        common_content.append((f"attachments/{location}", blob))
+        collected_attachments.append((hash, size, url))
 
     monitor_tree_id = upsert_blobs(repo, common_content, base_tree=common_base_tree)
 
@@ -340,7 +515,7 @@ async def sync_git_content(repo):
             common_branch,
             author,
             committer,
-            "Add monitor-changes and x5u certificate chains",
+            f"Common branch content @ {monitor_changeset['timestamp']}",
             monitor_tree_id,
             parents,
         )
@@ -354,7 +529,7 @@ async def sync_git_content(repo):
                 commit_oid,
                 pygit2.GIT_OBJECT_COMMIT,
                 author,
-                f"Common changes @ {monitor_changeset['timestamp']}",
+                f"Common branch content @ {monitor_changeset['timestamp']}",
             )
             print(f"Created tag common: {tag_name}")
         except pygit2.AlreadyExistsError:
@@ -408,3 +583,5 @@ async def sync_git_content(repo):
                 )
             except pygit2.AlreadyExistsError:
                 print(f"Tag {tag_name} already exists, skipping.")
+
+    return collected_attachments
