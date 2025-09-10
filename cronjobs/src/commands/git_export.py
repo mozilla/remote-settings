@@ -301,11 +301,11 @@ async def sync_git_content():
     ].rstrip("/")
     bundles_locations: list[str] = ["bundles/startup.json.mozlz4"]
     for changeset in all_changesets:
-        if not changeset["metadata"].get("bundles", False):
+        if not changeset["metadata"].get("attachment", {}).get("bundle", False):
             continue
         metadata = changeset["metadata"]
         bundles_locations.append(
-            f"bundles/{metadata['bucket']}--{metadata['collection']}.zip"
+            f"bundles/{metadata['bucket']}--{metadata['id']}.zip"
         )
     for location in bundles_locations:
         url = attachments_base_url + "/" + location
