@@ -32,6 +32,7 @@ GIT_PUBKEY_PATH = config("GIT_PUBKEY_PATH", default="~/.ssh/id_ed25519.pub")
 GIT_PRIVKEY_PATH = config("GIT_PRIVKEY_PATH", default="~/.ssh/id_ed25519")
 GIT_PASSPHRASE = config("GIT_PASSPHRASE", default="")
 COMMON_BRANCH = "common"
+FORCE = config("FORCE", default=False, cast=bool)
 
 
 def git_export(event, context):
@@ -41,28 +42,47 @@ def git_export(event, context):
         os.path.expanduser(GIT_PRIVKEY_PATH),
         GIT_PASSPHRASE,
     )
-
-    # Clone remote repository into work dir.
     callbacks = RemoteCallbacks(credentials=credentials)
-    print(f"Clone {GIT_REMOTE_URL} into {WORK_DIR} using {GIT_PUBKEY_PATH} with passphrase '{'*' * len(GIT_PASSPHRASE)}'...")
-    pygit2.clone_repository(GIT_REMOTE_URL, WORK_DIR, callbacks=callbacks)
+
+    if os.path.exists(WORK_DIR):
+        print(f"Work dir {WORK_DIR} already exists, skipping clone.")
+        repo = pygit2.Repository(WORK_DIR)
+        fetch_prune(repo, callbacks=callbacks)
+    else:
+        # Clone remote repository into work dir.
+        callbacks = RemoteCallbacks(credentials=credentials)
+        print(
+            f"Clone {GIT_REMOTE_URL} into {WORK_DIR} using {GIT_PUBKEY_PATH} with passphrase '{'*' * len(GIT_PASSPHRASE)}'..."
+        )
+        pygit2.clone_repository(GIT_REMOTE_URL, WORK_DIR, callbacks=callbacks)
+        repo = pygit2.Repository(WORK_DIR)
 
     # TODO: use PGP key to sign commits
 
-    asyncio.run(sync_git_content())
+    asyncio.run(sync_git_content(repo))
 
     # TODO: download attachments actual files and add them to LFS volume
 
-    push_mirror(callbacks=callbacks)
+    push_mirror(repo, callbacks=callbacks)
 
     print("Done.")
 
 
-def push_mirror(callbacks):
+def fetch_prune(repo, callbacks):
+    remote = repo.remotes["origin"]
+    if remote.url != GIT_REMOTE_URL:
+        raise ValueError(
+            f"Remote URL {remote.url} of work dir {WORK_DIR} does not match {GIT_REMOTE_URL}"
+        )
+    # Fetch from remote and reset local content with remote.
+    print("Fetch remote")
+    remote.fetch(callbacks=callbacks, prune=True)
+
+
+def push_mirror(repo, callbacks):
     """
     Equivalent of `git push --mirror`
     """
-    repo = pygit2.Repository(WORK_DIR)
     remote = repo.remotes["origin"]
     local_branches = {ref for ref in repo.branches.local}
     remote_branches = {
@@ -201,7 +221,7 @@ def upsert_blobs(
     return merge(updates_trie, base_tree)
 
 
-async def sync_git_content():
+async def sync_git_content(repo):
     user, email = GIT_AUTHOR.split("<")
     user = user.strip()
     email = email.rstrip(">")
@@ -241,7 +261,7 @@ async def sync_git_content():
     monitor_changeset = await client.get_changeset(
         bucket="monitor", collection="changes", bust_cache=True
     )
-    if monitor_changeset["timestamp"] == latest_timestamp:
+    if not FORCE and monitor_changeset["timestamp"] == latest_timestamp:
         print("No new changes since last run.")
         return
 
@@ -261,7 +281,7 @@ async def sync_git_content():
     new_changesets = [
         entry
         for entry in monitor_changeset["changes"]
-        if entry["last_modified"] > latest_timestamp
+        if FORCE or entry["last_modified"] > latest_timestamp
     ]
     print(f"Fetch {len(new_changesets)} changesets")
     all_changesets = await fetch_all_changesets(
@@ -304,9 +324,7 @@ async def sync_git_content():
         if not changeset["metadata"].get("attachment", {}).get("bundle", False):
             continue
         metadata = changeset["metadata"]
-        bundles_locations.append(
-            f"bundles/{metadata['bucket']}--{metadata['id']}.zip"
-        )
+        bundles_locations.append(f"bundles/{metadata['bucket']}--{metadata['id']}.zip")
     for location in bundles_locations:
         url = attachments_base_url + "/" + location
         hash, size = fetch_attachment(url)
