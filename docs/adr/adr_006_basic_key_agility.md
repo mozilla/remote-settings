@@ -135,7 +135,7 @@ def view_changeset(bucket, collection):
 
     custom_base = settings["kinto.signer.certs_chains_base_url"]
     old_x5u = metadata["signature"]["x5u"]
-    parsed = urllib.parse(old_x5u)
+    parsed = urllib.parse.urlparse(old_x5u)
 
     new_x5u = custom_base + parsed.location
 
