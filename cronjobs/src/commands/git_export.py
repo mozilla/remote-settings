@@ -405,6 +405,7 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
     ].rstrip("/")
 
     # Now compare with the server content.
+    unchanged = 0
     for changeset in all_changesets:
         for record in changeset["changes"]:
             if "attachment" not in record:
@@ -412,24 +413,25 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
 
             attachment = record["attachment"]
             location = attachment["location"].lstrip("/")
-            common_content.append(
-                (
-                    f"attachments/{location}",
-                    make_lfs_pointer(attachment["hash"], attachment["size"]),
-                )
-            )
+            path = f"attachments/{location}"
 
             # And we evaluate whether it's necessary to create/update the attachment.
-            existing = lfs_pointers.pop(f"attachments/{location}", None)
+            existing = lfs_pointers.pop(path, None)
             upload = False
             if existing:
                 # If we have a matching LFS pointer, compare it.
                 sha256_hex, size = existing
                 if sha256_hex != attachment["hash"] or size != attachment["size"]:
+                    print(
+                        f"Attachment {location} has changed (was: {sha256_hex[:4]}, {size}, is: {attachment['hash'][:4]}, {attachment['size']})"
+                    )
                     # Attachment has changed, need to update it.
                     upload = True
+                else:
+                    unchanged += 1
             else:
                 # Attachment is new, need to upload it.
+                print(f"attachments/{location} is new.")
                 upload = True
 
             if upload:
@@ -438,8 +440,16 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
                     (
                         attachment["hash"],
                         attachment["size"],
-                        f"attachments/{location}",
+                        path,
                         f"{attachments_base_url}/{location}",
+                    )
+                )
+            else:
+                # We leave the LFS pointer as is.
+                common_content.append(
+                    (
+                        path,
+                        make_lfs_pointer(attachment["hash"], attachment["size"]),
                     )
                 )
 
@@ -455,19 +465,19 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
     # Download the bundles and compare with previous LFS pointers.
     session = requests.Session()
     for location in bundles_locations:
+        path = f"attachments/{location}"
         url = f"{attachments_base_url}/{location}"
         hash, size = fetch_attachment(session, url)
-        existing = lfs_pointers.pop(f"attachments/{location}", None)
+        existing = lfs_pointers.pop(path, None)
         if existing:
             previous_hash, previous_size = existing
             if previous_hash != hash or previous_size != size:
-                collected_attachments.append(
-                    (hash, size, f"attachments/{location}", url)
-                )
+                collected_attachments.append((hash, size, path, url))
 
     # The LFS pointers that remain are deleted attachments.
     # Since they were not included in the common branch content, they
     # will be marked as deleted in the commit.
+    print("Unchanged attachments", unchanged)
     print("Updated attachments", len(collected_attachments))
     print("Deleted attachments", len(lfs_pointers))
 
