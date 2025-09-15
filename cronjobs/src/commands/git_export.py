@@ -571,12 +571,7 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
             attachment = record["attachment"]
             location = attachment["location"].lstrip("/")
             pointer_blob = make_lfs_pointer(attachment["hash"], attachment["size"])
-            common_content.extend(
-                [
-                    (f"attachments/{location}", pointer_blob),
-                    (f"attachments/{location}.meta.json", json_dumpb(record)),
-                ]
-            )
+            common_content.append((f"attachments/{location}", pointer_blob))
             collected_attachments.append(
                 (
                     attachment["hash"],
