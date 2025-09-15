@@ -159,6 +159,6 @@ Since *Option 1* and *Option 2* still require all signatures to share the same k
 Each signature in the list would carry all necessary information for the client to validate it. For example, currently the client does not use the `mode` field (ECDSA-P384, post-quantum, RSA key pair). We could also add a root certificate identifier or any extra field needed by the client.
 
 - **Complexity**: Mid-Low — Autograph would provide the necessary attributes; architecturally not a big increase in complexity
-- **Cost of implementation**: High — major changes on both client and server. Client-side would require deep knowledge of the NSS stack to implement new verification methods (in C)
+- **Cost of implementation**: High — major changes on both client and server. Client-side would require deep knowledge of the NSS stack to implement new verification methods (in C) and handle the root certificate pinning.
 - **Agility**: High — provides full key agility
 - **Security**: High — the current model, which relies on hardcoded root certificates, would need to be redesigned, and the new model would require a full security assessment
