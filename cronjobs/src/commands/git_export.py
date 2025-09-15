@@ -391,7 +391,7 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
     lfs_pointers = {}
     if common_base_tree is not None:
         for path, oid in iter_tree(repo, common_base_tree):
-            if path.startswith("attachments/") and not path.endswith(".meta.json"):
+            if path.startswith("attachments/"):
                 blob = repo[oid]
                 try:
                     sha256_hex, size = parse_lfs_pointer(blob.data)
@@ -412,19 +412,11 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
 
             attachment = record["attachment"]
             location = attachment["location"].lstrip("/")
-
-            # We keep the pointer and add the meta.json in the common branch.
-            common_content.extend(
-                [
-                    (
-                        f"attachments/{location}",
-                        make_lfs_pointer(attachment["hash"], attachment["size"]),
-                    ),
-                    (
-                        f"attachments-meta/{location}.meta.json",
-                        json_dumpb(record),
-                    ),
-                ]
+            common_content.append(
+                (
+                    f"attachments/{location}",
+                    make_lfs_pointer(attachment["hash"], attachment["size"]),
+                )
             )
 
             # And we evaluate whether it's necessary to create/update the attachment.
