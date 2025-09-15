@@ -1,13 +1,11 @@
 import asyncio
-import base64
+import concurrent
 import hashlib
-import itertools
 import json
 import os
+import subprocess
 import tempfile
-import time
 import urllib
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 import kinto_http
@@ -20,8 +18,6 @@ from pygit2 import (
     Keypair,
     RemoteCallbacks,
 )
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
 
 
 MAX_PARALLEL_REQUESTS = config("MAX_PARALLEL_REQUESTS", default=10, cast=int)
@@ -33,6 +29,9 @@ HTTP_RETRY_MAX_COUNT = config("HTTP_RETRY_MAX_COUNT", default=10, cast=int)
 
 SERVER_URL = config("SERVER", default="http://localhost:8888/v1")
 GIT_AUTHOR = config("GIT_AUTHOR", default="User <user@example.com>")
+user, email = GIT_AUTHOR.split("<")
+GIT_AUTHOR_USER = user.strip()
+GIT_AUTHOR_EMAIL = email.rstrip(">")
 WORK_DIR = config("WORK_DIR", default="/tmp/git-export.git")
 REPO_OWNER = config("REPO_OWNER", default="leplatrem")
 REPO_NAME = config("REPO_NAME", default="remote-settings-data")
@@ -77,9 +76,9 @@ def git_export(event, context):
     collected_attachments = asyncio.run(sync_git_content(repo))
     print(f"Collected {len(collected_attachments)} attachments.")
 
-    github_lfs_batch_upload_many(objects=collected_attachments)
+    sync_attachments(collected_attachments)
 
-    push_mirror(repo, callbacks=callbacks)
+    push_mirror()
 
     print("Done.")
 
@@ -95,26 +94,68 @@ def fetch_prune(repo, callbacks):
     remote.fetch(callbacks=callbacks, prune=True)
 
 
-def push_mirror(repo, callbacks):
-    """
-    Equivalent of `git push --mirror`
-    """
-    remote = repo.remotes["origin"]
-    local_branches = {ref for ref in repo.branches.local}
-    remote_branches = {
-        ref.split("/", 1)[1]
-        for ref in repo.branches.remote
-        if ref.startswith("origin/")
-    }
-    refspecs = []
-    for branch in local_branches:
-        refspecs.append(f"refs/heads/{branch}:refs/heads/{branch}")
-    stale_branches = remote_branches - local_branches
-    for branch in stale_branches:
-        # empty source (left side) deletes the remote ref
-        refspecs.append(f":refs/heads/{branch}")
-    print("Pushing refspecs:", refspecs)
-    remote.push(refspecs, callbacks=callbacks)
+def push_mirror():
+    print("Authenticate using SSH agent...")
+    agent_output = subprocess.check_output(["ssh-agent", "-s"], text=True)
+    agent_env = {}
+    for line in agent_output.splitlines():
+        if line.startswith(("SSH_AUTH_SOCK", "SSH_AGENT_PID")):
+            instruction, _ = line.split(";", 1)
+            k, v = instruction.split("=", 1)
+            agent_env[k] = v
+    env = {**os.environ, **agent_env}
+
+    # Create a tiny askpass helper that just prints the passphrase
+    askpass_path = None
+    if GIT_PASSPHRASE:
+        fd, askpass_path = tempfile.mkstemp(prefix="askpass-", text=True)
+        os.chmod(askpass_path, 0o700)
+        os.write(fd, f'#!/usr/bin/env bash\necho "{GIT_PASSPHRASE}"\n'.encode())
+        os.close(fd)
+
+    try:
+        add_env = dict(env)
+        if askpass_path:
+            add_env["SSH_ASKPASS"] = askpass_path
+            add_env["SSH_ASKPASS_REQUIRE"] = "force"
+            # Some ssh-add builds require DISPLAY to be set (any value)
+            add_env.setdefault("DISPLAY", ":0")
+
+        # Add key (don't rely on stdin)
+        res = subprocess.run(
+            ["ssh-add", os.path.expanduser(GIT_PRIVKEY_PATH)],
+            text=True,
+            capture_output=True,
+            env=add_env,
+        )
+        if res.returncode != 0:
+            raise RuntimeError(
+                f"Failed to add SSH key: {res.stderr.strip() or res.stdout.strip() or 'unknown error'}"
+            )
+
+        print("Push to remote...")
+        env_for_git = {
+            **env,
+            "GIT_SSH_COMMAND": "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no",
+        }
+        subprocess.run(
+            ["git", "-C", WORK_DIR, "push", "--mirror"], env=env_for_git, check=True
+        )
+        subprocess.run(
+            ["git", "-C", WORK_DIR, "push", "--tags"], env=env_for_git, check=True
+        )
+    finally:
+        if askpass_path:
+            try:
+                os.remove(askpass_path)
+            except OSError:
+                pass
+        subprocess.run(
+            ["ssh-agent", "-k"],
+            env=env,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
 
 def json_dumpb(obj: Any) -> bytes:
@@ -139,7 +180,7 @@ async def fetch_all_changesets(
     return await asyncio.gather(*[fetch(bid, cid) for bid, cid in collections])
 
 
-def fetch_attachment(url, dest_file=None):
+def fetch_attachment(session, url, dest_file=None):
     """
     Fetch the attachment at the given URL and return its sha256 hash and size.
     """
@@ -150,7 +191,7 @@ def fetch_attachment(url, dest_file=None):
     h = hashlib.sha256()
     total = 0
     with open(dest_file, "wb") as f:
-        with requests.get(url, stream=True, timeout=HTTP_TIMEOUT_SECONDS) as r:
+        with session.get(url, stream=True, timeout=HTTP_TIMEOUT_SECONDS) as r:
             r.raise_for_status()
             for chunk in r.iter_content(1024 * 64):
                 if not chunk:
@@ -186,142 +227,29 @@ def make_lfs_pointer(sha256_hex: str, size: int) -> pygit2.Oid:
     return pointer.encode("ascii")
 
 
-def github_lfs_batch_request(
-    session: requests.Session,
-    objects: Iterable[Dict[str, Any]],
-    operation: str,  # upload or download
-) -> Dict[str, Any]:
+def parse_lfs_pointer(data: bytes) -> Tuple[str, int]:
     """
-    Generic Git LFS Batch call.
-    objects: [{"oid": "<sha256-hex>", "size": <int>}, ...]
-
-    https://github.com/git-lfs/git-lfs/blob/main/docs/api/batch.md#requests
+    Parse a Git LFS pointer blob and return the object id and size.
     """
-    url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}.git/info/lfs/objects/batch"
-    authz = f"Basic {base64.b64encode(f'{GIT_SSH_USERNAME}:{GITHUB_TOKEN}'.encode()).decode()}"
-    headers = {
-        "Accept": "application/vnd.git-lfs+json",
-        "Content-Type": "application/vnd.git-lfs+json",
-        "Authorization": authz,
-    }
-    payload = {
-        "operation": operation,
-        "transfers": ["basic"],
-        "objects": list(objects),
-    }
-    r = session.post(
-        url, headers=headers, json=payload, timeout=HTTP_TIMEOUT_BATCH_SECONDS
-    )
-    if r.status_code != 200:
-        print(f"LFS: batch failed with status {r.status_code}: {r.text}")
-    r.raise_for_status()
-    return r.json()
+    lines = data.decode("ascii").strip().split("\n")
+    sha256_hex = size = None
+    for line in lines:
+        if line.startswith("oid sha256:"):
+            sha256_hex = line.split(":", 1)[1].strip()
+        elif line.startswith("size "):
+            size = int(line.split(" ", 1)[1].strip())
+    if sha256_hex is None or size is None:
+        raise ValueError(f"Invalid LFS pointer: {data}")
+    return sha256_hex, size
 
 
-def _download_and_upload_file(session, source, dest):
-    oid, size, src = source
-    upload_dest_url, upload_method, upload_headers = dest
-
-    time.sleep(0.5)
-
-    with tempfile.NamedTemporaryFile() as tmp_file:
-        tmp_path = tmp_file.name
-
-        downloaded_digest, downloaded_size = fetch_attachment(src, dest_file=tmp_path)
-        if downloaded_digest != oid:
-            print(f"LFS: {oid} has unexpected digest {downloaded_digest}")
-            return  # TODO: raise
-        if downloaded_size != size:
-            print(f"LFS: {oid} has unexpected size {downloaded_size}")
-            return  # TODO: raise
-        print(
-            f"LFS: uploading {oid} to {upload_dest_url} using {upload_method} ({size} bytes)"
-        )
-        with open(tmp_path, "rb") as f:
-            put = session.request(
-                upload_method,
-                upload_dest_url,
-                data=f,
-                headers=upload_headers,
-                timeout=HTTP_TIMEOUT_UPLOAD_SECONDS,
-            )
-            if put.status_code not in (200, 201, 204):
-                print(
-                    f"LFS: {oid} upload failed with status {put.status_code}: {put.text}"
-                )
-            put.raise_for_status()
-
-
-def github_lfs_batch_upload_many(
-    objects: Iterable[Tuple[str, int, str]],  # (sha256, size, source_url)
-) -> None:
-    """
-    Single batch call + parallel PUT uploads for those that need it.
-    """
-    session = requests.Session()
-    retries = Retry(
-        total=HTTP_RETRY_MAX_COUNT,
-        backoff_factor=1.5,
-        status_forcelist=[500, 502, 503, 504],
-        allowed_methods={"PUT", "POST"},
-    )
-    session.mount("https://", HTTPAdapter(max_retries=retries))
-
-    chunks_count = len(objects) // GITHUB_MAX_LFS_BATCH_SIZE + 1
-    chunks = itertools.batched(objects, GITHUB_MAX_LFS_BATCH_SIZE)
-    for i, chunk in enumerate(chunks):
-        objs = [{"oid": oid, "size": size} for (oid, size, _url) in chunk]
-
-        print(f"Uploading chunk {i + 1}/{chunks_count}")
-        resp = github_lfs_batch_request(session, objects=objs, operation="upload")
-        to_upload = []
-        to_verify = []
-        for api_obj, (oid, size, url) in zip(resp["objects"], chunk):
-            if error := api_obj.get("error", {}):
-                print(f"LFS: upload error {error['message']}")
-                continue
-
-            upload_action = api_obj.get("actions", {}).get("upload")
-            if upload_action:
-                upload_dest_url = upload_action["href"]
-                upload_method = upload_action.get("method", "PUT").upper()
-                upload_headers = upload_action["header"]
-                to_upload.append(
-                    ((oid, size, url), (upload_dest_url, upload_method, upload_headers))
-                )
-            verify_action = api_obj.get("actions", {}).get("verify")
-            if verify_action:
-                verify_dest_url = verify_action["href"]
-                verify_headers = verify_action["header"]
-                to_verify.append(((oid, size), (verify_dest_url, verify_headers)))
-
-        with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as pool:
-            upload_futures = [
-                pool.submit(_download_and_upload_file, session, *args)
-                for args in to_upload
-            ]
-            for f in as_completed(upload_futures):
-                f.result()  # will raise if upload failed
-
-            verify_futures = [
-                pool.submit(
-                    session.post,
-                    url,
-                    json={"oid": oid, "size": size},
-                    headers=headers,
-                    timeout=HTTP_TIMEOUT_SECONDS,
-                )
-                for (oid, size), (url, headers) in to_verify
-            ]
-            for f in as_completed(verify_futures):
-                resp = f.result()
-                if resp.status_code != 200:
-                    print(
-                        f"LFS: verify failed with status {resp.status_code}: {resp.text}"
-                    )
-                resp.raise_for_status()
-
-        print(f"LFS: uploaded {len(to_upload)} new objects")
+def iter_tree(repo: pygit2.Repository, tree: pygit2.Tree, prefix=""):
+    for entry in tree:
+        path = f"{prefix}{entry.name}"
+        if entry.type == pygit2.GIT_OBJECT_BLOB:
+            yield path, entry.id  # file
+        elif entry.type == pygit2.GIT_OBJECT_TREE:  # descend
+            yield from iter_tree(repo, repo[entry.id], prefix=path + "/")
 
 
 def upsert_blobs(
@@ -385,10 +313,7 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
     Sync content from the remote server to the local git repository.
     Return the list of collected attachments to be uploaded to LFS.
     """
-    user, email = GIT_AUTHOR.split("<")
-    user = user.strip()
-    email = email.rstrip(">")
-    author = pygit2.Signature(user, email)
+    author = pygit2.Signature(GIT_AUTHOR_USER, GIT_AUTHOR_EMAIL)
     committer = author
 
     common_branch = f"refs/heads/{COMMON_BRANCH}"
@@ -457,17 +382,29 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
         parsed = urllib.parse.urlparse(url)
         common_content.append((f"cert-chains/{parsed.path.lstrip('/')}", pem.encode()))
 
-    # Store all the attachments as LFS pointers.
+    # Tell Git LFS that files in attachments/ folder will be sent using LFS.
+    common_content.append(
+        (".gitattributes", b"attachments/** filter=lfs diff=lfs merge=lfs -text\n")
+    )
 
-    collected_attachments: list[tuple[str, int, str]] = []
+    # Scan the existing LFS pointers in the repository, in order to detect changed attachments.
+    lfs_pointers = {}
+    if common_base_tree is not None:
+        for path, oid in iter_tree(repo, common_base_tree):
+            if path.startswith("attachments/") and not path.endswith(".meta.json"):
+                blob = repo[oid]
+                try:
+                    sha256_hex, size = parse_lfs_pointer(blob.data)
+                    lfs_pointers[path] = (sha256_hex, size)
+                except ValueError as exc:
+                    print(f"Failed to parse LFS pointer for {path}: {exc}")
+
+    collected_attachments: list[tuple[str, int, str, str]] = []
     attachments_base_url = (await client.server_info())["capabilities"]["attachments"][
         "base_url"
     ].rstrip("/")
 
-    # NOTE: This writes the pointer files, not the large object content itself.
-    common_content.append(
-        (".gitattributes", b"attachments/** filter=lfs diff=lfs merge=lfs -text\n")
-    )
+    # Now compare with the server content.
     for changeset in all_changesets:
         for record in changeset["changes"]:
             if "attachment" not in record:
@@ -475,36 +412,72 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
 
             attachment = record["attachment"]
             location = attachment["location"].lstrip("/")
-            pointer_blob = make_lfs_pointer(attachment["hash"], attachment["size"])
+
+            # We keep the pointer and add the meta.json in the common branch.
             common_content.extend(
                 [
-                    (f"attachments/{location}", pointer_blob),
-                    (f"attachments/{location}.meta.json", json_dumpb(record)),
+                    (
+                        f"attachments/{location}",
+                        make_lfs_pointer(attachment["hash"], attachment["size"]),
+                    ),
+                    (
+                        f"attachments-meta/{location}.meta.json",
+                        json_dumpb(record),
+                    ),
                 ]
             )
-            collected_attachments.append(
-                (
-                    attachment["hash"],
-                    attachment["size"],
-                    f"{attachments_base_url}/{location}",
+
+            # And we evaluate whether it's necessary to create/update the attachment.
+            existing = lfs_pointers.pop(f"attachments/{location}", None)
+            upload = False
+            if existing:
+                # If we have a matching LFS pointer, compare it.
+                sha256_hex, size = existing
+                if sha256_hex != attachment["hash"] or size != attachment["size"]:
+                    # Attachment has changed, need to update it.
+                    upload = True
+            else:
+                # Attachment is new, need to upload it.
+                upload = True
+
+            if upload:
+                # We keep track of the attachment to download.
+                collected_attachments.append(
+                    (
+                        attachment["hash"],
+                        attachment["size"],
+                        f"attachments/{location}",
+                        f"{attachments_base_url}/{location}",
+                    )
                 )
-            )
 
-    # Also store the bundles as LFS pointers.
+    # Same for attachments bundles. But since we don't know their hash and size a priori,
+    # we need to download them first in order to compare with previous runs content.
     print("Fetching attachments bundles")
-
     bundles_locations: list[str] = ["bundles/startup.json.mozlz4"]
     for changeset in all_changesets:
         if not changeset["metadata"].get("attachment", {}).get("bundle", False):
             continue
         metadata = changeset["metadata"]
         bundles_locations.append(f"bundles/{metadata['bucket']}--{metadata['id']}.zip")
+    # Download the bundles and compare with previous LFS pointers.
+    session = requests.Session()
     for location in bundles_locations:
         url = f"{attachments_base_url}/{location}"
-        hash, size = fetch_attachment(url)
-        blob = make_lfs_pointer(hash, size)
-        common_content.append((f"attachments/{location}", blob))
-        collected_attachments.append((hash, size, url))
+        hash, size = fetch_attachment(session, url)
+        existing = lfs_pointers.pop(f"attachments/{location}", None)
+        if existing:
+            previous_hash, previous_size = existing
+            if previous_hash != hash or previous_size != size:
+                collected_attachments.append(
+                    (hash, size, f"attachments/{location}", url)
+                )
+
+    # The LFS pointers that remain are deleted attachments.
+    # Since they were not included in the common branch content, they
+    # will be marked as deleted in the commit.
+    print("Updated attachments", len(collected_attachments))
+    print("Deleted attachments", len(lfs_pointers))
 
     monitor_tree_id = upsert_blobs(repo, common_content, base_tree=common_base_tree)
 
@@ -535,6 +508,8 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
         except pygit2.AlreadyExistsError:
             print(f"Tag {tag_name} already exists, skipping.")
 
+    # Now update the bucket branches, create a commit for each collection
+    # that has changed since last run.
     print("")
     for changeset in all_changesets:
         bid = changeset["metadata"]["bucket"]
@@ -585,3 +560,77 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
                 print(f"Tag {tag_name} already exists, skipping.")
 
     return collected_attachments
+
+
+def sync_attachments(attachments: list[tuple[str, int, str, str]]):
+    # Make sure LFS is install (idempotent)
+    subprocess.run(["git", "-C", WORK_DIR, "lfs", "install", "--local"], check=True)
+    # Configure identity
+    subprocess.run(
+        ["git", "-C", WORK_DIR, "config", "user.name", GIT_AUTHOR_USER], check=True
+    )
+    subprocess.run(
+        ["git", "-C", WORK_DIR, "config", "user.email", GIT_AUTHOR_EMAIL], check=True
+    )
+
+    def _download_one(session, expected_hash, expected_size, path, url):
+        if os.path.exists(path):
+            # Avoid redownloading if the file is here.
+            filesize = os.path.getsize(path)
+            if filesize == expected_size:
+                sha256 = hashlib.sha256()
+                with open(path, "rb") as f:
+                    while chunk := f.read(1024 * 64):
+                        sha256.update(chunk)
+                sha256_hex = sha256.hexdigest()
+                if sha256_hex == expected_hash:
+                    print(
+                        f"Attachment {url} already exists at {path}, skipping download."
+                    )
+                    return
+        # Download the attachment into the git repo and retry if the file is not valid.
+        retry_count = 0
+        while retry_count < HTTP_RETRY_MAX_COUNT:
+            fetched_hash, fetched_size = fetch_attachment(session, url, dest_file=path)
+            if fetched_hash != expected_hash or fetched_size != expected_size:
+                print(
+                    f"Attachment content mismatch. Retry {retry_count + 1}/{HTTP_RETRY_MAX_COUNT}"
+                )
+                retry_count += 1
+                continue
+            return  # success
+        # if we drop out of the loop, all retries failed
+        raise ValueError(f"Attachment content mismatch after retries for {url}")
+
+    with requests.Session() as session:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=MAX_PARALLEL_REQUESTS
+        ) as executor:
+            futures = [
+                executor.submit(
+                    _download_one,
+                    session,
+                    expected_hash,
+                    expected_size,
+                    os.path.join(WORK_DIR, location),
+                    url,
+                )
+                for expected_hash, expected_size, location, url in attachments
+            ]
+            for future in concurrent.futures.as_completed(futures):
+                # will raise if any worker raised
+                future.result()
+
+    # Now rely on git LFS hooks to commit changes.
+    # We cannot use pygit for that, since it does not call LFS hooks and filters for us.
+    # The alternative implementation would be to use the Github LFS batch upload API, but
+    # it appeared to not be reliable enough to detect existing files and skip reuploads.
+    subprocess.run(
+        ["git", "-C", WORK_DIR, "add", os.path.join(WORK_DIR, "attachments")],
+        check=True,
+    )
+
+    # Commit changes.
+    subprocess.run(
+        ["git", "-C", WORK_DIR, "commit", "-m", "Sync attachments"], check=True
+    )
