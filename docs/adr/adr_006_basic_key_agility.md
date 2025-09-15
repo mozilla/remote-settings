@@ -79,7 +79,7 @@ The Autograph signing response still returns an absolute URL, but the base domai
 ```python
 payload = autograph_service.sign(serialized_data, key_id)
 abs_x5u = payload["x5u"]
-parsed = urllib.parse(old_x5u)
+parsed = urllib.parse.urlparse(abs_x5u)
 rel_x5u = parsed.location
 payload["x5u"] = rel_x5u
 
