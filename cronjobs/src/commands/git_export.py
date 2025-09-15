@@ -71,12 +71,20 @@ def git_export(event, context):
         pygit2.clone_repository(GIT_REMOTE_URL, WORK_DIR, callbacks=callbacks)
         repo = pygit2.Repository(WORK_DIR)
 
+    print("Starting from commit", repo.head.target)
+
     # TODO: use PGP key to sign commits
 
     collected_attachments = asyncio.run(sync_git_content(repo))
-    print(f"Collected {len(collected_attachments)} attachments.")
 
-    sync_attachments(collected_attachments)
+    print("Write index and working directory")
+    idx = repo.index
+    idx.write()
+    repo.checkout_index(idx, strategy=pygit2.GIT_CHECKOUT_FORCE)
+
+    print(f"{len(collected_attachments)} attachments to upload.")
+    if collected_attachments:
+        sync_attachments(collected_attachments)
 
     push_mirror()
 
@@ -139,11 +147,16 @@ def push_mirror():
             "GIT_SSH_COMMAND": "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no",
         }
         subprocess.run(
-            ["git", "-C", WORK_DIR, "push", "--mirror"], env=env_for_git, check=True
+            ["git", "-C", WORK_DIR, "push", "--verbose", "--tags"],
+            env=env_for_git,
+            check=True,
         )
         subprocess.run(
-            ["git", "-C", WORK_DIR, "push", "--tags"], env=env_for_git, check=True
+            ["git", "-C", WORK_DIR, "push", "--verbose", "--mirror"],
+            env=env_for_git,
+            check=True,
         )
+
     finally:
         if askpass_path:
             try:
@@ -386,7 +399,6 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
     common_content.append(
         (".gitattributes", b"attachments/** filter=lfs diff=lfs merge=lfs -text\n")
     )
-
     # Scan the existing LFS pointers in the repository, in order to detect changed attachments.
     lfs_pointers = {}
     if common_base_tree is not None:
@@ -411,47 +423,36 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
             if "attachment" not in record:
                 continue
 
-            attachment = record["attachment"]
-            location = attachment["location"].lstrip("/")
+            attachment_attr = record["attachment"]
+            location = attachment_attr["location"].lstrip("/")
+            sha256_hex = attachment_attr["hash"]
+            size = attachment_attr["size"]
             path = f"attachments/{location}"
+            attachment = (sha256_hex, size, path, f"{attachments_base_url}/{location}")
 
             # And we evaluate whether it's necessary to create/update the attachment.
-            existing = lfs_pointers.pop(path, None)
-            upload = False
-            if existing:
+            if existing := lfs_pointers.pop(path, None):
                 # If we have a matching LFS pointer, compare it.
-                sha256_hex, size = existing
-                if sha256_hex != attachment["hash"] or size != attachment["size"]:
+                existing_sha256_hex, existing_size = existing
+                if existing_sha256_hex != sha256_hex or existing_size != size:
                     print(
                         f"Attachment {location} has changed (was: {sha256_hex[:4]}, {size}, is: {attachment['hash'][:4]}, {attachment['size']})"
                     )
                     # Attachment has changed, need to update it.
-                    upload = True
+                    collected_attachments.append(attachment)
                 else:
                     unchanged += 1
+                    # We leave the LFS pointer as is in the common branch.
+                    common_content.append(
+                        (
+                            path,
+                            make_lfs_pointer(sha256_hex, size),
+                        )
+                    )
             else:
                 # Attachment is new, need to upload it.
                 print(f"attachments/{location} is new.")
-                upload = True
-
-            if upload:
-                # We keep track of the attachment to download.
-                collected_attachments.append(
-                    (
-                        attachment["hash"],
-                        attachment["size"],
-                        path,
-                        f"{attachments_base_url}/{location}",
-                    )
-                )
-            else:
-                # We leave the LFS pointer as is.
-                common_content.append(
-                    (
-                        path,
-                        make_lfs_pointer(attachment["hash"], attachment["size"]),
-                    )
-                )
+                collected_attachments.append(attachment)
 
     # Same for attachments bundles. But since we don't know their hash and size a priori,
     # we need to download them first in order to compare with previous runs content.
@@ -467,18 +468,17 @@ async def sync_git_content(repo) -> list[tuple[str, int, str]]:
     for location in bundles_locations:
         path = f"attachments/{location}"
         url = f"{attachments_base_url}/{location}"
-        hash, size = fetch_attachment(session, url)
-        existing = lfs_pointers.pop(path, None)
-        if existing:
-            previous_hash, previous_size = existing
-            if previous_hash != hash or previous_size != size:
-                collected_attachments.append((hash, size, path, url))
+        sha256_hex, size = fetch_attachment(session, url)
+        if existing := lfs_pointers.pop(path, None):
+            existing_sha256_hex, existing_size = existing
+            if existing_sha256_hex != sha256_hex or existing_size != size:
+                collected_attachments.append((sha256_hex, size, path, url))
 
+    print("Unchanged attachments", unchanged)
+    print("Updated attachments", len(collected_attachments))
     # The LFS pointers that remain are deleted attachments.
     # Since they were not included in the common branch content, they
     # will be marked as deleted in the commit.
-    print("Unchanged attachments", unchanged)
-    print("Updated attachments", len(collected_attachments))
     print("Deleted attachments", len(lfs_pointers))
 
     monitor_tree_id = upsert_blobs(repo, common_content, base_tree=common_base_tree)
@@ -574,6 +574,8 @@ def sync_attachments(attachments: list[tuple[str, int, str, str]]):
     subprocess.run(
         ["git", "-C", WORK_DIR, "config", "user.email", GIT_AUTHOR_EMAIL], check=True
     )
+    print("Latest commit:", end=" ")
+    subprocess.run(["git", "-C", WORK_DIR, "rev-parse", "HEAD"], check=True)
 
     def _download_one(session, expected_hash, expected_size, path, url):
         if os.path.exists(path):
@@ -589,7 +591,7 @@ def sync_attachments(attachments: list[tuple[str, int, str, str]]):
                     print(
                         f"Attachment {url} already exists at {path}, skipping download."
                     )
-                    return
+                    return path
         # Download the attachment into the git repo and retry if the file is not valid.
         retry_count = 0
         while retry_count < HTTP_RETRY_MAX_COUNT:
@@ -600,7 +602,7 @@ def sync_attachments(attachments: list[tuple[str, int, str, str]]):
                 )
                 retry_count += 1
                 continue
-            return  # success
+            return path  # success
         # if we drop out of the loop, all retries failed
         raise ValueError(f"Attachment content mismatch after retries for {url}")
 
@@ -621,14 +623,19 @@ def sync_attachments(attachments: list[tuple[str, int, str, str]]):
             ]
             for future in concurrent.futures.as_completed(futures):
                 # will raise if any worker raised
-                future.result()
+                path = future.result()
+
+                subprocess.run(
+                    ["git", "-C", WORK_DIR, "add", path],
+                    check=True,
+                )
 
     # Now rely on git LFS hooks to commit changes.
     # We cannot use pygit for that, since it does not call LFS hooks and filters for us.
     # The alternative implementation would be to use the Github LFS batch upload API, but
     # it appeared to not be reliable enough to detect existing files and skip reuploads.
     subprocess.run(
-        ["git", "-C", WORK_DIR, "add", os.path.join(WORK_DIR, "attachments")],
+        ["git", "-C", WORK_DIR, "status"],
         check=True,
     )
 
