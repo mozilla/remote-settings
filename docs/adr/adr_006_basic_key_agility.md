@@ -1,7 +1,7 @@
 # Basic Key Agility
 
 * Status: draft
-* Deciders: acottner, mleplatre, skym
+* Deciders: acottner, mleplatre, sykim
 * Date: Aug 26, 2025
 
 ## Context and Problem Statement
