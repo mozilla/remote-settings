@@ -41,6 +41,7 @@ GIT_REMOTE_URL = config(
     "GIT_REMOTE_URL",
     default=f"{GIT_SSH_USERNAME}@github.com:{REPO_OWNER}/{REPO_NAME}.git",
 )
+GITHUB_USERNAME = config("GITHUB_USERNAME", default="")
 GITHUB_TOKEN = config("GITHUB_TOKEN", default="")
 GITHUB_MAX_LFS_BATCH_SIZE = config("GITHUB_MAX_LFS_BATCH_SIZE", default=100, cast=int)
 GIT_PUBKEY_PATH = config("GIT_PUBKEY_PATH", default="~/.ssh/id_ed25519.pub")
@@ -95,26 +96,46 @@ def fetch_prune(repo, callbacks):
     remote.fetch(callbacks=callbacks, prune=True)
 
 
-def push_mirror(repo, callbacks):
+def push_mirror(repo: pygit2.Repository, callbacks=None) -> None:
     """
-    Equivalent of `git push --mirror`
+    An equivalent of `git push --mirror` for branches + tags only.
     """
     remote = repo.remotes["origin"]
-    local_branches = {ref for ref in repo.branches.local}
-    remote_branches = {
+    remote_refs = {
         ref.split("/", 1)[1]
         for ref in repo.branches.remote
         if ref.startswith("origin/")
     }
-    refspecs = []
-    for branch in local_branches:
-        refspecs.append(f"refs/heads/{branch}:refs/heads/{branch}")
-    stale_branches = remote_branches - local_branches
-    for branch in stale_branches:
-        # empty source (left side) deletes the remote ref
-        refspecs.append(f":refs/heads/{branch}")
-    print("Pushing refspecs:", refspecs)
-    remote.push(refspecs, callbacks=callbacks)
+    remote_tag_names = {
+        r.replace("refs/tags", "") for r in remote_refs if r.startswith("refs/tags/")
+    }
+
+    local_head_names = {b for b in repo.branches.local}  # e.g. {'main', 'dev'}
+    local_tag_names = {
+        refname.replace("refs/tags/", "")
+        for refname in repo.listall_references()
+        if refname.startswith("refs/tags/")
+    }
+
+    to_push = []
+
+    # 1) Force update all local branches
+    for b in sorted(local_head_names):
+        to_push.append(f"+refs/heads/{b}:refs/heads/{b}")
+    # 2) Force update all local tags
+    for t in sorted(local_tag_names):
+        to_push.append(f"+refs/tags/{t}:refs/tags/{t}")
+    # 3) Delete stale remote tags
+    for t in sorted(remote_tag_names - local_tag_names):
+        to_push.append(f":refs/tags/{t}")
+
+    if to_push:
+        print("Pushing refspecs:", to_push)
+        # This is the critical bit: non-fast-forward updates require the '+' force.
+        # The deletions use the ':refs/...'; '+' is ignored for deleted refspecs.
+        remote.push(to_push, callbacks=callbacks)
+    else:
+        print("Nothing to push.")
 
 
 def json_dumpb(obj: Any) -> bytes:
@@ -186,10 +207,34 @@ def make_lfs_pointer(sha256_hex: str, size: int) -> pygit2.Oid:
     return pointer.encode("ascii")
 
 
+def _new_retrying_session() -> requests.Session:
+    """
+    Session tuned for GitHub LFS 'batch' and 'verify' calls.
+    (Presigned uploads use plain requests in each thread; see below.)
+    """
+    session = requests.Session()
+    retries = Retry(
+        total=HTTP_RETRY_MAX_COUNT,
+        connect=HTTP_RETRY_MAX_COUNT,
+        read=HTTP_RETRY_MAX_COUNT,
+        backoff_factor=1.5,
+        status_forcelist=[408, 409, 425, 429, 500, 502, 503, 504],
+        allowed_methods={"HEAD", "GET", "PUT", "POST", "DELETE", "OPTIONS", "TRACE"},
+        raise_on_status=False,
+    )
+    adapter = HTTPAdapter(
+        max_retries=retries, pool_maxsize=max(16, MAX_PARALLEL_REQUESTS)
+    )
+    session.mount("https://", adapter)
+    return session
+
+
 def github_lfs_batch_request(
     session: requests.Session,
+    *,
+    auth_header: str,
     objects: Iterable[Dict[str, Any]],
-    operation: str,  # upload or download
+    operation: str,  # "upload" or "download"
 ) -> Dict[str, Any]:
     """
     Generic Git LFS Batch call.
@@ -198,11 +243,10 @@ def github_lfs_batch_request(
     https://github.com/git-lfs/git-lfs/blob/main/docs/api/batch.md#requests
     """
     url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}.git/info/lfs/objects/batch"
-    authz = f"Basic {base64.b64encode(f'{GIT_SSH_USERNAME}:{GITHUB_TOKEN}'.encode()).decode()}"
     headers = {
         "Accept": "application/vnd.git-lfs+json",
         "Content-Type": "application/vnd.git-lfs+json",
-        "Authorization": authz,
+        "Authorization": auth_header,
     }
     payload = {
         "operation": operation,
@@ -218,110 +262,161 @@ def github_lfs_batch_request(
     return r.json()
 
 
-def _download_and_upload_file(session, source, dest):
-    oid, size, src = source
-    upload_dest_url, upload_method, upload_headers = dest
+def _download_and_upload_file(
+    source: Tuple[str, int, str],  # (sha256_hex, size, src_url)
+    dest: Tuple[str, str, Dict[str, str]],  # (href, method, headers)
+) -> None:
+    """
+    Downloads the file locally (verifies digest/size), then uploads to presigned URL.
+    """
+    sha256_hex, size, src_url = source
+    upload_href, upload_method, upload_headers = dest
 
-    time.sleep(0.5)
-
-    with tempfile.NamedTemporaryFile() as tmp_file:
-        tmp_path = tmp_file.name
-
-        downloaded_digest, downloaded_size = fetch_attachment(src, dest_file=tmp_path)
-        if downloaded_digest != oid:
-            print(f"LFS: {oid} has unexpected digest {downloaded_digest}")
-            return  # TODO: raise
-        if downloaded_size != size:
-            print(f"LFS: {oid} has unexpected size {downloaded_size}")
-            return  # TODO: raise
+    with tempfile.NamedTemporaryFile() as tmp:
+        tmp_path = tmp.name
+        retry = 0
+        while retry < HTTP_RETRY_MAX_COUNT:
+            # Download from CDN into temp file.
+            downloaded_digest, downloaded_size = fetch_attachment(
+                src_url, dest_file=tmp_path
+            )
+            if downloaded_size == size:
+                if downloaded_digest == sha256_hex:
+                    break
+            retry += 1
+            time.sleep(0.5)
+        else:
+            raise RuntimeError(
+                f"LFS: {src_url} failed to download after {HTTP_RETRY_MAX_COUNT} attempts"
+            )
+        # If we reach here, it means we successfully downloaded the file.
         print(
-            f"LFS: uploading {oid} to {upload_dest_url} using {upload_method} ({size} bytes)"
+            f"LFS: uploading {src_url} -> {upload_method} {upload_href} ({size} bytes)"
         )
         with open(tmp_path, "rb") as f:
-            put = session.request(
-                upload_method,
-                upload_dest_url,
+            resp = requests.request(
+                upload_method.upper(),
+                upload_href,
                 data=f,
                 headers=upload_headers,
                 timeout=HTTP_TIMEOUT_UPLOAD_SECONDS,
             )
-            if put.status_code not in (200, 201, 204):
-                print(
-                    f"LFS: {oid} upload failed with status {put.status_code}: {put.text}"
-                )
-            put.raise_for_status()
+        if resp.status_code not in (200, 201, 204):
+            print(f"LFS: {src_url} upload failed with {resp.status_code}: {resp.text}")
+        resp.raise_for_status()
+
+
+def _verify_if_needed(
+    session: requests.Session,
+    *,
+    auth_header: str,
+    api_obj: Dict[str, Any],
+    oid: str,
+    size: int,
+) -> None:
+    verify_action = (api_obj.get("actions") or {}).get("verify")
+    if not verify_action:
+        return
+    href = verify_action["href"]
+    headers = dict(verify_action.get("header") or {})
+    # Verify is an authenticated call; make sure Authorization is present.
+    headers.setdefault("Authorization", auth_header)
+    payload = {"oid": oid, "size": size}
+    r = session.post(href, json=payload, headers=headers, timeout=HTTP_TIMEOUT_SECONDS)
+    if r.status_code not in (200, 201, 204):
+        print(f"LFS: verify for {oid} failed with {r.status_code}: {r.text}")
+    r.raise_for_status()
 
 
 def github_lfs_batch_upload_many(
-    objects: Iterable[Tuple[str, int, str]],  # (sha256, size, source_url)
+    objects: Iterable[Tuple[str, int, str]],  # (sha256_hex, size, source_url)
 ) -> None:
     """
-    Single batch call + parallel PUT uploads for those that need it.
+    Performs LFS batch 'upload' for up to GITHUB_MAX_LFS_BATCH_SIZE objects per batch,
+    PUTs missing objects to the presigned destinations, and POSTs verify if provided.
+
+    objects: iterable of (oid_hex:str, size:int, src_url:str)
     """
-    session = requests.Session()
-    retries = Retry(
-        total=HTTP_RETRY_MAX_COUNT,
-        backoff_factor=1.5,
-        status_forcelist=[500, 502, 503, 504],
-        allowed_methods={"PUT", "POST"},
-    )
-    session.mount("https://", HTTPAdapter(max_retries=retries))
+    creds = f"{GITHUB_USERNAME}:{GITHUB_TOKEN}".encode("utf-8")
+    authz = f"Basic {base64.b64encode(creds).decode('ascii')}"
 
-    chunks_count = len(objects) // GITHUB_MAX_LFS_BATCH_SIZE + 1
-    chunks = itertools.batched(objects, GITHUB_MAX_LFS_BATCH_SIZE)
-    for i, chunk in enumerate(chunks):
-        objs = [{"oid": oid, "size": size} for (oid, size, _url) in chunk]
+    objs_all = list(objects)
+    if not objs_all:
+        print("LFS: nothing to upload")
+        return
 
-        print(f"Uploading chunk {i + 1}/{chunks_count}")
-        resp = github_lfs_batch_request(session, objects=objs, operation="upload")
-        to_upload = []
-        to_verify = []
-        for api_obj, (oid, size, url) in zip(resp["objects"], chunk):
-            if error := api_obj.get("error", {}):
-                print(f"LFS: upload error {error['message']}")
+    chunks = list(itertools.batched(objs_all, GITHUB_MAX_LFS_BATCH_SIZE))
+    total_chunks = len(chunks)
+
+    # Single session for batch/verify calls (NOT reused for presigned PUTs)
+    ctl_session = _new_retrying_session()
+
+    for idx, chunk in enumerate(chunks, start=1):
+        api_objs = [{"oid": oid, "size": size} for (oid, size, _url) in chunk]
+        print(f"LFS: uploading chunk {idx}/{total_chunks} ({len(chunk)} objects)")
+
+        batch_resp = github_lfs_batch_request(
+            ctl_session,
+            auth_header=authz,
+            objects=api_objs,
+            operation="upload",
+        )
+
+        # Defensive: map response objects by oid (do NOT assume order)
+        resp_objects = batch_resp.get("objects") or []
+        api_by_oid = {o.get("oid"): o for o in resp_objects if o.get("oid")}
+
+        # Decide which to upload + prepare verify data
+        to_upload: list[
+            Tuple[Tuple[str, int, str], Tuple[str, str, Dict[str, str]]]
+        ] = []
+        for oid, size, url in chunk:
+            api_obj = api_by_oid.get(oid)
+            if not api_obj:
+                print(
+                    f"LFS: warning: server omitted oid {oid} in batch response; skipping"
+                )
                 continue
-
-            upload_action = api_obj.get("actions", {}).get("upload")
+            if err := api_obj.get("error"):
+                print(
+                    f"LFS: upload error for {oid}: {err.get('code')} {err.get('message')}"
+                )
+                continue
+            act = api_obj.get("actions") or {}
+            upload_action = act.get("upload")
             if upload_action:
-                upload_dest_url = upload_action["href"]
-                upload_method = upload_action.get("method", "PUT").upper()
-                upload_headers = upload_action["header"]
-                to_upload.append(
-                    ((oid, size, url), (upload_dest_url, upload_method, upload_headers))
-                )
-            verify_action = api_obj.get("actions", {}).get("verify")
-            if verify_action:
-                verify_dest_url = verify_action["href"]
-                verify_headers = verify_action["header"]
-                to_verify.append(((oid, size), (verify_dest_url, verify_headers)))
+                href = upload_action["href"]
+                method = upload_action.get("method", "PUT")
+                headers = upload_action.get("header") or {}
+                to_upload.append(((oid, size, url), (href, method, headers)))
+            else:
+                print(f"LFS: already present {url} ({oid}) on server, skipping upload.")
 
-        with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as pool:
-            upload_futures = [
-                pool.submit(_download_and_upload_file, session, *args)
-                for args in to_upload
-            ]
-            for f in as_completed(upload_futures):
-                f.result()  # will raise if upload failed
+        # Parallel uploads
+        if to_upload:
+            with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as pool:
+                futures = [
+                    pool.submit(_download_and_upload_file, src, dest)
+                    for (src, dest) in to_upload
+                ]
+                for f in as_completed(futures):
+                    f.result()  # propagate exceptions
 
-            verify_futures = [
-                pool.submit(
-                    session.post,
-                    url,
-                    json={"oid": oid, "size": size},
-                    headers=headers,
-                    timeout=HTTP_TIMEOUT_SECONDS,
-                )
-                for (oid, size), (url, headers) in to_verify
-            ]
-            for f in as_completed(verify_futures):
-                resp = f.result()
-                if resp.status_code != 200:
-                    print(
-                        f"LFS: verify failed with status {resp.status_code}: {resp.text}"
-                    )
-                resp.raise_for_status()
+        # Verify (sequential or light parallel is fine; verify endpoints are fast)
+        # Use the same api_by_oid map so we verify exactly what the server asked us to.
+        to_verify = [(oid, size) for (oid, size, _url) in chunk if api_by_oid.get(oid)]
+        for oid, size in to_verify:
+            _verify_if_needed(
+                ctl_session,
+                auth_header=authz,
+                api_obj=api_by_oid[oid],
+                oid=oid,
+                size=size,
+            )
 
-        print(f"LFS: uploaded {len(to_upload)} new objects")
+        print(
+            f"LFS: uploaded {len(to_upload)} new objects in chunk {idx}/{total_chunks}"
+        )
 
 
 def upsert_blobs(
