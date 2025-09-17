@@ -442,7 +442,7 @@ def attachments(
         raise HTTPException(status_code=404, detail="attachments/ not enabled")
 
     base_dir = pathlib.Path(settings.git_repo_path) / "attachments"
-    requested_path = (base_dir / path).resolve()
+    requested_path = (base_dir / os.path.normpath(path)).resolve()
 
     # Prevent directory traversal: ensure requested_path is inside base_dir
     if not str(requested_path).startswith(str(base_dir.resolve())):
