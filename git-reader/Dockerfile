@@ -18,6 +18,10 @@ RUN uv sync --locked --no-cache
 
 COPY --chown=app:app main.py .
 
+RUN mkdir /app/.ssh && \
+    ssh-keyscan github.com >> /app/.ssh/known_hosts && \
+    chown -R app:app /app/.ssh
+
 USER app
 
 ENV GIT_REPO_PATH=/mnt/data

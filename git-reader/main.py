@@ -21,6 +21,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PREFIX = "/v1"
 REMOTE_NAME = "origin"
+LFS_POINTER_FILE_SIZE_BYTES = 140
 
 
 class Settings(BaseSettings):
@@ -44,6 +45,7 @@ def get_repo() -> pygit2.Repository:
     if not os.path.exists(settings.git_repo_path):
         raise RuntimeError(f"GIT_REPO_PATH does not exist: {settings.git_repo_path}")
     # TODO: check that directory is writable (for git fetch)
+    # TODO: check that SSH works (keys etc.)
     try:
         print("Opening git repo at:", settings.git_repo_path)
         repo = pygit2.Repository(settings.git_repo_path)
@@ -58,10 +60,24 @@ def get_repo() -> pygit2.Repository:
 
 
 class CollectionNotFound(Exception):
+    """
+    Raised when a requested collection or bucket is not found.
+    """
+
     pass
 
 
 class UnknownTimestamp(Exception):
+    """Raised when timestamp requested with `_since` is does
+    not have any matching tag.
+    """
+
+    pass
+
+
+class LFSPointerFoundError(Exception):
+    """Raised when the requested file is a Git LFS pointer file."""
+
     pass
 
 
@@ -108,23 +124,27 @@ class GitService:
             return
 
         open(running_file, "w").close()
+        env = os.environ.copy()
+        def run(cmd):
+            subprocess.run(cmd, check=True, env=env)
+
         try:
             print("Fetching updates from repository...")
             repo_path = self.settings.git_repo_path
-            subprocess.run(["git", "-C", repo_path, "fetch", REMOTE_NAME], check=True)
+            run(["git", "-C", repo_path, "fetch", "--verbose", REMOTE_NAME])
+            print("Reset common branch to remote")
+            run(["git", "-C", repo_path, "reset", "--hard", f"{REMOTE_NAME}/common"])
             # Prune any stale tracking refs
-            subprocess.run(
-                ["git", "-C", repo_path, "remote", "prune", REMOTE_NAME], check=True
-            )
-            # Pack/gc to keep the repo lean (safe for bare or non-bare)
-            subprocess.run(["git", "-C", repo_path, "gc", "--prune=now"], check=True)
+            run(["git", "-C", repo_path, "remote", "prune", REMOTE_NAME])
+            # Pack/gc to keep the repo lean
+            run(["git", "-C", repo_path, "gc", "--prune=now"])
             # Optional extra packing
-            subprocess.run(["git", "-C", repo_path, "repack", "-Ad"], check=True)
+            run(["git", "-C", repo_path, "repack", "-Ad"])
             if self.settings.self_contained:
                 # Fetch files from LFS volume
-                subprocess.run(["git", "-C", repo_path, "lfs", "pull"], check=True)
+                run(["git", "-C", repo_path, "lfs", "pull"])
                 # Check that everything is valid
-                subprocess.run(["git", "-C", repo_path, "lfs", "fsck"], check=True)
+                run(["git", "-C", repo_path, "lfs", "fsck"])
 
             # Reload the repository content.
             get_repo.cache_clear()
@@ -482,6 +502,12 @@ def attachments(
 
     if not requested_path.exists() or not requested_path.is_file():
         raise HTTPException(status_code=404, detail=f"Attachment {path} not found")
+
+    # Make sure we won't serve the LFS pointer file to clients.
+    if os.path.getsize(requested_path) < LFS_POINTER_FILE_SIZE_BYTES:
+        content = open(requested_path, "r").read()
+        if content.startswith("version https://git-lfs.github.com/spec/v1"):
+            raise LFSPointerFoundError(path)
 
     # Stream from disk
     return StreamingResponse(open(requested_path, "rb"))
