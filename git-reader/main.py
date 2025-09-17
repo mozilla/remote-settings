@@ -118,12 +118,21 @@ class GitService:
         """
         Fetch updates from the remote repository.
         """
-        running_file = pathlib.Path(self.settings.git_repo_path) / ".git-reader-fetch-running"
+        running_file = (
+            pathlib.Path(self.settings.git_repo_path) / ".git-reader-fetch-running"
+        )
         if running_file.exists():
             print(f"Skip fetching updates, already running ({running_file})")
             return
 
-        open(running_file, "w").close()
+        # Create lock file to prevent multiple concurrent runs.
+        try:
+            open(running_file, "w").close()
+        except PermissionError as exc:
+            raise RuntimeError(
+                f"Failed to create lock file {running_file}: {exc}. Make sure the directory is writable."
+            )
+
         env = os.environ.copy()
 
         def run(cmd, extra_env=None):
@@ -498,7 +507,10 @@ def attachments(
         raise HTTPException(status_code=404, detail="attachments/ not enabled")
 
     base_dir = pathlib.Path(settings.git_repo_path) / "attachments"
-    requested_path = (base_dir / os.path.normpath(path)).resolve()
+
+    # Normalize requested_path
+    path = os.path.normpath(path)  # Translate '..' and remove redundant separators.
+    requested_path = (base_dir / path).resolve()  # Resolve symlinks and absolute paths.
 
     # Prevent directory traversal: ensure requested_path is inside base_dir
     if not str(requested_path).startswith(str(base_dir.resolve())):
