@@ -90,8 +90,6 @@ class GitService:
     def __init__(self, repo: pygit2.Repository, settings: Settings):
         self.repo = repo
         self.settings = settings
-        self._last_fetch_time = time.time()
-        self._fetch_lock = threading.Lock()
 
     @staticmethod
     def dep(
@@ -104,14 +102,14 @@ class GitService:
         """
         Fetch updates from the remote repository.
         """
-        now = time.time()
-        with self._fetch_lock:
-            if (now - self._last_fetch_time) < self.settings.fetch_interval_seconds:
-                # Already running, or too soon.
-                return
+        running_file = pathlib.Path(self.settings.git_repo_path) / ".git-reader-fetch-running"
+        if running_file.exists():
+            print(f"Skip fetching updates, already running ({running_file})")
+            return
 
-            self._last_fetch_time = now
-
+        open(running_file, "w").close()
+        try:
+            print("Fetching updates from repository...")
             repo_path = self.settings.git_repo_path
             subprocess.run(["git", "-C", repo_path, "fetch", REMOTE_NAME], check=True)
             # Prune any stale tracking refs
@@ -129,7 +127,11 @@ class GitService:
                 subprocess.run(["git", "-C", repo_path, "lfs", "fsck"], check=True)
 
             # Reload the repository content.
-            self.repo = pygit2.Repository(repo_path)
+            get_repo.cache_clear()
+            self.repo = get_repo()
+            print("Fetch completed.")
+        finally:
+            running_file.unlink(missing_ok=True)
 
     def get_head_info(self, branch: str = "common") -> dict[str, str]:
         """
@@ -319,16 +321,22 @@ def clean_since_param(
     return int(inner)
 
 
+@app.get("/")
+def root():
+    return RedirectResponse(f"{PREFIX}/", status_code=307)
+
+
+@app.get(PREFIX)
+def hello_unsuffixed():
+    return RedirectResponse(f"{PREFIX}/", status_code=307)
+
+
 @app.get(f"{PREFIX}/", response_model=HelloResponse)
 def hello(
     request: Request,
-    background: BackgroundTasks,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ) -> str:
-    # Trigger fetch every 5 updates
-    background.add_task(git.fetch_updates)
-
     # Determine attachments base URL
     attachments_base_url = settings.attachments_base_url
     if attachments_base_url is None:
@@ -412,6 +420,30 @@ def collection_changeset(
         metadata=metadata,
         changes=changes,
     )
+
+
+_fetch_lock = threading.Lock()
+_last_fetch_run = 0
+
+
+@app.get(f"{PREFIX}/__fetch__")
+def git_fetch(
+    background: BackgroundTasks,
+    settings: Settings = Depends(get_settings),
+    git: GitService = Depends(GitService.dep),
+):
+    global _last_fetch_run
+    with _fetch_lock:
+        now = time.time()
+        ago_seconds = now - _last_fetch_run
+        if ago_seconds < settings.fetch_interval_seconds:
+            # Already running, or too soon.
+            print(f"Skip fetching updates, ran {ago_seconds} seconds ago")
+        else:
+            _last_fetch_run = now
+            # This returns fast (background)
+            background.add_task(git.fetch_updates)
+    return {"last_run": ago_seconds}
 
 
 @app.get(f"{PREFIX}/__broadcasts__", response_model=BroadcastsResponse)
