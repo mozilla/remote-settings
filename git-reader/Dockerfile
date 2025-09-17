@@ -3,6 +3,8 @@ FROM python:3.13.2-slim-bullseye
 # Install uv.
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
+RUN apt-get update && apt-get -y install git git-lfs
+
 WORKDIR /app
 
 RUN chown 10001:10001 /app && \
