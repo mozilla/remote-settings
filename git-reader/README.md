@@ -76,7 +76,7 @@ And then mount the SSH material directory into the container:
 docker run --rm -p 8000:8000 \
     -e GIT_REPO_PATH=/mnt/data \
     -e SELF_CONTAINED=true \
-    -v /tmp/git-export.git:/mnt/data \
+    -v /mnt/git/remote-settings-data:/mnt/data \
     -v `pwd`/ssh-material:/app/.ssh \
     remote-settings-git-reader
 ```
