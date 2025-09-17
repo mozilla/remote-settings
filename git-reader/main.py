@@ -125,13 +125,17 @@ class GitService:
 
         open(running_file, "w").close()
         env = os.environ.copy()
-        def run(cmd):
-            subprocess.run(cmd, check=True, env=env)
+
+        def run(cmd, extra_env=None):
+            subprocess.run(cmd, check=True, env={**env, **(extra_env or {})})
 
         try:
             print("Fetching updates from repository...")
             repo_path = self.settings.git_repo_path
-            run(["git", "-C", repo_path, "fetch", "--verbose", REMOTE_NAME])
+            run(
+                ["git", "-C", repo_path, "fetch", "--verbose", REMOTE_NAME],
+                extra_env={"GIT_SSH_COMMAND": "ssh -v"},
+            )
             print("Reset common branch to remote")
             run(["git", "-C", repo_path, "reset", "--hard", f"{REMOTE_NAME}/common"])
             # Prune any stale tracking refs
