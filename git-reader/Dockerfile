@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bullseye
+FROM python:3.13.2-slim-bullseye
 
 # Install uv.
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
