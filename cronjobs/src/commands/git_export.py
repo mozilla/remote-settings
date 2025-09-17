@@ -595,9 +595,12 @@ async def repo_sync_content(
         print("No new changes since last run.")
         return changed_attachments, changed_branches, changed_tags
 
-    # Store the monitor changeset in `common` branch.
+    server_info = await client.server_info()
+
+    # Store the server info and monitor changeset in `common` branch.
     # Anything from previous commits is lost.
     common_content = [
+        ("server-info.json", json_dumpb(server_info)),
         ("monitor-changes.json", json_dumpb(monitor_changeset)),
     ]
 
@@ -639,7 +642,7 @@ async def repo_sync_content(
     print(f"Found {len(existing_attachments)} attachments in tree")
 
     # Store all the attachments as LFS pointers.
-    attachments_base_url = (await client.server_info())["capabilities"]["attachments"][
+    attachments_base_url = server_info["capabilities"]["attachments"][
         "base_url"
     ].rstrip("/")
 
