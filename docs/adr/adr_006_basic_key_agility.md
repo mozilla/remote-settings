@@ -1,6 +1,6 @@
 # Basic Key Agility
 
-* Status: draft
+* Status: accepted
 * Deciders: acottner, mleplatre, sykim
 * Date: Aug 26, 2025
 
