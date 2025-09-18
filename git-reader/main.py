@@ -22,6 +22,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 PREFIX = "/v1"
 REMOTE_NAME = "origin"
 LFS_POINTER_FILE_SIZE_BYTES = 140
+STARTUP_BUNDLE_FILE = "attachments/bundles/startup.json.mozlz4"
 
 
 class Settings(BaseSettings):
@@ -44,8 +45,6 @@ def get_repo() -> pygit2.Repository:
         raise RuntimeError("GIT_REPO_PATH is not set")
     if not os.path.exists(settings.git_repo_path):
         raise RuntimeError(f"GIT_REPO_PATH does not exist: {settings.git_repo_path}")
-    # TODO: check that directory is writable (for git fetch)
-    # TODO: check that SSH works (keys etc.)
     try:
         print("Opening git repo at:", settings.git_repo_path)
         repo = pygit2.Repository(settings.git_repo_path)
@@ -53,9 +52,36 @@ def get_repo() -> pygit2.Repository:
         raise RuntimeError(
             f"Failed to open git repo at {settings.git_repo_path}: {e}"
         ) from e
-    # TODO: inspect that we have the expected branches (common, bucket/*)
-    # and at least a tag on the common branch.
-    # TODO: if self contained, inspect that actual LFS files are here, not pointers.
+
+    # Check that the repository has the expected branches and tags.
+    branches = {branch_name for branch_name in repo.branches.local}
+    bucket_branches = {
+        branch_name for branch_name in branches if branch_name.startswith("buckets/")
+    }
+    if "common" not in branches:
+        raise RuntimeError(f"Missing 'common' branch in repository. Found: {branches}")
+    if not bucket_branches:
+        raise RuntimeError(
+            f"Missing 'buckets/*' branches in repository. Found: {branches}"
+        )
+
+    # Check that the repository has timestamps/* tags.
+    timestamp_tags = {
+        ref for ref in repo.references if ref.startswith("refs/tags/timestamps/")
+    }
+    if not timestamp_tags:
+        raise RuntimeError(
+            f"Missing 'timestamps/*' tags in repository. Found: {timestamp_tags}"
+        )
+
+    # Check that LFS files are present if self-contained.
+    if get_settings().self_contained:
+        known_lfs_file = os.path.join(settings.git_repo_path, STARTUP_BUNDLE_FILE)
+        if os.path.getsize(known_lfs_file) < LFS_POINTER_FILE_SIZE_BYTES:
+            raise LFSPointerFoundError(
+                f"{STARTUP_BUNDLE_FILE} is a Git LFS pointer file"
+            )
+
     return repo
 
 
