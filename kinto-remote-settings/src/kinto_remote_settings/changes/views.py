@@ -186,7 +186,7 @@ def _handle_stale_expected(request):
 
     # Check if client is trying to go back in time, return 400 response
     if qs_expected > 0 and qs_expected < qs_since:
-        response = httpexceptions.HTTPNoContent()
+        response = httpexceptions.HTTPBadRequest()
         cache_seconds = int(
             request.registry.settings.get(
                 "changes.since_max_age_redirect_ttl_seconds", 86400
