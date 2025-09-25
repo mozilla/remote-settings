@@ -27,7 +27,7 @@ from urllib3.util import Retry
 # Mandatory environment variables (default values)
 SERVER_URL = config("SERVER", default="http://localhost:8888/v1")
 GIT_AUTHOR = config("GIT_AUTHOR", default="User <user@example.com>")
-REPO_OWNER = config("REPO_OWNER", default="leplatrem")
+REPO_OWNER = config("REPO_OWNER", default="mozilla")
 REPO_NAME = config("REPO_NAME", default="remote-settings-data")
 GITHUB_USERNAME = config("GITHUB_USERNAME", default="")
 GITHUB_TOKEN = config("GITHUB_TOKEN", default="")
@@ -307,7 +307,10 @@ def _new_retrying_session() -> requests.Session:
 def github_lfs_batch_request(
     auth_header: str,
     objects: Iterable[dict[str, Any]],
-    operation: str,  # "upload" or "download"
+    operation: str,  # "upload" or "download",
+    repo_owner: str = REPO_OWNER,
+    repo_name: str = REPO_NAME,
+    timeout: float = HTTP_TIMEOUT_BATCH_SECONDS,
 ) -> dict[str, Any]:
     """
     Generic Git LFS Batch call.
@@ -315,7 +318,7 @@ def github_lfs_batch_request(
 
     https://github.com/git-lfs/git-lfs/blob/main/docs/api/batch.md#requests
     """
-    url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}.git/info/lfs/objects/batch"
+    url = f"https://github.com/{repo_owner}/{repo_name}.git/info/lfs/objects/batch"
     headers = {
         "Accept": "application/vnd.git-lfs+json",
         "Content-Type": "application/vnd.git-lfs+json",
@@ -327,9 +330,7 @@ def github_lfs_batch_request(
         "objects": list(objects),
     }
     session = _new_retrying_session()
-    r = session.post(
-        url, headers=headers, json=payload, timeout=HTTP_TIMEOUT_BATCH_SECONDS
-    )
+    r = session.post(url, headers=headers, json=payload, timeout=timeout)
     if r.status_code != 200:
         print(f"LFS: batch failed with status {r.status_code}: {r.text}")
     r.raise_for_status()
@@ -338,7 +339,10 @@ def github_lfs_batch_request(
 
 def _download_from_cdn_and_upload_to_lfs_volume(
     source: tuple[str, int, str],  # (sha256_hex, size, src_url)
-    dest: tuple[str, str, dict[str, str]],  # (href, method, headers)
+    dest: tuple[str, str, dict[str, str]],  # (href, method, headers),
+    retry_max_count: int = HTTP_RETRY_MAX_COUNT,
+    retry_delay: float = HTTP_RETRY_DELAY_SECONDS,
+    timeout: float = HTTP_TIMEOUT_UPLOAD_SECONDS,
 ) -> None:
     """
     Downloads the file locally (verifies digest/size), then uploads to specified URL.
@@ -349,7 +353,7 @@ def _download_from_cdn_and_upload_to_lfs_volume(
     with tempfile.NamedTemporaryFile() as tmp:
         tmp_path = tmp.name
         retry = 0
-        while retry < HTTP_RETRY_MAX_COUNT:
+        while retry < retry_max_count:
             # Download from CDN into temp file.
             downloaded_digest, downloaded_size = fetch_attachment(
                 src_url, dest_file=tmp_path
@@ -358,10 +362,10 @@ def _download_from_cdn_and_upload_to_lfs_volume(
                 if downloaded_digest == sha256_hex:
                     break
             retry += 1
-            time.sleep(HTTP_RETRY_DELAY_SECONDS)
+            time.sleep(retry_delay)
         else:
             raise RuntimeError(
-                f"LFS: {src_url} failed to download after {HTTP_RETRY_MAX_COUNT} attempts"
+                f"LFS: {src_url} failed to download after {retry_max_count} attempts"
             )
         # If we reach here, it means we successfully downloaded the file from the CDN.
         # Now, upload it to LFS volume.
@@ -374,7 +378,7 @@ def _download_from_cdn_and_upload_to_lfs_volume(
                 upload_href,
                 data=f,
                 headers=upload_headers,
-                timeout=HTTP_TIMEOUT_UPLOAD_SECONDS,
+                timeout=timeout,
             )
         if resp.status_code not in (200, 201, 204):
             print(f"LFS: {src_url} upload failed with {resp.status_code}: {resp.text}")
@@ -384,6 +388,7 @@ def _download_from_cdn_and_upload_to_lfs_volume(
 def _github_lfs_verify_upload(
     source: tuple[str, str],  # (sha256_hex, size)
     dest: tuple[str, dict[str, str, str]],  # (href, method, headers)
+    timeout: float = HTTP_TIMEOUT_SECONDS,
 ) -> None:
     """
     The LFS upload API returns a verify action that the client has to call in
@@ -393,7 +398,7 @@ def _github_lfs_verify_upload(
     verify_href, method, headers = dest
     payload = {"oid": oid, "size": size}
     r = requests.request(
-        method, verify_href, json=payload, headers=headers, timeout=HTTP_TIMEOUT_SECONDS
+        method, verify_href, json=payload, headers=headers, timeout=timeout
     )
     if r.status_code not in (200, 201, 204):
         print(f"LFS: verify for {oid} failed with {r.status_code}: {r.text}")
@@ -401,7 +406,13 @@ def _github_lfs_verify_upload(
 
 
 def github_lfs_batch_upload_many(
-    objects: Iterable[tuple[str, int, str]],  # (sha256_hex, size, source_url)
+    objects: Iterable[tuple[str, int, str]],  # (sha256_hex, size, source_url),
+    github_username: str = GITHUB_USERNAME,
+    github_token: str = GITHUB_TOKEN,
+    repo_owner: str = REPO_OWNER,
+    repo_name: str = REPO_NAME,
+    max_batch_size: int = GITHUB_MAX_LFS_BATCH_SIZE,
+    max_parallel_requests: int = MAX_PARALLEL_REQUESTS,
 ) -> None:
     """
     Performs LFS batch 'upload' for up to GITHUB_MAX_LFS_BATCH_SIZE objects per batch,
@@ -409,10 +420,10 @@ def github_lfs_batch_upload_many(
 
     objects: iterable of (oid_hex:str, size:int, src_url:str)
     """
-    creds = f"{GITHUB_USERNAME}:{GITHUB_TOKEN}".encode("utf-8")
+    creds = f"{github_username}:{github_token}".encode("utf-8")
     authz = f"Basic {base64.b64encode(creds).decode('ascii')}"
 
-    chunks = list(itertools.batched(objects, GITHUB_MAX_LFS_BATCH_SIZE))
+    chunks = list(itertools.batched(objects, max_batch_size))
     total_chunks = len(chunks)
 
     # Single session for batch/verify calls (NOT reused for presigned PUTs/POSTs)
@@ -423,6 +434,8 @@ def github_lfs_batch_upload_many(
             auth_header=authz,
             objects=[{"oid": oid, "size": size} for (oid, size, _url) in chunk],
             operation="upload",
+            repo_owner=repo_owner,
+            repo_name=repo_name,
         )
 
         # Map response objects by oid
@@ -465,7 +478,7 @@ def github_lfs_batch_upload_many(
 
         # Parallel uploads
         if to_upload:
-            with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as pool:
+            with ThreadPoolExecutor(max_workers=max_parallel_requests) as pool:
                 futures = [
                     pool.submit(_download_from_cdn_and_upload_to_lfs_volume, src, dest)
                     for (src, dest) in to_upload
@@ -474,7 +487,7 @@ def github_lfs_batch_upload_many(
                     f.result()  # propagate exceptions
 
         # Parallel verifications
-        with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as pool:
+        with ThreadPoolExecutor(max_workers=max_parallel_requests) as pool:
             futures = [
                 pool.submit(_github_lfs_verify_upload, src, dest)
                 for (src, dest) in to_verify
