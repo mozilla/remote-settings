@@ -4,10 +4,12 @@ import commands
 import pytest
 import requests
 import responses
-from commands.git_export import (
+from commands._git_export_lfs import (
     _download_from_cdn_and_upload_to_lfs_volume,
     _github_lfs_verify_upload,
     github_lfs_batch_request,
+)
+from commands.git_export import (
     github_lfs_batch_upload_many,
 )
 
@@ -15,7 +17,7 @@ from commands.git_export import (
 @pytest.fixture
 def no_sleep(monkeypatch):
     monkeypatch.setattr(
-        commands.git_export.time, "sleep", lambda s: None, raising=False
+        commands._git_export_lfs.time, "sleep", lambda s: None, raising=False
     )
 
 
@@ -286,7 +288,13 @@ def test_batch_upload_handles_error_objects(capsys):
         content_type="application/vnd.git-lfs+json",
     )
 
-    github_lfs_batch_upload_many([o], repo_owner="foo", repo_name="bar")
+    github_lfs_batch_upload_many(
+        [o],
+        repo_owner="foo",
+        repo_name="bar",
+        github_username="bob",
+        github_token="token",
+    )
 
     assert len(responses.calls) == 1  # only batch
     out = capsys.readouterr().out
