@@ -270,6 +270,22 @@ def test_repo_sync_does_nothing_if_up_to_date(
 
 
 @responses.activate
+def test_repo_sync_can_be_forced_even_if_up_to_date(
+    capsys, repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+):
+    git_export.git_export(None, None)
+    capsys.readouterr()  # Clear previous output
+
+    git_export.FORCE = True
+    git_export.git_export(None, None)
+
+    stdout = capsys.readouterr().out
+    assert "No changes for common branch" in stdout
+    assert "No changes for bid1/cid1 branch" in stdout
+    assert "No changes for bid2/cid2 branch" in stdout
+
+
+@responses.activate
 def test_repo_sync_content_uses_previous_run_to_fetch_changes(
     capsys, repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
 ):
