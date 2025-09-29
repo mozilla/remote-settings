@@ -72,7 +72,7 @@ readme = "README.rst"
 [tool.poetry.dependencies]
 python = ">=3.11, <3.14"
 canonicaljson-rs = "0.7.1"
-cryptography = "45.0.6"
+cryptography = "46.0.1"
 ecdsa = "0.19.1"
 kinto = {version = "^23.1.0", extras = ["postgresql","memcached","monitoring"]}
 kinto-attachment = "7.1.0"
@@ -90,11 +90,11 @@ optional = true
 cronjobs = {path = "./cronjobs", develop = true}
 
 [tool.poetry.group.dev.dependencies]
-pytest = "8.4.1"
+pytest = "8.4.2"
 webtest = "3.0.6"
-coverage = "7.10.5"
+coverage = "7.10.7"
 detect-secrets = "^1.5.0"
-ruff = "^0.12.10"
+ruff = "^0.13.2"
 responses = "^0.25.8"
 
 [tool.poetry.group.docs]

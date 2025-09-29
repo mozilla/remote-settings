@@ -187,21 +187,31 @@ If you have a lot of data that you want to duplicate from one instance to anothe
 
 .. code-block:: bash
 
-	pip install --user kinto-wizard
+	pip install --user "kinto-wizard>=6"
 
-Dump the main records from STAGE:
+Dump the main records data (and attachments) from STAGE:
 
 .. code-block:: bash
 
-    kinto-wizard dump --records --server https://firefox.settings.services.allizom.org/v1 --bucket=main --collection=top-sites > top-sites.yaml
+    kinto-wizard dump --server https://firefox.settings.services.allizom.org/v1 \
+      --bucket=main \
+      --collection=top-sites \
+      --records \
+      --data \
+      --attachments ./binaries/ > top-sites.yaml
 
-Open the ``.yaml`` file and rename the bucket name on top to ``main-workspace``.
+Open the ``.yaml`` file and **rename the ``main`` bucket** on top to ``main-workspace``.
 
 Login in the Remote Settings Admin and copy the authentication header (icon in the top bar), in order to use it in the ``--auth`` parameter of the ``kinto-wizard load`` command. And load into PROD:
 
 .. code-block:: bash
 
-    kinto-wizard load --server https://remote-settings.mozilla.org/v1 --auth="Bearer uLdb-Yafefe....2Hyl5_w" top-sites.yaml
+    kinto-wizard load --server https://remote-settings.mozilla.org/v1 \
+      --auth="Bearer uLdb-Yafefe....2Hyl5_w" \
+      --records \
+      --data \
+      --attachments ./binaries/ \
+      top-sites.yaml
 
 Requesting review can be done via the UI, :ref:`or the command-line <tutorial-multi-signoff-request-review>`.
 
