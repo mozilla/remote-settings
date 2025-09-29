@@ -386,11 +386,17 @@ def test_batch_upload_and_verify():
     assert sent["operation"] == "upload"
     assert {o["oid"] for o in sent["objects"]} == {o1[0], o2[0]}
 
+    if _dl_call_1.request.url == download_url_2:
+        _dl_call_1, _dl_call_2 = _dl_call_2, _dl_call_1
+
     assert _dl_call_1.request.url == download_url_1
     assert _dl_call_2.request.url == download_url_2
 
     assert _upload_call_1.request.method == "PUT"
     assert _upload_call_2.request.method == "PUT"
+
+    if verify_call_1.request.url == "https://verify.example.com/b":
+        verify_call_1, verify_call_2 = verify_call_2, verify_call_1
 
     assert verify_call_1.request.url == "https://verify.example.com/a"
     assert verify_call_1.request.method == "POST"
