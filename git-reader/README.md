@@ -1,36 +1,44 @@
 # Remote Settings Over Git
 
-## Getting Started
-
-Clone a Remote Settings data repository into a folder:
-
-```bash
-git clone git@github.com:leplatrem/remote-settings-data.git /mnt/git/remote-settings-data
-```
-
-If the container is configured to serve attachments (see `SELF_CONTAINED` below), make sure to install Git LFS and pull the LFS files:
-
-```bash
-git lfs install
-git lfs pull
-git lfs fsck
-```
-
-Build the container:
+## Building the Docker image
 
 ```bash
 docker build -t remote-settings-git-reader .
 ```
 
-Then you can start the application with:
+## Settings
+
+- ``GIT_REPO_PATH``: the path to the Git repository to use.
+- ``SELF_CONTAINED`` (default: `false`): if set to `true`, the application will serve all necessary content from the Git repository, including
+  attachments and certificates chains.
+- ``ATTACHMENTS_BASE_URL`` (default: `None`): this URL will be used as the base URL for attachments. If `SELF_CONTAINED` is `false`, this URL is required. With self-contained, the current domain will be used by default (`Host` request header) if not set.
+
+
+## Running the application
+
+The application needs access to a Git repository containing Remote Settings data (read-only);
 
 ```bash
 docker run --rm -p 8000:8000 \
-    -e GIT_REPO_PATH=/mnt/data \
+    -e GIT_REPO_PATH=/mnt/data/latest \
     -e SELF_CONTAINED=true \
-    -v /mnt/git/remote-settings-data:/mnt/data \
+    -v /mnt/git/remote-settings-data:/mnt/data:ro \
     remote-settings-git-reader
 ```
+
+But first, we will initialize the folder structure required to execute Git updates atomically.
+Use the ``init`` command and the ``GIT_REPO_URL`` environment variable to specify the repository to clone:
+
+```bash
+docker run --rm \
+    -e GIT_REPO_URL=git@github.com:mozilla/remote-settings-data.git \
+    -e GIT_REPO_PATH=/mnt/data/latest \
+    -e SELF_CONTAINED=true \
+    -v /mnt/git/remote-settings-data:/mnt/data \
+    remote-settings-git-reader init
+```
+
+Unless you used an anonymous clone, this is likely to fail, as the container needs access to the Git repository via SSH.
 
 ### Using SSH keys
 
@@ -45,13 +53,13 @@ Since the container is going to regularly run Git fetch commands to keep the rep
 This requires to have a SSH agent working on the host. It has the advantage of not requiring the container to have access to the actual key and passphrase (if any).
 
 ```bash
-docker run --rm -p 8000:8000 \
-    -e GIT_REPO_PATH=/mnt/data \
+docker run --rm \
+    -e GIT_REPO_PATH=/mnt/data/latest \
     -e SELF_CONTAINED=true \
     -v /mnt/git/remote-settings-data:/mnt/data \
     -e SSH_AUTH_SOCK=/app/ssh-agent \
     -v $SSH_AUTH_SOCK:/app/ssh-agent \
-    remote-settings-git-reader
+    remote-settings-git-reader init
 ```
 
 2. Or pass the private key file into the container.
@@ -73,12 +81,12 @@ EOF
 And then mount the SSH material directory into the container:
 
 ```bash
-docker run --rm -p 8000:8000 \
-    -e GIT_REPO_PATH=/mnt/data \
+docker run --rm \
+    -e GIT_REPO_PATH=/mnt/data/latest \
     -e SELF_CONTAINED=true \
     -v /mnt/git/remote-settings-data:/mnt/data \
     -v `pwd`/ssh-material:/app/.ssh \
-    remote-settings-git-reader
+    remote-settings-git-reader init
 ```
 
 You can test your SSH setup:
@@ -92,9 +100,19 @@ docker run \
 Hi <username>! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-## Settings
+## Updating the repository
 
-- ``GIT_REPO_PATH``: the path to the Git repository to use.
-- ``SELF_CONTAINED`` (default: `false`): if set to `true`, the application will serve all necessary content from the Git repository, including
-  attachments and certificates chains.
-- ``ATTACHMENTS_BASE_URL`` (default: `None`): this URL will be used as the base URL for attachments. If `SELF_CONTAINED` is `false`, this URL is mandatory, otherwise the current domain will be used by default (`Host` request header).
+The container can be used to update the Git repository, by running the `update` command:
+
+```bash
+docker run --rm \
+    -e GIT_REPO_PATH=/mnt/data/latest \
+    -e SELF_CONTAINED=true \
+    -v /mnt/git/remote-settings-data:/mnt/data \
+    remote-settings-git-reader update
+```
+This command can be run periodically (e.g., via a cron job) to keep the repository up to date. For example, every 5 minutes:
+
+```bash
+*/5 * * * * docker run ...
+```

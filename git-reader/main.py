@@ -3,44 +3,53 @@ from __future__ import annotations
 import json
 import os
 import pathlib
-import subprocess
-import threading
-import time
 from datetime import datetime
 from functools import lru_cache
-from typing import Generator, Optional
+from typing import Generator
 from urllib.parse import urlparse
 
 import pygit2
-from fastapi import BackgroundTasks, Depends, FastAPI, Path, Query, Request
+from dockerflow import checks
+from dockerflow.fastapi import router as dockerflow_router
+from fastapi import Depends, FastAPI, Query, Request
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-PREFIX = "/v1"
+VERSION = "0.0.1"
+# The API is served under /v2 prefix since /records endpoints present in /v1
+# are not implemented.
+PREFIX = "/v2"
 REMOTE_NAME = "origin"
 LFS_POINTER_FILE_SIZE_BYTES = 140
 STARTUP_BUNDLE_FILE = "attachments/bundles/startup.json.mozlz4"
+GIT_REF_PREFIX = "v1/"  # See cronjobs/src/commands/git_export.py
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-    git_repo_path: str
-    fetch_interval_seconds: int = 120
-    self_contained: bool = False
-    attachments_base_url: str | None = None
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", frozen=True)
+    git_repo_path: str = Field(..., description="Path to the Git repository")
+    self_contained: bool = Field(
+        False,
+        description="Whether to serve `attachments/` and `cert-chains/` endpoints.",
+    )
+    attachments_base_url: str | None = Field(
+        None,
+        description="Base URL for attachments. Required if SELF_CONTAINED is false.",
+    )
 
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    return Settings()
+    settings = Settings()
+    print("Using settings:", settings)
+    return settings
 
 
 @lru_cache(maxsize=1)
-def get_repo() -> pygit2.Repository:
-    settings = get_settings()
+def get_repo(settings: Settings = Depends(get_settings)) -> pygit2.Repository:
     if not settings.git_repo_path:
         raise RuntimeError("GIT_REPO_PATH is not set")
     if not os.path.exists(settings.git_repo_path):
@@ -52,36 +61,6 @@ def get_repo() -> pygit2.Repository:
         raise RuntimeError(
             f"Failed to open git repo at {settings.git_repo_path}: {e}"
         ) from e
-
-    # Check that the repository has the expected branches and tags.
-    branches = {branch_name for branch_name in repo.branches.local}
-    bucket_branches = {
-        branch_name for branch_name in branches if branch_name.startswith("buckets/")
-    }
-    if "common" not in branches:
-        raise RuntimeError(f"Missing 'common' branch in repository. Found: {branches}")
-    if not bucket_branches:
-        raise RuntimeError(
-            f"Missing 'buckets/*' branches in repository. Found: {branches}"
-        )
-
-    # Check that the repository has timestamps/* tags.
-    timestamp_tags = {
-        ref for ref in repo.references if ref.startswith("refs/tags/timestamps/")
-    }
-    if not timestamp_tags:
-        raise RuntimeError(
-            f"Missing 'timestamps/*' tags in repository. Found: {timestamp_tags}"
-        )
-
-    # Check that LFS files are present if self-contained.
-    if get_settings().self_contained:
-        known_lfs_file = os.path.join(settings.git_repo_path, STARTUP_BUNDLE_FILE)
-        if os.path.getsize(known_lfs_file) < LFS_POINTER_FILE_SIZE_BYTES:
-            raise LFSPointerFoundError(
-                f"{STARTUP_BUNDLE_FILE} is a Git LFS pointer file"
-            )
-
     return repo
 
 
@@ -140,59 +119,47 @@ class GitService:
     ) -> "GitService":
         return GitService(repo, settings)
 
-    def fetch_updates(self):
+    def check_content(self):
         """
-        Fetch updates from the remote repository.
+        Check that the repository has the expected branches and tags.
         """
-        running_file = (
-            pathlib.Path(self.settings.git_repo_path) / ".git-reader-fetch-running"
-        )
-        if running_file.exists():
-            print(f"Skip fetching updates, already running ({running_file})")
-            return
-
-        # Create lock file to prevent multiple concurrent runs.
-        try:
-            open(running_file, "w").close()
-        except PermissionError as exc:
+        branches = {branch_name for branch_name in self.repo.branches.local}
+        bucket_branches = {
+            branch_name
+            for branch_name in branches
+            if branch_name.startswith(f"{GIT_REF_PREFIX}buckets/")
+        }
+        if f"{GIT_REF_PREFIX}common" not in branches:
             raise RuntimeError(
-                f"Failed to create lock file {running_file}: {exc}. Make sure the directory is writable."
+                f"Missing '{GIT_REF_PREFIX}common' branch in repository. Found: {branches}"
+            )
+        if not bucket_branches:
+            raise RuntimeError(
+                f"Missing '{GIT_REF_PREFIX}buckets/*' branches in repository. Found: {branches}"
             )
 
-        env = os.environ.copy()
-
-        def run(cmd, extra_env=None):
-            subprocess.run(cmd, check=True, env={**env, **(extra_env or {})})
-
-        try:
-            print("Fetching updates from repository...")
-            repo_path = self.settings.git_repo_path
-            run(
-                ["git", "-C", repo_path, "fetch", "--verbose", REMOTE_NAME],
-                extra_env={"GIT_SSH_COMMAND": "ssh -v"},
+        # Check that the repository has timestamps/* tags.
+        timestamp_tags = {
+            ref
+            for ref in self.repo.references
+            if ref.startswith(f"refs/tags/{GIT_REF_PREFIX}timestamps/")
+        }
+        if not timestamp_tags:
+            raise RuntimeError(
+                f"Missing '{GIT_REF_PREFIX}timestamps/*' tags in repository. Found: {timestamp_tags}"
             )
-            print("Reset common branch to remote")
-            run(["git", "-C", repo_path, "reset", "--hard", f"{REMOTE_NAME}/common"])
-            # Prune any stale tracking refs
-            run(["git", "-C", repo_path, "remote", "prune", REMOTE_NAME])
-            # Pack/gc to keep the repo lean
-            run(["git", "-C", repo_path, "gc", "--prune=now"])
-            # Optional extra packing
-            run(["git", "-C", repo_path, "repack", "-Ad"])
-            if self.settings.self_contained:
-                # Fetch files from LFS volume
-                run(["git", "-C", repo_path, "lfs", "pull"])
-                # Check that everything is valid
-                run(["git", "-C", repo_path, "lfs", "fsck"])
 
-            # Reload the repository content.
-            get_repo.cache_clear()
-            self.repo = get_repo()
-            print("Fetch completed.")
-        finally:
-            running_file.unlink(missing_ok=True)
+        # Check that LFS files are present if self-contained.
+        if self.settings.self_contained:
+            known_lfs_file = os.path.join(
+                self.settings.git_repo_path, STARTUP_BUNDLE_FILE
+            )
+            if os.path.getsize(known_lfs_file) < LFS_POINTER_FILE_SIZE_BYTES:
+                raise LFSPointerFoundError(
+                    f"{STARTUP_BUNDLE_FILE} is a Git LFS pointer file"
+                )
 
-    def get_head_info(self, branch: str = "common") -> dict[str, str]:
+    def get_head_info(self, branch: str = f"{GIT_REF_PREFIX}common") -> dict[str, str]:
         """
         Get the HEAD information for a specific branch.
         """
@@ -208,11 +175,14 @@ class GitService:
         """
         Get the changeset for a specific collection.
         """
+        # List all tags for this collection and sort them by timestamp desc.
         refs = sorted(
             [
                 ref.decode()
                 for ref in self.repo.raw_listall_references()
-                if ref.decode().startswith(f"refs/tags/timestamps/{bid}/{cid}")
+                if ref.decode().startswith(
+                    f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/"
+                )
             ],
             reverse=True,
         )
@@ -222,6 +192,7 @@ class GitService:
         latest_ref = refs[0]
         timestamp = int(latest_ref.split("/")[-1])
 
+        # 1. Read the collection content at latest timestamp.
         refobj = self.repo.lookup_reference(latest_ref)
         tag = self.repo[refobj.target]
         commit = tag.peel(pygit2.GIT_OBJECT_COMMIT)
@@ -230,26 +201,28 @@ class GitService:
         metadata = None
         records_by_id = {}
         for path, oid in self._scan_folder(tree, path=cid):
-            # Get records.
+            # Get metadata and records from {cid}/ folder.
             bcontent = self.repo[oid].data
             content = json.loads(bcontent.decode("utf-8"))
             if path.endswith("metadata.json"):
                 metadata = content
             else:
+                # Each record is stored in a separate file named {id}.json
                 rid = pathlib.Path(path).stem
                 records_by_id[rid] = content
         assert metadata is not None, "metadata.json not found"
 
+        # 2. If _since is provided, compare and hide unchanged records.
         if _since is not None:
-            # Compare current content with the content at _since timestamp.
-            since_ref = f"refs/tags/timestamps/{bid}/{cid}/{_since}"
+            since_ref = f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/{_since}"
             try:
                 old_refobj = self.repo.lookup_reference(since_ref)
             except KeyError:
+                # No such tag, this timestamp is unknown.
                 raise UnknownTimestamp(_since)
+
             old_commit = self.repo[old_refobj.target]
             old_tree = old_commit.tree
-
             old_records_by_id = {}
             for path, oid in self._scan_folder(old_tree, path=cid):
                 if not path.endswith("metadata.json"):
@@ -265,6 +238,8 @@ class GitService:
                     filtered[rid] = record
                 elif old_record != record:
                     filtered[rid] = record
+            # Deleted records are shown as tombstones.
+            # Note: we don't have `last_modified` but clients don't need it.
             for rid in old_records_by_id.keys():
                 filtered[rid] = {"id": rid, "deleted": True}
             records_by_id = filtered
@@ -298,6 +273,14 @@ class GitService:
 
         return timestamp, metadata, changes
 
+    def get_server_info(self):
+        """
+        Get the server information from the common branch.
+        """
+        bcontent = self._get_file_content("server-info.json")
+        content = json.loads(bcontent.decode("utf-8"))
+        return content
+
     def get_broadcasts(self):
         """
         Get the broadcasts from the common branch.
@@ -329,7 +312,9 @@ class GitService:
                     if subentry.type == pygit2.GIT_OBJECT_BLOB:
                         yield subentry.name, subentry.id
 
-    def _get_file_content(self, path: str, branch: str = "common") -> bytes:
+    def _get_file_content(
+        self, path: str, branch: str = f"{GIT_REF_PREFIX}common"
+    ) -> bytes:
         """
         Get the content of a file in the repository.
         """
@@ -358,12 +343,9 @@ class GitService:
                 return obj.data
 
 
-app = FastAPI(title="Remote Settings Over Git", version="0.0.1")
-
-
 def clean_since_param(
-    _since: Optional[str] = Query(None, alias="_since"),
-) -> Optional[int]:
+    _since: str | None = Query(None, alias="_since"),
+) -> int | None:
     if _since is None:
         return None
     if not (_since.startswith('"') and _since.endswith('"')):
@@ -378,6 +360,25 @@ def clean_since_param(
             detail="Invalid format for _since. Must contain only digits inside quotes",
         )
     return int(inner)
+
+
+app = FastAPI(title="Remote Settings Over Git", version=VERSION)
+app.include_router(dockerflow_router, prefix=PREFIX, tags=["dockerflow"])
+
+
+@checks.register
+def git_repo_health() -> list[checks.Check]:
+    git = GitService.dep(
+        repo=get_repo(settings=get_settings()), settings=get_settings()
+    )
+    result = []
+    try:
+        git.check_content()
+        result.append(checks.Info("Git repository is reachable", id="git.health.0001"))
+    except Exception as exc:
+        print(exc)
+        result.append(checks.Error(str(exc), id="git.health.0002"))
+    return result
 
 
 @app.get("/")
@@ -408,13 +409,22 @@ def hello(
     if not attachments_base_url.endswith("/"):
         attachments_base_url += "/"
 
+    server_info = git.get_server_info()
+
     return {
+        "project_name": server_info["project_name"],
+        "project_docs": server_info["project_docs"],
+        "http_api_version": "2.0",
         "project_version": app.version,
+        "settings": {
+            "readonly": True,
+        },
         "git": {
-            "common": git.get_head_info(branch="common"),
+            "common": git.get_head_info(branch=f"{GIT_REF_PREFIX}common"),
         },
         "capabilities": {
             "attachments": {
+                **server_info["capabilities"]["attachments"],
                 "base_url": attachments_base_url,
             },
         },
@@ -426,16 +436,21 @@ def hello(
     response_model=ChangesetResponse,
 )
 def monitor_changes(
-    _expected: Optional[str] = Query(None, alias="_expected"),
-    _since: Optional[str] = Depends(clean_since_param),
-    bucket: Optional[str] = Query(None, alias="bucket"),
-    collection: Optional[str] = Query(None, alias="collection"),
+    _expected: int = 0,
+    _since: str | None = Depends(clean_since_param),
+    bucket: str | None = None,
+    collection: str | None = None,
     git: GitService = Depends(GitService.dep),
 ):
+    if _since and _expected < _since:
+        raise HTTPException(
+            status_code=400,
+            detail="_expected must be superior to _since if both are provided",
+        )
+
     timestamp, metadata, changes = git.get_monitor_changes_changeset(
         _since=_since, bucket=bucket, collection=collection
     )
-    # TODO: return 400 if _since > _expected
     return ChangesetResponse(
         timestamp=timestamp,
         metadata=metadata,
@@ -449,13 +464,19 @@ def monitor_changes(
 )
 def collection_changeset(
     request: Request,
-    bid: str = Path(...),
-    cid: str = Path(...),
-    _expected: Optional[str] = Query(None, alias="_expected"),
-    _since: Optional[str] = Depends(clean_since_param),
+    bid: str,
+    cid: str,
+    _expected: int = 0,
+    _since: str | None = Depends(clean_since_param),
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
+    if _since and _expected < _since:
+        raise HTTPException(
+            status_code=400,
+            detail="_expected must be superior to _since if both are provided",
+        )
+
     try:
         timestamp, metadata, changes = git.get_collection_changeset(
             bid, cid, _since=_since
@@ -481,30 +502,6 @@ def collection_changeset(
     )
 
 
-_fetch_lock = threading.Lock()
-_last_fetch_run = 0
-
-
-@app.get(f"{PREFIX}/__fetch__")
-def git_fetch(
-    background: BackgroundTasks,
-    settings: Settings = Depends(get_settings),
-    git: GitService = Depends(GitService.dep),
-):
-    global _last_fetch_run
-    with _fetch_lock:
-        now = time.time()
-        ago_seconds = now - _last_fetch_run
-        if ago_seconds < settings.fetch_interval_seconds:
-            # Already running, or too soon.
-            print(f"Skip fetching updates, ran {ago_seconds} seconds ago")
-        else:
-            _last_fetch_run = now
-            # This returns fast (background)
-            background.add_task(git.fetch_updates)
-    return {"last_run": ago_seconds}
-
-
 @app.get(f"{PREFIX}/__broadcasts__", response_model=BroadcastsResponse)
 def broadcasts(git: GitService = Depends(GitService.dep)):
     return git.get_broadcasts()
@@ -512,7 +509,7 @@ def broadcasts(git: GitService = Depends(GitService.dep)):
 
 @app.get(f"{PREFIX}/cert-chains/{{pem:path}}", response_class=PlainTextResponse)
 def cert_chain(
-    pem: str = Path(...),
+    pem: str,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
@@ -526,7 +523,7 @@ def cert_chain(
 
 @app.get(f"{PREFIX}/attachments/{{path:path}}")
 def attachments(
-    path: str = Path(...),
+    path: str,
     settings: Settings = Depends(get_settings),
 ):
     if not settings.self_contained:
