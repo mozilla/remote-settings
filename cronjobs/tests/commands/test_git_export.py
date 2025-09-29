@@ -437,6 +437,38 @@ def test_repo_sync_stores_attachments_as_lfs_pointers(
 
 
 @responses.activate
+def test_repo_syncs_attachment_bundles(
+    repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+):
+    responses.replace(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/bid1/collections/cid1/changeset",
+        json={
+            "timestamp": 1800000000000,
+            "metadata": {
+                "bucket": "bid1",
+                "id": "cid1",
+                "attachment": {"bundle": True},
+                "signature": {
+                    "x5u": "https://autograph.example.com/keys/123",
+                },
+            },
+            "changes": [],
+        },
+    )
+    responses.add(
+        responses.GET,
+        "http://cdn.example.com/v1/attachments/bundles/bid1--cid1.zip",
+        body=b"fake bundle content",
+    )
+
+    git_export.git_export(None, None)
+
+    bundle = read_file(repo, "v1/common", "attachments/bundles/bid1--cid1.zip")
+    assert "lfs" in bundle.decode()
+
+
+@responses.activate
 def test_repo_is_resetted_to_local_content_on_error(
     capsys,
     repo,
