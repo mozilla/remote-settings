@@ -34,7 +34,10 @@ oid sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
 size 42
 """
     sha, size = parse_lfs_pointer(data)
-    assert sha == "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    assert (
+        sha
+        == "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"  # pragma: allowlist secret
+    )
     assert size == 42
 
 
@@ -47,14 +50,14 @@ def test_iter_tree_single_file(tmp_repo):
     assert entries == [
         (
             "a/b.txt",
-            "7371f47a6f8bd23a8fa1a8b2a9479cdd76380e54",
+            "7371f47a6f8bd23a8fa1a8b2a9479cdd76380e54",  # pragma: allowlist secret
         ),
         (
             "a/c/d.json",
-            "9e26dfeeb6e641a33dae4961196235bdb965b21b",
+            "9e26dfeeb6e641a33dae4961196235bdb965b21b",  # pragma: allowlist secret
         ),
         (
             "root.txt",
-            "ac044e5e4649cd149e3d0cf9d23720d299288a1e",
+            "ac044e5e4649cd149e3d0cf9d23720d299288a1e",  # pragma: allowlist secret
         ),
     ]

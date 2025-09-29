@@ -6,6 +6,7 @@ import json
 import os
 import tempfile
 import time
+import traceback
 import urllib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Generator, Iterable, Optional
@@ -55,6 +56,7 @@ GITHUB_MAX_LFS_BATCH_SIZE = config("GITHUB_MAX_LFS_BATCH_SIZE", default=100, cas
 SSH_PUBKEY_PATH = config("SSH_PUBKEY_PATH", default=f"{SSH_PRIVKEY_PATH}.pub")
 
 # Constants
+GIT_OBJECTS_PREFIX = "v1/"
 COMMON_BRANCH = "common"
 REMOTE_NAME = "origin"
 _user, _email = GIT_AUTHOR.split("<")
@@ -116,6 +118,7 @@ def git_export(event, context):
         print("Done.")
     except Exception as exc:
         print("Error occurred:", exc)
+        traceback.print_exc()
         reset_repo(repo, callbacks=callbacks)
         raise exc
 
@@ -570,7 +573,7 @@ async def repo_sync_content(
     author = pygit2.Signature(GIT_USER, GIT_EMAIL)
     committer = author
 
-    common_branch = f"refs/heads/{COMMON_BRANCH}"
+    common_branch = f"refs/heads/{GIT_OBJECTS_PREFIX}{COMMON_BRANCH}"
 
     # The repo may exist without the 'common' ref (first run).
     try:
@@ -586,7 +589,7 @@ async def repo_sync_content(
     timestamps = [
         int(t.split("/")[-1])
         for t in refs
-        if t.startswith("refs/tags/timestamps/common/")
+        if t.startswith(f"refs/tags/{GIT_OBJECTS_PREFIX}timestamps/common/")
     ]
     if timestamps:
         latest_timestamp = max(timestamps)
@@ -638,7 +641,9 @@ async def repo_sync_content(
     print("Fetching certificate chains")
     for url, pem in fetch_all_cert_chains(client, all_changesets):
         parsed = urllib.parse.urlparse(url)
-        common_content.append((f"cert-chains/{parsed.path.lstrip('/')}", pem.encode()))
+        cert_path = f"cert-chains/{parsed.path.lstrip('/')}"
+        print(f"Storing cert chain {cert_path}")
+        common_content.append((cert_path, pem.encode()))
 
     # Scan the existing LFS pointers in the repository, in order to detect changed attachments.
     existing_attachments = {}
@@ -735,7 +740,9 @@ async def repo_sync_content(
         changed_branches.add(common_branch)
 
         # Tag with current timestamp for next runs
-        tag_name = f"timestamps/common/{monitor_changeset['timestamp']}"
+        tag_name = (
+            f"{GIT_OBJECTS_PREFIX}timestamps/common/{monitor_changeset['timestamp']}"
+        )
         try:
             repo.create_tag(
                 tag_name,
@@ -754,7 +761,7 @@ async def repo_sync_content(
         bid = changeset["metadata"]["bucket"]
         cid = changeset["metadata"]["id"]
         timestamp = changeset["timestamp"]
-        refname = f"refs/heads/buckets/{bid}"
+        refname = f"refs/heads/{GIT_OBJECTS_PREFIX}buckets/{bid}"
         commit_message = f"{bid}/{cid}@{timestamp}"
 
         # Find the bucket branch (changesets are not ordered by bucket)
@@ -783,12 +790,12 @@ async def repo_sync_content(
             commit_oid = repo.create_commit(
                 refname, author, committer, commit_message, files_tree_id, parents
             )
-            print(f"Created commit {bid}/{cid} @ {timestamp}: {commit_oid}")
+            print(f"Created commit {bid}/{cid}@{timestamp}: {commit_oid}")
             changed_branches.add(refname)
 
             # Tag the commit with the timestamp for traceability. If it already
             # exists, ignore the error (idempotent tagging behavior).
-            tag_name = f"timestamps/{bid}/{cid}/{timestamp}"
+            tag_name = f"{GIT_OBJECTS_PREFIX}timestamps/{bid}/{cid}/{timestamp}"
             try:
                 repo.create_tag(
                     tag_name,
@@ -797,7 +804,7 @@ async def repo_sync_content(
                     author,
                     f"{bid}/{cid}/{timestamp}",
                 )
-                print(f"Created {tag_name}")
+                print(f"Created tag {tag_name}")
                 changed_tags.append(tag_name)
             except pygit2.AlreadyExistsError:
                 print(f"Tag {tag_name} already exists, skipping.")
