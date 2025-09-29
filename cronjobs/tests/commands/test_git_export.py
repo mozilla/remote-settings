@@ -254,6 +254,22 @@ def test_repo_sync_content_starts_from_scratch_if_no_previous_run(
 
 
 @responses.activate
+def test_repo_sync_does_nothing_if_up_to_date(
+    capsys, repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+):
+    git_export.git_export(None, None)
+    capsys.readouterr()  # Clear previous output
+
+    git_export.git_export(None, None)
+
+    stdout = capsys.readouterr().out
+    assert "Found latest tag: 1700000000000" in stdout
+    assert "No new changes since last run" in stdout
+    assert "0 attachments to upload" in stdout
+    assert "Everything up-to-date" in stdout
+
+
+@responses.activate
 def test_repo_sync_content_uses_previous_run_to_fetch_changes(
     capsys, repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
 ):
