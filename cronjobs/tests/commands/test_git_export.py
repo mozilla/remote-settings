@@ -48,6 +48,12 @@ def mock_github_lfs():
 
 
 @pytest.fixture
+def mock_ls_remotes():
+    with mock.patch("pygit2.Remote.ls_remotes") as mock_ls:
+        yield mock_ls
+
+
+@pytest.fixture
 def mock_rs_server_content():
     responses.add(
         responses.GET,
@@ -166,7 +172,7 @@ def read_file(repo, branch, filepath):
 
 
 def init_fake_repo(path):
-    repo = pygit2.init_repository(path, bare=True)
+    repo = pygit2.init_repository(path, bare=True, initial_head="main")
     repo.remotes.create("origin", git_export.GIT_REMOTE_URL)
     author = pygit2.Signature("Test User", "test@example.com")
     builder = repo.TreeBuilder()
@@ -180,7 +186,12 @@ def init_fake_repo(path):
         [],  # no parents
     )
     commit = repo[commit_id]
-    repo.create_branch("v1/common", commit)
+
+    repo.branches.local.create("v1/common", commit)
+    refname = "refs/remotes/origin/v1/common"
+    repo.references.create(refname, commit.id)
+
+    repo.set_head("refs/heads/v1/common")
     return repo
 
 
@@ -391,3 +402,87 @@ def test_repo_sync_stores_attachments_as_lfs_pointers(
         42,
         "http://cdn.example.com/v1/attachments/bundles/startup.json.mozlz4",
     ) in objs
+
+
+@responses.activate
+def test_repo_is_resetted_to_local_content_on_error(
+    capsys,
+    repo,
+    mock_git_fetch,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
+    mock_ls_remotes,
+):
+    git_export.git_export(None, None)
+    responses.replace(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/monitor/collections/changes/changeset",
+        json={
+            "timestamp": 1800000000000,
+            "changes": [
+                {
+                    "last_modified": 1800000000000,
+                    "bucket": "bid1",
+                    "collection": "cid0",
+                },
+                {
+                    "last_modified": 1700000000000,
+                    "bucket": "bid1",
+                    "collection": "cid1",
+                },
+                {
+                    "last_modified": 1600000000000,
+                    "bucket": "bid2",
+                    "collection": "cid2",
+                },
+            ],
+        },
+    )
+    responses.add(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/bid1/collections/cid0/changeset",
+        json={
+            "timestamp": 1800000000000,
+            "metadata": {
+                "bucket": "bid1",
+                "id": "cid0",
+                "signature": {
+                    "x5u": "https://autograph.example.com/keys/123",
+                },
+            },
+            "changes": [],
+        },
+    )
+    # Simulate that these branches were pushed in previous `git_export` call.
+    for branch in ("v1/buckets/bid1", "v1/buckets/bid2"):
+        commit = repo.lookup_reference(f"refs/heads/{branch}").peel()
+        refname = f"refs/remotes/origin/{branch}"
+        repo.references.create(refname, commit.id)
+    # Simulate that these tags were pushed in previous `git_export` call.
+    mock_ls_remotes.return_value = [
+        {"name": "refs/tags/v1/timestamps/common/1700000000000", "local": False},
+        {"name": "refs/tags/v1/timestamps/bid1/cid1/1700000000000", "local": False},
+        {"name": "refs/tags/v1/timestamps/bid2/cid2/1600000000000", "local": False},
+    ]
+
+    mock_github_lfs.side_effect = Exception("GitHub LFS error")
+
+    with pytest.raises(Exception, match="GitHub LFS error"):
+        git_export.git_export(None, None)
+
+    stdout = capsys.readouterr().out
+    assert "Error occurred: GitHub LFS error" in stdout
+
+    assert "Rolling back local changes" in stdout
+    assert "Resetting local branch v1/common to remote origin/v1/common" in stdout
+    assert (
+        "Resetting local branch v1/buckets/bid1 to remote origin/v1/buckets/bid1"
+        in stdout
+    )
+    assert (
+        "Resetting local branch v1/buckets/bid2 to remote origin/v1/buckets/bid2"
+        in stdout
+    )
+    assert "Delete local tag refs/tags/v1/timestamps/bid1/cid0/1800000000000" in stdout
+    assert "Delete local tag refs/tags/v1/timestamps/common/1800000000000" in stdout

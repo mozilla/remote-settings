@@ -127,17 +127,16 @@ def reset_repo(repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks):
     print("Rolling back local changes...")
     # Reset all local branches to their remote
     for branch_name in repo.branches.local:
-        remote_name = f"origin/{branch_name}"
-        if remote_name not in repo.branches:
-            continue
-        local_branch = repo.branches[branch_name]
-        remote_branch = repo.branches[remote_name]
-        # Reset local branch to remote target
-        print(f"Resetting local branch {branch_name} to remote {remote_name}")
-        local_branch.set_target(remote_branch.target)
-        # If it's the currently checked out branch, reset HEAD too
-        if repo.head.shorthand == branch_name:
-            repo.reset(remote_branch.target, pygit2.GIT_RESET_HARD)
+        remote_ref_name = f"{REMOTE_NAME}/{branch_name}"
+        if remote_ref_name not in repo.branches:
+            print(f"Delete local branch {branch_name}")
+            repo.branches.delete(branch_name)
+        else:
+            local_branch = repo.branches[branch_name]
+            remote_branch = repo.branches[remote_ref_name]
+            # Reset local branch to remote target
+            print(f"Resetting local branch {branch_name} to remote {remote_ref_name}")
+            local_branch.set_target(remote_branch.target)
 
     # Delete local tags that are not on remote
     origin = repo.remotes[REMOTE_NAME]
@@ -147,7 +146,7 @@ def reset_repo(repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks):
         if obj["name"].startswith("refs/tags/") and not obj["local"]
     }
     for ref in repo.references:
-        if ref.startswith("refs/tags/") or ref in remote_tags:
+        if not ref.startswith("refs/tags/") or ref in remote_tags:
             continue
         print(f"Delete local tag {ref}")
         repo.references.delete(ref)
