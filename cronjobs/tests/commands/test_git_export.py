@@ -50,6 +50,7 @@ def mock_github_lfs():
 @pytest.fixture
 def mock_ls_remotes():
     with mock.patch("pygit2.Remote.ls_remotes") as mock_ls:
+        mock_ls.return_value = []
         yield mock_ls
 
 
@@ -195,6 +196,25 @@ def init_fake_repo(path):
     return repo
 
 
+def simulate_pushed(repo, mock_ls_remotes):
+    # Simulate that these branches and tags were pushed in previous `git_export` call.
+    for branch in repo.branches.local:
+        commit = repo.lookup_reference(f"refs/heads/{branch}").peel()
+        refname = f"refs/remotes/origin/{branch}"
+        try:
+            repo.references.create(refname, commit.id)
+        except pygit2.AlreadyExistsError:
+            repo.references.delete(refname)
+            repo.references.create(refname, commit.id)
+    ref_names = [
+        {"name": tag, "local": False}
+        for tag in repo.listall_references()
+        if tag.startswith("refs/tags/")
+    ]
+    print(ref_names)
+    mock_ls_remotes.return_value = ref_names
+
+
 @pytest.fixture
 def repo():
     repo = init_fake_repo(git_export.WORK_DIR)
@@ -231,7 +251,13 @@ def test_remote_is_clone_if_dir_missing(
 
 @responses.activate
 def test_repo_sync_content_starts_from_scratch_if_no_previous_run(
-    capsys, repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    capsys,
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     git_export.git_export(None, None)
 
@@ -255,9 +281,16 @@ def test_repo_sync_content_starts_from_scratch_if_no_previous_run(
 
 @responses.activate
 def test_repo_sync_does_nothing_if_up_to_date(
-    capsys, repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    capsys,
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     git_export.git_export(None, None)
+    simulate_pushed(repo, mock_ls_remotes)
     capsys.readouterr()  # Clear previous output
 
     git_export.git_export(None, None)
@@ -271,9 +304,16 @@ def test_repo_sync_does_nothing_if_up_to_date(
 
 @responses.activate
 def test_repo_sync_can_be_forced_even_if_up_to_date(
-    capsys, repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    capsys,
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     git_export.git_export(None, None)
+    simulate_pushed(repo, mock_ls_remotes)
     capsys.readouterr()  # Clear previous output
 
     git_export.FORCE = True
@@ -287,7 +327,13 @@ def test_repo_sync_can_be_forced_even_if_up_to_date(
 
 @responses.activate
 def test_repo_sync_content_uses_previous_run_to_fetch_changes(
-    capsys, repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    capsys,
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     repo.create_tag(
         "v1/timestamps/common/1600000000000",
@@ -296,6 +342,9 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
         pygit2.Signature("Test User", "test@example.com"),
         "Test tag at 1600000000000",
     )
+    mock_ls_remotes.return_value = [
+        {"name": "refs/tags/v1/timestamps/common/1600000000000", "local": False}
+    ]
 
     git_export.git_export(None, None)
 
@@ -322,7 +371,13 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
 
 @responses.activate
 def test_repo_sync_content_ignores_previous_run_if_forced(
-    capsys, repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    capsys,
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     repo.create_tag(
         "v1/timestamps/common/1600000000000",
@@ -331,6 +386,9 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
         pygit2.Signature("Test User", "test@example.com"),
         "Test tag at 1600000000000",
     )
+    mock_ls_remotes.return_value = [
+        {"name": "refs/tags/v1/timestamps/common/1600000000000", "local": False}
+    ]
 
     git_export.FORCE = True
     git_export.git_export(None, None)
@@ -343,7 +401,12 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
 
 @responses.activate
 def test_repo_sync_stores_server_info(
-    repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     git_export.git_export(None, None)
 
@@ -353,7 +416,12 @@ def test_repo_sync_stores_server_info(
 
 @responses.activate
 def test_repo_sync_stores_monitor_changes(
-    repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     git_export.git_export(None, None)
 
@@ -363,7 +431,12 @@ def test_repo_sync_stores_monitor_changes(
 
 @responses.activate
 def test_repo_sync_stores_broadcasts(
-    repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     git_export.git_export(None, None)
 
@@ -373,7 +446,12 @@ def test_repo_sync_stores_broadcasts(
 
 @responses.activate
 def test_repo_sync_stores_cert_chains(
-    repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     git_export.git_export(None, None)
 
@@ -383,7 +461,12 @@ def test_repo_sync_stores_cert_chains(
 
 @responses.activate
 def test_repo_sync_tags_common_branch(
-    repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     git_export.git_export(None, None)
 
@@ -397,7 +480,12 @@ def test_repo_sync_tags_common_branch(
 
 @responses.activate
 def test_repo_sync_stores_collections_records_in_buckets_branches_with_tags(
-    repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     git_export.git_export(None, None)
 
@@ -420,7 +508,12 @@ def test_repo_sync_stores_collections_records_in_buckets_branches_with_tags(
 
 @responses.activate
 def test_repo_sync_stores_attachments_as_lfs_pointers(
-    repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     git_export.git_export(None, None)
 
@@ -438,7 +531,12 @@ def test_repo_sync_stores_attachments_as_lfs_pointers(
 
 @responses.activate
 def test_repo_syncs_attachment_bundles(
-    repo, mock_git_fetch, mock_rs_server_content, mock_github_lfs, mock_git_push
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
 ):
     responses.replace(
         responses.GET,
@@ -479,6 +577,8 @@ def test_repo_is_resetted_to_local_content_on_error(
     mock_ls_remotes,
 ):
     git_export.git_export(None, None)
+    simulate_pushed(repo, mock_ls_remotes)
+
     responses.replace(
         responses.GET,
         "http://testserver:9999/v1/buckets/monitor/collections/changes/changeset",
@@ -518,17 +618,6 @@ def test_repo_is_resetted_to_local_content_on_error(
             "changes": [],
         },
     )
-    # Simulate that these branches were pushed in previous `git_export` call.
-    for branch in ("v1/buckets/bid1", "v1/buckets/bid2"):
-        commit = repo.lookup_reference(f"refs/heads/{branch}").peel()
-        refname = f"refs/remotes/origin/{branch}"
-        repo.references.create(refname, commit.id)
-    # Simulate that these tags were pushed in previous `git_export` call.
-    mock_ls_remotes.return_value = [
-        {"name": "refs/tags/v1/timestamps/common/1700000000000", "local": False},
-        {"name": "refs/tags/v1/timestamps/bid1/cid1/1700000000000", "local": False},
-        {"name": "refs/tags/v1/timestamps/bid2/cid2/1600000000000", "local": False},
-    ]
 
     mock_github_lfs.side_effect = Exception("GitHub LFS error")
 
@@ -542,10 +631,6 @@ def test_repo_is_resetted_to_local_content_on_error(
     assert "Resetting local branch v1/common to remote origin/v1/common" in stdout
     assert (
         "Resetting local branch v1/buckets/bid1 to remote origin/v1/buckets/bid1"
-        in stdout
-    )
-    assert (
-        "Resetting local branch v1/buckets/bid2 to remote origin/v1/buckets/bid2"
         in stdout
     )
     assert "Delete local tag refs/tags/v1/timestamps/bid1/cid0/1800000000000" in stdout

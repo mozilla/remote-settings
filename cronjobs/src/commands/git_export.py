@@ -94,6 +94,7 @@ def git_export(event, context):
     except Exception as exc:
         print("Error occurred:", exc)
         traceback.print_exc()
+        print("Rolling back local changes...")
         reset_repo(repo, callbacks=callbacks)
         raise exc
 

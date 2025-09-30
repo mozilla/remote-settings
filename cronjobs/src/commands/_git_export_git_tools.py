@@ -31,6 +31,7 @@ def clone_or_fetch(
         print("Head was at", repo.head.target)
         print(f"Fetching from {repo_url}...")
         remote.fetch(callbacks=callbacks, prune=True)
+        reset_repo(repo, callbacks=callbacks)
     else:
         # Clone remote repository into work dir.
         print(f"Clone {repo_url} into {repo_path}...")
@@ -40,7 +41,7 @@ def clone_or_fetch(
 
 
 def reset_repo(repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks):
-    print("Rolling back local changes...")
+    print("Reset local content to remote content...")
     # Reset all local branches to their remote
     for branch_name in repo.branches.local:
         remote_ref_name = f"{REMOTE_NAME}/{branch_name}"
@@ -50,9 +51,12 @@ def reset_repo(repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks):
         else:
             local_branch = repo.branches[branch_name]
             remote_branch = repo.branches[remote_ref_name]
-            # Reset local branch to remote target
-            print(f"Resetting local branch {branch_name} to remote {remote_ref_name}")
-            local_branch.set_target(remote_branch.target)
+            if local_branch.target != remote_branch.target:
+                # Reset local branch to remote target
+                print(
+                    f"Resetting local branch {branch_name} to remote {remote_ref_name}"
+                )
+                local_branch.set_target(remote_branch.target)
 
     # Delete local tags that are not on remote
     origin = repo.remotes[REMOTE_NAME]
