@@ -529,17 +529,18 @@ def attachments(
     if not settings.self_contained:
         raise HTTPException(status_code=404, detail="attachments/ not enabled")
 
-    base_dir = pathlib.Path(settings.git_repo_path) / "attachments"
+    base_dir = os.path.join(os.path.realpath(settings.git_repo_path), "attachments")
 
     # Normalize requested_path
-    path = os.path.normpath(path)  # Translate '..' and remove redundant separators.
-    requested_path = (base_dir / path).resolve()  # Resolve symlinks and absolute paths.
+    requested_path = os.path.normpath(
+        os.path.join(base_dir, path)
+    )  # Translate '..' and remove redundant separators.
 
     # Prevent directory traversal: ensure requested_path is inside base_dir
-    if not str(requested_path).startswith(str(base_dir.resolve())):
+    if not str(requested_path).startswith(base_dir):
         raise HTTPException(status_code=400, detail="Invalid path")
 
-    if not requested_path.exists() or not requested_path.is_file():
+    if not os.path.exists(requested_path) or not os.path.isfile(requested_path):
         raise HTTPException(status_code=404, detail=f"Attachment {path} not found")
 
     # Make sure we won't serve the LFS pointer file to clients.
