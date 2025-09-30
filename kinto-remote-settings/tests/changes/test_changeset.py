@@ -1,3 +1,4 @@
+import time
 import unittest
 from email.utils import parsedate_to_datetime
 from unittest import mock
@@ -220,6 +221,7 @@ class MonitorChangesetViewTest(BaseWebTest, unittest.TestCase):
         self.app.post_json(
             self.records_uri.format(cid="cfr"), SAMPLE_RECORD, headers=self.headers
         )
+        time.sleep(0.01)  # Ensure last_modified is different.
         self.app.post_json(
             self.records_uri.format(cid="certificates"),
             SAMPLE_RECORD,

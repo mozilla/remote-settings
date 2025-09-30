@@ -221,7 +221,8 @@ class GitService:
                 # No such tag, this timestamp is unknown.
                 raise UnknownTimestamp(_since)
 
-            old_commit = self.repo[old_refobj.target]
+            old_tag = self.repo[old_refobj.target]
+            old_commit = old_tag.peel(pygit2.GIT_OBJECT_COMMIT)
             old_tree = old_commit.tree
             old_records_by_id = {}
             for path, oid in self._scan_folder(old_tree, path=cid):
@@ -246,7 +247,9 @@ class GitService:
 
         # Sort records by last_modified desc.
         changes = sorted(
-            records_by_id.values(), key=lambda r: r["last_modified"], reverse=True
+            records_by_id.values(),
+            key=lambda r: r.get("last_modified", 0),
+            reverse=True,
         )
         return timestamp, metadata, changes
 
@@ -368,16 +371,17 @@ app.include_router(dockerflow_router, prefix=PREFIX, tags=["dockerflow"])
 
 @checks.register
 def git_repo_health() -> list[checks.Check]:
-    git = GitService.dep(
-        repo=get_repo(settings=get_settings()), settings=get_settings()
-    )
     result = []
     try:
+        git = GitService.dep(
+            repo=get_repo(settings=get_settings()), settings=get_settings()
+        )
         git.check_content()
-        result.append(checks.Info("Git repository is reachable", id="git.health.0001"))
+    except LFSPointerFoundError as exc:
+        result.append(checks.Error(str(exc), id="git.health.0002"))
     except Exception as exc:
         print(exc)
-        result.append(checks.Error(str(exc), id="git.health.0002"))
+        result.append(checks.Error(str(exc), id="git.health.0003"))
     return result
 
 
@@ -442,7 +446,7 @@ def monitor_changes(
     collection: str | None = None,
     git: GitService = Depends(GitService.dep),
 ):
-    if _since and _expected < _since:
+    if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
             detail="_expected must be superior to _since if both are provided",
@@ -471,7 +475,7 @@ def collection_changeset(
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
-    if _since and _expected < _since:
+    if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
             detail="_expected must be superior to _since if both are provided",
@@ -481,6 +485,8 @@ def collection_changeset(
         timestamp, metadata, changes = git.get_collection_changeset(
             bid, cid, _since=_since
         )
+    except CollectionNotFound:
+        raise HTTPException(status_code=404, detail=f"{bid}/{cid} not found")
     except UnknownTimestamp:
         print(
             f"Unknown _since timestamp: {_since} for {bid}/{cid}, falling back to full changeset"
@@ -548,7 +554,7 @@ def attachments(
     if os.path.getsize(requested_path) < LFS_POINTER_FILE_SIZE_BYTES:
         content = open(requested_path, "r").read()
         if content.startswith("version https://git-lfs.github.com/spec/v1"):
-            raise LFSPointerFoundError(path)
+            raise LFSPointerFoundError(f"{path} is a Git LFS pointer file")
 
     # Stream from disk
     return StreamingResponse(open(requested_path, "rb"))
