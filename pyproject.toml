@@ -34,6 +34,7 @@ lines-after-imports = 2
 addopts = "-ra --showlocals --tb=native"
 sensitive_url = ".mozaws.net"
 asyncio_mode = "strict"
+pythonpath = ["git-reader", "cronjobs"]
 
 [tool.coverage]
 # https://github.com/nedbat/coveragepy

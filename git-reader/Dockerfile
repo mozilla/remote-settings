@@ -31,7 +31,7 @@ RUN poetry install --no-root
 
 COPY --chown=app:app run.sh .
 RUN chmod +x run.sh
-COPY --chown=app:app main.py .
+COPY --chown=app:app app.py .
 
 USER app
 

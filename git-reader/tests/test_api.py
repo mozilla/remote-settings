@@ -126,14 +126,14 @@ def fake_repo(temp_dir):
 
 @pytest.fixture
 def get_settings_override(fake_repo):
-    from main import Settings
+    from app import Settings
 
     return lambda: Settings(self_contained=True, git_repo_path=fake_repo.path)
 
 
 @pytest.fixture
 def app(get_settings_override):
-    from main import app, get_settings
+    from app import app, get_settings
 
     app.dependency_overrides[get_settings] = get_settings_override
     return app
