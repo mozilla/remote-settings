@@ -129,6 +129,8 @@ def iter_tree(
 ) -> Generator[tuple[str, pygit2.Oid], None, None]:
     """
     Iterate over the entries in a Git tree, and return their paths and IDs.
+
+    Note: This is built into libgit2 as `git_tree_walk()`, but it doesn't appear to be exposed in Python.
     """
     for entry in tree:
         path = f"{prefix}{entry.name}"

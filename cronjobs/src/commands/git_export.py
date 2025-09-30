@@ -52,7 +52,7 @@ GIT_REMOTE_URL = config(
 SSH_PUBKEY_PATH = config("SSH_PUBKEY_PATH", default=f"{SSH_PRIVKEY_PATH}.pub")
 
 # Constants
-GIT_OBJECTS_PREFIX = "v1/"
+GIT_REF_PREFIX = "v1/"
 COMMON_BRANCH = "common"
 _user, _email = GIT_AUTHOR.split("<")
 GIT_USER = _user.strip()
@@ -107,7 +107,7 @@ def json_dumpb(obj: Any) -> bytes:
 
 async def fetch_all_changesets(
     client: kinto_http.AsyncClient, collections: Iterable[tuple[str, str]]
-):
+) -> list[dict[str, Any]]:
     """
     Fetch the changesets of the specified collections using parallel requests.
     """
@@ -155,7 +155,7 @@ async def repo_sync_content(
     author = pygit2.Signature(GIT_USER, GIT_EMAIL)
     committer = author
 
-    common_branch = f"refs/heads/{GIT_OBJECTS_PREFIX}{COMMON_BRANCH}"
+    common_branch = f"refs/heads/{GIT_REF_PREFIX}{COMMON_BRANCH}"
 
     # The repo may exist without the 'common' ref (first run).
     try:
@@ -171,7 +171,7 @@ async def repo_sync_content(
     timestamps = [
         int(t.split("/")[-1])
         for t in refs
-        if t.startswith(f"refs/tags/{GIT_OBJECTS_PREFIX}timestamps/common/")
+        if t.startswith(f"refs/tags/{GIT_REF_PREFIX}timestamps/common/")
     ]
     if timestamps:
         latest_timestamp = max(timestamps)
@@ -322,9 +322,7 @@ async def repo_sync_content(
         changed_branches.add(common_branch)
 
         # Tag with current timestamp for next runs
-        tag_name = (
-            f"{GIT_OBJECTS_PREFIX}timestamps/common/{monitor_changeset['timestamp']}"
-        )
+        tag_name = f"{GIT_REF_PREFIX}timestamps/common/{monitor_changeset['timestamp']}"
         try:
             repo.create_tag(
                 tag_name,
@@ -343,7 +341,7 @@ async def repo_sync_content(
         bid = changeset["metadata"]["bucket"]
         cid = changeset["metadata"]["id"]
         timestamp = changeset["timestamp"]
-        refname = f"refs/heads/{GIT_OBJECTS_PREFIX}buckets/{bid}"
+        refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
         commit_message = f"{bid}/{cid}@{timestamp}"
 
         # Find the bucket branch (changesets are not ordered by bucket)
@@ -377,7 +375,7 @@ async def repo_sync_content(
 
             # Tag the commit with the timestamp for traceability. If it already
             # exists, ignore the error (idempotent tagging behavior).
-            tag_name = f"{GIT_OBJECTS_PREFIX}timestamps/{bid}/{cid}/{timestamp}"
+            tag_name = f"{GIT_REF_PREFIX}timestamps/{bid}/{cid}/{timestamp}"
             try:
                 repo.create_tag(
                     tag_name,
