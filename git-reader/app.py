@@ -532,12 +532,13 @@ def attachments(
     base_dir = os.path.join(os.path.realpath(settings.git_repo_path), "attachments")
 
     # Normalize requested_path
-    requested_path = os.path.normpath(
-        os.path.join(base_dir, path)
-    )  # Translate '..' and remove redundant separators.
+    # Translate '..' and remove redundant separators.
+    # This is ugly but CodeQL does not like pathlib.Path.resolve().
+    requested_path = os.path.normpath(os.path.join(base_dir, path))
 
     # Prevent directory traversal: ensure requested_path is inside base_dir
-    if not str(requested_path).startswith(base_dir):
+    # See https://codeql.github.com/codeql-query-help/python/py-path-injection/
+    if not requested_path.startswith(base_dir):
         raise HTTPException(status_code=400, detail="Invalid path")
 
     if not os.path.exists(requested_path) or not os.path.isfile(requested_path):
