@@ -124,9 +124,8 @@ def _download_from_cdn_and_upload_to_lfs_volume(
             downloaded_digest, downloaded_size = fetch_and_hash(
                 src_url, dest_file=tmp_path
             )
-            if downloaded_size == size:
-                if downloaded_digest == sha256_hex:
-                    break
+            if downloaded_size == size and downloaded_digest == sha256_hex:
+                break
             retry += 1
             time.sleep(retry_delay)
         else:
