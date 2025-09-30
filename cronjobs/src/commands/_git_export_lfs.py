@@ -145,7 +145,7 @@ def _download_from_cdn_and_upload_to_lfs_volume(
                 headers=upload_headers,
                 timeout=timeout,
             )
-        if resp.status_code not in (200, 201, 204):
+        if not resp.ok:
             print(f"LFS: {src_url} upload failed with {resp.status_code}: {resp.text}")
         resp.raise_for_status()
 
