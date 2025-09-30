@@ -231,15 +231,19 @@ async def repo_sync_content(
     # Scan the existing LFS pointers in the repository, in order to detect changed attachments.
     existing_attachments = {}
     if common_base_tree is not None:
-        for path, oid in iter_tree(repo, common_base_tree):
-            if not path.startswith("attachments/"):
-                continue
+        try:
+            attachment_tree = common_base_tree / "attachments"
+            objs = iter_tree(repo, attachment_tree)
+        except KeyError:
+            # No attachments/ folder yet.
+            objs = []
+        for path, oid in objs:
             blob = repo[oid]
             try:
                 sha256_hex, size = parse_lfs_pointer(blob.data)
-                existing_attachments[path] = (sha256_hex, size)
             except ValueError as exc:
                 print(f"Failed to parse LFS pointer for {path}: {exc}")
+            existing_attachments[path] = (sha256_hex, size)
     print(f"Found {len(existing_attachments)} attachments in tree")
 
     # Store all the attachments as LFS pointers.
