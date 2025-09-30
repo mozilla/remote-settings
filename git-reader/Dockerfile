@@ -1,9 +1,18 @@
 FROM python:3.13.2-slim-bullseye
 
-# Install uv.
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+ENV PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    VIRTUAL_ENV=/opt/.venv \
+    PATH="/opt/.venv/bin:$PATH"
 
 RUN apt-get update && apt-get -y install git git-lfs rsync util-linux
+
+# Install Poetry
+RUN python -m venv $VIRTUAL_ENV && \
+    pip install poetry==2.0.1 && \
+    poetry --version
 
 WORKDIR /app
 
@@ -16,9 +25,9 @@ RUN mkdir /app/.ssh && \
     chown -R app:app /app/.ssh
 
 COPY --chown=app:app pyproject.toml .
-COPY --chown=app:app uv.lock .
+COPY --chown=app:app poetry.lock .
 
-RUN uv sync --locked --no-cache
+RUN poetry install --no-root
 
 COPY --chown=app:app run.sh .
 RUN chmod +x run.sh

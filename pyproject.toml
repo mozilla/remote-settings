@@ -89,6 +89,12 @@ optional = true
 [tool.poetry.group.cronjobs.dependencies]
 cronjobs = {path = "./cronjobs", develop = true}
 
+[tool.poetry.group.git-reader]
+optional = true
+
+[tool.poetry.group.git-reader.dependencies]
+git-reader = {path = "./git-reader", develop = true}
+
 [tool.poetry.group.dev.dependencies]
 pytest = "8.4.2"
 webtest = "3.0.6"
@@ -96,6 +102,8 @@ coverage = "7.10.7"
 detect-secrets = "^1.5.0"
 ruff = "^0.13.2"
 responses = "^0.25.8"
+# For git-reader tests
+httpx = "^0.28.1"
 
 [tool.poetry.group.docs]
 optional = true

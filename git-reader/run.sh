@@ -9,7 +9,7 @@ ORIGIN_NAME="origin"
 
 cmd_web() {
     log "Starting web server..."
-    uv run uvicorn main:app --host 0.0.0.0 --port 8000
+    poetry run uvicorn main:app --host 0.0.0.0 --port 8000
 }
 
 
@@ -25,7 +25,7 @@ cmd_init() {
     log "Initializing directory $repo_path..."
     mkdir -p "$repo_path"
 
-    log "Cloning repository into $repo_path/A..."
+    log "Cloning repository ${GIT_REPO_URL} into $repo_path/A..."
     git clone "${GIT_REPO_URL}" "$repo_path/A"
 
     if [ "${SELF_CONTAINED:-false}" = "true" ]; then

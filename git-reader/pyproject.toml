@@ -1,23 +1,17 @@
-[project]
+[tool.poetry]
 name = "git-reader"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-requires-python = ">=3.13"
-dependencies = [
-    "dockerflow>=2024.4.2",
-    "fastapi>=0.116.1",
-    "pydantic-settings>=2.10.1",
-    "pygit2>=1.18.2",
-    "uvicorn>=0.35.0",
-    "uvloop>=0.21.0",
-]
+description = "Remote Settings core cronjobs"
+authors = ["Contactless <postmaster@localhost>"]
 
-[dependency-groups]
-dev = [
-    "httpx>=0.28.1",
-    "pytest>=8.4.2",
-]
+[tool.poetry.dependencies]
+python = ">=3.11, <3.14"
+dockerflow = "^2024.4.2"
+fastapi = "^0.116.1"
+pydantic-settings = "^2.10.1"
+pygit2 = "^1.18.2"
+uvicorn = "^0.35.0"
+uvloop = "^0.21.0"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
