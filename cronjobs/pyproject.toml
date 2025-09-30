@@ -13,6 +13,7 @@ requests = "^2.32.4"
 sentry_sdk = "^2.20.0"
 google-cloud-storage = "^3.0.0"
 lz4 = "^4.3.3"
+pygit2 = "^1.18.2"
 
 [tool.pytest_env]
 # Environment variables (thanks to pytest-env)
