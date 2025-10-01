@@ -16,7 +16,7 @@ docker build -t remote-settings-git-reader .
 
 ## Running the application
 
-The application needs access to a Git repository containing Remote Settings data (read-only);
+The application needs access to a Git repository containing Remote Settings data (read-only):
 
 ```bash
 docker run --rm -p 8000:8000 \
@@ -27,7 +27,7 @@ docker run --rm -p 8000:8000 \
 ```
 
 But first, we will initialize the folder structure required to execute Git updates atomically.
-Use the ``init`` command and the ``GIT_REPO_URL`` environment variable to specify the repository to clone:
+Use the ``gitupdate`` command and the ``GIT_REPO_URL`` environment variable to specify the repository to clone:
 
 ```bash
 docker run --rm \
@@ -35,7 +35,7 @@ docker run --rm \
     -e GIT_REPO_PATH=/mnt/data/latest \
     -e SELF_CONTAINED=true \
     -v /mnt/git/remote-settings-data:/mnt/data \
-    remote-settings-git-reader init
+    remote-settings-git-reader gitupdate
 ```
 
 Unless you used an anonymous clone, this is likely to fail, as the container needs access to the Git repository via SSH.
@@ -59,10 +59,10 @@ docker run --rm \
     -v /mnt/git/remote-settings-data:/mnt/data \
     -e SSH_AUTH_SOCK=/app/ssh-agent \
     -v $SSH_AUTH_SOCK:/app/ssh-agent \
-    remote-settings-git-reader init
+    remote-settings-git-reader gitupdate
 ```
 
-2. Or pass the private key file into the container.
+2. Or mount the private key file into the container.
 
 This requires to have the private key file accessible on the host. You can mount the directory containing the key file into the container. The SSH key **should not** require any passphrase.
 
@@ -86,7 +86,7 @@ docker run --rm \
     -e SELF_CONTAINED=true \
     -v /mnt/git/remote-settings-data:/mnt/data \
     -v `pwd`/ssh-material:/app/.ssh \
-    remote-settings-git-reader init
+    remote-settings-git-reader gitupdate
 ```
 
 You can test your SSH setup:
@@ -102,16 +102,9 @@ Hi <username>! You've successfully authenticated, but GitHub does not provide sh
 
 ## Updating the repository
 
-The container can be used to update the Git repository, by running the `update` command:
+Once the repository is initialized, you can run the ``gitupdate`` command to fetch updates from the remote repository:
 
-```bash
-docker run --rm \
-    -e GIT_REPO_PATH=/mnt/data/latest \
-    -e SELF_CONTAINED=true \
-    -v /mnt/git/remote-settings-data:/mnt/data \
-    remote-settings-git-reader update
-```
-This command can be run periodically (e.g., via a cron job) to keep the repository up to date. For example, every 5 minutes:
+For example, every 5 minutes in a cronjob:
 
 ```bash
 */5 * * * * docker run ...

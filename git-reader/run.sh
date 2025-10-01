@@ -13,37 +13,40 @@ cmd_web() {
 }
 
 
-cmd_init() {
+cmd_gitupdate() {
     local repo_path="$1"
+    local active_dir inactive_dir result
+    log "Repository path is $repo_path"
 
-    # Initialize only if neither latest, nor A nor B exists.
-    if [ -d "$repo_path/latest" ] || [ -d "$repo_path/A" ] || [ -d "$repo_path/B" ]; then
-        log "Directory $repo_path already initialized, skipping."
-        return 0
+    # Check if latest symlink exists.
+    if [ ! -L "$repo_path/latest" ]; then
+        log "Latest symlink not found, initializing repository structure..."
+        # If A doesn't exist, clone into A.
+        if [ ! -d "$repo_path/A" ]; then
+            log "Cloning repository ${GIT_REPO_URL} into $repo_path/A..."
+            git clone "${GIT_REPO_URL}" "$repo_path/A"
+            # Fresh clone don't contain attachments, fetch them from LFS.
+            if [ "${SELF_CONTAINED:-false}" = "true" ]; then
+                git_fetch_lfs "$repo_path/A"
+            else
+                log "Skipping LFS objects fetch."
+            fi
+        fi
+        # Check that A was cloned properly.
+        log "Verifying repository in A..."
+        git -C "$repo_path/A" status || die "Failed to clone repository into $repo_path/A"
+        log "Checking LFS objects in A..."
+        git -C "$repo_path/A" lfs fsck || die "LFS of $repo_path/A is broken."
+
+        # If B doesn't exist, duplicate into B.
+        if [ ! -d "$repo_path/B" ]; then
+            log "Duplicating A to B..."
+            cp -R "$repo_path/A" "$repo_path/B"
+        fi
+        # Set latest to A.
+        log "Setting latest symlink to A..."
+        ln -sfn "$repo_path/A" "$repo_path/latest"
     fi
-
-    log "Initializing directory $repo_path..."
-    mkdir -p "$repo_path"
-
-    log "Cloning repository ${GIT_REPO_URL} into $repo_path/A..."
-    git clone "${GIT_REPO_URL}" "$repo_path/A"
-
-    if [ "${SELF_CONTAINED:-false}" = "true" ]; then
-    git_fetch_lfs "$repo_path/A"
-    else
-    log "Skipping LFS objects fetch."
-    fi
-
-    log "Duplicating A to B..."
-    cp -R "$repo_path/A" "$repo_path/B"
-
-    log "Setting latest symlink to A..."
-    ln -sfn "$repo_path/A" "$repo_path/latest"
-}
-
-
-cmd_update() {
-    local repo_path="$1"
 
     # Determine whether A or B is the latest.
     if [ -d "$repo_path/A" ] && [ -d "$repo_path/B" ]; then
@@ -54,16 +57,20 @@ cmd_update() {
             active_dir="$repo_path/B"
             inactive_dir="$repo_path/A"
         fi
-    else
-        die "Both A and B must exist. Run 'init' first."
     fi
 
+    log "Active directory is $active_dir"
     log "Updating inactive directory $inactive_dir..."
-    git_fetch_lfs "$inactive_dir"
-    result=$?
-    if [ $result -ne 0 ]; then
-        log "No update available"
-        return $result
+    if git_fetch_lfs "$inactive_dir"; then
+        log "Repository updated"
+    else
+        result=$?
+        if [ $result -eq 1 ]; then
+            log "No update available"
+        else
+            log "Error during update (exit code $result)"
+        fi
+        exit $result
     fi
 
     log "Switching latest symlink to $inactive_dir..."
@@ -110,31 +117,27 @@ git_fetch_lfs() {
     else
         log "Skipping LFS objects fetch (SELF_CONTAINED=${SELF_CONTAINED:-false})."
     fi
+    return 0   # update happened
 }
 
 
 case "${1:-}" in
-  update)
+  gitupdate)
+    [ -z "${GIT_REPO_URL:-}" ] && die "GIT_REPO_URL must be set for init."
     [ -z "${GIT_REPO_PATH:-}" ] && die "GIT_REPO_PATH must be set for update."
-    log "Running fetch updates..."
+    # For consistency with the web server, we expect GIT_REPO_PATH to point to
+    # the "latest" symlink, so we use its parent directory to create A and B.
+    parent_dir=$(dirname "${GIT_REPO_PATH}")
+    mkdir -p "${parent_dir}" || die "Failed to create parent directory ${parent_dir}."
     (
         # See https://manpages.debian.org/testing/util-linux/flock.1.en.html#EXAMPLES
         flock -n 9 || { echo "Update already running."; exit 1; };
-        cmd_update "${GIT_REPO_PATH}";
-    ) 9>"${GIT_REPO_PATH}/.fetch-lock"
+        cmd_gitupdate "${parent_dir}";
+    ) 9>"${parent_dir}/.fetch-lock"
     ;;
   web)
     log "Starting web server..."
     cmd_web;
-    ;;
-  init)
-    log "Initializing folder..."
-    [ -z "${GIT_REPO_URL:-}" ] && die "GIT_REPO_URL must be set for init."
-    [ -z "${GIT_REPO_PATH:-}" ] && die "GIT_REPO_PATH must be set for init."
-    # For consistency with the web server, we expect GIT_REPO_PATH to point to
-    # the "latest" symlink, so we use its parent directory to create A and B.
-    parent_dir=$(dirname "${GIT_REPO_PATH}")
-    cmd_init "${parent_dir}"
     ;;
   *)
     # Run the command as given.
