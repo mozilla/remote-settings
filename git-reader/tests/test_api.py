@@ -425,16 +425,7 @@ def test_startup_rewrites_x5u(api_client, temp_dir):
 
     resp = api_client.get("/v2/attachments/bundles/startup.json.mozlz4")
     assert resp.status_code == 200
-
-    with tempfile.NamedTemporaryFile() as tf:
-        with open(tf.name, "wb") as f:
-            f.write(resp.content)
-
-        tf.flush()
-        tf.seek(0)
-
-        data = read_json_mozlz4(tf.name)
-
+    data = read_json_mozlz4(resp.content)
     assert (
         data[0]["metadata"]["signature"]["x5u"]
         == "http://test/v2/cert-chains/a/b/cert.pem"

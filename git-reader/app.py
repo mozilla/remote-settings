@@ -109,12 +109,10 @@ class ChangesetResponse(BaseModel):
 MOZLZ4_HEADER_MAGIC = b"mozLz40\x00"
 
 
-def read_json_mozlz4(input_path: str) -> list[dict]:
+def read_json_mozlz4(content: bytes) -> list[dict]:
     """
     Read changesets from a mozLz4 compressed file.
     """
-    with open(input_path, "rb") as f:
-        content = f.read()
     if not content.startswith(MOZLZ4_HEADER_MAGIC):
         raise ValueError("File does not start with mozLz4 magic number")
     compressed = content[len(MOZLZ4_HEADER_MAGIC) :]
@@ -602,7 +600,8 @@ def attachments(
         if cached != current_commit:
             print("Rewriting x5u URL inside startup bundle")
             # Read from disk
-            startup_changesets = read_json_mozlz4(requested_path)
+            content = open(requested_path, "rb").read()
+            startup_changesets = read_json_mozlz4(content)
             for changeset in startup_changesets:
                 x5u = changeset["metadata"]["signature"]["x5u"]
                 parsed = urlparse(x5u)
