@@ -51,6 +51,61 @@ Looking at /buckets/staging/collections/gfx: Trigger new signature: signed at 20
 
 ```
 
+### git_export
+
+Download the whole content of a server and export it to a Git repository.
+
+The Git repository must exist, and the specified SSH key must have write access to it.
+
+A Github username and Personal Token are required to upload files to the LFS volume.
+
+For example, to sync https://github.com/leplatrem/remote-settings-data/ with production:
+
+```
+$ read -s GITHUB_TOKEN
+$ read -s SSH_KEY_PASSPHRASE
+
+$ SERVER_URL="https://firefox.settings.services.mozilla.com/v1" \
+  GIT_AUTHOR="Mathieu <mathieu@mozilla.com>" \
+  REPO_OWNER="leplatrem" \
+  REPO_NAME="remote-settings-data" \
+  SSH_PRIVKEY_PATH="~/.ssh/id_ed25519" \
+  SSH_KEY_PASSPHRASE="$SSH_KEY_PASSPHRASE" \
+  GITHUB_USERNAME="leplatrem" \
+  GITHUB_TOKEN="$GITHUB_TOKEN" \
+  WORK_DIR="/tmp/git-export.git" \
+  python src/main.py git_export
+
+Work dir /tmp/git-export.git already exists, skipping clone.
+Head was at 5c69668f16f10b4679a9381e353a188cec812807
+Fetching remote...
+Head is now at 3b3866483ab90174626bd9439f587d83c8e8c089
+Found latest tag: 1758015591056.
+2 collections changed since last sync.
+Fetching main/nimbus-preview
+Fetching main-preview/nimbus-preview
+Fetching broadcasts content
+Fetching certificate chains
+Found 4450 attachments in tree
+...
+```
+
+Then, in order to fetch the repository into a working directory and the LFS files:
+
+```
+$ git clone git@github.com:leplatrem/remote-settings-data.git
+$ cd remote-settings-data/
+
+$ git lfs install local
+Updated Git hooks.
+Git LFS initialized
+
+$ git lfs pull
+Downloading LFS objects:  92% (3847/4166), 5.5 GB | 28 MB/s
+
+$ git lfs fsck
+Git LFS fsck OK
+```
 
 ### backport_records
 
