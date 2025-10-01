@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import io
 import json
 import os
 import pathlib
+from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import lru_cache
-from typing import Generator
+from typing import BinaryIO, Generator
 from urllib.parse import urlparse
 
+import lz4.block
 import pygit2
 from dockerflow import checks
 from dockerflow.fastapi import router as dockerflow_router
@@ -24,7 +27,7 @@ VERSION = "0.0.1"
 PREFIX = "/v2"
 REMOTE_NAME = "origin"
 LFS_POINTER_FILE_SIZE_BYTES = 140
-STARTUP_BUNDLE_FILE = "attachments/bundles/startup.json.mozlz4"
+STARTUP_BUNDLE_FILE = "bundles/startup.json.mozlz4"
 GIT_REF_PREFIX = "v1/"  # See cronjobs/src/commands/git_export.py
 
 
@@ -103,6 +106,31 @@ class ChangesetResponse(BaseModel):
     changes: list[dict] = Field(description="")
 
 
+MOZLZ4_HEADER_MAGIC = b"mozLz40\x00"
+
+
+def read_json_mozlz4(input_path: str) -> list[dict]:
+    """
+    Read changesets from a mozLz4 compressed file.
+    """
+    with open(input_path, "rb") as f:
+        content = f.read()
+    if not content.startswith(MOZLZ4_HEADER_MAGIC):
+        raise ValueError("File does not start with mozLz4 magic number")
+    compressed = content[len(MOZLZ4_HEADER_MAGIC) :]
+    decompressed = lz4.block.decompress(compressed)
+    return json.loads(decompressed.decode("utf-8"))
+
+
+def write_json_mozlz4(fd: BinaryIO, changesets: list[dict]):
+    """
+    Write changesets to a mozLz4 compressed file.
+    """
+    json_str = json.dumps(changesets).encode("utf-8")
+    compressed = lz4.block.compress(json_str)
+    fd.write(MOZLZ4_HEADER_MAGIC + compressed)
+
+
 class GitService:
     """
     Wrapper on top of pygit2 to serve content.
@@ -152,7 +180,7 @@ class GitService:
         # Check that LFS files are present if self-contained.
         if self.settings.self_contained:
             known_lfs_file = os.path.join(
-                self.settings.git_repo_path, STARTUP_BUNDLE_FILE
+                self.settings.git_repo_path, "attachments", STARTUP_BUNDLE_FILE
             )
             if os.path.getsize(known_lfs_file) < LFS_POINTER_FILE_SIZE_BYTES:
                 raise LFSPointerFoundError(
@@ -365,7 +393,15 @@ def clean_since_param(
     return int(inner)
 
 
-app = FastAPI(title="Remote Settings Over Git", version=VERSION)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Add a very simple in-memory cache to store data during the app lifespan.
+    """
+    yield {"cache": {}}
+
+
+app = FastAPI(title="Remote Settings Over Git", lifespan=lifespan, version=VERSION)
 app.include_router(dockerflow_router, prefix=PREFIX, tags=["dockerflow"])
 
 
@@ -529,8 +565,10 @@ def cert_chain(
 
 @app.get(f"{PREFIX}/attachments/{{path:path}}")
 def attachments(
+    request: Request,
     path: str,
     settings: Settings = Depends(get_settings),
+    git: GitService = Depends(GitService.dep),
 ):
     if not settings.self_contained:
         raise HTTPException(status_code=404, detail="attachments/ not enabled")
@@ -552,9 +590,35 @@ def attachments(
 
     # Make sure we won't serve the LFS pointer file to clients.
     if os.path.getsize(requested_path) < LFS_POINTER_FILE_SIZE_BYTES:
-        content = open(requested_path, "r").read()
-        if content.startswith("version https://git-lfs.github.com/spec/v1"):
+        content = open(requested_path, "rb").read()
+        if content.startswith(b"version https://git-lfs.github.com/spec/v1"):
             raise LFSPointerFoundError(f"{path} is a Git LFS pointer file")
+
+    # The startup bundle contains all collections changesets.
+    # Their x5u URLs must be rewritten to point to this server.
+    if path == STARTUP_BUNDLE_FILE:
+        cached = request.state.cache.get("_cached_startup_bundle")
+        current_commit: str = git.get_head_info()["id"]
+        if cached != current_commit:
+            print("Rewriting x5u URL inside startup bundle")
+            # Read from disk
+            startup_changesets = read_json_mozlz4(requested_path)
+            for changeset in startup_changesets:
+                x5u = changeset["metadata"]["signature"]["x5u"]
+                parsed = urlparse(x5u)
+                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}{PREFIX}/cert-chains/{parsed.path.lstrip('/')}"
+                changeset["metadata"]["signature"]["x5u"] = rewritten_x5u
+
+            # Dump into memory bytes and cache content to skip rewriting next time.
+            buffer = io.BytesIO()
+            write_json_mozlz4(buffer, startup_changesets)
+            request.state.cache["_cached_startup_content"] = buffer
+            request.state.cache["_cached_startup_bundle"] = current_commit
+
+        cached_content: io.BytesIO = request.state.cache["_cached_startup_content"]
+        cached_content.seek(0)
+        # Stream from memory.
+        return StreamingResponse(cached_content, media_type="application/x-mozlz4")
 
     # Stream from disk
     return StreamingResponse(open(requested_path, "rb"))
