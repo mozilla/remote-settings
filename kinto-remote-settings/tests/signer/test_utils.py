@@ -1,6 +1,7 @@
 import unittest
 from unittest import mock
 
+import cryptography.x509
 import pytest
 from kinto_remote_settings.signer import utils
 from pyramid.exceptions import ConfigurationError
@@ -263,3 +264,38 @@ def test_expand_collections_glob_settings():
         "signer.some-bucket.to_review_enabled": False,
         "signer.some_setting": "foo",
     }
+
+
+CERT_PEM = """-----BEGIN CERTIFICATE-----
+MIIC8zCCAnmgAwIBAgIIGGahTB7ZjAEwCgYIKoZIzj0EAwMwgZExCzAJBgNVBAYT
+AlVTMRwwGgYDVQQKExNNb3ppbGxhIENvcnBvcmF0aW9uMT0wOwYDVQQLEzRNb3pp
+bGxhIENvbnRlbnQgU2lnbmF0dXJlIFByb2R1Y3Rpb24gU2lnbmluZyBTZXJ2aWNl
+MSUwIwYDVQQDExxDb250ZW50IFNpZ25pbmcgSW50ZXJtZWRpYXRlMB4XDTI1MDgy
+MDA4MjA1MloXDTI1MTEwODA4MjA1MlowgakxCzAJBgNVBAYTAlVTMRMwEQYDVQQI
+EwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRwwGgYDVQQKExNN
+b3ppbGxhIENvcnBvcmF0aW9uMRcwFQYDVQQLEw5DbG91ZCBTZXJ2aWNlczE2MDQG
+A1UEAxMtcmVtb3RlLXNldHRpbmdzLmNvbnRlbnQtc2lnbmF0dXJlLm1vemlsbGEu
+b3JnMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEaRzLFtF9lwzMvKwfhLHCFbr/Nawc
+ZbsKoKh1mgkMf2AuhdqfzLK8NwkJurws4JW5waNbngV4CcHTNEfFh4edqtFJNZ2B
+0Lr771xiDju90TzfczfaUrEacWMZ0kiydWbPo4GDMIGAMA4GA1UdDwEB/wQEAwIH
+gDATBgNVHSUEDDAKBggrBgEFBQcDAzAfBgNVHSMEGDAWgBRYxR116Nzt8ryAtGbr
+6rke+PVUBDA4BgNVHREEMTAvgi1yZW1vdGUtc2V0dGluZ3MuY29udGVudC1zaWdu
+YXR1cmUubW96aWxsYS5vcmcwCgYIKoZIzj0EAwMDaAAwZQIxAI4W6H/bkmfPH6Rb
+pnMhAJ0cY4J9RNss/K4qDAsmXZqW+6X4+ypewLu7L3cqqvVhkwIwKWhK1duubw0H
+W1fctdT/ReRcPz/W6vwR/YF9km1eoE/aZmktKmJos08cbythx22O
+-----END CERTIFICATE-----
+"""
+
+
+def test_fetch_cert():
+    with mock.patch("kinto_remote_settings.signer.utils.ssl") as mocked_ssl:
+        mocked_ssl.get_server_certificate.return_value = CERT_PEM
+
+        cert = utils.fetch_cert("https://example.com/cert")
+        mocked_ssl.get_server_certificate.assert_called_with(("example.com", 443))
+        assert (
+            cert.subject.get_attributes_for_oid(cryptography.x509.NameOID.COMMON_NAME)[
+                0
+            ].value
+            == "remote-settings.content-signature.mozilla.org"
+        )

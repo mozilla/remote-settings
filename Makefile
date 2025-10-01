@@ -3,7 +3,7 @@ INSTALL_STAMP := $(VENV)/.install.stamp
 DOC_STAMP := $(VENV)/.doc.install.stamp
 SPHINX_BUILDDIR = docs/_build
 PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
-SOURCES := kinto-remote-settings cronjobs browser-tests bin
+SOURCES := kinto-remote-settings cronjobs git-reader browser-tests bin
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of the following commands.\n"
@@ -31,7 +31,7 @@ $(VENV)/bin/python:  ## Create virtualenv
 install: $(VENV)/bin/python $(INSTALL_STAMP)  ## Install dependencies
 $(INSTALL_STAMP): poetry.lock
 	@if [ -z $(shell command -v poetry 2> /dev/null) ]; then echo "Poetry could not be found. See https://python-poetry.org/docs/"; exit 2; fi
-	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --with cronjobs --no-root
+	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --with cronjobs --with git-reader --no-root
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)  ## Format code base
@@ -45,7 +45,7 @@ lint: $(INSTALL_STAMP)  ## Analyze code base
 	$(VENV)/bin/python bin/repo-python-versions.py
 
 test: $(INSTALL_STAMP)  ## Run unit tests
-	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings cronjobs
+	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings cronjobs git-reader
 	$(VENV)/bin/coverage report -m --fail-under 99
 
 browser-test:  ## Run browser tests using Docker
