@@ -1,0 +1,17 @@
+# Extend what Debian provides
+# Or make sure it is consistent on Mac OS.
+# https://mimetype.io/all-types
+application/json			json
+application/geo+json		geojson
+image/avif					avif
+image/webp					webp
+video/webm					webm
+application/x-fluent		ftl
+application/wasm			wasm
+application/x-pem-file		pem
+image/svg+xml				svg
+image/x-icon				ico
+image/png					png
+image/jpeg					jpg jpeg
+text/plain					txt
+application/xml				xml

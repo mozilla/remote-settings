@@ -178,18 +178,17 @@ def fake_repo(temp_dir):
         "Message",
     )
 
+    # Create some attachments.
     os.makedirs(f"{temp_dir}/attachments/bundles", exist_ok=True)
-    os.makedirs(f"{temp_dir}/attachments/main-workspace/regions", exist_ok=True)
-
-    with open(
-        f"{temp_dir}/attachments/main-workspace/regions/world.geojson", "wb"
-    ) as f:
-        f.write(b"x" * 1000)
-
-    with open(
-        f"{temp_dir}/attachments/bundles/security-state--intermediates.zip", "w"
-    ) as f:
-        f.write("version https://git-lfs.github.com/spec/v1")
+    for path in [
+        "main-workspace/regions/world.geojson",
+        "security-state/crlite/bloomfilter.bin",
+        "security-state/intermediates/file.pem",
+    ]:
+        full_path = os.path.join(temp_dir, "attachments", path)
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, "wb") as f:
+            f.write(b"x" * 1000)
 
     return repo
 
@@ -422,7 +421,12 @@ def test_attachment_unknown_file(api_client):
     assert resp.json()["detail"] == "Attachment path/unknown.txt not found"
 
 
-def test_attachment_lfs_file(api_client):
+def test_attachment_lfs_file(api_client, temp_dir):
+    with open(
+        f"{temp_dir}/attachments/bundles/security-state--intermediates.zip", "w"
+    ) as f:
+        f.write("version https://git-lfs.github.com/spec/v1")
+
     with pytest.raises(Exception, match="LFS pointer"):
         api_client.get("/v2/attachments/bundles/security-state--intermediates.zip")
 
@@ -431,3 +435,21 @@ def test_attachment_real_file(api_client):
     resp = api_client.get("/v2/attachments/main-workspace/regions/world.geojson")
     assert resp.status_code == 200
     assert len(resp.content) == 1000
+
+
+def test_attachment_mimetype(api_client):
+    resp = api_client.get("/v2/attachments/main-workspace/regions/world.geojson")
+    assert resp.status_code == 200
+    assert resp.headers["Content-Type"] == "application/geo+json"
+
+
+def test_attachment_custom_mimetype(api_client):
+    resp = api_client.get("/v2/attachments/security-state/intermediates/file.pem")
+    assert resp.status_code == 200
+    assert resp.headers["Content-Type"] == "application/x-pem-file"
+
+
+def test_attachment_unknown_mimetype(api_client):
+    resp = api_client.get("/v2/attachments/security-state/crlite/bloomfilter.bin")
+    assert resp.status_code == 200
+    assert resp.headers["Content-Type"] == "application/octet-stream"

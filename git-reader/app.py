@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import mimetypes
 import os
 import pathlib
 from datetime import datetime
@@ -18,6 +19,7 @@ from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+HERE = pathlib.Path(__file__).parent.resolve()
 VERSION = "0.0.1"
 # The API is served under /v2 prefix since /records endpoints present in /v1
 # are not implemented.
@@ -26,6 +28,9 @@ REMOTE_NAME = "origin"
 LFS_POINTER_FILE_SIZE_BYTES = 140
 STARTUP_BUNDLE_FILE = "attachments/bundles/startup.json.mozlz4"
 GIT_REF_PREFIX = "v1/"  # See cronjobs/src/commands/git_export.py
+
+# Augment the default mimetypes with our own.
+mimetypes.init(files=[HERE / "mimetypes.txt"])
 
 
 class Settings(BaseSettings):
@@ -557,4 +562,5 @@ def attachments(
             raise LFSPointerFoundError(f"{path} is a Git LFS pointer file")
 
     # Stream from disk
-    return StreamingResponse(open(requested_path, "rb"))
+    mimetype, _ = mimetypes.guess_type(requested_path)
+    return StreamingResponse(open(requested_path, "rb"), media_type=mimetype)

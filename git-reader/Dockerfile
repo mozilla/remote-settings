@@ -7,7 +7,7 @@ ENV PIP_NO_CACHE_DIR=off \
     VIRTUAL_ENV=/opt/.venv \
     PATH="/opt/.venv/bin:$PATH"
 
-RUN apt-get update && apt-get -y install git git-lfs rsync util-linux
+RUN apt-get update && apt-get -y install git git-lfs rsync util-linux media-types
 
 # Install Poetry
 RUN python -m venv $VIRTUAL_ENV && \
@@ -31,7 +31,7 @@ RUN poetry install --no-root
 
 COPY --chown=app:app run.sh .
 RUN chmod +x run.sh
-COPY --chown=app:app app.py .
+COPY --chown=app:app app.py mimetypes.txt ./
 
 USER app
 
