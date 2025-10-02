@@ -106,6 +106,12 @@ class ChangesetResponse(BaseModel):
     changes: list[dict] = Field(description="")
 
 
+"""
+See `cronjobs/src/commands/build_bundles.py` for the code that builds the
+startup bundle with mozLz4 compression (mozilla lz4 variant).
+There is an open bug to use standard lz4 (without magic number)
+https://bugzilla.mozilla.org/show_bug.cgi?id=1209390
+"""
 MOZLZ4_HEADER_MAGIC = b"mozLz40\x00"
 
 
