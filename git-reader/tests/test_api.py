@@ -5,6 +5,7 @@ import tempfile
 
 import pygit2
 import pytest
+from app import read_json_mozlz4, write_json_mozlz4
 from fastapi.testclient import TestClient
 
 
@@ -408,6 +409,26 @@ def test_cert_chain(api_client):
     resp = api_client.get("/v2/cert-chains/a/b/cert.pem")
     assert resp.status_code == 200
     assert "-----BEGIN CERTIFICATE-----" in resp.text
+
+
+def test_startup_rewrites_x5u(api_client, temp_dir):
+    with open(
+        os.path.join(temp_dir, "attachments", "bundles", "startup.json.mozlz4"), "wb"
+    ) as f:
+        write_json_mozlz4(
+            f,
+            [
+                {"metadata": {"signature": {"x5u": "https://autograph/a/b/cert.pem"}}},
+            ],
+        )
+
+    resp = api_client.get("/v2/attachments/bundles/startup.json.mozlz4")
+    assert resp.status_code == 200
+    data = read_json_mozlz4(resp.content)
+    assert (
+        data[0]["metadata"]["signature"]["x5u"]
+        == "http://test/v2/cert-chains/a/b/cert.pem"
+    )
 
 
 def test_attachment_bad_path(api_client):
