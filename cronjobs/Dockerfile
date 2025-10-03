@@ -31,5 +31,11 @@ COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
 WORKDIR /app
 ADD src ./
 
+RUN chown 10001:10001 /app && \
+    groupadd --gid 10001 app && \
+    useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
+
+USER app
+
 ENTRYPOINT ["/app/main.py"]
 CMD ["help"]
