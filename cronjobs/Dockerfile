@@ -19,7 +19,7 @@ COPY pyproject.toml poetry.lock ./
 RUN $POETRY_HOME/bin/poetry install --no-root
 
 
-FROM python:3.13.2
+FROM python:3.13.2-slim
 
 ENV PATH="/opt/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
