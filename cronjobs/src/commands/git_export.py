@@ -61,7 +61,7 @@ GIT_EMAIL = _email.rstrip(">")
 
 def git_export(event, context):
     """
-    Main entrypoint
+    Export Remote Settings data to a Git repository.
     """
     print(f"Git remote URL {GIT_REMOTE_URL}")
     print(

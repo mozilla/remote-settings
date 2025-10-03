@@ -43,7 +43,10 @@ def help_(**kwargs):
         for entrypoint in ENTRYPOINTS
     ]
     func_listed = "\n - ".join(
-        [f"{white_bold(f.__name__)}: {f.__doc__}" for f in commands]
+        [
+            f"{white_bold(f.__name__)}: {f.__doc__.strip().splitlines()[0]}"
+            for f in commands
+        ]
     )
     print(
         f"""

@@ -136,7 +136,9 @@ def sync_cloud_storage(
 
 def build_bundles(event, context):
     """
-    Main command entry point that:
+    Build and upload bundles of changesets and attachments.
+
+    This command:
     - fetches all collections changesets
     - builds a `changesets.json.mozlz4`
     - builds a `startup.json.mozlz4`
