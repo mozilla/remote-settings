@@ -36,7 +36,9 @@ REPO_OWNER = config("REPO_OWNER", default="mozilla")
 REPO_NAME = config("REPO_NAME", default="remote-settings-data")
 GITHUB_USERNAME = config("GITHUB_USERNAME", default="")
 GITHUB_TOKEN = config("GITHUB_TOKEN", default="")
-SSH_PRIVKEY_PATH = config("SSH_PRIVKEY_PATH", default="~/.ssh/id_ed25519")
+SSH_PRIVKEY_PATH = os.path.expanduser(
+    config("SSH_PRIVKEY_PATH", default="~/.ssh/id_ed25519")
+)
 SSH_KEY_PASSPHRASE = config("SSH_KEY_PASSPHRASE", default="")
 
 # Internal parameters
@@ -49,7 +51,9 @@ GIT_REMOTE_URL = config(
     "GIT_REMOTE_URL",
     default=f"{GIT_SSH_USERNAME}@github.com:{REPO_OWNER}/{REPO_NAME}.git",
 )
-SSH_PUBKEY_PATH = config("SSH_PUBKEY_PATH", default=f"{SSH_PRIVKEY_PATH}.pub")
+SSH_PUBKEY_PATH = os.path.expanduser(
+    config("SSH_PUBKEY_PATH", default=f"{SSH_PRIVKEY_PATH}.pub")
+)
 
 # Constants
 GIT_REF_PREFIX = "v1/"
@@ -69,8 +73,8 @@ def git_export(event, context):
     )
     credentials = Keypair(
         GIT_SSH_USERNAME,
-        os.path.expanduser(SSH_PUBKEY_PATH),
-        os.path.expanduser(SSH_PRIVKEY_PATH),
+        SSH_PUBKEY_PATH,
+        SSH_PRIVKEY_PATH,
         SSH_KEY_PASSPHRASE,
     )
     callbacks = RemoteCallbacks(credentials=credentials)
