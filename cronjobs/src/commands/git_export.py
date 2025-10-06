@@ -93,7 +93,13 @@ def git_export(event, context):
             repo_sync_content(repo)
         )
         print(f"{len(changed_attachments)} attachments to upload.")
-        github_lfs_batch_upload_many(objects=changed_attachments)
+        github_lfs_batch_upload_many(
+            objects=changed_attachments,
+            github_username=GITHUB_USERNAME,
+            github_token=GITHUB_TOKEN,
+            repo_owner=REPO_OWNER,
+            repo_name=REPO_NAME,
+        )
 
         push_mirror(repo, changed_branches, changed_tags, callbacks=callbacks)
 

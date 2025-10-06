@@ -528,6 +528,10 @@ def test_repo_sync_stores_attachments_as_lfs_pointers(
     assert "lfs" in rid2.decode()
 
     (_, kwargs) = mock_github_lfs.call_args_list[0]
+    assert kwargs["github_token"] == git_export.GITHUB_TOKEN
+    assert kwargs["github_username"] == git_export.GITHUB_USERNAME
+    assert kwargs["repo_owner"] == git_export.REPO_OWNER
+    assert kwargs["repo_name"] == git_export.REPO_NAME
     objs = [(size, url) for hash, size, url in kwargs["objects"]]
     assert (30000, "http://cdn.example.com/v1/attachments/bid2/random-name.bin") in objs
     assert (
