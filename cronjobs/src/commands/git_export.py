@@ -71,6 +71,8 @@ def git_export(event, context):
     print(
         f"Use SSH key {SSH_PUBKEY_PATH} with {'*' * len(SSH_KEY_PASSPHRASE) if SSH_KEY_PASSPHRASE else 'empty'} passphrase"
     )
+    for key in (SSH_PUBKEY_PATH, SSH_PRIVKEY_PATH):
+        open(key, "rb").read()
     credentials = Keypair(
         GIT_SSH_USERNAME,
         SSH_PUBKEY_PATH,
