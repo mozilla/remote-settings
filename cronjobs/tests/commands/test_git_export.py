@@ -14,6 +14,13 @@ def configs(monkeypatch, tmp_path):
     monkeypatch.setenv("WORK_DIR", str(tmp_path / "workdir"))
     monkeypatch.setenv("SERVER", "http://testserver:9999/v1")
     monkeypatch.setenv("REPO_NAME", "remote-settings-data-stage")
+    # Fake SSH keys
+    ssh_privkey = tmp_path / "id_ed25519"
+    ssh_pubkey = tmp_path / "id_ed25519.pub"
+    monkeypatch.setenv("SSH_PRIVKEY_PATH", str(ssh_privkey))
+    monkeypatch.setenv("SSH_PUBKEY_PATH", str(ssh_pubkey))
+    ssh_privkey.write_text("private_key_content")
+    ssh_pubkey.write_text("public_key_content")
 
     reloaded = importlib.reload(git_export)
     yield reloaded
