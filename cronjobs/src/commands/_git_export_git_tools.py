@@ -28,7 +28,10 @@ def clone_or_fetch(
             raise ValueError(
                 f"Remote URL {remote.url} of work dir {repo_path} does not match {repo_url}"
             )
-        print("Head was at", repo.head.target)
+        if not repo.raw_listall_references():
+            print("No branches or tags found in the repository.")
+        else:
+            print("Head was at", repo.head.target)
         print(f"Fetching from {repo_url}...")
         remote.fetch(callbacks=callbacks, prune=True)
         reset_repo(repo, callbacks=callbacks)

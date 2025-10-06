@@ -83,7 +83,10 @@ def git_export(event, context):
     # TODO: use PGP key to sign commits
 
     repo = clone_or_fetch(GIT_REMOTE_URL, WORK_DIR, callbacks=callbacks)
-    print("Head is now at", repo.head.target)
+    if not repo.raw_listall_references():
+        print("No branches or tags found in the repository.")
+    else:
+        print("Head is now at", repo.head.target)
 
     try:
         changed_attachments, changed_branches, changed_tags = asyncio.run(
