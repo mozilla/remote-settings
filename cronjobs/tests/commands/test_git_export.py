@@ -230,7 +230,7 @@ def repo():
     shutil.rmtree(git_export.WORK_DIR, ignore_errors=True)
 
 
-def test_clone_must_match_remote_url_if_dir_exists():
+def test_clone_must_match_remote_url_if_dir_exists(mock_github_lfs):
     pygit2.init_repository(git_export.WORK_DIR, bare=True)
     repo = pygit2.Repository(git_export.WORK_DIR)
     repo.remotes.create("origin", "https://example.com/repo.git")
