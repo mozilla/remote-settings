@@ -201,7 +201,6 @@ def github_lfs_test_credentials(
     print(
         f"Authenticated as GitHub user: {user_data.get('login')} (id={user_data.get('id')})"
     )
-    print(user_data)
     github_lfs_batch_request(
         auth_header=authz,
         objects=[],

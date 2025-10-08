@@ -219,7 +219,6 @@ def simulate_pushed(repo, mock_ls_remotes):
         for tag in repo.listall_references()
         if tag.startswith("refs/tags/")
     ]
-    print(ref_names)
     mock_ls_remotes.return_value = ref_names
 
 
