@@ -51,7 +51,8 @@ def mock_repo_sync_content():
 @pytest.fixture
 def mock_github_lfs():
     with mock.patch.object(git_export, "github_lfs_batch_upload_many") as mock_lfs:
-        yield mock_lfs
+        with mock.patch.object(git_export, "github_lfs_test_credentials"):
+            yield mock_lfs
 
 
 @pytest.fixture
