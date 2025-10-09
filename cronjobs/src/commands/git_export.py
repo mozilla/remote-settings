@@ -26,6 +26,7 @@ from ._git_export_git_tools import (
 from ._git_export_lfs import (
     fetch_and_hash,
     github_lfs_batch_upload_many,
+    github_lfs_test_credentials,
 )
 
 
@@ -81,6 +82,14 @@ def git_export(event, context):
     )
     callbacks = RemoteCallbacks(credentials=credentials)
     # TODO: use PGP key to sign commits
+
+    print(f"Testing GitHub Token for {GITHUB_USERNAME} on {REPO_OWNER}/{REPO_NAME}...")
+    github_lfs_test_credentials(
+        github_username=GITHUB_USERNAME,
+        github_token=GITHUB_TOKEN,
+        repo_owner=REPO_OWNER,
+        repo_name=REPO_NAME,
+    )
 
     repo = clone_or_fetch(GIT_REMOTE_URL, WORK_DIR, callbacks=callbacks)
     if not repo.raw_listall_references():

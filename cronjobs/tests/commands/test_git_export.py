@@ -51,7 +51,8 @@ def mock_repo_sync_content():
 @pytest.fixture
 def mock_github_lfs():
     with mock.patch.object(git_export, "github_lfs_batch_upload_many") as mock_lfs:
-        yield mock_lfs
+        with mock.patch.object(git_export, "github_lfs_test_credentials"):
+            yield mock_lfs
 
 
 @pytest.fixture
@@ -218,7 +219,6 @@ def simulate_pushed(repo, mock_ls_remotes):
         for tag in repo.listall_references()
         if tag.startswith("refs/tags/")
     ]
-    print(ref_names)
     mock_ls_remotes.return_value = ref_names
 
 
@@ -229,7 +229,7 @@ def repo():
     shutil.rmtree(git_export.WORK_DIR, ignore_errors=True)
 
 
-def test_clone_must_match_remote_url_if_dir_exists():
+def test_clone_must_match_remote_url_if_dir_exists(mock_github_lfs):
     pygit2.init_repository(git_export.WORK_DIR, bare=True)
     repo = pygit2.Repository(git_export.WORK_DIR)
     repo.remotes.create("origin", "https://example.com/repo.git")

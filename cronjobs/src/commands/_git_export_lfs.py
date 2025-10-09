@@ -170,6 +170,47 @@ def _github_lfs_verify_upload(
     r.raise_for_status()
 
 
+def _base64_auth_header(username: str, token: str) -> str:
+    creds = f"{username}:{token}".encode("utf-8")
+    return f"Basic {base64.b64encode(creds).decode('ascii')}"
+
+
+def github_lfs_test_credentials(
+    github_username: str,
+    github_token: str,
+    repo_owner: str,
+    repo_name: str,
+    timeout: float = HTTP_TIMEOUT_BATCH_SECONDS,
+) -> bool:
+    """
+    Test GitHub LFS credentials by making a dummy batch request.
+    """
+    if not github_token.startswith("github_pat_"):
+        print(
+            "Warning: It looks like the provided GitHub token is not a PAT (personal access token)."
+        )
+    authz = _base64_auth_header(github_username, github_token)
+    # Fetch profile of the authenticated user to verify token works.
+    resp = requests.get(
+        "https://api.github.com/user",
+        headers={"Authorization": authz, "Accept": "application/vnd.github.v3+json"},
+        timeout=timeout,
+    )
+    resp.raise_for_status()
+    user_data = resp.json()
+    print(
+        f"Authenticated as GitHub user: {user_data.get('login')} (id={user_data.get('id')})"
+    )
+    github_lfs_batch_request(
+        auth_header=authz,
+        objects=[],
+        operation="upload",
+        repo_owner=repo_owner,
+        repo_name=repo_name,
+        timeout=timeout,
+    )
+
+
 def github_lfs_batch_upload_many(
     objects: Iterable[tuple[str, int, str]],  # (sha256_hex, size, source_url),
     github_username: str,
@@ -184,8 +225,7 @@ def github_lfs_batch_upload_many(
 
     objects: iterable of (oid_hex:str, size:int, src_url:str)
     """
-    creds = f"{github_username}:{github_token}".encode("utf-8")
-    authz = f"Basic {base64.b64encode(creds).decode('ascii')}"
+    authz = _base64_auth_header(github_username, github_token)
 
     chunks = list(itertools.batched(objects, GITHUB_MAX_LFS_BATCH_SIZE))
     total_chunks = len(chunks)
