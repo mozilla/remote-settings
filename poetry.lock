@@ -3265,13 +3265,13 @@ test = ["aiohttp (>=3.10.5)", "flake8 (>=5.0,<6.0)", "mypy (>=0.800)", "psutil",
 
 [[package]]
 name = "uwsgi"
-version = "2.0.30"
+version = "2.0.31"
 description = "The uWSGI server"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "uwsgi-2.0.30.tar.gz", hash = "sha256:c12aa652124f062ac216077da59f6d247bd7ef938234445881552e58afb1eb5f"},
+    {file = "uwsgi-2.0.31.tar.gz", hash = "sha256:e8f8b350ccc106ff93a65247b9136f529c14bf96b936ac5b264c6ff9d0c76257"},
 ]
 
 [[package]]
@@ -3463,4 +3463,4 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11, <3.14"
-content-hash = "cc70605ea80f8ce16c760d282139f8ed4edb088f07e831bed5140ac255e6e28d"
+content-hash = "eaa0cd9267a3aa92ffe55b94eb74dce93a30690b77ba33697b1fb6853db36f63"
