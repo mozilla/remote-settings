@@ -139,7 +139,7 @@ class LocalUpdaterTest(unittest.TestCase):
             resource_name="collection",
             object_id="destcollection",
             parent_id="/buckets/destbucket",
-            obj={"id": 1234, "signature": mock.sentinel.signature},
+            obj={"id": 1234, "signatures": [mock.sentinel.signature]},
         )
 
     def test_set_destination_signature_copies_kinto_admin_ui_fields(self):
@@ -160,7 +160,7 @@ class LocalUpdaterTest(unittest.TestCase):
             parent_id="/buckets/destbucket",
             obj={
                 "id": 1234,
-                "signature": mock.sentinel.signature,
+                "signatures": [mock.sentinel.signature],
                 "sort": "size",
                 "displayFields": ["name"],
             },
@@ -183,7 +183,7 @@ class LocalUpdaterTest(unittest.TestCase):
             parent_id="/buckets/destbucket",
             obj={
                 "id": 1234,
-                "signature": mock.sentinel.signature,
+                "signatures": [mock.sentinel.signature],
                 "flags": ["startup"],
             },
         )
@@ -304,7 +304,7 @@ class LocalUpdaterTest(unittest.TestCase):
                 "id": "sourcecollection",
             },
         )
-        self.updater.signer.sign.return_value = {}
+        self.updater.signer.sign.return_value = mock.sentinel.signature
 
         self.updater.refresh_signature(DummyRequest(), "work-in-progress")
 
@@ -315,6 +315,6 @@ class LocalUpdaterTest(unittest.TestCase):
             obj={
                 "id": "destcollection",
                 "attachment": {"bundle": True},
-                "signature": {},
+                "signatures": [mock.sentinel.signature],
             },
         )

@@ -393,7 +393,7 @@ class LocalUpdater(object):
         # Update the collection_record
         new_collection = dict(**collection_record)
         new_collection.pop(FIELD_LAST_MODIFIED, None)
-        new_collection["signature"] = signature
+        new_collection["signatures"] = [signature]
         for attr in PUBLISHED_COLLECTION_FIELDS:
             if attr in source_attributes:
                 new_collection[attr] = source_attributes[attr]
