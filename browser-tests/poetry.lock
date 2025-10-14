@@ -861,7 +861,7 @@ description = "Fork of the standard library cgi and cgitb modules removed in Pyt
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "python_version == \"3.13\""
+markers = "python_version >= \"3.13\""
 files = [
     {file = "legacy_cgi-2.6.3-py3-none-any.whl", hash = "sha256:6df2ea5ae14c71ef6f097f8b6372b44f6685283dc018535a75c924564183cdab"},
     {file = "legacy_cgi-2.6.3.tar.gz", hash = "sha256:4c119d6cb8e9d8b6ad7cc0ddad880552c62df4029622835d06dfd18f438a8154"},
@@ -1656,5 +1656,5 @@ propcache = ">=0.2.1"
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.11, <3.14"
-content-hash = "af14b8ed4f2a37745a535ffe14ef1d1b2a96a284ea79bfd7576e8138abb9e394"
+python-versions = ">=3.11, <3.15"
+content-hash = "b616c241811e1f4bdc57e9c94e5cbc4e26045f2f55164b7fc6de27f4aaa3e4eb"

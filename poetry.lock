@@ -681,7 +681,7 @@ name = "cronjobs"
 version = "0"
 description = "Remote Settings core cronjobs"
 optional = false
-python-versions = ">=3.11, <3.14"
+python-versions = ">=3.11, <3.15"
 groups = ["cronjobs"]
 files = []
 develop = true
@@ -873,7 +873,7 @@ name = "git-reader"
 version = "0.1.0"
 description = "Remote Settings core cronjobs"
 optional = false
-python-versions = ">=3.11, <3.14"
+python-versions = ">=3.11, <3.15"
 groups = ["git-reader"]
 files = []
 develop = true
@@ -1481,7 +1481,7 @@ description = "Fork of the standard library cgi and cgitb modules removed in Pyt
 optional = false
 python-versions = ">=3.8"
 groups = ["main", "dev", "kinto-remote-settings"]
-markers = "python_version == \"3.13\""
+markers = "python_version >= \"3.13\""
 files = [
     {file = "legacy_cgi-2.6.3-py3-none-any.whl", hash = "sha256:6df2ea5ae14c71ef6f097f8b6372b44f6685283dc018535a75c924564183cdab"},
     {file = "legacy_cgi-2.6.3.tar.gz", hash = "sha256:4c119d6cb8e9d8b6ad7cc0ddad880552c62df4029622835d06dfd18f438a8154"},
@@ -3584,5 +3584,5 @@ test = ["zope.testing"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.11, <3.14"
-content-hash = "cc70605ea80f8ce16c760d282139f8ed4edb088f07e831bed5140ac255e6e28d"
+python-versions = ">=3.11, <3.15"
+content-hash = "f923997aaba84866ed7726e8f06a68b5b79480ebcd31f9d1d7f73bd4fbcdec9a"
