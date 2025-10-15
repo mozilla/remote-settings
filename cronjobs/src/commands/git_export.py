@@ -26,7 +26,7 @@ from ._git_export_git_tools import (
 from ._git_export_lfs import (
     fetch_and_hash,
     github_lfs_batch_upload_many,
-    github_lfs_test_credentials,
+    github_lfs_validate_credentials,
 )
 
 
@@ -92,7 +92,7 @@ def git_export(event, context):
     print(
         f"Testing GitHub Token for {GITHUB_USERNAME or GITHUB_APP_ID} on {REPO_OWNER}/{REPO_NAME}..."
     )
-    auth_header = github_lfs_test_credentials(
+    auth_header = github_lfs_validate_credentials(
         repo_owner=REPO_OWNER,
         repo_name=REPO_NAME,
         github_username=GITHUB_USERNAME,

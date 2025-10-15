@@ -13,7 +13,7 @@ from commands._git_export_lfs import (
 )
 from commands.git_export import (
     github_lfs_batch_upload_many,
-    github_lfs_test_credentials,
+    github_lfs_validate_credentials,
 )
 
 
@@ -54,7 +54,7 @@ def test_pat_token_success():
         content_type="application/vnd.git-lfs+json",
     )
 
-    github_lfs_test_credentials(
+    github_lfs_validate_credentials(
         repo_owner="leplatrem",
         repo_name="remote-settings-data",
         github_username="leplatrem",
@@ -71,7 +71,7 @@ def test_pat_token_failing():
     )
 
     with pytest.raises(requests.HTTPError):
-        github_lfs_test_credentials(
+        github_lfs_validate_credentials(
             repo_owner="leplatrem",
             repo_name="remote-settings-data",
             github_username="leplatrem",
@@ -112,7 +112,7 @@ def test_app_id_token_flow_success(mock_jwt, temp_key):
     )
 
     # Does not raise
-    github_lfs_test_credentials(
+    github_lfs_validate_credentials(
         repo_owner="leplatrem",
         repo_name="remote-settings-data",
         github_app_id=12345,
@@ -130,7 +130,7 @@ def test_app_id_token_flow_failing(mock_jwt, temp_key):
         status=400,
     )
     with pytest.raises(requests.HTTPError):
-        github_lfs_test_credentials(
+        github_lfs_validate_credentials(
             repo_owner="leplatrem",
             repo_name="remote-settings-data",
             github_app_id=12345,
@@ -151,7 +151,7 @@ def test_app_id_token_flow_failing(mock_jwt, temp_key):
         status=403,
     )
     with pytest.raises(requests.HTTPError):
-        github_lfs_test_credentials(
+        github_lfs_validate_credentials(
             repo_owner="leplatrem",
             repo_name="remote-settings-data",
             github_app_id=12345,
@@ -171,7 +171,7 @@ def test_app_id_token_flow_failing(mock_jwt, temp_key):
         status=403,
     )
     with pytest.raises(requests.HTTPError):
-        github_lfs_test_credentials(
+        github_lfs_validate_credentials(
             repo_owner="leplatrem",
             repo_name="remote-settings-data",
             github_app_id=12345,

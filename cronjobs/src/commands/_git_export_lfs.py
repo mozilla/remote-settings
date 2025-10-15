@@ -267,7 +267,7 @@ def _verify_installation_token(
     return r.json()
 
 
-def github_lfs_test_credentials(
+def github_lfs_validate_credentials(
     repo_owner: str,
     repo_name: str,
     # Option A: Personal Access Token (PAT)
