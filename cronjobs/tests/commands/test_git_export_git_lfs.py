@@ -1,6 +1,8 @@
 import json
+from unittest import mock
 
 import commands
+import jwt
 import pytest
 import requests
 import responses
@@ -11,6 +13,7 @@ from commands._git_export_lfs import (
 )
 from commands.git_export import (
     github_lfs_batch_upload_many,
+    github_lfs_test_credentials,
 )
 
 
@@ -19,6 +22,161 @@ def no_sleep(monkeypatch):
     monkeypatch.setattr(
         commands._git_export_lfs.time, "sleep", lambda s: None, raising=False
     )
+
+
+@pytest.fixture
+def mock_jwt():
+    with mock.patch("commands._git_export_lfs.jwt", spec=jwt) as mocked:
+        mocked.encode.return_value = "JWT"
+        yield mocked
+
+
+@pytest.fixture
+def temp_key(tmp_path):
+    key_path = tmp_path / "key.pem"
+    key_path.write_text("PRIVATE_KEY")
+    return str(key_path)
+
+
+@responses.activate
+def test_pat_token_success():
+    responses.add(
+        responses.GET,
+        "https://api.github.com/user",
+        json={"login": "leplatrem", "id": 123},
+        status=200,
+    )
+    responses.add(
+        responses.POST,
+        "https://github.com/leplatrem/remote-settings-data.git/info/lfs/objects/batch",
+        json={},
+        status=200,
+        content_type="application/vnd.git-lfs+json",
+    )
+
+    github_lfs_test_credentials(
+        repo_owner="leplatrem",
+        repo_name="remote-settings-data",
+        github_username="leplatrem",
+        github_token="TOKEN",
+    )
+
+
+@responses.activate
+def test_pat_token_failing():
+    responses.add(
+        responses.GET,
+        "https://api.github.com/user",
+        status=403,
+    )
+
+    with pytest.raises(requests.HTTPError):
+        github_lfs_test_credentials(
+            repo_owner="leplatrem",
+            repo_name="remote-settings-data",
+            github_username="leplatrem",
+            github_token="TOKEN",
+        )
+
+
+@responses.activate
+def test_app_id_token_flow_success(mock_jwt, temp_key):
+    # _resolve_installation_id() call
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/leplatrem/remote-settings-data/installation",
+        json={"id": 42, "name": "remote-settings-data"},
+        status=200,
+    )
+    # _mint_installation_access_token() call
+    responses.add(
+        responses.POST,
+        "https://api.github.com/app/installations/42/access_tokens",
+        json={"token": "TOKEN", "expires_at": "1982-05-08T13:29:59Z"},
+        status=201,
+    )
+    # _verify_installation_token() call
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/leplatrem/remote-settings-data",
+        json={"id": 123, "full_name": "FULLNAME"},
+        status=200,
+    )
+    # LFS batch call
+    responses.add(
+        responses.POST,
+        "https://github.com/leplatrem/remote-settings-data.git/info/lfs/objects/batch",
+        json={},
+        status=200,
+        content_type="application/vnd.git-lfs+json",
+    )
+
+    # Does not raise
+    github_lfs_test_credentials(
+        repo_owner="leplatrem",
+        repo_name="remote-settings-data",
+        github_app_id=12345,
+        github_app_private_key_path=temp_key,
+    )
+
+
+@responses.activate
+def test_app_id_token_flow_failing(mock_jwt, temp_key):
+    # Fails to resolve installation ID
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/leplatrem/remote-settings-data/installation",
+        json={"error": "bad"},
+        status=400,
+    )
+    with pytest.raises(requests.HTTPError):
+        github_lfs_test_credentials(
+            repo_owner="leplatrem",
+            repo_name="remote-settings-data",
+            github_app_id=12345,
+            github_app_private_key_path=temp_key,
+        )
+
+    # Fails to mint installation token
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/leplatrem/remote-settings-data/installation",
+        json={"id": 42, "name": "remote-settings-data"},
+        status=200,
+    )
+    responses.add(
+        responses.POST,
+        "https://api.github.com/app/installations/42/access_tokens",
+        json={"error": "bad"},
+        status=403,
+    )
+    with pytest.raises(requests.HTTPError):
+        github_lfs_test_credentials(
+            repo_owner="leplatrem",
+            repo_name="remote-settings-data",
+            github_app_id=12345,
+            github_app_private_key_path=temp_key,
+        )
+
+    # Fails to obtain repo details with token
+    responses.add(
+        responses.POST,
+        "https://api.github.com/app/installations/42/access_tokens",
+        json={"token": "TOKEN", "expires_at": "1982-05-08T13:29:59Z"},
+        status=201,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/leplatrem/remote-settings-data",
+        status=403,
+    )
+    with pytest.raises(requests.HTTPError):
+        github_lfs_test_credentials(
+            repo_owner="leplatrem",
+            repo_name="remote-settings-data",
+            github_app_id=12345,
+            github_app_private_key_path=temp_key,
+        )
 
 
 @responses.activate
@@ -260,8 +418,7 @@ def test_batch_upload_already_present_and_no_verify(capsys):
         [obj],
         repo_owner="foo",
         repo_name="bar",
-        github_username="bob",
-        github_token="token",
+        auth_header="Bearer TOKEN",
     )
 
     # only the batch call
@@ -292,8 +449,7 @@ def test_batch_upload_handles_error_objects(capsys):
         [o],
         repo_owner="foo",
         repo_name="bar",
-        github_username="bob",
-        github_token="token",
+        auth_header="Bearer TOKEN",
     )
 
     assert len(responses.calls) == 1  # only batch
@@ -372,8 +528,7 @@ def test_batch_upload_and_verify():
         [o1, o2],
         repo_owner="foo",
         repo_name="bar",
-        github_username="user",
-        github_token="token",
+        auth_header="Bearer TOKEN",
     )
 
     (
@@ -386,9 +541,6 @@ def test_batch_upload_and_verify():
         verify_call_2,
     ) = responses.calls
 
-    # batch call auth header present
-    expected_header = "Basic dXNlcjp0b2tlbg=="  # pragma: allowlist secret
-    assert _batch_call.request.headers.get("Authorization") == expected_header
     sent = json.loads(_batch_call.request.body.decode("utf-8"))
     # order preserved: two objects with (oid,size)
     assert sent["operation"] == "upload"

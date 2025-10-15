@@ -35,12 +35,18 @@ SERVER_URL = config("SERVER", default="http://localhost:8888/v1")
 GIT_AUTHOR = config("GIT_AUTHOR", default="User <user@example.com>")
 REPO_OWNER = config("REPO_OWNER", default="mozilla")
 REPO_NAME = config("REPO_NAME", default="remote-settings-data")
-GITHUB_USERNAME = config("GITHUB_USERNAME", default="")
-GITHUB_TOKEN = config("GITHUB_TOKEN", default="")
 SSH_PRIVKEY_PATH = os.path.expanduser(
     config("SSH_PRIVKEY_PATH", default="~/.ssh/id_ed25519")
 )
 SSH_KEY_PASSPHRASE = config("SSH_KEY_PASSPHRASE", default="")
+
+# LFS GitHub authentication
+# Option A: Personal Access Token (PAT)
+GITHUB_USERNAME = config("GITHUB_USERNAME", default=None)
+GITHUB_TOKEN = config("GITHUB_TOKEN", default=None)
+# Option B: GitHub App authentication
+GITHUB_APP_ID = config("GITHUB_APP_ID", default=None)
+GITHUB_APP_PRIVATE_KEY_PATH = config("GITHUB_APP_PRIVATE_KEY_PATH", default=None)
 
 # Internal parameters
 WORK_DIR = config("WORK_DIR", default="/tmp/git-export.git")
@@ -83,12 +89,16 @@ def git_export(event, context):
     callbacks = RemoteCallbacks(credentials=credentials)
     # TODO: use PGP key to sign commits
 
-    print(f"Testing GitHub Token for {GITHUB_USERNAME} on {REPO_OWNER}/{REPO_NAME}...")
-    github_lfs_test_credentials(
-        github_username=GITHUB_USERNAME,
-        github_token=GITHUB_TOKEN,
+    print(
+        f"Testing GitHub Token for {GITHUB_USERNAME or GITHUB_APP_ID} on {REPO_OWNER}/{REPO_NAME}..."
+    )
+    auth_header = github_lfs_test_credentials(
         repo_owner=REPO_OWNER,
         repo_name=REPO_NAME,
+        github_username=GITHUB_USERNAME,
+        github_token=GITHUB_TOKEN,
+        github_app_id=GITHUB_APP_ID,
+        github_app_private_key_path=GITHUB_APP_PRIVATE_KEY_PATH,
     )
 
     repo = clone_or_fetch(GIT_REMOTE_URL, WORK_DIR, callbacks=callbacks)
@@ -104,10 +114,9 @@ def git_export(event, context):
         print(f"{len(changed_attachments)} attachments to upload.")
         github_lfs_batch_upload_many(
             objects=changed_attachments,
-            github_username=GITHUB_USERNAME,
-            github_token=GITHUB_TOKEN,
             repo_owner=REPO_OWNER,
             repo_name=REPO_NAME,
+            auth_header=auth_header,
         )
 
         push_mirror(repo, changed_branches, changed_tags, callbacks=callbacks)
