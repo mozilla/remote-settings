@@ -421,6 +421,12 @@ The *destination* collection metadata now contains the signature:
        }
    }
 
+.. note::
+
+    The signature is also available in the ``signature`` field for backward compatibility. It should be preserved at least
+    until all clients run the new verification code of `Bug 1984079 <https://bugzilla.mozilla.org/show_bug.cgi?id=1984079>`_.
+
+
 Tracking fields
 ---------------
 
