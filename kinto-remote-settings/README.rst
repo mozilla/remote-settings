@@ -133,7 +133,7 @@ When the *source* collection metadata ``status`` is set to ``"to-sign"``, it wil
 #. update the *destination* collection records with the recent changes
 #. serialize the result in a Canonical JSON form (*see below*)
 #. compute a signature using the configured backend
-#. update the *destination* collection metadata ``signature`` with the information
+#. update the *destination* collection metadata ``signatures`` with the information
    obtain form the signature backend
 #. set the *source* metadata ``status`` to ``"signed"``.
 
@@ -406,11 +406,13 @@ The *destination* collection metadata now contains the signature:
        "data": {
            "id": "collection1",
            "last_modified": 1460558496510,
-           "signature": {
-               "mode": "p384ecdsa",
-               "x5u": "https://bucket.example.net/appkey1.pem",
-               "signature": "Nv-EJ1D0fanElBGP4ZZmV6zu_b4DuCP3H7xawlLrcR7to3aKzqfZknVXOi94G_w8-wdKlysVWmhuDMqJqPcJV7ZudbhypJpj7kllWdPvMRZkoWXSfYLaoLMc8VQEqZcb"
-           }
+           "signatures": [
+                {
+                "mode": "p384ecdsa",
+                "x5u": "https://bucket.example.net/appkey1.pem",
+                "signature": "Nv-EJ1D0fanElBGP4ZZmV6zu_b4DuCP3H7xawlLrcR7to3aKzqfZknVXOi94G_w8-wdKlysVWmhuDMqJqPcJV7ZudbhypJpj7kllWdPvMRZkoWXSfYLaoLMc8VQEqZcb"
+                }
+           ]
        },
        "permissions": {
            "read": [
@@ -418,6 +420,12 @@ The *destination* collection metadata now contains the signature:
            ]
        }
    }
+
+.. note::
+
+    The signature is also available in the ``signature`` field for backward compatibility. It should be preserved at least
+    until all clients run the new verification code of `Bug 1984079 <https://bugzilla.mozilla.org/show_bug.cgi?id=1984079>`_.
+
 
 Tracking fields
 ---------------

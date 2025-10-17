@@ -316,12 +316,13 @@ Signature validation steps are:
   3. root certificate must match hard-coded value
 
 - Verify that the subject alternate name of the chain's end-entity (leaf) certificate matches the ``signer_id`` provided in metadata
-- Use the chain's end-entity (leaf) certificate to verify that the "signature" value provided in metadata matches the contents of the local data:
+- For each entry in the ``signatures`` field of the metadata, use the chain's end-entity (leaf) certificate to verify that the ``signature`` value matches the contents of the local data:
 
   1. Serialize the local data ``{"data": records_sorted_by_id, "last_modified": timestamp}`` using `Canonical JSON <https://github.com/mozilla-services/canonicaljson-rs>`_
   2. The message to verify is the concatenation of ``Content-Signature:\x00 + serialized_data``
   3. Decode the base64 ``signature`` string provided in metadata (using URL safe)
   4. Verify using the leaf certificate public key that the message matches the decoded signature using the `ECDSA_P384_SHA384_FIXED` algorithm
+  5. If signature is invalid, try with the next entry in the list
 
 Examples with 3rd party crypto library:
 

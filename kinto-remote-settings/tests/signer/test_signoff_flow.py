@@ -458,7 +458,7 @@ class RefreshSignatureTest(SignoffWebTest, unittest.TestCase):
         )
 
         resp = self.app.get(self.destination_collection, headers=self.headers)
-        before_signature = resp.json["data"]["signature"]["signature"]
+        before_signature = resp.json["data"]["signatures"][0]["signature"]
 
         self.app.patch_json(
             self.source_collection,
@@ -469,7 +469,7 @@ class RefreshSignatureTest(SignoffWebTest, unittest.TestCase):
         assert resp.json["data"]["status"] == "work-in-progress"
 
         resp = self.app.get(self.destination_collection, headers=self.headers)
-        assert resp.json["data"]["signature"]["signature"] != before_signature
+        assert resp.json["data"]["signatures"][0]["signature"] != before_signature
 
 
 class TrackingFieldsTest(SignoffWebTest, unittest.TestCase):
@@ -808,7 +808,7 @@ class RollbackChangesTest(SignoffWebTest, unittest.TestCase):
 
     def test_preview_signature_is_refreshed(self):
         resp = self.app.get(self.preview_collection, headers=self.headers)
-        sign_before = resp.json["data"]["signature"]["signature"]
+        sign_before = resp.json["data"]["signatures"][0]["signature"]
 
         self.app.patch_json(
             self.source_collection,
@@ -817,7 +817,7 @@ class RollbackChangesTest(SignoffWebTest, unittest.TestCase):
         )
 
         resp = self.app.get(self.preview_collection, headers=self.headers)
-        sign_after = resp.json["data"]["signature"]["signature"]
+        sign_after = resp.json["data"]["signatures"][0]["signature"]
         assert sign_before != sign_after
 
     def test_does_not_recreate_tombstones(self):
@@ -982,7 +982,7 @@ class PreviewCollectionTest(SignoffWebTest, unittest.TestCase):
         self.app.get(self.preview_bucket, headers=self.headers)
 
         resp = self.app.get(self.preview_collection, headers=self.headers)
-        assert "signature" in resp.json["data"]
+        assert "signatures" in resp.json["data"]
 
         resp = self.app.get(self.preview_collection + "/records", headers=self.headers)
         assert len(resp.json["data"]) == 2
@@ -1011,14 +1011,14 @@ class PreviewCollectionTest(SignoffWebTest, unittest.TestCase):
             headers=self.headers,
         )
         resp = self.app.get(self.preview_collection, headers=self.headers)
-        signature_preview_before = resp.json["data"]["signature"]
+        signature_preview_before = resp.json["data"]["signatures"][0]["signature"]
         self.app.patch_json(
             self.source_collection,
             {"data": {"status": "to-sign"}},
             headers=self.other_headers,
         )
         resp = self.app.get(self.destination_collection, headers=self.headers)
-        signature_destination_before = resp.json["data"]["signature"]
+        signature_destination_before = resp.json["data"]["signatures"][0]["signature"]
         # status is signed.
         resp = self.app.get(self.source_collection, headers=self.headers)
         assert resp.json["data"]["status"] == "signed"
@@ -1031,10 +1031,10 @@ class PreviewCollectionTest(SignoffWebTest, unittest.TestCase):
         )
 
         resp = self.app.get(self.destination_collection, headers=self.headers)
-        signature_destination_after = resp.json["data"]["signature"]
+        signature_destination_after = resp.json["data"]["signatures"][0]["signature"]
         assert signature_destination_before != signature_destination_after
         resp = self.app.get(self.preview_collection, headers=self.headers)
-        signature_preview_after = resp.json["data"]["signature"]
+        signature_preview_after = resp.json["data"]["signatures"][0]["signature"]
         assert signature_preview_before != signature_preview_after
 
     def test_the_preview_collection_is_emptied_when_source_records_are_deleted(self):
@@ -1423,12 +1423,12 @@ class PerBucketTest(SignoffWebTest, unittest.TestCase):
         data = self.app.get(self.preview_bucket + col_uri, headers=self.headers).json[
             "data"
         ]
-        assert "signature" in data
+        assert "signatures" in data
 
         data = self.app.get(
             self.destination_bucket + col_uri, headers=self.headers
         ).json["data"]
-        assert "signature" in data
+        assert "signatures" in data
 
         # Source status was set to signed.
         data = self.app.get(self.source_bucket + col_uri, headers=self.headers).json[

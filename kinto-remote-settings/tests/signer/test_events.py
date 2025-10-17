@@ -75,7 +75,7 @@ class ResourceEventsTest(BaseWebTest, unittest.TestCase):
 
         resp = self.app.get(self.destination_collection, headers=self.headers)
         data = resp.json["data"]
-        assert "signature" in data
+        assert "signature" in data["signatures"][0]
 
     def test_resource_changed_is_triggered_for_destination_bucket(self):
         self._sign()
@@ -209,8 +209,8 @@ class ResourceEventsTest(BaseWebTest, unittest.TestCase):
 
         assert len(event.impacted_objects) == 1
         assert (
-            event.impacted_objects[0]["old"].get("signature")
-            != event.impacted_objects[0]["new"]["signature"]
+            event.impacted_objects[0]["old"]["signatures"][0]["signature"]
+            != event.impacted_objects[0]["new"]["signatures"][0]["signature"]
         )
 
     def test_resource_changed_is_triggered_for_destination_creation(self):
