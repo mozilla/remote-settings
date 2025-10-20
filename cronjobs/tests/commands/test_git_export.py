@@ -51,7 +51,10 @@ def mock_repo_sync_content():
 @pytest.fixture
 def mock_github_lfs():
     with mock.patch.object(git_export, "github_lfs_batch_upload_many") as mock_lfs:
-        with mock.patch.object(git_export, "github_lfs_test_credentials"):
+        with mock.patch.object(
+            git_export, "github_lfs_validate_credentials"
+        ) as mock_creds:
+            mock_creds.return_value = "Bearer TOKEN"
             yield mock_lfs
 
 
@@ -528,8 +531,7 @@ def test_repo_sync_stores_attachments_as_lfs_pointers(
     assert "lfs" in rid2.decode()
 
     (_, kwargs) = mock_github_lfs.call_args_list[0]
-    assert kwargs["github_token"] == git_export.GITHUB_TOKEN
-    assert kwargs["github_username"] == git_export.GITHUB_USERNAME
+    assert kwargs["auth_header"] == "Bearer TOKEN"
     assert kwargs["repo_owner"] == git_export.REPO_OWNER
     assert kwargs["repo_name"] == git_export.REPO_NAME
     objs = [(size, url) for hash, size, url in kwargs["objects"]]
