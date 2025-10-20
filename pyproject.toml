@@ -72,7 +72,7 @@ readme = "README.rst"
 
 [tool.poetry.dependencies]
 python = ">=3.11, <3.14"
-canonicaljson-rs = "0.7.1"
+canonicaljson-rs = "0.9.3"
 cryptography = "46.0.2"
 ecdsa = "0.19.1"
 kinto = {version = "^23.1.0", extras = ["postgresql","memcached","monitoring"]}
