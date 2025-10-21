@@ -47,6 +47,9 @@ def expire_orphan_attachments(event, context):
         if blob.name in attachments:
             continue  # This attachment is still referenced.
 
+        if blob.name.startswith("bundles/"):
+            continue  # Bundles are regenerated reguarly.
+
         # Skip "directory placeholders" (zero-length folder markers)
         if blob.name.endswith("/"):
             continue

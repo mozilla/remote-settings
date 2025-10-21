@@ -75,6 +75,7 @@ def test_expire_orphan_attachments(mock_fetch_all_changesets, mock_storage_clien
         MockBlob("folder2/img.png"),  # referenced
         MockBlob("folder2/orphan2.png"),  # orphan
         MockBlob("folder2/already.json", event_based_hold=False),  # already released
+        MockBlob("bundles/startup.mozlz4", event_based_hold=False),  # already released
     ]
 
     expire_orphan_attachments(None, None)
