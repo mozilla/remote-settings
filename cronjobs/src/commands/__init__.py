@@ -81,3 +81,23 @@ def call_parallel(func, args_list, max_workers=PARALLEL_REQUESTS):
         futures = [executor.submit(func, *args) for args in args_list]
         results = [future.result() for future in futures]
     return results
+
+
+def fetch_all_changesets(client):
+    """
+    Return the `/changeset` responses for all collections listed
+    in the `monitor/changes` endpoint.
+    The result contains the metadata and all the records of all collections
+    for both preview and main buckets.
+    """
+    monitor_changeset = client.get_changeset("monitor", "changes", bust_cache=True)
+    print("%s collections" % len(monitor_changeset["changes"]))
+
+    args_list = [
+        (c["bucket"], c["collection"], c["last_modified"])
+        for c in monitor_changeset["changes"]
+    ]
+    all_changesets = call_parallel(
+        lambda bid, cid, ts: client.get_changeset(bid, cid, _expected=ts), args_list
+    )
+    return all_changesets
