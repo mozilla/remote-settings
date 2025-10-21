@@ -16,6 +16,7 @@ def mock_fetch_all_changesets():
 def mock_storage_client():
     with patch("commands.expire_orphan_attachments.storage.Client") as mock_client:
         mock_bucket = MagicMock(spec=Client)
+        mock_bucket.default_event_based_hold = True
         mock_client.return_value.bucket.return_value = mock_bucket
         yield mock_bucket
 
@@ -60,9 +61,9 @@ def test_expire_orphan_attachments(mock_fetch_all_changesets, mock_storage_clien
     patched_blobs = set()
 
     class MockBlob:
-        def __init__(self, name: str, custom_time: str | None = None):
+        def __init__(self, name: str, event_based_hold: bool = True):
             self.name = name
-            self.custom_time = custom_time
+            self.event_based_hold = event_based_hold
 
         def patch(self):
             patched_blobs.add(self.name)
@@ -73,7 +74,7 @@ def test_expire_orphan_attachments(mock_fetch_all_changesets, mock_storage_clien
         MockBlob("folder2/file.txt"),  # referenced
         MockBlob("folder2/img.png"),  # referenced
         MockBlob("folder2/orphan2.png"),  # orphan
-        MockBlob("folder2/already.json", custom_time="2022-12-31T23:59:59Z"),
+        MockBlob("folder2/already.json", event_based_hold=False),  # already released
     ]
 
     expire_orphan_attachments(None, None)
@@ -94,7 +95,7 @@ def test_expire_orphan_attachments_dry_run(
     class MockBlob:
         def __init__(self, name: str):
             self.name = name
-            self.custom_time = None
+            self.event_based_hold = True
 
         def patch(self):
             raise ValueError("Should not call patch in dry run mode")

@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timezone
 
 from decouple import config
 from google.cloud import storage
@@ -19,13 +18,13 @@ STORAGE_BUCKET_NAME = os.getenv(
 
 def expire_orphan_attachments(event, context):
     """
-    This cronjob will mark all orphan attachments for deletion, using the
-    `custom_time` field in GCS objects.
+    This cronjob will release holds on orphan attachments.
+    See https://cloud.google.com/storage/docs/holding-objects
+    And then GCS will start the count down, and when the retention
+    period is over, it will soft-delete them.
 
-    We then have a Lifecycle Management rule in GCS that will actually delete
-    files N days after they are marked.
-    Our `git_export` job will also query GCS objects' `x-goog-meta-custom-time`
-    in order to purge files from the tree.
+    Our `git_export` job will then also query GCS objects in order
+    to purge files from the tree that 404s on the server.
     """
     client = KintoClient(server_url=SERVER)
     all_changesets = fetch_all_changesets(client)
@@ -36,10 +35,13 @@ def expire_orphan_attachments(event, context):
             if attachments_info := record.get("attachment"):
                 attachments.add(attachments_info["location"])
 
-    current_time = datetime.now(timezone.utc)
-
     storage_client = storage.Client()
     bucket = storage_client.bucket(STORAGE_BUCKET_NAME)
+
+    if not bucket.default_event_based_hold:
+        print(f"Default event-based hold is not enabled for {bucket.name}")
+        return
+
     blobs = bucket.list_blobs()  # Recursive by default
     for blob in blobs:
         if blob.name in attachments:
@@ -49,11 +51,9 @@ def expire_orphan_attachments(event, context):
         if blob.name.endswith("/"):
             continue
 
-        if blob.custom_time:
+        if not blob.event_based_hold:
             if VERBOSE:
-                print(
-                    f"{blob.name} is already marked for deletion (age: {blob.custom_time})."
-                )
+                print(f"{blob.name} has already been released from event-based hold")
             continue
 
         if DRY_RUN:
@@ -65,5 +65,5 @@ def expire_orphan_attachments(event, context):
         print(
             f"Marking orphan attachment gs://{STORAGE_BUCKET_NAME}/{blob.name} for deletion"
         )
-        blob.custom_time = current_time
+        blob.event_based_hold = False
         blob.patch()
