@@ -1,4 +1,4 @@
-FROM python:3.13.2-slim-bullseye
+FROM python:3.14.0-slim-trixie
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -7,7 +7,7 @@ ENV PIP_NO_CACHE_DIR=off \
     VIRTUAL_ENV=/opt/.venv \
     PATH="/opt/.venv/bin:$PATH"
 
-RUN apt-get update && apt-get -y install git git-lfs rsync util-linux media-types
+RUN apt-get update && apt-get -y install git git-lfs rsync util-linux media-types build-essential
 
 # Install Poetry
 RUN python -m venv $VIRTUAL_ENV && \

@@ -1,4 +1,4 @@
-FROM python:3.13.2 AS build
+FROM python:3.14.0-slim-bookworm AS build
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -9,6 +9,8 @@ ENV PIP_NO_CACHE_DIR=off \
     PATH="/opt/.venv/bin:$PATH" \
     PYTHONPATH="/app:$PYTHONPATH"
 
+RUN apt-get update && apt-get -y install build-essential
+
 # Install Poetry
 RUN python -m venv $POETRY_HOME && \
     $POETRY_HOME/bin/pip install poetry==2.0.1 && \
@@ -18,14 +20,14 @@ WORKDIR /opt
 COPY pyproject.toml poetry.lock ./
 RUN $POETRY_HOME/bin/poetry install --no-root
 
-FROM python:3.13.2
+FROM python:3.14.0-slim-bookworm
 
 ENV PATH="/opt/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/.venv \
     PYTHONPATH="/app:$PYTHONPATH"
 
-RUN apt-get update && apt-get -y install wget
+RUN apt-get update && apt-get -y install wget build-essential
 
 RUN addgroup --gid 10001 app && \
     adduser --disabled-password --gecos '' --gid 10001 --home /app --uid 10001 app
