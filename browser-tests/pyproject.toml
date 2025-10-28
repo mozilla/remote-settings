@@ -8,7 +8,7 @@ authors = ["Contactless <postmaster@localhost>"]
 python = ">=3.11, <3.15"
 aiohttp = "3.12.14"
 autograph-utils = "1.0.1"
-canonicaljson-rs = "0.7.1"
+canonicaljson-rs = "0.9.3"
 httpie = "3.2.4"
 kinto-http = "11.7.1"
 pytest = "8.3.4"
