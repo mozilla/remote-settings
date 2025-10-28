@@ -43,30 +43,33 @@ def expire_orphan_attachments(event, context):
         return
 
     blobs = bucket.list_blobs()  # Recursive by default
-    for blob in blobs:
-        if blob.name in attachments:
-            continue  # This attachment is still referenced.
+    with storage_client.batch():
+        for blob in blobs:
+            if blob.name in attachments:
+                continue  # This attachment is still referenced.
 
-        if blob.name.startswith("bundles/"):
-            continue  # Bundles are regenerated reguarly.
+            if blob.name.startswith("bundles/"):
+                continue  # Bundles are regenerated reguarly.
 
-        # Skip "directory placeholders" (zero-length folder markers)
-        if blob.name.endswith("/"):
-            continue
+            # Skip "directory placeholders" (zero-length folder markers)
+            if blob.name.endswith("/"):
+                continue
 
-        if not blob.event_based_hold:
-            if VERBOSE:
-                print(f"{blob.name} has already been released from event-based hold")
-            continue
+            if not blob.event_based_hold:
+                if VERBOSE:
+                    print(
+                        f"{blob.name} has already been released from event-based hold"
+                    )
+                continue
 
-        if DRY_RUN:
+            if DRY_RUN:
+                print(
+                    f"[DRY RUN] Would mark orphan attachment gs://{STORAGE_BUCKET_NAME}/{blob.name} for deletion"
+                )
+                continue
+
             print(
-                f"[DRY RUN] Would mark orphan attachment gs://{STORAGE_BUCKET_NAME}/{blob.name} for deletion"
+                f"Marking orphan attachment gs://{STORAGE_BUCKET_NAME}/{blob.name} for deletion"
             )
-            continue
-
-        print(
-            f"Marking orphan attachment gs://{STORAGE_BUCKET_NAME}/{blob.name} for deletion"
-        )
-        blob.event_based_hold = False
-        blob.patch()
+            blob.event_based_hold = False
+            blob.patch()
