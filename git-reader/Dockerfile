@@ -7,7 +7,7 @@ ENV PIP_NO_CACHE_DIR=off \
     VIRTUAL_ENV=/opt/.venv \
     PATH="/opt/.venv/bin:$PATH"
 
-RUN apt-get update && apt-get -y install git git-lfs rsync util-linux media-types
+RUN apt-get update && apt-get -y install git git-lfs rsync util-linux media-types build-essential
 
 # Install Poetry
 RUN python -m venv $VIRTUAL_ENV && \
