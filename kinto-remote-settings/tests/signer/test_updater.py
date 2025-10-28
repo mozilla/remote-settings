@@ -139,7 +139,11 @@ class LocalUpdaterTest(unittest.TestCase):
             resource_name="collection",
             object_id="destcollection",
             parent_id="/buckets/destbucket",
-            obj={"id": 1234, "signature": mock.sentinel.signature},
+            obj={
+                "id": 1234,
+                "signatures": [mock.sentinel.signature],
+                "signature": mock.sentinel.signature,
+            },
         )
 
     def test_set_destination_signature_copies_kinto_admin_ui_fields(self):
@@ -160,6 +164,7 @@ class LocalUpdaterTest(unittest.TestCase):
             parent_id="/buckets/destbucket",
             obj={
                 "id": 1234,
+                "signatures": [mock.sentinel.signature],
                 "signature": mock.sentinel.signature,
                 "sort": "size",
                 "displayFields": ["name"],
@@ -183,6 +188,7 @@ class LocalUpdaterTest(unittest.TestCase):
             parent_id="/buckets/destbucket",
             obj={
                 "id": 1234,
+                "signatures": [mock.sentinel.signature],
                 "signature": mock.sentinel.signature,
                 "flags": ["startup"],
             },
@@ -210,6 +216,23 @@ class LocalUpdaterTest(unittest.TestCase):
                 "last_signature_by": "basicauth:bob",
                 "last_signature_date": "2018-04-09",
                 "status": "signed",
+            },
+        )
+
+    def test_set_destination_signature_keeps_the_legacy_signature_field(self):
+        self.storage.get.return_value = {"id": 1234, "last_modified": 1234}
+        self.updater.set_destination_signature(
+            mock.sentinel.signature, {}, DummyRequest()
+        )
+
+        self.storage.update.assert_called_with(
+            resource_name="collection",
+            object_id="destcollection",
+            parent_id="/buckets/destbucket",
+            obj={
+                "id": 1234,
+                "signatures": [mock.sentinel.signature],
+                "signature": mock.sentinel.signature,
             },
         )
 
@@ -304,7 +327,7 @@ class LocalUpdaterTest(unittest.TestCase):
                 "id": "sourcecollection",
             },
         )
-        self.updater.signer.sign.return_value = {}
+        self.updater.signer.sign.return_value = mock.sentinel.signature
 
         self.updater.refresh_signature(DummyRequest(), "work-in-progress")
 
@@ -315,6 +338,7 @@ class LocalUpdaterTest(unittest.TestCase):
             obj={
                 "id": "destcollection",
                 "attachment": {"bundle": True},
-                "signature": {},
+                "signatures": [mock.sentinel.signature],
+                "signature": mock.sentinel.signature,
             },
         )

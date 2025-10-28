@@ -583,12 +583,12 @@ class SourceCollectionSoftDeletion(BaseWebTest, PatchAutographMixin, unittest.Te
         self.create_records_and_sign()
 
         resp = self.app.get("/buckets/prod/collections/a", headers=self.headers)
-        signature_before = resp.json["data"]["signature"]["signature"]
+        signature_before = resp.json["data"]["signatures"][0]["signature"]
         # Delete source collection.
         self.app.delete("/buckets/stage/collections/a", headers=self.headers)
         # Signature was refreshed.
         resp = self.app.get("/buckets/prod/collections/a", headers=self.headers)
-        assert signature_before != resp.json["data"]["signature"]["signature"]
+        assert signature_before != resp.json["data"]["signatures"][0]["signature"]
 
     def create_records_and_sign(self):
         body = {"permissions": {"write": [self.other_userid]}}

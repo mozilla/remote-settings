@@ -7,6 +7,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Iterable
 
+import jwt
 import requests
 from decouple import config
 from requests.adapters import HTTPAdapter
@@ -175,48 +176,159 @@ def _base64_auth_header(username: str, token: str) -> str:
     return f"Basic {base64.b64encode(creds).decode('ascii')}"
 
 
-def github_lfs_test_credentials(
-    github_username: str,
-    github_token: str,
+def _create_app_jwt(app_id: str, private_key_path: str) -> str:
+    with open(private_key_path, "r") as f:
+        private_key = f.read()
+
+    now = int(time.time())
+    payload = {
+        "iat": now - 60,
+        "exp": now + (10 * 60),
+        "iss": app_id,
+    }
+    token = jwt.encode(payload, private_key, algorithm="RS256")
+    return token
+
+
+def _resolve_installation_id(jwt_token: str, repo_owner: str, repo_name: str) -> str:
+    """
+    Resolves the installation ID for the GitHub App on the given repo.
+    """
+    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/installation"
+    headers = {
+        "Authorization": f"Bearer {jwt_token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    r = requests.get(url, headers=headers, timeout=HTTP_TIMEOUT_SECONDS)
+    if r.status_code != 200:
+        print(f"Failed to resolve installation ID: {r.status_code} {r.text}")
+    r.raise_for_status()
+    data = r.json()
+    installation_id = data.get("id")
+    if not installation_id:
+        raise RuntimeError("GitHub App is not installed on the repository")
+    return str(installation_id)
+
+
+def _mint_installation_access_token(
+    jwt_token: str, installation_id: str
+) -> tuple[str, str]:
+    """
+    Mints an installation access token for the given installation ID.
+    """
+    url = f"https://api.github.com/app/installations/{installation_id}/access_tokens"
+    headers = {
+        "Authorization": f"Bearer {jwt_token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    r = requests.post(url, headers=headers, timeout=HTTP_TIMEOUT_SECONDS)
+    if r.status_code != 201:
+        print(f"Failed to mint installation token: {r.status_code} {r.text}")
+    r.raise_for_status()
+    data = r.json()
+    token = data.get("token")
+    expires_at = data.get("expires_at")
+    if not token or not expires_at:
+        raise RuntimeError("Failed to obtain installation access token")
+    return token, expires_at
+
+
+def _verify_personal_token(username: str, token: str) -> dict[str, Any]:
+    """
+    Verifies that the personal access token is valid by fetching the user info.
+    """
+    url = "https://api.github.com/user"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    resp = requests.get(url, headers=headers, timeout=HTTP_TIMEOUT_SECONDS)
+    if resp.status_code != 200:
+        print(f"Failed to verify personal token: {resp.status_code} {resp.text}")
+    resp.raise_for_status()
+    return resp.json()
+
+
+def _verify_installation_token(
+    token: str, repo_owner: str, repo_name: str
+) -> dict[str, Any]:
+    """
+    Verifies that the installation token can access the given repository.
+    """
+    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    r = requests.get(url, headers=headers, timeout=HTTP_TIMEOUT_SECONDS)
+    if r.status_code != 200:
+        print(f"Failed to verify installation token: {r.status_code} {r.text}")
+    r.raise_for_status()
+    return r.json()
+
+
+def github_lfs_validate_credentials(
     repo_owner: str,
     repo_name: str,
+    # Option A: Personal Access Token (PAT)
+    github_username: str | None = None,
+    github_token: str | None = None,
+    # Option B: GitHub App authentication
+    github_app_id: str | None = None,
+    github_app_private_key_path: str | None = None,
     timeout: float = HTTP_TIMEOUT_BATCH_SECONDS,
-) -> bool:
+) -> str:
     """
     Test GitHub LFS credentials by making a dummy batch request.
     """
-    if not github_token.startswith("github_pat_"):
+    if github_username and github_token:
+        if not github_token.startswith("github_pat_"):
+            print(
+                "Warning: It looks like the provided GitHub token is not a PAT (personal access token)."
+            )
+        authz = _base64_auth_header(github_username, github_token)
+        user_data = _verify_personal_token(github_username, github_token)
         print(
-            "Warning: It looks like the provided GitHub token is not a PAT (personal access token)."
+            f"Authenticated as GitHub user: {user_data.get('login')} (id={user_data.get('id')})"
         )
-    authz = _base64_auth_header(github_username, github_token)
-    # Fetch profile of the authenticated user to verify token works.
-    resp = requests.get(
-        "https://api.github.com/user",
-        headers={"Authorization": authz, "Accept": "application/vnd.github.v3+json"},
-        timeout=timeout,
-    )
-    resp.raise_for_status()
-    user_data = resp.json()
-    print(
-        f"Authenticated as GitHub user: {user_data.get('login')} (id={user_data.get('id')})"
-    )
+
+    elif github_app_id and github_app_private_key_path:
+        # For LFS, use Basic with username 'x-access-token' and the installation token as the password.
+        # private key -> JWT -> installation ID -> installation token -> Basic auth with token
+        # See https://docs.github.com/en/rest/reference/apps#authentication
+        jwt_token = _create_app_jwt(github_app_id, github_app_private_key_path)
+        installation_id = _resolve_installation_id(jwt_token, repo_owner, repo_name)
+        installation_token, expires_at = _mint_installation_access_token(
+            jwt_token, installation_id
+        )
+        print(
+            f"Issued installation access token (installation_id={installation_id}) expiring at {expires_at}"
+        )
+        repo_info = _verify_installation_token(
+            installation_token, repo_owner, repo_name
+        )
+        print(
+            f"Installation token can access repo: {repo_info.get('full_name')} (id={repo_info.get('id')})"
+        )
+        authz = _base64_auth_header("x-access-token", installation_token)
+
     github_lfs_batch_request(
         auth_header=authz,
-        objects=[],
+        objects=[{"oid": "a" * 64, "size": 42}],  # dummy object
         operation="upload",
         repo_owner=repo_owner,
         repo_name=repo_name,
         timeout=timeout,
     )
 
+    return authz
+
 
 def github_lfs_batch_upload_many(
     objects: Iterable[tuple[str, int, str]],  # (sha256_hex, size, source_url),
-    github_username: str,
-    github_token: str,
     repo_owner: str,
     repo_name: str,
+    auth_header: str,
     max_parallel_requests: int = MAX_PARALLEL_REQUESTS,
 ) -> None:
     """
@@ -225,8 +337,6 @@ def github_lfs_batch_upload_many(
 
     objects: iterable of (oid_hex:str, size:int, src_url:str)
     """
-    authz = _base64_auth_header(github_username, github_token)
-
     chunks = list(itertools.batched(objects, GITHUB_MAX_LFS_BATCH_SIZE))
     total_chunks = len(chunks)
 
@@ -235,7 +345,7 @@ def github_lfs_batch_upload_many(
         print(f"LFS: uploading chunk {idx}/{total_chunks} ({len(chunk)} objects)")
 
         batch_resp = github_lfs_batch_request(
-            auth_header=authz,
+            auth_header=auth_header,
             objects=[{"oid": oid, "size": size} for (oid, size, _url) in chunk],
             operation="upload",
             repo_owner=repo_owner,
