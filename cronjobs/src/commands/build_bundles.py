@@ -16,7 +16,7 @@ import lz4.block
 import requests
 from google.cloud import storage
 
-from . import KintoClient, call_parallel, retry_timeout
+from . import KintoClient, call_parallel, fetch_all_changesets, retry_timeout
 
 
 SERVER = os.getenv("SERVER")
@@ -30,26 +30,6 @@ DESTINATION_FOLDER = os.getenv("DESTINATION_FOLDER", "bundles")
 # Flags for local development
 BUILD_ALL = os.getenv("BUILD_ALL", "0") in "1yY"
 SKIP_UPLOAD = os.getenv("SKIP_UPLOAD", "0") in "1yY"
-
-
-def fetch_all_changesets(client):
-    """
-    Return the `/changeset` responses for all collections listed
-    in the `monitor/changes` endpoint.
-    The result contains the metadata and all the records of all collections
-    for both preview and main buckets.
-    """
-    monitor_changeset = client.get_changeset("monitor", "changes", bust_cache=True)
-    print("%s collections" % len(monitor_changeset["changes"]))
-
-    args_list = [
-        (c["bucket"], c["collection"], c["last_modified"])
-        for c in monitor_changeset["changes"]
-    ]
-    all_changesets = call_parallel(
-        lambda bid, cid, ts: client.get_changeset(bid, cid, _expected=ts), args_list
-    )
-    return all_changesets
 
 
 @retry_timeout

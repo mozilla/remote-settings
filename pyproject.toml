@@ -116,3 +116,7 @@ sphinx = "8.2.3"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.pytest_env]
+SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # pragma: allowlist secret
