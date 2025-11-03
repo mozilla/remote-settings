@@ -128,23 +128,22 @@ class ECDSASignerTest(unittest.TestCase):
 
 
 class AutographSignerTest(unittest.TestCase):
-    def setUp(self):
-        self.signer = autograph.AutographSigner(
-            hawk_id="alice",
-            hawk_secret="fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
-            server_url="http://localhost:8000",
-            keyids=["remote-settings"],
-        )
-
     @mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
     def test_request_is_being_crafted_with_payload_as_input(self, requests):
         response = mock.MagicMock()
         response.json.return_value = [{"signature": SIGNATURE, "x5u": "", "ref": ""}]
         requests.post.return_value = response
-        signature_bundles = self.signer.sign("test data")
+
+        signer = autograph.AutographSigner(
+            hawk_id="alice",
+            hawk_secret="fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+            server_url="http://localhost:8000",
+            keyids=["remote-settings"],
+        )
+        signature_bundles = signer.sign("test data")
         requests.post.assert_called_with(
             "http://localhost:8000/sign/data",
-            auth=self.signer.auth,
+            auth=signer.auth,
             json=[
                 {
                     "input": "dGVzdCBkYXRh",
@@ -153,6 +152,43 @@ class AutographSignerTest(unittest.TestCase):
             ],
         )
         assert signature_bundles[0]["signature"] == SIGNATURE
+
+    @mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
+    def test_one_request_per_key_id_is_issued(self, requests):
+        requests.post.side_effect = [
+            mock.MagicMock(
+                json=lambda i=i: [
+                    {"signature": f"sign-{i}", "x5u": f"x5u-{i}", "ref": f"ref-{i}"}
+                ]
+            )
+            for i in range(3)
+        ]
+        signer = autograph.AutographSigner(
+            hawk_id="alice",
+            hawk_secret="fs5wgcer9",
+            server_url="http://localhost:8000",
+            keyids=["key1", "key2", "key3"],
+        )
+
+        signatures = signer.sign("test data")
+
+        print(requests.post.call_args_list)
+        assert len(signatures) == 3
+        for i in range(3):
+            assert signatures[i]["signature"] == f"sign-{i}"
+            assert signatures[i]["x5u"] == f"x5u-{i}"
+            assert signatures[i]["ref"] == f"ref-{i}"
+
+            requests.post.assert_any_call(
+                "http://localhost:8000/sign/data",
+                auth=signer.auth,
+                json=[
+                    {
+                        "input": "dGVzdCBkYXRh",
+                        "keyid": f"key{i + 1}",
+                    }
+                ],
+            )
 
     @mock.patch("kinto_remote_settings.signer.backends.autograph.AutographSigner")
     def test_load_from_settings(self, mocked_signer):
