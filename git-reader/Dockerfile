@@ -1,4 +1,10 @@
+ARG UID=10001
+ARG GID=10001
+
 FROM python:3.14.0-slim-trixie
+
+ARG UID
+ARG GID
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -16,9 +22,9 @@ RUN python -m venv $VIRTUAL_ENV && \
 
 WORKDIR /app
 
-RUN chown 10001:10001 /app && \
-    groupadd --gid 10001 app && \
-    useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
+RUN chown ${UID}:${GID} /app
+RUN groupadd --gid ${GID} app
+RUN useradd --no-create-home --uid ${UID} --gid ${GID} --home-dir /app app
 
 RUN mkdir /app/.ssh && \
     ssh-keyscan github.com >> /app/.ssh/known_hosts && \

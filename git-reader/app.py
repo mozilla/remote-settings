@@ -361,6 +361,7 @@ class GitService:
         refobj = self.repo.lookup_reference(f"refs/heads/{branch}")
         commit = self.repo[refobj.target]
         node = commit.tree
+        print(node)
 
         parts = [p for p in path.strip("/").split("/") if p]
         for i, name in enumerate(parts):
