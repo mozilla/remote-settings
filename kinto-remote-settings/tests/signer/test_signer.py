@@ -165,7 +165,7 @@ class AutographSignerTest(unittest.TestCase):
         ]
         signer = autograph.AutographSigner(
             hawk_id="alice",
-            hawk_secret="fs5wgcer9",
+            hawk_secret="fs5wgcer9",  # pragma: allowlist secret
             server_url="http://localhost:8000",
             keyids=["key1", "key2", "key3"],
         )
