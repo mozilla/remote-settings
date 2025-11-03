@@ -132,7 +132,7 @@ class LocalUpdaterTest(unittest.TestCase):
     def test_set_destination_signatures_modifies_the_destination_collection(self):
         self.storage.get.return_value = {"id": 1234, "last_modified": 1234}
         self.updater.set_destination_signatures(
-            [mock.sentinel.signature], {}, DummyRequest()
+            [mock.sentinel.signature1, mock.sentinel.signature2], {}, DummyRequest()
         )
 
         self.storage.update.assert_called_with(
@@ -141,8 +141,8 @@ class LocalUpdaterTest(unittest.TestCase):
             parent_id="/buckets/destbucket",
             obj={
                 "id": 1234,
-                "signatures": [mock.sentinel.signature],
-                "signature": mock.sentinel.signature,
+                "signatures": [mock.sentinel.signature1, mock.sentinel.signature2],
+                "signature": mock.sentinel.signature1,
             },
         )
 
@@ -222,7 +222,7 @@ class LocalUpdaterTest(unittest.TestCase):
     def test_set_destination_signatures_keeps_the_legacy_signature_field(self):
         self.storage.get.return_value = {"id": 1234, "last_modified": 1234}
         self.updater.set_destination_signatures(
-            [mock.sentinel.signature], {}, DummyRequest()
+            [mock.sentinel.signature1, mock.sentinel.signature2], {}, DummyRequest()
         )
 
         self.storage.update.assert_called_with(
@@ -231,8 +231,8 @@ class LocalUpdaterTest(unittest.TestCase):
             parent_id="/buckets/destbucket",
             obj={
                 "id": 1234,
-                "signatures": [mock.sentinel.signature],
-                "signature": mock.sentinel.signature,
+                "signatures": [mock.sentinel.signature1, mock.sentinel.signature2],
+                "signature": mock.sentinel.signature1,
             },
         )
 
