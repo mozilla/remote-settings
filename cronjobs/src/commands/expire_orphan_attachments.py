@@ -19,7 +19,7 @@ STORAGE_BUCKET_NAME = os.getenv(
 
 def expire_orphan_attachments(event, context):
     """
-    This cronjob will set the current time on orphan attachments.
+    This cronjob will set the custom time field on orphaned attachments to the current time.
     We then have a retention policy on GCS bucket that will
     soft-delete these objects after N days.
 
