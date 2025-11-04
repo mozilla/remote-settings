@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -61,9 +62,9 @@ def test_expire_orphan_attachments(mock_fetch_all_changesets, mock_storage_clien
     patched_blobs = set()
 
     class MockBlob:
-        def __init__(self, name: str, event_based_hold: bool = True):
+        def __init__(self, name: str, custom_time: datetime | None = None):
             self.name = name
-            self.event_based_hold = event_based_hold
+            self.custom_time = custom_time
 
         def patch(self):
             patched_blobs.add(self.name)
@@ -74,8 +75,10 @@ def test_expire_orphan_attachments(mock_fetch_all_changesets, mock_storage_clien
         MockBlob("folder2/file.txt"),  # referenced
         MockBlob("folder2/img.png"),  # referenced
         MockBlob("folder2/orphan2.png"),  # orphan
-        MockBlob("folder2/already.json", event_based_hold=False),  # already released
-        MockBlob("bundles/startup.mozlz4", event_based_hold=False),  # already released
+        MockBlob("folder2/already.json", custom_time=datetime.now()),  # already marked
+        MockBlob(
+            "bundles/startup.mozlz4", custom_time=datetime.now()
+        ),  # already marked
     ]
 
     expire_orphan_attachments(None, None)
@@ -96,7 +99,7 @@ def test_expire_orphan_attachments_dry_run(
     class MockBlob:
         def __init__(self, name: str):
             self.name = name
-            self.event_based_hold = True
+            self.custom_time = None
 
         def patch(self):
             raise ValueError("Should not call patch in dry run mode")

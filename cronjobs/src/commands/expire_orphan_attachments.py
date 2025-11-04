@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone
 
 from decouple import config
 from google.cloud import storage
@@ -18,10 +19,9 @@ STORAGE_BUCKET_NAME = os.getenv(
 
 def expire_orphan_attachments(event, context):
     """
-    This cronjob will release holds on orphan attachments.
-    See https://cloud.google.com/storage/docs/holding-objects
-    And then GCS will start the count down, and when the retention
-    period is over, it will soft-delete them.
+    This cronjob will set the current time on orphan attachments.
+    We then have a retention policy on GCS bucket that will
+    soft-delete these objects after N days.
 
     Our `git_export` job will then also query GCS objects in order
     to purge files from the tree that 404s on the server.
@@ -55,10 +55,10 @@ def expire_orphan_attachments(event, context):
             if blob.name.endswith("/"):
                 continue
 
-            if not blob.event_based_hold:
+            if blob.custom_time is not None:
                 if VERBOSE:
                     print(
-                        f"{blob.name} has already been released from event-based hold"
+                        f"{blob.name} already has custom_time set to {blob.custom_time}"
                     )
                 continue
 
@@ -71,5 +71,5 @@ def expire_orphan_attachments(event, context):
             print(
                 f"Marking orphan attachment gs://{STORAGE_BUCKET_NAME}/{blob.name} for deletion"
             )
-            blob.event_based_hold = False
+            blob.custom_time = datetime.now(timezone.utc)
             blob.patch()
