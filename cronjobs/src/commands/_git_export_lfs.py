@@ -25,6 +25,7 @@ MAX_PARALLEL_REQUESTS = config("MAX_PARALLEL_REQUESTS", default=10, cast=int)
 HTTP_TIMEOUT_SECONDS = (HTTP_TIMEOUT_CONNECT_SECONDS, HTTP_TIMEOUT_READ_SECONDS)
 HTTP_TIMEOUT_BATCH_SECONDS = (HTTP_TIMEOUT_CONNECT_SECONDS, HTTP_TIMEOUT_READ_SECONDS)
 HTTP_TIMEOUT_UPLOAD_SECONDS = (HTTP_TIMEOUT_CONNECT_SECONDS, HTTP_TIMEOUT_WRITE_SECONDS)
+SLOW_DOWN_SECONDS = config("SLOW_DOWN_SECONDS", default=3, cast=int)
 
 
 GITHUB_MAX_LFS_BATCH_SIZE = config("GITHUB_MAX_LFS_BATCH_SIZE", default=100, cast=int)
@@ -412,3 +413,4 @@ def github_lfs_batch_upload_many(
         print(
             f"LFS: {len(to_upload)} uploaded and {len(to_verify)} verified in chunk {idx}/{total_chunks}"
         )
+        time.sleep(SLOW_DOWN_SECONDS) # avoid hitting rate limits
