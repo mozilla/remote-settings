@@ -5,6 +5,7 @@ import warnings
 from urllib.parse import urljoin
 
 import requests
+from pyramid.settings import aslist
 from requests_hawk import HawkAuth
 
 from ..utils import fetch_cert, get_first_matching_setting
@@ -19,10 +20,13 @@ EXTRA_SIGNATURE_FIELDS = ["mode", "public_key", "type", "signer_id", "ref"]
 
 
 class AutographSigner(SignerBase):
-    def __init__(self, server_url, hawk_id, hawk_secret, keyid):
+    def __init__(
+        self, server_url: str, hawk_id: str, hawk_secret: str, keyids: list[str]
+    ):
         self.server_url = server_url
-        self.key_id = keyid
         self.auth = HawkAuth(id=hawk_id, key=hawk_secret)
+        # List of keys to use for signing.
+        self.key_ids = keyids
 
     def healthcheck(self, request):
         if not self.server_url.startswith("https"):
@@ -65,48 +69,54 @@ class AutographSigner(SignerBase):
             f"({remaining_days - clamped_minimum} days before alert)."
         )
 
-    def sign(self, payload):
+    def sign(self, payload) -> list[dict]:
         if isinstance(payload, str):  # pragma: no cover
             payload = payload.encode("utf-8")
 
         b64_payload = base64.b64encode(payload)
         url = urljoin(self.server_url, "/sign/data")
-        logger.info(
-            "Sign %s bytes using Autograph %s with key %r",
-            len(b64_payload),
-            url,
-            self.key_id,
-        )
-        resp = requests.post(
-            url,
-            auth=self.auth,
-            json=[
-                {
-                    "input": b64_payload.decode("utf-8"),
-                    "keyid": self.key_id,
-                }
-            ],
-        )
-        resp.raise_for_status()
-        signature_bundle = resp.json()[0]
 
-        # Critical fields must be present, will raise if missing.
-        infos = {field: signature_bundle[field] for field in SIGNATURE_FIELDS}
-        # Other fields are returned and will be stored as part of the signature.
-        # but client won't break if they are missing, so don't raise.
-        infos.update(
-            **{
-                field: signature_bundle[field]
-                for field in EXTRA_SIGNATURE_FIELDS
-                if field in signature_bundle
-            }
-        )
-        logger.info(
-            "Obtained %s response from Autograph %s",
-            resp.status_code,
-            signature_bundle["ref"],
-        )
-        return infos
+        # Iterate over the configured keys, and return the list of
+        # signatures obtained from Autograph.
+        signatures = []
+        for key_id in self.key_ids:
+            logger.info(
+                "Sign %s bytes using Autograph %s with key %r",
+                len(b64_payload),
+                url,
+                key_id,
+            )
+            resp = requests.post(
+                url,
+                auth=self.auth,
+                json=[
+                    {
+                        "input": b64_payload.decode("utf-8"),
+                        "keyid": key_id,
+                    }
+                ],
+            )
+            resp.raise_for_status()
+            signature_bundle = resp.json()[0]
+
+            # Critical fields must be present, will raise if missing.
+            infos = {field: signature_bundle[field] for field in SIGNATURE_FIELDS}
+            # Other fields are returned and will be stored as part of the signature.
+            # but client won't break if they are missing, so don't raise.
+            infos.update(
+                **{
+                    field: signature_bundle[field]
+                    for field in EXTRA_SIGNATURE_FIELDS
+                    if field in signature_bundle
+                }
+            )
+            logger.info(
+                "Obtained %s response from Autograph %s",
+                resp.status_code,
+                signature_bundle["ref"],
+            )
+            signatures.append(infos)
+        return signatures
 
 
 def load_from_settings(settings, prefix="", *, prefixes=None):
@@ -128,10 +138,12 @@ def load_from_settings(settings, prefix="", *, prefixes=None):
         hawk_secret=get_first_matching_setting(
             "autograph.hawk_secret", settings, prefixes
         ),
-        keyid=get_first_matching_setting(
-            "autograph.key_id",
-            settings,
-            prefixes,
-            default="remote-settings",
+        keyids=aslist(
+            get_first_matching_setting(
+                "autograph.key_ids",
+                settings,
+                prefixes,
+                default="remote-settings",
+            )
         ),
     )

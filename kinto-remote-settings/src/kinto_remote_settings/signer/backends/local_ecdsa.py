@@ -49,7 +49,7 @@ class ECDSASigner(SignerBase):
                 return VerifyingKey.from_pem(key_file.read())
         return None
 
-    def sign(self, payload):
+    def sign(self, payload) -> list[dict]:
         if isinstance(payload, str):  # pragma: no cover
             payload = payload.encode("utf-8")
 
@@ -60,7 +60,7 @@ class ECDSASigner(SignerBase):
         )
         x5u = ""
         enc_signature = base64.urlsafe_b64encode(signature).decode("utf-8")
-        return {"signature": enc_signature, "x5u": x5u, "mode": "p384ecdsa"}
+        return [{"signature": enc_signature, "x5u": x5u, "mode": "p384ecdsa"}]
 
     def verify(self, payload, signature_bundle):
         if isinstance(payload, str):  # pragma: no cover

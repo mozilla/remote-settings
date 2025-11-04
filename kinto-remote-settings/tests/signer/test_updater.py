@@ -129,10 +129,10 @@ class LocalUpdaterTest(unittest.TestCase):
         assert self.updater.get_source_records.call_count == 1
         assert self.storage.update.call_count == 3
 
-    def test_set_destination_signature_modifies_the_destination_collection(self):
+    def test_set_destination_signatures_modifies_the_destination_collection(self):
         self.storage.get.return_value = {"id": 1234, "last_modified": 1234}
-        self.updater.set_destination_signature(
-            mock.sentinel.signature, {}, DummyRequest()
+        self.updater.set_destination_signatures(
+            [mock.sentinel.signature1, mock.sentinel.signature2], {}, DummyRequest()
         )
 
         self.storage.update.assert_called_with(
@@ -141,8 +141,8 @@ class LocalUpdaterTest(unittest.TestCase):
             parent_id="/buckets/destbucket",
             obj={
                 "id": 1234,
-                "signatures": [mock.sentinel.signature],
-                "signature": mock.sentinel.signature,
+                "signatures": [mock.sentinel.signature1, mock.sentinel.signature2],
+                "signature": mock.sentinel.signature1,
             },
         )
 
@@ -152,8 +152,8 @@ class LocalUpdaterTest(unittest.TestCase):
             "sort": "-age",
             "last_modified": 1234,
         }
-        self.updater.set_destination_signature(
-            mock.sentinel.signature,
+        self.updater.set_destination_signatures(
+            [mock.sentinel.signature],
             {"displayFields": ["name"], "sort": "size"},
             DummyRequest(),
         )
@@ -176,8 +176,8 @@ class LocalUpdaterTest(unittest.TestCase):
             "id": 1234,
             "last_modified": 1234,
         }
-        self.updater.set_destination_signature(
-            mock.sentinel.signature,
+        self.updater.set_destination_signatures(
+            [mock.sentinel.signature],
             {"flags": ["startup"]},
             DummyRequest(),
         )
@@ -219,10 +219,10 @@ class LocalUpdaterTest(unittest.TestCase):
             },
         )
 
-    def test_set_destination_signature_keeps_the_legacy_signature_field(self):
+    def test_set_destination_signatures_keeps_the_legacy_signature_field(self):
         self.storage.get.return_value = {"id": 1234, "last_modified": 1234}
-        self.updater.set_destination_signature(
-            mock.sentinel.signature, {}, DummyRequest()
+        self.updater.set_destination_signatures(
+            [mock.sentinel.signature1, mock.sentinel.signature2], {}, DummyRequest()
         )
 
         self.storage.update.assert_called_with(
@@ -231,8 +231,8 @@ class LocalUpdaterTest(unittest.TestCase):
             parent_id="/buckets/destbucket",
             obj={
                 "id": 1234,
-                "signatures": [mock.sentinel.signature],
-                "signature": mock.sentinel.signature,
+                "signatures": [mock.sentinel.signature1, mock.sentinel.signature2],
+                "signature": mock.sentinel.signature1,
             },
         )
 
@@ -272,22 +272,22 @@ class LocalUpdaterTest(unittest.TestCase):
         self.patch(self.storage, "update_records")
         self.patch(self.updater, "get_destination_records", return_value=([], "0"))
         self.patch(self.updater, "push_records_to_destination")
-        self.patch(self.updater, "set_destination_signature")
+        self.patch(self.updater, "set_destination_signatures")
 
         self.updater.sign_and_update_destination(DummyRequest(), {"id": "source"})
 
         assert self.updater.get_destination_records.call_count == 1
         assert self.updater.push_records_to_destination.call_count == 1
-        assert self.updater.set_destination_signature.call_count == 1
+        assert self.updater.set_destination_signatures.call_count == 1
 
     def test_refresh_signature_does_not_push_records(self):
         self.storage.list_all.return_value = []
-        self.patch(self.updater, "set_destination_signature")
+        self.patch(self.updater, "set_destination_signatures")
         self.patch(self.updater, "push_records_to_destination")
 
         self.updater.refresh_signature(DummyRequest(), "signed")
 
-        assert self.updater.set_destination_signature.call_count == 1
+        assert self.updater.set_destination_signatures.call_count == 1
         assert self.updater.push_records_to_destination.call_count == 0
 
     def test_refresh_signature_restores_status_on_source(self):
@@ -327,7 +327,7 @@ class LocalUpdaterTest(unittest.TestCase):
                 "id": "sourcecollection",
             },
         )
-        self.updater.signer.sign.return_value = mock.sentinel.signature
+        self.updater.signer.sign.return_value = [mock.sentinel.signature]
 
         self.updater.refresh_signature(DummyRequest(), "work-in-progress")
 

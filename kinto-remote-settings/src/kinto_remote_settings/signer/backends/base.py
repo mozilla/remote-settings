@@ -5,12 +5,12 @@ class SignerBase(object):
         """
         raise NotImplementedError
 
-    def sign(self, payload):
+    def sign(self, payload) -> list[dict]:
         """
         Signs the specified `payload` and returns the signature metadata.
 
-        :returns: A mapping with every attributes about the signature
+        :returns: A list of mappings with every attributes about the signatures
             (e.g. "signature", "hash_algorithm", "signature_encoding"...)
-        :rtype: dict
+        :rtype: list[dict]
         """
         raise NotImplementedError

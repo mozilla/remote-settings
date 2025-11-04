@@ -130,9 +130,9 @@ class LocalUpdater(object):
         records, timestamp = self.get_destination_records(empty_none=False)
         serialized_records = canonical_json(records, timestamp)
         logger.debug(f"{self.source_collection_uri}:\t'{serialized_records}'")
-        signature = self.signer.sign(serialized_records)
+        signatures = self.signer.sign(serialized_records)
 
-        self.set_destination_signature(signature, source_attributes, request)
+        self.set_destination_signatures(signatures, source_attributes, request)
         if next_source_status is not None:
             self.update_source_status(
                 next_source_status, request, previous_source_status
@@ -152,7 +152,7 @@ class LocalUpdater(object):
         serialized_records = canonical_json(records, timestamp)
         logger.debug(f"{self.source_collection_uri}:\t'{serialized_records}'")
         signature = self.signer.sign(serialized_records)
-        self.set_destination_signature(
+        self.set_destination_signatures(
             signature, request=request, source_attributes=source_attributes
         )
 
@@ -379,7 +379,9 @@ class LocalUpdater(object):
 
         return changes_count
 
-    def set_destination_signature(self, signature, source_attributes, request):
+    def set_destination_signatures(
+        self, signatures: list[dict], source_attributes, request
+    ):
         # Push the new signature to the destination collection.
         parent_id = "/buckets/%s" % self.destination["bucket"]
         collection_id = "collection"
@@ -393,8 +395,8 @@ class LocalUpdater(object):
         # Update the collection_record
         new_collection = dict(**collection_record)
         new_collection.pop(FIELD_LAST_MODIFIED, None)
-        new_collection["signatures"] = [signature]
-        new_collection["signature"] = signature  # For backward compatibility.
+        new_collection["signatures"] = signatures
+        new_collection["signature"] = signatures[0]  # For backward compatibility.
         for attr in PUBLISHED_COLLECTION_FIELDS:
             if attr in source_attributes:
                 new_collection[attr] = source_attributes[attr]
