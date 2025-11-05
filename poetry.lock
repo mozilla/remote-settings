@@ -1352,14 +1352,14 @@ referencing = ">=0.31.0"
 
 [[package]]
 name = "kinto"
-version = "23.2.0"
+version = "23.2.1"
 description = "Kinto Web Service - Store, Sync, Share, and Self-Host."
 optional = false
 python-versions = "*"
 groups = ["main", "kinto-remote-settings"]
 files = [
-    {file = "kinto-23.2.0-py3-none-any.whl", hash = "sha256:0f5e6ef7288febd501dd265031acaf5761357510d9cc9bf2f640ab3d7a0788a5"},
-    {file = "kinto-23.2.0.tar.gz", hash = "sha256:64b56a6695bf6f8be91ab809786c747c3ad6e95e4b8779c65bc12e1c0c48df86"},
+    {file = "kinto-23.2.1-py3-none-any.whl", hash = "sha256:2f872dc03e0a4f5e1242a9981f64a12b302bb1535dcef6c974b0b997ce69752f"},
+    {file = "kinto-23.2.1.tar.gz", hash = "sha256:10a9475e41fcb410d10cd84832f8bac8c371928db7fca01838f8e7d1b8b7d04b"},
 ]
 
 [package.dependencies]
