@@ -690,6 +690,7 @@ google-cloud-storage = "^3.0.0"
 kinto-http = "^11.8.0"
 lz4 = "^4.3.3"
 pygit2 = "^1.19.0"
+pyjwt = "^2.10.1"
 python-decouple = "^3.8"
 requests = "^2.32.4"
 sentry_sdk = "^2.20.0"
@@ -2210,7 +2211,7 @@ version = "2.10.1"
 description = "JSON Web Token implementation in Python"
 optional = false
 python-versions = ">=3.9"
-groups = ["git-reader"]
+groups = ["cronjobs", "git-reader"]
 files = [
     {file = "PyJWT-2.10.1-py3-none-any.whl", hash = "sha256:dcdd193e30abefd5debf142f9adfcdd2b58004e644f25406ffaebd50bd98dacb"},
     {file = "pyjwt-2.10.1.tar.gz", hash = "sha256:3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953"},
