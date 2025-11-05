@@ -6,7 +6,9 @@ import sys
 
 import sentry_sdk
 from decouple import config
+from sentry_sdk.crons import monitor
 from sentry_sdk.integrations.gcp import GcpIntegration
+from sentry_sdk.utils import Dsn
 
 
 HERE = os.path.dirname(os.path.realpath(__file__))
@@ -21,10 +23,14 @@ if SENTRY_DSN:
     # It just means it's a noop.
     env_option = {}
     if SENTRY_ENV:
+        print("Setting Sentry environment to", SENTRY_ENV)
         env_option = {"environment": SENTRY_ENV}
 
     # We're running in Google Cloud. See https://cloud.google.com/functions/docs/configuring/env-var
     sentry_sdk.init(SENTRY_DSN, integrations=[GcpIntegration()], **env_option)
+    print("Sentry SDK initialized on project", Dsn(SENTRY_DSN).project_id)
+else:
+    print("SENTRY_DSN not set; Sentry SDK not initialized.", file=sys.stderr)
 
 ENTRYPOINTS = [
     os.path.splitext(os.path.basename(f))[0]
@@ -98,7 +104,9 @@ def main(*args):
         help_()
         return 1
 
-    return run(entrypoint)
+    # https://docs.sentry.io/platforms/python/crons/#connecting-errors-to-cron-monitors
+    with monitor(monitor_slug=entrypoint):
+        return run(entrypoint)
 
 
 if __name__ == "__main__":
