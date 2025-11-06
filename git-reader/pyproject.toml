@@ -13,6 +13,7 @@ pygit2 = "^1.18.2"
 uvicorn = "^0.35.0"
 uvloop = "^0.21.0"
 pyjwt = "^2.10.1"
+lz4 = "^4.4.5"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
