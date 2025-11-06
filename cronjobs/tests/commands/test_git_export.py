@@ -564,7 +564,18 @@ def test_repo_syncs_attachment_bundles(
                     "x5u": "https://autograph.example.com/keys/123",
                 },
             },
-            "changes": [],
+            "changes": [
+                {
+                    "id": "rid1-1",
+                    "last_modified": 1800000000000,
+                    "attachment": {
+                        "location": "whatever/file.bin",
+                        "content-type": "application/octet-stream",
+                        "size": 12345,
+                        "hash": "abcd",
+                    },
+                }
+            ],
         },
     )
     responses.add(
@@ -577,6 +588,36 @@ def test_repo_syncs_attachment_bundles(
 
     bundle = read_file(repo, "v1/common", "attachments/bundles/bid1--cid1.zip")
     assert "lfs" in bundle.decode()
+
+
+@responses.activate
+def test_attachment_bundles_is_skipped_if_no_attachment_in_changeset(
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
+):
+    responses.replace(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/bid1/collections/cid1/changeset",
+        json={
+            "timestamp": 1800000000000,
+            "metadata": {
+                "bucket": "bid1",
+                "id": "cid1",
+                "attachment": {"bundle": True},
+                "signature": {
+                    "x5u": "https://autograph.example.com/keys/123",
+                },
+            },
+            "changes": [{"id": "rid1-1", "last_modified": 1800000000000}],
+        },
+    )
+
+    # Does not fail with 404 on "http://cdn.example.com/v1/attachments/bundles/bid1--cid1.zip"
+    git_export.git_export(None, None)
 
 
 @responses.activate

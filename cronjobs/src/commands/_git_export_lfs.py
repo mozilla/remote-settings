@@ -413,4 +413,4 @@ def github_lfs_batch_upload_many(
         print(
             f"LFS: {len(to_upload)} uploaded and {len(to_verify)} verified in chunk {idx}/{total_chunks}"
         )
-        time.sleep(SLOW_DOWN_SECONDS) # avoid hitting rate limits
+        time.sleep(SLOW_DOWN_SECONDS)  # avoid hitting rate limits

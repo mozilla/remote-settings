@@ -325,6 +325,9 @@ async def repo_sync_content(
     for changeset in all_changesets:
         if not changeset["metadata"].get("attachment", {}).get("bundle", False):
             continue
+        has_attachment = any(r.get("attachment") for r in changeset["changes"])
+        if not has_attachment:
+            continue
         metadata = changeset["metadata"]
         bundles_locations.append(f"bundles/{metadata['bucket']}--{metadata['id']}.zip")
     for location in bundles_locations:
