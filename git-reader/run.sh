@@ -67,6 +67,7 @@ cmd_gitupdate() {
         result=$?
         if [ $result -eq 1 ]; then
             log "No update available"
+            exit 0
         else
             log "Error during update (exit code $result)"
         fi
