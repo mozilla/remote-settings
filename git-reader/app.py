@@ -5,17 +5,19 @@ import json
 import mimetypes
 import os
 import pathlib
+import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import lru_cache
-from typing import BinaryIO, Generator
+from typing import Awaitable, BinaryIO, Callable, Generator
 from urllib.parse import urlparse
 
 import lz4.block
+import prometheus_client
 import pygit2
 from dockerflow import checks
 from dockerflow.fastapi import router as dockerflow_router
-from fastapi import Depends, FastAPI, Query, Request
+from fastapi import Depends, FastAPI, Query, Request, Response
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
@@ -31,6 +33,42 @@ REMOTE_NAME = "origin"
 LFS_POINTER_FILE_SIZE_BYTES = 140
 STARTUP_BUNDLE_FILE = "bundles/startup.json.mozlz4"
 GIT_REF_PREFIX = "v1/"  # See cronjobs/src/commands/git_export.py
+METRICS_PREFIX = "remotesettings"
+METRICS = {
+    "request_duration_seconds": prometheus_client.Histogram(
+        name=f"{METRICS_PREFIX}_request_duration_seconds",
+        documentation="Histogram of request duration in seconds",
+        labelnames=[
+            "method",
+            "endpoint",
+            "status",
+            "bucket_id",
+            "collection_id",
+        ],
+        buckets=[0.01, 0.05, 0.1, 0.5, 1.0, 3.0, 6.0, float("inf")],
+    ),
+    "request_summary": prometheus_client.Counter(
+        name=f"{METRICS_PREFIX}_request_summary",
+        documentation="Counter of requests",
+        labelnames=[
+            "method",
+            "endpoint",
+            "status",
+            "bucket_id",
+            "collection_id",
+        ],
+    ),
+    "repository_age_seconds": prometheus_client.Gauge(
+        name=f"{METRICS_PREFIX}_repository_age_seconds",
+        documentation="Gauge of repository latest commit age in seconds",
+    ),
+    "repository_read_latency_seconds": prometheus_client.Histogram(
+        name=f"{METRICS_PREFIX}_repository_read_latency_seconds",
+        documentation="Histogram of repository read latency in seconds",
+        labelnames=["operation"],
+        buckets=[0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, float("inf")],
+    ),
+}
 
 # Augment the default mimetypes with our own.
 mimetypes.init(files=[HERE / "mimetypes.txt"])
@@ -140,6 +178,28 @@ def write_json_mozlz4(fd: BinaryIO, changesets: list[dict]):
     fd.write(MOZLZ4_HEADER_MAGIC + compressed)
 
 
+def measure_git_read_time(operation: str):
+    """
+    Decorator to measure the time spent in Git read operations.
+    """
+
+    def decorator(func: Callable):
+        def wrapper(*args, **kwargs):
+            global METRICS
+            start_time = time.time()
+            try:
+                return func(*args, **kwargs)
+            finally:
+                elapsed_sec = time.time() - start_time
+                METRICS["repository_read_latency_seconds"].labels(
+                    operation=operation
+                ).observe(elapsed_sec)
+
+        return wrapper
+
+    return decorator
+
+
 class GitService:
     """
     Wrapper on top of pygit2 to serve content.
@@ -208,6 +268,7 @@ class GitService:
             "datetime": datetime.fromtimestamp(commit.commit_time).isoformat(),
         }
 
+    @measure_git_read_time(operation="build_changeset")
     def get_collection_changeset(self, bid, cid, _since=None):
         """
         Get the changeset for a specific collection.
@@ -337,6 +398,7 @@ class GitService:
         content = bcontent.decode("utf-8")
         return content
 
+    @measure_git_read_time(operation="scan_folder")
     def _scan_folder(
         self, tree: pygit2.Tree, path: str
     ) -> Generator[tuple[str, pygit2.Oid], None, None]:
@@ -352,6 +414,7 @@ class GitService:
                     if subentry.type == pygit2.GIT_OBJECT_BLOB:
                         yield subentry.name, subentry.id
 
+    @measure_git_read_time(operation="get_file_content")
     def _get_file_content(
         self, path: str, branch: str = f"{GIT_REF_PREFIX}common"
     ) -> bytes:
@@ -412,6 +475,30 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Remote Settings Over Git", lifespan=lifespan, version=VERSION)
 app.include_router(dockerflow_router, prefix=PREFIX, tags=["dockerflow"])
+app.mount(f"{PREFIX}/__metrics__", prometheus_client.make_asgi_app())
+
+
+@app.middleware("http")
+async def requests_metrics(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    global METRICS
+
+    start_time = time.time()
+    response = await call_next(request)
+    elapsed_sec = time.time() - start_time
+
+    labels = (
+        request.method,
+        request.scope["route"].name if "route" in request.scope else "unknown",
+        response.status_code,
+        request.path_params.get("bid", ""),
+        request.path_params.get("cid", ""),
+    )
+    METRICS["request_summary"].labels(*labels).inc()
+    METRICS["request_duration_seconds"].labels(*labels).observe(elapsed_sec)
+
+    return response
 
 
 @checks.register
@@ -459,6 +546,10 @@ def hello(
         attachments_base_url += "/"
 
     server_info = git.get_server_info()
+    common_branch_info = git.get_head_info(branch=f"{GIT_REF_PREFIX}common")
+
+    repo_age_seconds = int(time.time()) - common_branch_info["timestamp"]
+    METRICS["repository_age_seconds"].set(repo_age_seconds)
 
     return {
         "project_name": server_info["project_name"],
@@ -469,7 +560,7 @@ def hello(
             "readonly": True,
         },
         "git": {
-            "common": git.get_head_info(branch=f"{GIT_REF_PREFIX}common"),
+            "common": common_branch_info,
         },
         "capabilities": {
             "attachments": {
