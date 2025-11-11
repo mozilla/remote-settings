@@ -113,6 +113,8 @@ git_fetch_lfs() {
     if [ "${SELF_CONTAINED:-false}" = "true" ]; then
         log "Fetching LFS objects..."
         git -C "$repo_path" lfs pull
+        log "Pruning LFS objects..."
+        git -C "$repo_path" lfs prune
         log "Checking LFS objects..."
         git -C "$repo_path" lfs fsck
     else
