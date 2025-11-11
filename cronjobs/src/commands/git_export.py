@@ -28,6 +28,7 @@ from ._git_export_lfs import (
     fetch_and_hash,
     github_lfs_batch_upload_many,
     github_lfs_validate_credentials,
+    list_unreachable_paths,
 )
 
 
@@ -63,6 +64,9 @@ SSH_PUBKEY_PATH = os.path.expanduser(
     config("SSH_PUBKEY_PATH", default=f"{SSH_PRIVKEY_PATH}.pub")
 )
 TAGS_MAX_AGE_DAYS = config("TAGS_MAX_AGE_DAYS", default=180, cast=int)
+DELETE_UNREACHABLE_ATTACHMENTS = config(
+    "DELETE_UNREACHABLE_ATTACHMENTS", default=False, cast=bool
+)
 
 # Constants
 GIT_REF_PREFIX = "v1/"
@@ -187,6 +191,7 @@ def fetch_all_cert_chains(
 
 async def repo_sync_content(
     repo,
+    delete_unreachable_attachments=DELETE_UNREACHABLE_ATTACHMENTS,
 ) -> tuple[list[tuple[str, int, str]], list[str], list[str]]:
     """
     Sync content from the remote server to the local git repository.
@@ -293,6 +298,17 @@ async def repo_sync_content(
     attachments_base_url = server_info["capabilities"]["attachments"][
         "base_url"
     ].rstrip("/")
+
+    # Delete unreachable attachments. Since this operation creates a lot of
+    # hits, we do it only if the flag is enabled (less frequent than normal cronjob run).
+    if delete_unreachable_attachments:
+        attachments_paths = existing_attachments.keys()
+        obsolete_attachments = list_unreachable_paths(
+            attachments_base_url, attachments_paths
+        )
+        for path in obsolete_attachments:
+            print(f"Attachment {path} is unreachable, deleting from tree")
+            common_content.append((f"attachments/{path}", None))  # Delete from tree
 
     # Mark the attachments/ folder as fully managed via LFS.
     common_content.append(

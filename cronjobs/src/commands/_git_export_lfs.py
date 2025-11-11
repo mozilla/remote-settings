@@ -72,6 +72,27 @@ def _new_retrying_session() -> requests.Session:
     return session
 
 
+def list_unreachable_paths(base_url: str, paths: list[str]) -> list[str]:
+    """
+    Given a list of attachment paths, return those that 404 on the server.
+    """
+    unreachable = []
+    session = _new_retrying_session()
+
+    def _check_path(path: str) -> None:
+        url = f"{base_url}/{path}"
+        r = session.head(url, timeout=HTTP_TIMEOUT_SECONDS)
+        if r.status_code == 404:
+            unreachable.append(path)
+
+    with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as pool:
+        futures = [pool.submit(_check_path, path) for path in paths]
+        for f in as_completed(futures):
+            f.result()  # propagate exceptions
+
+    return unreachable
+
+
 def github_lfs_batch_request(
     auth_header: str,
     objects: Iterable[dict[str, Any]],

@@ -156,21 +156,25 @@ def iter_tree(
 
 def tree_upsert_blobs(
     repo: pygit2.Repository,
-    items: Iterable[tuple[str, bytes]],
+    items: Iterable[tuple[str, bytes | None]],
     *,
     base_tree: Optional[pygit2.Tree],
 ) -> pygit2.Oid:
     """
-    Create/update blobs at the provided paths and return the resulting *tree OID*.
+    Create/update/delete blobs at the provided paths and return the resulting *tree OID*.
 
     - Paths may be nested ('a/b/c.json').
-    - This function merges the provided items into the existing tree (base_tree)
+    - This merges the provided items into the existing tree (base_tree)
       by building a small trie of updates and recursively writing subtrees.
     - If base_tree is None, a new tree is created from scratch.
 
     The stable tree hashing means if content is unchanged, the returned OID
     will equal base_tree.id, which upstream code uses to skip commits.
+    Pass `(path, None)` to delete the blob at that path.
     """
+    DELETE = object()  # sentinel for deletions
+    # Ensure items is a concrete list for multiple iterations.
+    items = list(items)
     updates_trie: dict[str, Any] = {}
 
     def put(trie: dict[str, Any], path: str, blob_oid: pygit2.Oid) -> None:
@@ -182,7 +186,7 @@ def tree_upsert_blobs(
         node[fname] = blob_oid
 
     for path, blob_bytes in items:
-        blob_oid = repo.create_blob(blob_bytes)
+        blob_oid = DELETE if blob_bytes is None else repo.create_blob(blob_bytes)
         put(updates_trie, path, blob_oid)
 
     def merge(node: dict[str, Any], base: Optional[pygit2.Tree]) -> pygit2.Oid:
@@ -190,7 +194,10 @@ def tree_upsert_blobs(
         builder = repo.TreeBuilder(base) if base is not None else repo.TreeBuilder()
         for name in sorted(node.keys()):
             val = node[name]
-            if isinstance(val, dict):
+            if val is DELETE:
+                # Delete from tree, will raise if missing.
+                builder.remove(name)
+            elif isinstance(val, dict):
                 # Descend into existing subtree if present.
                 existing_subtree = None
                 if base is not None:
