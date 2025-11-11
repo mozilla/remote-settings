@@ -282,13 +282,10 @@ def delete_unreferenced_commits(repo: pygit2.Repository):
                 first_tagged_commit = c
                 break
         assert first_tagged_commit is not None, (
-            f"No tagged commit found in branch {refname}"
+            f"No tagged commit found in branch {refname} (tags: {oid_to_tag})"
         )
         # If the tagged commit is already a root, nothing to do
         if len(first_tagged_commit.parents) == 0:
-            branch.set_target(
-                first_tagged_commit.oid, f"Ensure {refname} starts at tagged root"
-            )
             continue
 
         # Recreate the tagged commit as a *new root commit* (no parents), preserving metadata.

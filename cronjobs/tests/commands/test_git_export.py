@@ -67,6 +67,12 @@ def mock_ls_remotes():
 
 
 @pytest.fixture
+def mock_delete_unreferenced_commits():
+    with mock.patch.object(git_export, "delete_unreferenced_commits") as mock_delete:
+        yield mock_delete
+
+
+@pytest.fixture
 def mock_rs_server_content():
     responses.add(
         responses.GET,
@@ -243,7 +249,10 @@ def test_clone_must_match_remote_url_if_dir_exists(mock_github_lfs):
 
 
 def test_remote_is_clone_if_dir_missing(
-    mock_repo_sync_content, mock_github_lfs, mock_git_push
+    mock_repo_sync_content,
+    mock_delete_unreferenced_commits,
+    mock_github_lfs,
+    mock_git_push,
 ):
     def _fake_clone(url, path, *args, **kwargs):
         return init_fake_repo(path)
@@ -297,6 +306,7 @@ def test_repo_sync_does_nothing_if_up_to_date(
     mock_git_fetch,
     mock_ls_remotes,
     mock_rs_server_content,
+    mock_delete_unreferenced_commits,
     mock_github_lfs,
     mock_git_push,
 ):
@@ -320,6 +330,7 @@ def test_repo_sync_can_be_forced_even_if_up_to_date(
     mock_git_fetch,
     mock_ls_remotes,
     mock_rs_server_content,
+    mock_delete_unreferenced_commits,
     mock_github_lfs,
     mock_git_push,
 ):
