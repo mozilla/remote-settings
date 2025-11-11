@@ -122,9 +122,12 @@ def git_export(event, context):
             repo_sync_content(repo)
         )
 
-        deleted_tags = delete_old_tags(repo, max_age_days=TAGS_MAX_AGE_DAYS)
-        if deleted_tags:
-            print(f"{len(deleted_tags)} old tags to delete.")
+        deleted_tags = delete_old_tags(
+            repo,
+            max_age_days=TAGS_MAX_AGE_DAYS,
+            min_tags_per_collection=MIN_TAGS_PER_COLLECTION_COUNT,
+        )
+        print(f"{len(deleted_tags)} old tags to delete.")
 
         # Now that we deleted old tags, delete all commits that are no longer
         # referenced by any tag.
@@ -221,7 +224,7 @@ async def repo_sync_content(
         common_tip = repo.lookup_reference(common_branch).target
         common_base_tree = repo.get(common_tip).tree
         parents = [common_tip]
-    except KeyError:
+    except KeyError:  # pragma: no cover
         common_base_tree = None
         parents = []
 
@@ -463,7 +466,7 @@ async def repo_sync_content(
                 )
                 print(f"Created tag {tag_name}")
                 created_tags.append(tag_name)
-            except pygit2.AlreadyExistsError:
+            except pygit2.AlreadyExistsError:  # pragma: no cover
                 print(f"Tag {tag_name} already exists, skipping.")
 
     return changed_attachments, changed_branches, created_tags
