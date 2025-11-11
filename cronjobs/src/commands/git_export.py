@@ -16,6 +16,7 @@ from pygit2 import (
 
 from ._git_export_git_tools import (
     clone_or_fetch,
+    delete_old_tags,
     iter_tree,
     make_lfs_pointer,
     parse_lfs_pointer,
@@ -61,6 +62,7 @@ GIT_REMOTE_URL = config(
 SSH_PUBKEY_PATH = os.path.expanduser(
     config("SSH_PUBKEY_PATH", default=f"{SSH_PRIVKEY_PATH}.pub")
 )
+TAGS_MAX_AGE_DAYS = config("TAGS_MAX_AGE_DAYS", default=180, cast=int)
 
 # Constants
 GIT_REF_PREFIX = "v1/"
@@ -108,9 +110,14 @@ def git_export(event, context):
         print("Head is now at", repo.head.target)
 
     try:
-        changed_attachments, changed_branches, changed_tags = asyncio.run(
+        changed_attachments, changed_branches, created_tags = asyncio.run(
             repo_sync_content(repo)
         )
+
+        deleted_tags = delete_old_tags(repo, max_age_days=TAGS_MAX_AGE_DAYS)
+        if deleted_tags:
+            print(f"{len(deleted_tags)} old tags to delete.")
+
         print(f"{len(changed_attachments)} attachments to upload.")
         github_lfs_batch_upload_many(
             objects=changed_attachments,
@@ -119,9 +126,12 @@ def git_export(event, context):
             auth_header=auth_header,
         )
 
+        changed_tags = [f"+{tag}" for tag in created_tags] + [
+            f"-{tag}" for tag in deleted_tags
+        ]
         push_mirror(repo, changed_branches, changed_tags, callbacks=callbacks)
 
-        # TODO: delete old tags and old LFS objects.
+        # TODO: delete old LFS objects.
 
         print("Done.")
     except Exception as exc:
@@ -184,7 +194,7 @@ async def repo_sync_content(
     """
     changed_attachments: list[tuple[str, int, str]] = []
     changed_branches: set[str] = set()
-    changed_tags: list[str] = []
+    created_tags: list[str] = []
 
     author = pygit2.Signature(GIT_USER, GIT_EMAIL)
     committer = author
@@ -225,7 +235,7 @@ async def repo_sync_content(
     )
     if not FORCE and monitor_changeset["timestamp"] == latest_timestamp:
         print("No new changes since last run.")
-        return changed_attachments, changed_branches, changed_tags
+        return changed_attachments, changed_branches, created_tags
 
     server_info = await client.server_info()
 
@@ -373,7 +383,7 @@ async def repo_sync_content(
                 f"Common branch content @ {monitor_changeset['timestamp']}",
             )
             print(f"Created tag common: {tag_name}")
-            changed_tags.append(tag_name)
+            created_tags.append(tag_name)
         except pygit2.AlreadyExistsError:
             print(f"Tag {tag_name} already exists, skipping.")
 
@@ -426,8 +436,8 @@ async def repo_sync_content(
                     f"{bid}/{cid}/{timestamp}",
                 )
                 print(f"Created tag {tag_name}")
-                changed_tags.append(tag_name)
+                created_tags.append(tag_name)
             except pygit2.AlreadyExistsError:
                 print(f"Tag {tag_name} already exists, skipping.")
 
-    return changed_attachments, changed_branches, changed_tags
+    return changed_attachments, changed_branches, created_tags

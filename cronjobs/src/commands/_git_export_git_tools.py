@@ -1,4 +1,5 @@
 import os
+import time
 from typing import Any, Generator, Iterable, Optional
 
 import pygit2
@@ -88,9 +89,15 @@ def push_mirror(
     # 1) Force update all local branches
     for b in sorted(branches):
         to_push.append(f"+{b}:{b}")
-    # 2) Force update all local tags
+    # 2) Force update all local tags and delete old tags
     for t in sorted(tags):
-        to_push.append(f"+refs/tags/{t}:refs/tags/{t}")
+        deleting = t.startswith("-")
+        name = t[1:]
+        full = name if name.startswith("refs/tags/") else f"refs/tags/{name}"
+        if deleting:
+            to_push.append(f":{full}")
+        else:
+            to_push.append(f"+{full}:{full}")
 
     if not to_push:
         print("Everything up-to-date.")
@@ -201,3 +208,36 @@ def tree_upsert_blobs(
         return builder.write()
 
     return merge(updates_trie, base_tree)
+
+
+def delete_old_tags(
+    repo: pygit2.Repository, max_age_days: int, keep_last_count: int = 2
+) -> list[str]:
+    """
+    Delete old tags from the repository, keeping the most recent `keep_last_count` tags for each collection.
+
+    Return the list of deleted tag names.
+    """
+    deleted_tags = []
+    now_ts = int(time.time())
+
+    timestamp_tags = [
+        ref_name
+        for ref_name in repo.references
+        if ref_name.startswith("refs/tags/") and "/timestamps/" in ref_name
+    ]
+    group_by_collection: dict[str, list[tuple[str, int]]] = {}
+    for ref_name in sorted(timestamp_tags):
+        collection, timestamp = ref_name.rsplit("/", 1)
+        timestamp = int(timestamp)
+        group_by_collection.setdefault(collection, []).append((ref_name, timestamp))
+
+    # For each collection, keep at least the `keep_last_count` most recent tags, and delete older ones beyond `max_age_days`
+    for collection, tags in group_by_collection.items():
+        for ref_name, timestamp in tags[:-keep_last_count]:
+            if (now_ts - timestamp) / (60 * 60 * 24) > max_age_days:
+                print(f"Deleting tag {ref_name} (timestamp: {timestamp})")
+                repo.references.delete(ref_name)
+                deleted_tags.append(ref_name)
+
+    return deleted_tags
