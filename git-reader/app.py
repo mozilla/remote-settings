@@ -28,7 +28,7 @@ HERE = pathlib.Path(__file__).parent.resolve()
 VERSION = "0.0.1"
 # The API is served under /v2 prefix since /records endpoints present in /v1
 # are not implemented.
-PREFIX = "/v2"
+API_PREFIX = "v2/"
 REMOTE_NAME = "origin"
 LFS_POINTER_FILE_SIZE_BYTES = 140
 STARTUP_BUNDLE_FILE = "bundles/startup.json.mozlz4"
@@ -474,8 +474,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Remote Settings Over Git", lifespan=lifespan, version=VERSION)
-app.include_router(dockerflow_router, prefix=PREFIX, tags=["dockerflow"])
-app.mount(f"{PREFIX}/__metrics__", prometheus_client.make_asgi_app())
+app.include_router(dockerflow_router, prefix=f"/{API_PREFIX[:-1]}", tags=["dockerflow"])
+app.mount(f"/{API_PREFIX}__metrics__", prometheus_client.make_asgi_app())
 
 
 @app.middleware("http")
@@ -519,15 +519,15 @@ def git_repo_health() -> list[checks.Check]:
 
 @app.get("/")
 def root():
-    return RedirectResponse(f"{PREFIX}/", status_code=307)
+    return RedirectResponse(f"/{API_PREFIX}", status_code=307)
 
 
-@app.get(PREFIX)
+@app.get(f"/{API_PREFIX[:-1]}")
 def hello_unsuffixed():
-    return RedirectResponse(f"{PREFIX}/", status_code=307)
+    return RedirectResponse(f"/{API_PREFIX}", status_code=307)
 
 
-@app.get(f"{PREFIX}/", response_model=HelloResponse)
+@app.get(f"/{API_PREFIX}", response_model=HelloResponse)
 def hello(
     request: Request,
     settings: Settings = Depends(get_settings),
@@ -540,7 +540,7 @@ def hello(
             "ATTACHMENTS_BASE_URL is required when not SELF_CONTAINED"
         )
         attachments_base_url = (
-            f"{request.url.scheme}://{request.url.netloc}{PREFIX}/attachments"
+            f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}attachments"
         )
     if not attachments_base_url.endswith("/"):
         attachments_base_url += "/"
@@ -572,7 +572,7 @@ def hello(
 
 
 @app.get(
-    f"{PREFIX}/buckets/monitor/collections/changes/changeset",
+    f"/{API_PREFIX}buckets/monitor/collections/changes/changeset",
     response_model=ChangesetResponse,
 )
 def monitor_changes(
@@ -599,7 +599,7 @@ def monitor_changes(
 
 
 @app.get(
-    f"{PREFIX}/buckets/{{bid}}/collections/{{cid}}/changeset",
+    f"/{API_PREFIX}buckets/{{bid}}/collections/{{cid}}/changeset",
     response_model=ChangesetResponse,
 )
 def collection_changeset(
@@ -634,7 +634,7 @@ def collection_changeset(
         # Certificate chains are served from this server.
         x5u = metadata["signature"]["x5u"]
         parsed = urlparse(x5u)
-        rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}{PREFIX}/cert-chains/{parsed.path.lstrip('/')}"
+        rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
         metadata["signature"]["x5u"] = rewritten_x5u
 
     return ChangesetResponse(
@@ -644,12 +644,12 @@ def collection_changeset(
     )
 
 
-@app.get(f"{PREFIX}/__broadcasts__", response_model=BroadcastsResponse)
+@app.get(f"/{API_PREFIX}__broadcasts__", response_model=BroadcastsResponse)
 def broadcasts(git: GitService = Depends(GitService.dep)):
     return git.get_broadcasts()
 
 
-@app.get(f"{PREFIX}/cert-chains/{{pem:path}}", response_class=PlainTextResponse)
+@app.get(f"/{API_PREFIX}cert-chains/{{pem:path}}", response_class=PlainTextResponse)
 def cert_chain(
     pem: str,
     settings: Settings = Depends(get_settings),
@@ -663,7 +663,7 @@ def cert_chain(
         raise HTTPException(status_code=404, detail=f"{pem} not found")
 
 
-@app.get(f"{PREFIX}/attachments/{{path:path}}")
+@app.get(f"/{API_PREFIX}attachments/{{path:path}}")
 def attachments(
     request: Request,
     path: str,
@@ -707,7 +707,7 @@ def attachments(
             for changeset in startup_changesets:
                 x5u = changeset["metadata"]["signature"]["x5u"]
                 parsed = urlparse(x5u)
-                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}{PREFIX}/cert-chains/{parsed.path.lstrip('/')}"
+                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
                 changeset["metadata"]["signature"]["x5u"] = rewritten_x5u
 
             # Dump into memory bytes and cache content to skip rewriting next time.
