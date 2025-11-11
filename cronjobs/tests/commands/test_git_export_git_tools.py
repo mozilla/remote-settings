@@ -90,7 +90,7 @@ def test_delete_old_tags(tmp_repo):
     assert f"refs/tags/{old_tag}" in repo.references
     assert f"refs/tags/{recent_tag}" in repo.references
 
-    deleted = delete_old_tags(repo, max_age_days=8, keep_last_count=1)
+    deleted = delete_old_tags(repo, max_age_days=8, min_tags_per_collection=1)
 
     assert deleted == [f"refs/tags/{old_tag}"]
     assert f"refs/tags/{old_tag}" not in repo.references

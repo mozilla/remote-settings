@@ -218,10 +218,10 @@ def tree_upsert_blobs(
 
 
 def delete_old_tags(
-    repo: pygit2.Repository, max_age_days: int, keep_last_count: int = 2
+    repo: pygit2.Repository, max_age_days: int, min_tags_per_collection: int = 2
 ) -> list[str]:
     """
-    Delete old tags from the repository, keeping the most recent `keep_last_count` tags for each collection.
+    Delete old tags from the repository, keeping the most recent `min_tags_per_collection` tags for each collection.
 
     Return the list of deleted tag names.
     """
@@ -239,9 +239,9 @@ def delete_old_tags(
         timestamp = int(timestamp)
         group_by_collection.setdefault(collection, []).append((ref_name, timestamp))
 
-    # For each collection, keep at least the `keep_last_count` most recent tags, and delete older ones beyond `max_age_days`
+    # For each collection, keep at least the `min_tags_per_collection` most recent tags, and delete older ones beyond `max_age_days`
     for collection, tags in group_by_collection.items():
-        for ref_name, timestamp in tags[:-keep_last_count]:
+        for ref_name, timestamp in tags[:-min_tags_per_collection]:
             if (now_ts - timestamp) / (60 * 60 * 24) > max_age_days:
                 print(f"Deleting tag {ref_name} (timestamp: {timestamp})")
                 repo.references.delete(ref_name)

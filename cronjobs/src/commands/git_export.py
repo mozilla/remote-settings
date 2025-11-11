@@ -64,7 +64,10 @@ GIT_REMOTE_URL = config(
 SSH_PUBKEY_PATH = os.path.expanduser(
     config("SSH_PUBKEY_PATH", default=f"{SSH_PRIVKEY_PATH}.pub")
 )
-TAGS_MAX_AGE_DAYS = config("TAGS_MAX_AGE_DAYS", default=180, cast=int)
+TAGS_MAX_AGE_DAYS = config("TAGS_MAX_AGE_DAYS", default=90, cast=int)
+MIN_TAGS_PER_COLLECTION_COUNT = config(
+    "MIN_TAGS_PER_COLLECTION_COUNT", default=2, cast=int
+)
 DELETE_UNREACHABLE_ATTACHMENTS = config(
     "DELETE_UNREACHABLE_ATTACHMENTS", default=False, cast=bool
 )
