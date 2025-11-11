@@ -248,3 +248,59 @@ def delete_old_tags(
                 deleted_tags.append(ref_name)
 
     return deleted_tags
+
+
+def delete_unreferenced_commits(repo: pygit2.Repository):
+    """
+    Truncate branches to the first tagged commit.
+
+    This will make all unreferenced commits unreachable/orphan.
+
+    For each branch, walk from the oldest commit to the newest,
+    and truncate the branch to start from the first tagged commit.
+    """
+    oid_to_tag = {}
+    for refname in [t for t in repo.references if t.startswith("refs/tags/")]:
+        tag_ref = repo.references[refname]
+        tag_oid = tag_ref.target
+        obj = repo[tag_oid]
+        commit = obj.peel(pygit2.Commit)
+        oid_to_tag[commit.id] = refname
+
+    # For each local branch, walk back in time and find the oldest reachable tagged commit
+    for refname in [b for b in repo.references if b.startswith("refs/heads/")]:
+        branch = repo.references[refname]
+        tip_oid = branch.target
+
+        # Walk commits from oldest to newest along this branch history
+        walker = repo.walk(
+            tip_oid, pygit2.GIT_SORT_TOPOLOGICAL | pygit2.GIT_SORT_REVERSE
+        )
+        first_tagged_commit = None
+        for c in walker:
+            if c.id in oid_to_tag:
+                first_tagged_commit = c
+                break
+        assert first_tagged_commit is not None, (
+            f"No tagged commit found in branch {refname}"
+        )
+        # If the tagged commit is already a root, nothing to do
+        if len(first_tagged_commit.parents) == 0:
+            branch.set_target(
+                first_tagged_commit.oid, f"Ensure {refname} starts at tagged root"
+            )
+            continue
+
+        # Recreate the tagged commit as a *new root commit* (no parents), preserving metadata.
+        new_root_oid = repo.create_commit(
+            None,  # no ref update
+            first_tagged_commit.author,
+            first_tagged_commit.committer,
+            first_tagged_commit.message,
+            first_tagged_commit.tree.id,
+            [],  # <-- no parents => new branch root
+        )
+        # Now force-move the branch to the new root
+        msg = f"Truncate {refname} at {oid_to_tag[first_tagged_commit.id]} (new root)"
+        branch.set_target(new_root_oid, msg)
+        print(msg)

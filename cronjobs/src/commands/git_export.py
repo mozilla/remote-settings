@@ -17,6 +17,7 @@ from pygit2 import (
 from ._git_export_git_tools import (
     clone_or_fetch,
     delete_old_tags,
+    delete_unreferenced_commits,
     iter_tree,
     make_lfs_pointer,
     parse_lfs_pointer,
@@ -122,6 +123,14 @@ def git_export(event, context):
         if deleted_tags:
             print(f"{len(deleted_tags)} old tags to delete.")
 
+        # Now that we deleted old tags, delete all commits that are no longer
+        # referenced by any tag.
+        # This will required checkout to use `--force` since we rewrite history.
+        # We do this to keep a reasonable number of objects, and most importantly
+        # to delete LFS files from remote storage (Github keeps LFS files as long as
+        # there is a reference to them in the git history).
+        delete_unreferenced_commits(repo)
+
         print(f"{len(changed_attachments)} attachments to upload.")
         github_lfs_batch_upload_many(
             objects=changed_attachments,
@@ -134,8 +143,6 @@ def git_export(event, context):
             f"-{tag}" for tag in deleted_tags
         ]
         push_mirror(repo, changed_branches, changed_tags, callbacks=callbacks)
-
-        # TODO: delete old LFS objects.
 
         print("Done.")
     except Exception as exc:
