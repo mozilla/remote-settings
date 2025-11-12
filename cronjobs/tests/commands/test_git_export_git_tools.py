@@ -128,11 +128,9 @@ def test_delete_unreferenced_commits(tmp_repo):
 
     all_main_commits = list(repo.walk(repo.references["refs/heads/main"].target))
     assert len(all_main_commits) == 2
-    print(all_main_commits)
 
     delete_unreferenced_commits(repo)
 
     all_main_commits_after = list(repo.walk(repo.references["refs/heads/main"].target))
-    print(all_main_commits)
     assert len(all_main_commits_after) == 1
     assert all_main_commits_after[0].message == "second commit"
