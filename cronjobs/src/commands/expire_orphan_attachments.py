@@ -1,3 +1,4 @@
+import itertools
 import os
 from datetime import datetime, timezone
 
@@ -15,6 +16,7 @@ REALM = os.getenv("REALM", "test")
 STORAGE_BUCKET_NAME = os.getenv(
     "STORAGE_BUCKET_NAME", f"remote-settings-{REALM}-{ENVIRONMENT}-attachments"
 )
+BATCH_SIZE = int(os.getenv("BATCH_SIZE", "100"))
 
 
 def expire_orphan_attachments(event, context):
@@ -30,46 +32,44 @@ def expire_orphan_attachments(event, context):
     all_changesets = fetch_all_changesets(client)
 
     attachments = set()
+    total_size = 0
     for changeset in all_changesets:
         for record in changeset["changes"]:
             if attachments_info := record.get("attachment"):
                 attachments.add(attachments_info["location"])
+                total_size += attachments_info["size"]
+    print(
+        f"Found {len(attachments)} referenced attachments. Total size: {total_size / (1024 * 1024):.2f}MB"
+    )
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(STORAGE_BUCKET_NAME)
 
-    if not bucket.default_event_based_hold:
-        print(f"Default event-based hold is not enabled for {bucket.name}")
+    to_update = []
+    for blob in bucket.list_blobs():
+        if blob.name in attachments or blob.name.startswith("bundles/"):
+            continue
+        if blob.custom_time is not None:
+            if VERBOSE:
+                print(
+                    f"Skipping blob gs://{STORAGE_BUCKET_NAME}/{blob.name} already marked for deletion at {blob.custom_time}"
+                )
+            continue
+        if DRY_RUN:
+            print(
+                f"[DRY RUN] Would mark orphan attachment gs://{STORAGE_BUCKET_NAME}/{blob.name} for deletion"
+            )
+        to_update.append(blob)
+    print(f"Found {len(to_update)} orphan attachments to mark for deletion.")
+
+    if DRY_RUN:
         return
 
-    blobs = bucket.list_blobs()  # Recursive by default
-    with storage_client.batch():
-        for blob in blobs:
-            if blob.name in attachments:
-                continue  # This attachment is still referenced.
-
-            if blob.name.startswith("bundles/"):
-                continue  # Bundles are regenerated reguarly.
-
-            # Skip "directory placeholders" (zero-length folder markers)
-            if blob.name.endswith("/"):
-                continue
-
-            if blob.custom_time is not None:
-                if VERBOSE:
-                    print(
-                        f"{blob.name} already has custom_time set to {blob.custom_time}"
-                    )
-                continue
-
-            if DRY_RUN:
+    for chunk in itertools.batched(to_update, BATCH_SIZE):
+        with storage_client.batch():
+            for blob in chunk:
                 print(
-                    f"[DRY RUN] Would mark orphan attachment gs://{STORAGE_BUCKET_NAME}/{blob.name} for deletion"
+                    f"Marking orphan attachment gs://{STORAGE_BUCKET_NAME}/{blob.name} for deletion"
                 )
-                continue
-
-            print(
-                f"Marking orphan attachment gs://{STORAGE_BUCKET_NAME}/{blob.name} for deletion"
-            )
-            blob.custom_time = datetime.now(timezone.utc)
-            blob.patch()
+                blob.custom_time = datetime.now(timezone.utc)
+                blob.patch()

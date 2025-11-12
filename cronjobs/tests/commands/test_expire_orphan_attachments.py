@@ -35,7 +35,7 @@ def test_expire_orphan_attachments(mock_fetch_all_changesets, mock_storage_clien
                 {
                     "id": "record1",
                     "last_modified": 1672531200000,
-                    "attachment": {"location": "folder1/att.bin"},
+                    "attachment": {"location": "folder1/att.bin", "size": 12345},
                 }
             ]
         },
@@ -44,7 +44,7 @@ def test_expire_orphan_attachments(mock_fetch_all_changesets, mock_storage_clien
                 {
                     "id": "record1",
                     "last_modified": 1672531200000,
-                    "attachment": {"location": "folder2/file.txt"},
+                    "attachment": {"location": "folder2/file.txt", "size": 12345},
                 }
             ]
         },
@@ -53,7 +53,7 @@ def test_expire_orphan_attachments(mock_fetch_all_changesets, mock_storage_clien
                 {
                     "id": "record1",
                     "last_modified": 1672531200000,
-                    "attachment": {"location": "folder2/img.png"},
+                    "attachment": {"location": "folder2/img.png", "size": 12345},
                 }
             ]
         },
