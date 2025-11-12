@@ -80,6 +80,7 @@ kinto-attachment = "7.1.0"
 kinto-emailer = "3.0.4"
 requests-hawk = "1.2.1"
 uwsgi = "2.0.31"
+prometheus-client = "^0.23.1"
 
 [tool.poetry.group.kinto-remote-settings.dependencies]
 kinto-remote-settings = {path = "./kinto-remote-settings", develop = true}

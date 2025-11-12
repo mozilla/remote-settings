@@ -5,17 +5,19 @@ import json
 import mimetypes
 import os
 import pathlib
+import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import lru_cache
-from typing import BinaryIO, Generator
+from typing import Awaitable, BinaryIO, Callable, Generator
 from urllib.parse import urlparse
 
 import lz4.block
+import prometheus_client
 import pygit2
 from dockerflow import checks
 from dockerflow.fastapi import router as dockerflow_router
-from fastapi import Depends, FastAPI, Query, Request
+from fastapi import Depends, FastAPI, Query, Request, Response
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
@@ -26,11 +28,47 @@ HERE = pathlib.Path(__file__).parent.resolve()
 VERSION = "0.0.1"
 # The API is served under /v2 prefix since /records endpoints present in /v1
 # are not implemented.
-PREFIX = "/v2"
+API_PREFIX = "v2/"
 REMOTE_NAME = "origin"
 LFS_POINTER_FILE_SIZE_BYTES = 140
 STARTUP_BUNDLE_FILE = "bundles/startup.json.mozlz4"
 GIT_REF_PREFIX = "v1/"  # See cronjobs/src/commands/git_export.py
+METRICS_PREFIX = "remotesettings"
+METRICS = {
+    "request_duration_seconds": prometheus_client.Histogram(
+        name=f"{METRICS_PREFIX}_request_duration_seconds",
+        documentation="Histogram of request duration in seconds",
+        labelnames=[
+            "method",
+            "endpoint",
+            "status",
+            "bucket_id",
+            "collection_id",
+        ],
+        buckets=[0.01, 0.05, 0.1, 0.5, 1.0, 3.0, 6.0, float("inf")],
+    ),
+    "request_summary": prometheus_client.Counter(
+        name=f"{METRICS_PREFIX}_request_summary",
+        documentation="Counter of requests",
+        labelnames=[
+            "method",
+            "endpoint",
+            "status",
+            "bucket_id",
+            "collection_id",
+        ],
+    ),
+    "repository_age_seconds": prometheus_client.Gauge(
+        name=f"{METRICS_PREFIX}_repository_age_seconds",
+        documentation="Gauge of repository latest commit age in seconds",
+    ),
+    "repository_read_latency_seconds": prometheus_client.Histogram(
+        name=f"{METRICS_PREFIX}_repository_read_latency_seconds",
+        documentation="Histogram of repository read latency in seconds",
+        labelnames=["operation"],
+        buckets=[0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, float("inf")],
+    ),
+}
 
 # Augment the default mimetypes with our own.
 mimetypes.init(files=[HERE / "mimetypes.txt"])
@@ -140,6 +178,28 @@ def write_json_mozlz4(fd: BinaryIO, changesets: list[dict]):
     fd.write(MOZLZ4_HEADER_MAGIC + compressed)
 
 
+def measure_git_read_time(operation: str):
+    """
+    Decorator to measure the time spent in Git read operations.
+    """
+
+    def decorator(func: Callable):
+        def wrapper(*args, **kwargs):
+            global METRICS
+            start_time = time.time()
+            try:
+                return func(*args, **kwargs)
+            finally:
+                elapsed_sec = time.time() - start_time
+                METRICS["repository_read_latency_seconds"].labels(
+                    operation=operation
+                ).observe(elapsed_sec)
+
+        return wrapper
+
+    return decorator
+
+
 class GitService:
     """
     Wrapper on top of pygit2 to serve content.
@@ -208,6 +268,7 @@ class GitService:
             "datetime": datetime.fromtimestamp(commit.commit_time).isoformat(),
         }
 
+    @measure_git_read_time(operation="build_changeset")
     def get_collection_changeset(self, bid, cid, _since=None):
         """
         Get the changeset for a specific collection.
@@ -337,6 +398,7 @@ class GitService:
         content = bcontent.decode("utf-8")
         return content
 
+    @measure_git_read_time(operation="scan_folder")
     def _scan_folder(
         self, tree: pygit2.Tree, path: str
     ) -> Generator[tuple[str, pygit2.Oid], None, None]:
@@ -352,6 +414,7 @@ class GitService:
                     if subentry.type == pygit2.GIT_OBJECT_BLOB:
                         yield subentry.name, subentry.id
 
+    @measure_git_read_time(operation="get_file_content")
     def _get_file_content(
         self, path: str, branch: str = f"{GIT_REF_PREFIX}common"
     ) -> bytes:
@@ -411,7 +474,31 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Remote Settings Over Git", lifespan=lifespan, version=VERSION)
-app.include_router(dockerflow_router, prefix=PREFIX, tags=["dockerflow"])
+app.include_router(dockerflow_router, prefix=f"/{API_PREFIX[:-1]}", tags=["dockerflow"])
+app.mount(f"/{API_PREFIX}__metrics__", prometheus_client.make_asgi_app())
+
+
+@app.middleware("http")
+async def requests_metrics(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    global METRICS
+
+    start_time = time.time()
+    response = await call_next(request)
+    elapsed_sec = time.time() - start_time
+
+    labels = (
+        request.method,
+        request.scope["route"].name if "route" in request.scope else "unknown",
+        response.status_code,
+        request.path_params.get("bid", ""),
+        request.path_params.get("cid", ""),
+    )
+    METRICS["request_summary"].labels(*labels).inc()
+    METRICS["request_duration_seconds"].labels(*labels).observe(elapsed_sec)
+
+    return response
 
 
 @checks.register
@@ -432,15 +519,15 @@ def git_repo_health() -> list[checks.Check]:
 
 @app.get("/")
 def root():
-    return RedirectResponse(f"{PREFIX}/", status_code=307)
+    return RedirectResponse(f"/{API_PREFIX}", status_code=307)
 
 
-@app.get(PREFIX)
+@app.get(f"/{API_PREFIX[:-1]}")
 def hello_unsuffixed():
-    return RedirectResponse(f"{PREFIX}/", status_code=307)
+    return RedirectResponse(f"/{API_PREFIX}", status_code=307)
 
 
-@app.get(f"{PREFIX}/", response_model=HelloResponse)
+@app.get(f"/{API_PREFIX}", response_model=HelloResponse)
 def hello(
     request: Request,
     settings: Settings = Depends(get_settings),
@@ -453,12 +540,16 @@ def hello(
             "ATTACHMENTS_BASE_URL is required when not SELF_CONTAINED"
         )
         attachments_base_url = (
-            f"{request.url.scheme}://{request.url.netloc}{PREFIX}/attachments"
+            f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}attachments"
         )
     if not attachments_base_url.endswith("/"):
         attachments_base_url += "/"
 
     server_info = git.get_server_info()
+    common_branch_info = git.get_head_info(branch=f"{GIT_REF_PREFIX}common")
+
+    repo_age_seconds = int(time.time()) - common_branch_info["timestamp"]
+    METRICS["repository_age_seconds"].set(repo_age_seconds)
 
     return {
         "project_name": server_info["project_name"],
@@ -469,7 +560,7 @@ def hello(
             "readonly": True,
         },
         "git": {
-            "common": git.get_head_info(branch=f"{GIT_REF_PREFIX}common"),
+            "common": common_branch_info,
         },
         "capabilities": {
             "attachments": {
@@ -481,7 +572,7 @@ def hello(
 
 
 @app.get(
-    f"{PREFIX}/buckets/monitor/collections/changes/changeset",
+    f"/{API_PREFIX}buckets/monitor/collections/changes/changeset",
     response_model=ChangesetResponse,
 )
 def monitor_changes(
@@ -508,7 +599,7 @@ def monitor_changes(
 
 
 @app.get(
-    f"{PREFIX}/buckets/{{bid}}/collections/{{cid}}/changeset",
+    f"/{API_PREFIX}buckets/{{bid}}/collections/{{cid}}/changeset",
     response_model=ChangesetResponse,
 )
 def collection_changeset(
@@ -543,7 +634,7 @@ def collection_changeset(
         # Certificate chains are served from this server.
         x5u = metadata["signature"]["x5u"]
         parsed = urlparse(x5u)
-        rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}{PREFIX}/cert-chains/{parsed.path.lstrip('/')}"
+        rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
         metadata["signature"]["x5u"] = rewritten_x5u
 
     return ChangesetResponse(
@@ -553,12 +644,12 @@ def collection_changeset(
     )
 
 
-@app.get(f"{PREFIX}/__broadcasts__", response_model=BroadcastsResponse)
+@app.get(f"/{API_PREFIX}__broadcasts__", response_model=BroadcastsResponse)
 def broadcasts(git: GitService = Depends(GitService.dep)):
     return git.get_broadcasts()
 
 
-@app.get(f"{PREFIX}/cert-chains/{{pem:path}}", response_class=PlainTextResponse)
+@app.get(f"/{API_PREFIX}cert-chains/{{pem:path}}", response_class=PlainTextResponse)
 def cert_chain(
     pem: str,
     settings: Settings = Depends(get_settings),
@@ -572,7 +663,7 @@ def cert_chain(
         raise HTTPException(status_code=404, detail=f"{pem} not found")
 
 
-@app.get(f"{PREFIX}/attachments/{{path:path}}")
+@app.get(f"/{API_PREFIX}attachments/{{path:path}}")
 def attachments(
     request: Request,
     path: str,
@@ -616,7 +707,7 @@ def attachments(
             for changeset in startup_changesets:
                 x5u = changeset["metadata"]["signature"]["x5u"]
                 parsed = urlparse(x5u)
-                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}{PREFIX}/cert-chains/{parsed.path.lstrip('/')}"
+                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
                 changeset["metadata"]["signature"]["x5u"] = rewritten_x5u
 
             # Dump into memory bytes and cache content to skip rewriting next time.

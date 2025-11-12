@@ -474,3 +474,23 @@ def test_attachment_unknown_mimetype(api_client):
     resp = api_client.get("/v2/attachments/security-state/crlite/bloomfilter.bin")
     assert resp.status_code == 200
     assert resp.headers["Content-Type"] == "application/octet-stream"
+
+
+def test_metrics_traces_durations(api_client):
+    resp = api_client.get("/v2/__metrics__")
+    assert resp.status_code == 200
+    metrics_text = resp.text
+
+    assert (
+        'remotesettings_request_duration_seconds_bucket{bucket_id="main",collection_id="password-rules",endpoint="collection_changeset"'
+        in metrics_text
+    )
+    assert (
+        'remotesettings_request_summary_total{bucket_id="main",collection_id="password-rules",endpoint="collection_changeset"'
+        in metrics_text
+    )
+    assert "remotesettings_repository_age_seconds " in metrics_text
+    assert (
+        'remotesettings_repository_read_latency_seconds_bucket{le="0.001",operation="get_file_content"}'
+        in metrics_text
+    )
