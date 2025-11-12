@@ -1,4 +1,5 @@
 import os
+import time
 from typing import Any, Generator, Iterable, Optional
 
 import pygit2
@@ -88,9 +89,15 @@ def push_mirror(
     # 1) Force update all local branches
     for b in sorted(branches):
         to_push.append(f"+{b}:{b}")
-    # 2) Force update all local tags
+    # 2) Force update all local tags and delete old tags
     for t in sorted(tags):
-        to_push.append(f"+refs/tags/{t}:refs/tags/{t}")
+        deleting = t.startswith("-")
+        name = t[1:]
+        full = name if name.startswith("refs/tags/") else f"refs/tags/{name}"
+        if deleting:
+            to_push.append(f":{full}")
+        else:
+            to_push.append(f"+{full}:{full}")
 
     if not to_push:
         print("Everything up-to-date.")
@@ -149,21 +156,25 @@ def iter_tree(
 
 def tree_upsert_blobs(
     repo: pygit2.Repository,
-    items: Iterable[tuple[str, bytes]],
+    items: Iterable[tuple[str, bytes | None]],
     *,
     base_tree: Optional[pygit2.Tree],
 ) -> pygit2.Oid:
     """
-    Create/update blobs at the provided paths and return the resulting *tree OID*.
+    Create/update/delete blobs at the provided paths and return the resulting *tree OID*.
 
     - Paths may be nested ('a/b/c.json').
-    - This function merges the provided items into the existing tree (base_tree)
+    - This merges the provided items into the existing tree (base_tree)
       by building a small trie of updates and recursively writing subtrees.
     - If base_tree is None, a new tree is created from scratch.
 
     The stable tree hashing means if content is unchanged, the returned OID
     will equal base_tree.id, which upstream code uses to skip commits.
+    Pass `(path, None)` to delete the blob at that path.
     """
+    DELETE = object()  # sentinel for deletions
+    # Ensure items is a concrete list for multiple iterations.
+    items = list(items)
     updates_trie: dict[str, Any] = {}
 
     def put(trie: dict[str, Any], path: str, blob_oid: pygit2.Oid) -> None:
@@ -175,7 +186,7 @@ def tree_upsert_blobs(
         node[fname] = blob_oid
 
     for path, blob_bytes in items:
-        blob_oid = repo.create_blob(blob_bytes)
+        blob_oid = DELETE if blob_bytes is None else repo.create_blob(blob_bytes)
         put(updates_trie, path, blob_oid)
 
     def merge(node: dict[str, Any], base: Optional[pygit2.Tree]) -> pygit2.Oid:
@@ -183,7 +194,10 @@ def tree_upsert_blobs(
         builder = repo.TreeBuilder(base) if base is not None else repo.TreeBuilder()
         for name in sorted(node.keys()):
             val = node[name]
-            if isinstance(val, dict):
+            if val is DELETE:
+                # Delete from tree, will raise if missing.
+                builder.remove(name)
+            elif isinstance(val, dict):
                 # Descend into existing subtree if present.
                 existing_subtree = None
                 if base is not None:
@@ -201,3 +215,89 @@ def tree_upsert_blobs(
         return builder.write()
 
     return merge(updates_trie, base_tree)
+
+
+def delete_old_tags(
+    repo: pygit2.Repository, max_age_days: int, min_tags_per_collection: int = 2
+) -> list[str]:
+    """
+    Delete old tags from the repository, keeping the most recent `min_tags_per_collection` tags for each collection.
+
+    Return the list of deleted tag names.
+    """
+    deleted_tags = []
+    now_ts = int(time.time())
+
+    timestamp_tags = [
+        ref_name
+        for ref_name in repo.references
+        if ref_name.startswith("refs/tags/") and "/timestamps/" in ref_name
+    ]
+    group_by_collection: dict[str, list[tuple[str, int]]] = {}
+    for ref_name in sorted(timestamp_tags):
+        collection, timestamp = ref_name.rsplit("/", 1)
+        timestamp = int(timestamp)
+        group_by_collection.setdefault(collection, []).append((ref_name, timestamp))
+
+    # For each collection, keep at least the `min_tags_per_collection` most recent tags, and delete older ones beyond `max_age_days`
+    for collection, tags in group_by_collection.items():
+        for ref_name, timestamp in tags[:-min_tags_per_collection]:
+            if (now_ts - timestamp) / (60 * 60 * 24) > max_age_days:
+                print(f"Deleting tag {ref_name} (timestamp: {timestamp})")
+                repo.references.delete(ref_name)
+                deleted_tags.append(ref_name)
+
+    return deleted_tags
+
+
+def delete_unreferenced_commits(repo: pygit2.Repository):
+    """
+    Truncate branches to the first tagged commit.
+
+    This will make all unreferenced commits unreachable/orphan.
+
+    For each branch, walk from the oldest commit to the newest,
+    and truncate the branch to start from the first tagged commit.
+    """
+    oid_to_tag = {}
+    for refname in [t for t in repo.references if t.startswith("refs/tags/")]:
+        tag_ref = repo.references[refname]
+        tag_oid = tag_ref.target
+        obj = repo[tag_oid]
+        commit = obj.peel(pygit2.Commit)
+        oid_to_tag[commit.id] = refname
+
+    # For each local branch, walk back in time and find the oldest reachable tagged commit
+    for refname in [b for b in repo.references if b.startswith("refs/heads/")]:
+        branch = repo.references[refname]
+        tip_oid = branch.target
+
+        # Walk commits from oldest to newest along this branch history
+        walker = repo.walk(
+            tip_oid, pygit2.GIT_SORT_TOPOLOGICAL | pygit2.GIT_SORT_REVERSE
+        )
+        first_tagged_commit = None
+        for c in walker:
+            if c.id in oid_to_tag:
+                first_tagged_commit = c
+                break
+        assert first_tagged_commit is not None, (
+            f"No tagged commit found in branch {refname} (tags: {oid_to_tag})"
+        )
+        # If the tagged commit is already a root, nothing to do
+        if len(first_tagged_commit.parents) == 0:
+            continue
+
+        # Recreate the tagged commit as a *new root commit* (no parents), preserving metadata.
+        new_root_oid = repo.create_commit(
+            None,  # no ref update
+            first_tagged_commit.author,
+            first_tagged_commit.committer,
+            first_tagged_commit.message,
+            first_tagged_commit.tree.id,
+            [],  # <-- no parents => new branch root
+        )
+        # Now force-move the branch to the new root
+        msg = f"Truncate {refname} at {oid_to_tag[first_tagged_commit.id]} (new root)"
+        branch.set_target(new_root_oid, msg)
+        print(msg)

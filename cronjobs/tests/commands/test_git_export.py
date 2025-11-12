@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import os
 import shutil
@@ -63,6 +64,12 @@ def mock_ls_remotes():
     with mock.patch("pygit2.Remote.ls_remotes") as mock_ls:
         mock_ls.return_value = []
         yield mock_ls
+
+
+@pytest.fixture
+def mock_delete_unreferenced_commits():
+    with mock.patch.object(git_export, "delete_unreferenced_commits") as mock_delete:
+        yield mock_delete
 
 
 @pytest.fixture
@@ -242,7 +249,10 @@ def test_clone_must_match_remote_url_if_dir_exists(mock_github_lfs):
 
 
 def test_remote_is_clone_if_dir_missing(
-    mock_repo_sync_content, mock_github_lfs, mock_git_push
+    mock_repo_sync_content,
+    mock_delete_unreferenced_commits,
+    mock_github_lfs,
+    mock_git_push,
 ):
     def _fake_clone(url, path, *args, **kwargs):
         return init_fake_repo(path)
@@ -296,6 +306,7 @@ def test_repo_sync_does_nothing_if_up_to_date(
     mock_git_fetch,
     mock_ls_remotes,
     mock_rs_server_content,
+    mock_delete_unreferenced_commits,
     mock_github_lfs,
     mock_git_push,
 ):
@@ -319,6 +330,7 @@ def test_repo_sync_can_be_forced_even_if_up_to_date(
     mock_git_fetch,
     mock_ls_remotes,
     mock_rs_server_content,
+    mock_delete_unreferenced_commits,
     mock_github_lfs,
     mock_git_push,
 ):
@@ -618,6 +630,49 @@ def test_attachment_bundles_is_skipped_if_no_attachment_in_changeset(
 
     # Does not fail with 404 on "http://cdn.example.com/v1/attachments/bundles/bid1--cid1.zip"
     git_export.git_export(None, None)
+
+
+@responses.activate
+def test_repo_syncs_deletes_attachments_if_flag_set(
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
+):
+    responses.add(
+        responses.HEAD,
+        "http://cdn.example.com/v1/attachments/bundles/startup.json.mozlz4",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "http://cdn.example.com/v1/attachments/bid2/random-name.bin",
+        body=b"a" * 42,
+    )
+    git_export.git_export(None, None)
+    # First check that attachment exists in repo.
+    blob = read_file(repo, "v1/common", "attachments/bid2/random-name.bin")
+    assert "lfs" in blob.decode()
+
+    # Now simulate that attachment is unreachable.
+    responses.add(
+        responses.HEAD,
+        "http://cdn.example.com/v1/attachments/bid2/random-name.bin",
+        status=404,
+    )
+    responses.replace(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/monitor/collections/changes/changeset",
+        json={"timestamp": 1800000000000, "changes": []},
+    )
+    # Re-run.
+    asyncio.run(git_export.repo_sync_content(repo, delete_unreachable_attachments=True))
+
+    # Attachment should be deleted from repo.
+    with pytest.raises(KeyError):
+        read_file(repo, "v1/common", "attachments/bid2/random-name.bin")
 
 
 @responses.activate

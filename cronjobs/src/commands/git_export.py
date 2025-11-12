@@ -16,6 +16,8 @@ from pygit2 import (
 
 from ._git_export_git_tools import (
     clone_or_fetch,
+    delete_old_tags,
+    delete_unreferenced_commits,
     iter_tree,
     make_lfs_pointer,
     parse_lfs_pointer,
@@ -27,6 +29,7 @@ from ._git_export_lfs import (
     fetch_and_hash,
     github_lfs_batch_upload_many,
     github_lfs_validate_credentials,
+    list_unreachable_paths,
 )
 
 
@@ -60,6 +63,13 @@ GIT_REMOTE_URL = config(
 )
 SSH_PUBKEY_PATH = os.path.expanduser(
     config("SSH_PUBKEY_PATH", default=f"{SSH_PRIVKEY_PATH}.pub")
+)
+TAGS_MAX_AGE_DAYS = config("TAGS_MAX_AGE_DAYS", default=90, cast=int)
+MIN_TAGS_PER_COLLECTION_COUNT = config(
+    "MIN_TAGS_PER_COLLECTION_COUNT", default=2, cast=int
+)
+DELETE_UNREACHABLE_ATTACHMENTS = config(
+    "DELETE_UNREACHABLE_ATTACHMENTS", default=False, cast=bool
 )
 
 # Constants
@@ -108,9 +118,25 @@ def git_export(event, context):
         print("Head is now at", repo.head.target)
 
     try:
-        changed_attachments, changed_branches, changed_tags = asyncio.run(
+        changed_attachments, changed_branches, created_tags = asyncio.run(
             repo_sync_content(repo)
         )
+
+        deleted_tags = delete_old_tags(
+            repo,
+            max_age_days=TAGS_MAX_AGE_DAYS,
+            min_tags_per_collection=MIN_TAGS_PER_COLLECTION_COUNT,
+        )
+        print(f"{len(deleted_tags)} old tags to delete.")
+
+        # Now that we deleted old tags, delete all commits that are no longer
+        # referenced by any tag.
+        # This will required checkout to use `--force` since we rewrite history.
+        # We do this to keep a reasonable number of objects, and most importantly
+        # to delete LFS files from remote storage (Github keeps LFS files as long as
+        # there is a reference to them in the git history).
+        delete_unreferenced_commits(repo)
+
         print(f"{len(changed_attachments)} attachments to upload.")
         github_lfs_batch_upload_many(
             objects=changed_attachments,
@@ -119,9 +145,10 @@ def git_export(event, context):
             auth_header=auth_header,
         )
 
+        changed_tags = [f"+{tag}" for tag in created_tags] + [
+            f"-{tag}" for tag in deleted_tags
+        ]
         push_mirror(repo, changed_branches, changed_tags, callbacks=callbacks)
-
-        # TODO: delete old tags and old LFS objects.
 
         print("Done.")
     except Exception as exc:
@@ -177,6 +204,7 @@ def fetch_all_cert_chains(
 
 async def repo_sync_content(
     repo,
+    delete_unreachable_attachments=DELETE_UNREACHABLE_ATTACHMENTS,
 ) -> tuple[list[tuple[str, int, str]], list[str], list[str]]:
     """
     Sync content from the remote server to the local git repository.
@@ -184,7 +212,7 @@ async def repo_sync_content(
     """
     changed_attachments: list[tuple[str, int, str]] = []
     changed_branches: set[str] = set()
-    changed_tags: list[str] = []
+    created_tags: list[str] = []
 
     author = pygit2.Signature(GIT_USER, GIT_EMAIL)
     committer = author
@@ -196,7 +224,7 @@ async def repo_sync_content(
         common_tip = repo.lookup_reference(common_branch).target
         common_base_tree = repo.get(common_tip).tree
         parents = [common_tip]
-    except KeyError:
+    except KeyError:  # pragma: no cover
         common_base_tree = None
         parents = []
 
@@ -225,7 +253,7 @@ async def repo_sync_content(
     )
     if not FORCE and monitor_changeset["timestamp"] == latest_timestamp:
         print("No new changes since last run.")
-        return changed_attachments, changed_branches, changed_tags
+        return changed_attachments, changed_branches, created_tags
 
     server_info = await client.server_info()
 
@@ -283,6 +311,17 @@ async def repo_sync_content(
     attachments_base_url = server_info["capabilities"]["attachments"][
         "base_url"
     ].rstrip("/")
+
+    # Delete unreachable attachments. Since this operation creates a lot of
+    # hits, we do it only if the flag is enabled (less frequent than normal cronjob run).
+    if delete_unreachable_attachments:
+        attachments_paths = existing_attachments.keys()
+        obsolete_attachments = list_unreachable_paths(
+            attachments_base_url, attachments_paths
+        )
+        for path in obsolete_attachments:
+            print(f"Attachment {path} is unreachable, deleting from tree")
+            common_content.append((f"attachments/{path}", None))  # Delete from tree
 
     # Mark the attachments/ folder as fully managed via LFS.
     common_content.append(
@@ -373,7 +412,7 @@ async def repo_sync_content(
                 f"Common branch content @ {monitor_changeset['timestamp']}",
             )
             print(f"Created tag common: {tag_name}")
-            changed_tags.append(tag_name)
+            created_tags.append(tag_name)
         except pygit2.AlreadyExistsError:
             print(f"Tag {tag_name} already exists, skipping.")
 
@@ -426,8 +465,8 @@ async def repo_sync_content(
                     f"{bid}/{cid}/{timestamp}",
                 )
                 print(f"Created tag {tag_name}")
-                changed_tags.append(tag_name)
-            except pygit2.AlreadyExistsError:
+                created_tags.append(tag_name)
+            except pygit2.AlreadyExistsError:  # pragma: no cover
                 print(f"Tag {tag_name} already exists, skipping.")
 
-    return changed_attachments, changed_branches, changed_tags
+    return changed_attachments, changed_branches, created_tags

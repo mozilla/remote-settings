@@ -1,5 +1,8 @@
+import time
+
 import pygit2
 import pytest
+from commands._git_export_git_tools import delete_old_tags, delete_unreferenced_commits
 from commands.git_export import iter_tree, parse_lfs_pointer, tree_upsert_blobs
 
 
@@ -61,3 +64,73 @@ def test_iter_tree_single_file(tmp_repo):
             "ac044e5e4649cd149e3d0cf9d23720d299288a1e",  # pragma: allowlist secret
         ),
     ]
+
+
+def test_delete_old_tags(tmp_repo):
+    repo = tmp_repo
+    now_ts = int(time.time())
+
+    commit = tmp_repo.revparse_single("main")
+    old_tag = "v1/timestamps/common/" + str(now_ts - 10 * 86400)  # 10 days ago
+    repo.create_tag(
+        old_tag,
+        commit.id,
+        pygit2.GIT_OBJECT_COMMIT,
+        pygit2.Signature("Tester", "test@example.com"),
+        "An old tag",
+    )
+    recent_tag = f"v1/timestamps/common/{now_ts}"
+    repo.create_tag(
+        recent_tag,
+        commit.id,
+        pygit2.GIT_OBJECT_COMMIT,
+        pygit2.Signature("Tester", "test@example.com"),
+        "A recent tag",
+    )
+    assert f"refs/tags/{old_tag}" in repo.references
+    assert f"refs/tags/{recent_tag}" in repo.references
+
+    deleted = delete_old_tags(repo, max_age_days=8, min_tags_per_collection=1)
+
+    assert deleted == [f"refs/tags/{old_tag}"]
+    assert f"refs/tags/{old_tag}" not in repo.references
+    assert f"refs/tags/{recent_tag}" in repo.references
+
+
+def test_delete_unreferenced_commits(tmp_repo):
+    repo = tmp_repo
+
+    main_tree_id = repo.revparse_single("main").tree.id
+    tree_oid = tree_upsert_blobs(
+        repo,
+        items=[
+            ("file.bin", b"ABC"),
+        ],
+        base_tree=main_tree_id,
+    )
+    author = pygit2.Signature("Test", "test@example.com")
+    committer = author
+    commit_oid = repo.create_commit(
+        "refs/heads/main",
+        author,
+        committer,
+        "second commit",
+        tree_oid,
+        [repo.revparse_single("main").id],
+    )
+    repo.create_tag(
+        "tagged-commit",
+        commit_oid,
+        pygit2.GIT_OBJECT_COMMIT,
+        author,
+        "A recent tag",
+    )
+
+    all_main_commits = list(repo.walk(repo.references["refs/heads/main"].target))
+    assert len(all_main_commits) == 2
+
+    delete_unreferenced_commits(repo)
+
+    all_main_commits_after = list(repo.walk(repo.references["refs/heads/main"].target))
+    assert len(all_main_commits_after) == 1
+    assert all_main_commits_after[0].message == "second commit"
