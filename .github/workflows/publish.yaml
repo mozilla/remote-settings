@@ -274,8 +274,9 @@ jobs:
         with:
           images: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.GAR_IMAGE_NAME }}
           tags: |
-            type=raw,value=${{ env.LATEST_TAG }}
-            type=raw,value=latest
+            type=raw,value=${{ env.LATEST_TAG }},enable=${{ github.event_name == 'push' }}
+            type=sha,format=long,enable=${{ github.event_name == 'push' }}
+            type=semver,pattern={{raw}},enable=${{ github.event_name == 'release' }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Authenticate on GCP
@@ -286,7 +287,7 @@ jobs:
           service_account: artifact-writer@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com
           workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Login to GAR
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/login-action@v3
         with:
           registry: ${{ env.GAR_LOCATION }}-docker.pkg.dev
@@ -296,7 +297,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: git-reader/
-          push: ${{ github.event_name == 'push' }}
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha # Load cache from GitHub Actions
