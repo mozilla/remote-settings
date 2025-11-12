@@ -34,13 +34,10 @@ def expire_orphan_attachments(event, context):
         for record in changeset["changes"]:
             if attachments_info := record.get("attachment"):
                 attachments.add(attachments_info["location"])
+    print(f"Found {len(attachments)} referenced attachments.")
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(STORAGE_BUCKET_NAME)
-
-    if not bucket.default_event_based_hold:
-        print(f"Default event-based hold is not enabled for {bucket.name}")
-        return
 
     blobs = bucket.list_blobs()  # Recursive by default
     with storage_client.batch():
