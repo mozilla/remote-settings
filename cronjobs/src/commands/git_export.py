@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import json
 import os
 import traceback
@@ -68,8 +69,16 @@ TAGS_MAX_AGE_DAYS = config("TAGS_MAX_AGE_DAYS", default=90, cast=int)
 MIN_TAGS_PER_COLLECTION_COUNT = config(
     "MIN_TAGS_PER_COLLECTION_COUNT", default=2, cast=int
 )
+
+# By default, we delete unreachable attachments only once every 2days between 12:00 and 12:15 UTC
+# This avoids running this potentially expensive operation on every cronjob run.
+# And to avoid duplicating the cronjob definition twice just to set this env var.
+_now = datetime.datetime.now(datetime.timezone.utc)
+_IS_EVEN_DAY = _now.weekday() % 2 == 0
+_SHOULD_DELETE_UNREACHABLE = _IS_EVEN_DAY and _now.hour == 12 and _now.minute > 0 and _now.minute < 15
+
 DELETE_UNREACHABLE_ATTACHMENTS = config(
-    "DELETE_UNREACHABLE_ATTACHMENTS", default=False, cast=bool
+    "DELETE_UNREACHABLE_ATTACHMENTS", default=_SHOULD_DELETE_UNREACHABLE, cast=bool
 )
 
 # Constants
