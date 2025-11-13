@@ -458,6 +458,11 @@ def test_attachment_real_file(api_client):
     assert len(resp.content) == 1000
 
 
+def test_attachment_supports_head(api_client):
+    resp = api_client.head("/v2/attachments/main-workspace/regions/world.geojson")
+    assert resp.status_code == 200
+
+
 def test_attachment_mimetype(api_client):
     resp = api_client.get("/v2/attachments/main-workspace/regions/world.geojson")
     assert resp.status_code == 200
