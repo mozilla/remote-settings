@@ -1,0 +1,7 @@
+{
+    "commit": "HEAD",
+    "version": "v0.0.0",
+    "image_tag": null,
+    "source": "https://github.com/mozilla/remote-settings",
+    "build": null
+}
