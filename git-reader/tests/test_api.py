@@ -236,6 +236,13 @@ def test_heartbeat(api_client, monkeypatch, fake_repo):
     assert resp.status_code == 200
 
 
+def test_version(api_client):
+    resp = api_client.get("/v2/__version__")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["version"] == "v0.0.0"
+
+
 def test_heartbeat_failing(api_client, temp_dir, monkeypatch):
     with tempfile.TemporaryDirectory() as td:
         # Copy the fake repo to a temp dir and delete stuff.

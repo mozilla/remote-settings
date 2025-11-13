@@ -470,6 +470,8 @@ async def lifespan(app: FastAPI):
     """
     Add a very simple in-memory cache to store data during the app lifespan.
     """
+    # This tells dockerflow's version endpoint where to find the app directory.
+    app.state.APP_DIR = HERE
     yield {"cache": {}}
 
 
