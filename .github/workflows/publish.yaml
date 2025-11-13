@@ -268,6 +268,16 @@ jobs:
           fetch-depth: 0
       - name: Set tag version
         run: echo "LATEST_TAG=$(git describe --tags --abbrev=4)" >> "$GITHUB_ENV"
+      - name: Create version.json
+        run: |
+            # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/main/docs/version_object.md
+            printf '{\n    "commit": "%s",\n    "version": "%s",\n    "source": "%s",\n    "build": "%s"\n}\n' \
+            "$GITHUB_SHA" \
+            "$LATEST_TAG" \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > ./version.json
+            # Show complete version.json for debugging
+            cat ./version.json
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
