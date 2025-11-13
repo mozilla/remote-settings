@@ -663,7 +663,7 @@ def cert_chain(
         raise HTTPException(status_code=404, detail=f"{pem} not found")
 
 
-@app.get(f"/{API_PREFIX}attachments/{{path:path}}")
+@app.api_route(f"/{API_PREFIX}attachments/{{path:path}}", methods=["GET", "HEAD"])
 def attachments(
     request: Request,
     path: str,
