@@ -275,9 +275,9 @@ jobs:
             "$GITHUB_SHA" \
             "$LATEST_TAG" \
             "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
-            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > ./version.json
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > ./git-reader/version.json
             # Show complete version.json for debugging
-            cat ./version.json
+            cat ./git-reader/version.json
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
