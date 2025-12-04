@@ -16,9 +16,14 @@ docker build -t remote-settings-git-reader .
 
 ## Running the application
 
+We have included a docker-compose file to make running locally easy.
+
 The application needs access to a Git repository containing Remote Settings data (read-only):
 
 ```bash
+docker compose run git-reader
+
+# OR
 docker run --rm -p 8000:8000 \
     -e GIT_REPO_PATH=/mnt/data/latest \
     -e SELF_CONTAINED=true \
@@ -30,6 +35,11 @@ But first, we will initialize the folder structure required to execute Git updat
 Use the ``gitupdate`` command and the ``GIT_REPO_URL`` environment variable to specify the repository to clone:
 
 ```bash
+docker compose run \
+    -e GIT_REPO_URL=git@github.com:mozilla/remote-settings-data.git \
+    git-reader gitupdate
+
+# OR
 docker run --rm \
     -e GIT_REPO_URL=git@github.com:mozilla/remote-settings-data.git \
     -e GIT_REPO_PATH=/mnt/data/latest \
@@ -53,6 +63,13 @@ Since the container is going to regularly run Git fetch commands to keep the rep
 This requires to have a SSH agent working on the host. It has the advantage of not requiring the container to have access to the actual key and passphrase (if any).
 
 ```bash
+docker compose run \
+    -e GIT_REPO_URL=git@github.com:mozilla/remote-settings-data.git \
+    -e SSH_AUTH_SOCK=/app/ssh-agent \
+    -v $SSH_AUTH_SOCK:/app/ssh-agent \
+    git-reader gitupdate
+
+# OR
 docker run --rm \
     -e GIT_REPO_PATH=/mnt/data/latest \
     -e SELF_CONTAINED=true \
@@ -81,6 +98,12 @@ EOF
 And then mount the SSH material directory into the container:
 
 ```bash
+docker compose run \
+    -e GIT_REPO_URL=git@github.com:mozilla/remote-settings-data.git \
+    -v `pwd`/ssh-material:/app/.ssh \
+    git-reader gitupdate
+
+# OR
 docker run --rm \
     -e GIT_REPO_PATH=/mnt/data/latest \
     -e SELF_CONTAINED=true \

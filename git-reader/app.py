@@ -578,20 +578,28 @@ def hello(
     response_model=ChangesetResponse,
 )
 def monitor_changes(
-    _expected: int = 0,
+    _expected: str = "0",
     _since: str | None = Depends(clean_since_param),
     bucket: str | None = None,
     collection: str | None = None,
     git: GitService = Depends(GitService.dep),
 ):
-    if _since and _expected > 0 and _expected < _since:
+    try:
+        since = int(_since.strip('"'))
+        expected = int(_expected.strip('"'))
+        if since and expected > 0 and expected < since:
+            raise HTTPException(
+                status_code=400,
+                detail="_expected must be superior to _since if both are provided",
+            )
+    except ValueError:
         raise HTTPException(
             status_code=400,
-            detail="_expected must be superior to _since if both are provided",
+            detail="_expected and _since must be integers",
         )
 
     timestamp, metadata, changes = git.get_monitor_changes_changeset(
-        _since=_since, bucket=bucket, collection=collection
+        _since=since, bucket=bucket, collection=collection
     )
     return ChangesetResponse(
         timestamp=timestamp,
@@ -608,26 +616,34 @@ def collection_changeset(
     request: Request,
     bid: str,
     cid: str,
-    _expected: int = 0,
+    _expected: str = "0",
     _since: str | None = Depends(clean_since_param),
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
-    if _since and _expected > 0 and _expected < _since:
+    try:
+        since = int(_since.strip('"'))
+        expected = int(_expected.strip('"'))
+        if since and expected > 0 and expected < since:
+            raise HTTPException(
+                status_code=400,
+                detail="_expected must be superior to _since if both are provided",
+            )
+    except ValueError:
         raise HTTPException(
             status_code=400,
-            detail="_expected must be superior to _since if both are provided",
+            detail="_expected and _since must be integers",
         )
 
     try:
         timestamp, metadata, changes = git.get_collection_changeset(
-            bid, cid, _since=_since
+            bid, cid, _since=since
         )
     except CollectionNotFound:
         raise HTTPException(status_code=404, detail=f"{bid}/{cid} not found")
     except UnknownTimestamp:
         print(
-            f"Unknown _since timestamp: {_since} for {bid}/{cid}, falling back to full changeset"
+            f"Unknown _since timestamp: {since} for {bid}/{cid}, falling back to full changeset"
         )
         without_since = request.url.remove_query_params("_since")
         return RedirectResponse(without_since, status_code=307)
