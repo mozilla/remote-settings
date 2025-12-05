@@ -59,6 +59,7 @@ services:
     environment:
       - GIT_REPO_PATH=/mnt/data/latest
       - SELF_CONTAINED=true
+      - DOMAIN_OVERRIDE=localhost:8888
     volumes:
       - ./git-reader/data:/mnt/data
 

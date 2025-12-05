@@ -85,6 +85,10 @@ class Settings(BaseSettings):
         None,
         description="Base URL for attachments. Required if SELF_CONTAINED is false.",
     )
+    domain_override: str | None = Field(
+        None,
+        description="Domain (and port) to use for attachment and certificate chain rewrites when SELF_CONTAINED is true. Ex: localhost:8888"
+    )
 
 
 @lru_cache(maxsize=1)
@@ -456,14 +460,24 @@ def clean_since_param(
             status_code=422,
             detail='Invalid format for _since. Must be quoted integer, e.g. "123"',
         )
-    inner = _since.strip('"')
+    return clean_int_param(_since, "_since")
+
+
+def clean_expected_param(
+    _expected: str | None = Query(None, alias="_expected"),
+) -> int | None:
+    if _expected is None:
+        return 0
+    return clean_int_param(_expected, "_expected")
+
+def clean_int_param(param: str, name: str) -> int:
+    inner = param.strip('"')
     if not inner.isdigit():
         raise HTTPException(
             status_code=422,
-            detail="Invalid format for _since. Must contain only digits inside quotes",
+            detail=f"Invalid format for {name}. Must contain only digits inside quotes",
         )
     return int(inner)
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -542,7 +556,7 @@ def hello(
             "ATTACHMENTS_BASE_URL is required when not SELF_CONTAINED"
         )
         attachments_base_url = (
-            f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}attachments"
+            f"{request.url.scheme}://{settings.domain_override or request.url.netloc}/{API_PREFIX}attachments"
         )
     if not attachments_base_url.endswith("/"):
         attachments_base_url += "/"
@@ -578,28 +592,20 @@ def hello(
     response_model=ChangesetResponse,
 )
 def monitor_changes(
-    _expected: str = "0",
-    _since: str | None = Depends(clean_since_param),
+    _expected: int  = Depends(clean_expected_param),
+    _since: int | None = Depends(clean_since_param),
     bucket: str | None = None,
     collection: str | None = None,
     git: GitService = Depends(GitService.dep),
 ):
-    try:
-        since = int(_since.strip('"'))
-        expected = int(_expected.strip('"'))
-        if since and expected > 0 and expected < since:
-            raise HTTPException(
-                status_code=400,
-                detail="_expected must be superior to _since if both are provided",
-            )
-    except ValueError:
+    if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
-            detail="_expected and _since must be integers",
+            detail="_expected must be superior to _since if both are provided",
         )
 
     timestamp, metadata, changes = git.get_monitor_changes_changeset(
-        _since=since, bucket=bucket, collection=collection
+        _since=_since, bucket=bucket, collection=collection
     )
     return ChangesetResponse(
         timestamp=timestamp,
@@ -616,34 +622,26 @@ def collection_changeset(
     request: Request,
     bid: str,
     cid: str,
-    _expected: str = "0",
-    _since: str | None = Depends(clean_since_param),
+    _expected: int  = Depends(clean_expected_param),
+    _since: int | None = Depends(clean_since_param),
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
-    try:
-        since = int(_since.strip('"'))
-        expected = int(_expected.strip('"'))
-        if since and expected > 0 and expected < since:
-            raise HTTPException(
-                status_code=400,
-                detail="_expected must be superior to _since if both are provided",
-            )
-    except ValueError:
+    if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
-            detail="_expected and _since must be integers",
+            detail="_expected must be superior to _since if both are provided",
         )
 
     try:
         timestamp, metadata, changes = git.get_collection_changeset(
-            bid, cid, _since=since
+            bid, cid, _since=_since
         )
     except CollectionNotFound:
         raise HTTPException(status_code=404, detail=f"{bid}/{cid} not found")
     except UnknownTimestamp:
         print(
-            f"Unknown _since timestamp: {since} for {bid}/{cid}, falling back to full changeset"
+            f"Unknown _since timestamp: {_since} for {bid}/{cid}, falling back to full changeset"
         )
         without_since = request.url.remove_query_params("_since")
         return RedirectResponse(without_since, status_code=307)
@@ -652,8 +650,13 @@ def collection_changeset(
         # Certificate chains are served from this server.
         x5u = metadata["signature"]["x5u"]
         parsed = urlparse(x5u)
-        rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+        rewritten_x5u = f"{request.url.scheme}://{settings.domain_override or request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
         metadata["signature"]["x5u"] = rewritten_x5u
+        if metadata["signatures"] is not None:
+            for signature in metadata["signatures"]:
+                x5u = signature["x5u"]
+                rewritten_x5u = f"{request.url.scheme}://{settings.domain_override or request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+                signature["x5u"] = rewritten_x5u
 
     return ChangesetResponse(
         timestamp=timestamp,
@@ -725,7 +728,7 @@ def attachments(
             for changeset in startup_changesets:
                 x5u = changeset["metadata"]["signature"]["x5u"]
                 parsed = urlparse(x5u)
-                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+                rewritten_x5u = f"{request.url.scheme}://{settings.domain_override or request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
                 changeset["metadata"]["signature"]["x5u"] = rewritten_x5u
 
             # Dump into memory bytes and cache content to skip rewriting next time.
