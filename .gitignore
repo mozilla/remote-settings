@@ -74,3 +74,6 @@ attachments/
 
 # Visual Studio Code
 .vscode/
+
+# Git reader data
+git-reader/data
