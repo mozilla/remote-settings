@@ -100,9 +100,9 @@ git-reader = {path = "./git-reader", develop = true}
 [tool.poetry.group.dev.dependencies]
 pytest = "9.0.2"
 webtest = "3.0.7"
-coverage = "7.12.0"
+coverage = "7.13.0"
 detect-secrets = "^1.5.0"
-ruff = "^0.14.8"
+ruff = "^0.14.9"
 responses = "^0.25.8"
 # For git-reader tests
 httpx = "^0.28.1"
@@ -111,7 +111,7 @@ httpx = "^0.28.1"
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-docutils = "0.21.2"
+docutils = "0.22.3"
 sphinx = "9.0.4"
 
 [build-system]
