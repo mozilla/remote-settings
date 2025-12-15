@@ -249,7 +249,10 @@ def test_heartbeat_failing(api_client, temp_dir, monkeypatch):
         shutil.copytree(temp_dir, td, dirs_exist_ok=True)
 
         repo = pygit2.init_repository(td)
-        repo.branches.delete("v1/buckets/main")
+
+        for tag in repo.references:
+            if tag.startswith("refs/tags/v1/timestamps/"):
+                repo.references.delete(tag)
 
         monkeypatch.setenv("GIT_REPO_PATH", td)
 
