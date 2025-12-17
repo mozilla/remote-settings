@@ -15,6 +15,7 @@ def configs(monkeypatch, tmp_path):
     monkeypatch.setenv("WORK_DIR", str(tmp_path / "workdir"))
     monkeypatch.setenv("SERVER", "http://testserver:9999/v1")
     monkeypatch.setenv("REPO_NAME", "remote-settings-data-stage")
+    monkeypatch.setenv("FORCE", "false")
     # Fake SSH keys
     ssh_privkey = tmp_path / "id_ed25519"
     ssh_pubkey = tmp_path / "id_ed25519.pub"
