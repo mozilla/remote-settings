@@ -144,7 +144,8 @@ def git_export(event, context):
         # We do this to keep a reasonable number of objects, and most importantly
         # to delete LFS files from remote storage (Github keeps LFS files as long as
         # there is a reference to them in the git history).
-        delete_unreferenced_commits(repo)
+        if len(deleted_tags) > 0:
+            delete_unreferenced_commits(repo)
 
         print(f"{len(changed_attachments)} attachments to upload.")
         github_lfs_batch_upload_many(
