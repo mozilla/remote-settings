@@ -288,11 +288,11 @@ changeset = kinto.core.Service(
 
 
 class QuotedTimestamp(colander.SchemaNode):
-    """Integer between "" used in _since querystring."""
+    """Integer with optional quotes used in _since querystring."""
 
     schema_type = colander.String
-    error_message = "The value should be integer between double quotes."
-    validator = colander.Regex('^"([0-9]+?)"(?!\n)$', msg=error_message)
+    error_message = "The value should be integer, optionally between double quotes."
+    validator = colander.Regex('^"?([0-9]+?)"?(?!\n)$', msg=error_message)
 
     def deserialize(self, cstruct=colander.null):
         param = super(QuotedTimestamp, self).deserialize(cstruct)
