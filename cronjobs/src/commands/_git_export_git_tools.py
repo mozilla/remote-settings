@@ -225,6 +225,9 @@ def delete_old_tags(
 
     Return the list of deleted tag names.
     """
+    print(
+        f"Delete tags older than {max_age_days} days, keeping at least {min_tags_per_collection} per collection."
+    )
     deleted_tags = []
     now_ts = int(time.time())
 
@@ -239,13 +242,24 @@ def delete_old_tags(
         timestamp = int(timestamp)
         group_by_collection.setdefault(collection, []).append((ref_name, timestamp))
 
-    # For each collection, keep at least the `min_tags_per_collection` most recent tags, and delete older ones beyond `max_age_days`
+    # For each collection, we find all the tags that are older than
+    # theshold. We keep at least `min_tags_per_collection` after that threshold
+    # to make sure let client catch up with synchronization.
+    # This logics helps us cover the situation described in mozilla/remote-settings#1109
+    # (several updates in a short period of time after a long inactivity).
     for collection, tags in group_by_collection.items():
-        for ref_name, timestamp in tags[:-min_tags_per_collection]:
-            if (now_ts - timestamp) / (60 * 60 * 24) > max_age_days:
-                print(f"Deleting tag {ref_name} (timestamp: {timestamp})")
-                repo.references.delete(ref_name)
-                deleted_tags.append(ref_name)
+        kept_count = 0
+        for ref_name, timestamp in tags:
+            age_days = (now_ts - timestamp) / (60 * 60 * 24)
+            if age_days < max_age_days:
+                continue
+            if kept_count < min_tags_per_collection:
+                kept_count += 1
+                continue
+
+            print(f"Deleting tag {ref_name} (timestamp: {timestamp})")
+            repo.references.delete(ref_name)
+            deleted_tags.append(ref_name)
 
     return deleted_tags
 
