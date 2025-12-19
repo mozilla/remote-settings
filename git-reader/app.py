@@ -17,7 +17,7 @@ import prometheus_client
 import pygit2
 from dockerflow import checks
 from dockerflow.fastapi import router as dockerflow_router
-from fastapi import Depends, FastAPI, Query, Request, Response
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
