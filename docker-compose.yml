@@ -26,6 +26,7 @@ services:
     user: root
     ports:
       - 8000:8000
+
   web:
     build:
       dockerfile: RemoteSettings.Dockerfile
@@ -43,13 +44,23 @@ services:
       - KINTO_STORAGE_URL=postgresql://postgres@db/postgres
       - KINTO_PERMISSION_BACKEND=kinto.core.permission.postgresql
       - KINTO_PERMISSION_URL=postgresql://postgres@db/postgres
-    ports:
-      - 8888:8888
     volumes:
       - ./config:/app/config
       - ./kinto-remote-settings:/app/kinto-remote-settings
       - debug-mail:/app/mail
       - attachments:/tmp/attachments
+
+  git-reader:
+    build:
+      context: git-reader/
+      args:
+        UID: 1000
+        GID: 1000
+    environment:
+      - GIT_REPO_PATH=/mnt/data/latest
+      - SELF_CONTAINED=true
+    volumes:
+      - ./git-reader/data:/mnt/data
 
   browser-tests:
     build:
@@ -68,3 +79,13 @@ services:
       context: cronjobs/
     image: remotesettings/cronjobs
     profiles: [cronjobs]
+
+  web-proxy:
+    image: openresty/openresty
+    ports:
+      - 8888:8888
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
+      - git-reader
