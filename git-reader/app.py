@@ -85,10 +85,6 @@ class Settings(BaseSettings):
         None,
         description="Base URL for attachments. Required if SELF_CONTAINED is false.",
     )
-    domain_override: str | None = Field(
-        None,
-        description="Domain (and port) to use for attachment and certificate chain rewrites when SELF_CONTAINED is true. Ex: localhost:8888"
-    )
 
 
 @lru_cache(maxsize=1)
@@ -450,35 +446,6 @@ class GitService:
                 return obj.data
 
 
-def clean_since_param(
-    _since: str | None = Query(None, alias="_since"),
-) -> int | None:
-    if _since is None:
-        return None
-    if not (_since.startswith('"') and _since.endswith('"')):
-        raise HTTPException(
-            status_code=422,
-            detail='Invalid format for _since. Must be quoted integer, e.g. "123"',
-        )
-    return clean_int_param(_since, "_since")
-
-
-def clean_expected_param(
-    _expected: str | None = Query(None, alias="_expected"),
-) -> int | None:
-    if _expected is None:
-        return 0
-    return clean_int_param(_expected, "_expected")
-
-def clean_int_param(param: str, name: str) -> int:
-    inner = param.strip('"')
-    if not inner.isdigit():
-        raise HTTPException(
-            status_code=422,
-            detail=f"Invalid format for {name}. Must contain only digits inside quotes",
-        )
-    return int(inner)
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -556,7 +523,7 @@ def hello(
             "ATTACHMENTS_BASE_URL is required when not SELF_CONTAINED"
         )
         attachments_base_url = (
-            f"{request.url.scheme}://{settings.domain_override or request.url.netloc}/{API_PREFIX}attachments"
+            f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}attachments"
         )
     if not attachments_base_url.endswith("/"):
         attachments_base_url += "/"
@@ -592,8 +559,8 @@ def hello(
     response_model=ChangesetResponse,
 )
 def monitor_changes(
-    _expected: int  = Depends(clean_expected_param),
-    _since: int | None = Depends(clean_since_param),
+    _expected: int = 0,
+    _since: int | None = None,
     bucket: str | None = None,
     collection: str | None = None,
     git: GitService = Depends(GitService.dep),
@@ -622,8 +589,8 @@ def collection_changeset(
     request: Request,
     bid: str,
     cid: str,
-    _expected: int  = Depends(clean_expected_param),
-    _since: int | None = Depends(clean_since_param),
+    _expected: int = 0,
+    _since: int | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
@@ -650,12 +617,12 @@ def collection_changeset(
         # Certificate chains are served from this server.
         x5u = metadata["signature"]["x5u"]
         parsed = urlparse(x5u)
-        rewritten_x5u = f"{request.url.scheme}://{settings.domain_override or request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+        rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
         metadata["signature"]["x5u"] = rewritten_x5u
         if metadata["signatures"] is not None:
             for signature in metadata["signatures"]:
                 x5u = signature["x5u"]
-                rewritten_x5u = f"{request.url.scheme}://{settings.domain_override or request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
                 signature["x5u"] = rewritten_x5u
 
     return ChangesetResponse(
@@ -728,7 +695,7 @@ def attachments(
             for changeset in startup_changesets:
                 x5u = changeset["metadata"]["signature"]["x5u"]
                 parsed = urlparse(x5u)
-                rewritten_x5u = f"{request.url.scheme}://{settings.domain_override or request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
                 changeset["metadata"]["signature"]["x5u"] = rewritten_x5u
 
             # Dump into memory bytes and cache content to skip rewriting next time.
