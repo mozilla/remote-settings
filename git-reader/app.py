@@ -221,9 +221,18 @@ class GitService:
         Check that the repository has the expected branches and tags.
         """
         branches = {branch_name for branch_name in self.repo.branches.local}
+        bucket_branches = {
+            branch_name
+            for branch_name in branches
+            if branch_name.startswith(f"{GIT_REF_PREFIX}buckets/")
+        }
         if f"{GIT_REF_PREFIX}common" not in branches:
             raise RuntimeError(
                 f"Missing '{GIT_REF_PREFIX}common' branch in repository. Found: {branches}"
+            )
+        if not bucket_branches:
+            raise RuntimeError(
+                f"Missing '{GIT_REF_PREFIX}buckets/*' branches in repository. Found: {branches}"
             )
 
         # Check that the repository has timestamps/* tags.
@@ -437,25 +446,6 @@ class GitService:
                 return obj.data
 
 
-def clean_since_param(
-    _since: str | None = Query(None, alias="_since"),
-) -> int | None:
-    if _since is None:
-        return None
-    if not (_since.startswith('"') and _since.endswith('"')):
-        raise HTTPException(
-            status_code=422,
-            detail='Invalid format for _since. Must be quoted integer, e.g. "123"',
-        )
-    inner = _since.strip('"')
-    if not inner.isdigit():
-        raise HTTPException(
-            status_code=422,
-            detail="Invalid format for _since. Must contain only digits inside quotes",
-        )
-    return int(inner)
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -570,7 +560,7 @@ def hello(
 )
 def monitor_changes(
     _expected: int = 0,
-    _since: str | None = Depends(clean_since_param),
+    _since: int | None = None,
     bucket: str | None = None,
     collection: str | None = None,
     git: GitService = Depends(GitService.dep),
@@ -600,7 +590,7 @@ def collection_changeset(
     bid: str,
     cid: str,
     _expected: int = 0,
-    _since: str | None = Depends(clean_since_param),
+    _since: int | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
@@ -629,6 +619,11 @@ def collection_changeset(
         parsed = urlparse(x5u)
         rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
         metadata["signature"]["x5u"] = rewritten_x5u
+        if metadata["signatures"] is not None:
+            for signature in metadata["signatures"]:
+                x5u = signature["x5u"]
+                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+                signature["x5u"] = rewritten_x5u
 
     return ChangesetResponse(
         timestamp=timestamp,
