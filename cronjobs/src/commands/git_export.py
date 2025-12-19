@@ -169,6 +169,13 @@ def git_export(event, context):
         raise exc
 
 
+def ts2dt(ts: int) -> datetime.datetime:
+    """
+    Convert a timestamp in milliseconds to a datetime object in UTC.
+    """
+    return datetime.datetime.fromtimestamp(ts / 1000, datetime.timezone.utc)
+
+
 def json_dumpb(obj: Any) -> bytes:
     """
     Serialize an object to a JSON-formatted byte string.
@@ -400,11 +407,13 @@ async def repo_sync_content(
     if common_base_tree is not None and monitor_tree_id == common_base_tree.id:
         print("No changes for common branch, skipping commit.")
     else:
+        ts = monitor_changeset["timestamp"]
+        dt = ts2dt(ts).isoformat()
         commit_oid = repo.create_commit(
             common_branch,
             author,
             committer,
-            f"Common branch content @ {monitor_changeset['timestamp']}",
+            f"common@{ts} ({dt})",
             monitor_tree_id,
             parents,
         )
@@ -419,7 +428,7 @@ async def repo_sync_content(
                 commit_oid,
                 pygit2.GIT_OBJECT_COMMIT,
                 author,
-                f"Common branch content @ {monitor_changeset['timestamp']}",
+                f"common@{ts} ({dt})",
             )
             print(f"Created tag common: {tag_name}")
             created_tags.append(tag_name)
@@ -432,7 +441,8 @@ async def repo_sync_content(
         cid = changeset["metadata"]["id"]
         timestamp = changeset["timestamp"]
         refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
-        commit_message = f"{bid}/{cid}@{timestamp}"
+        dtcollection = ts2dt(timestamp).isoformat()
+        commit_message = f"{bid}/{cid}@{timestamp} ({dtcollection})"
 
         # Find the bucket branch (changesets are not ordered by bucket)
         try:
