@@ -594,6 +594,11 @@ def collection_changeset(
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
+    if _since and _since < 0 or _expected and _expected < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="_expected and _since must be positive integers"
+        )
     if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,

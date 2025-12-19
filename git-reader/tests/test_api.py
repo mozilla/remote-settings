@@ -135,6 +135,9 @@ def fake_repo(temp_dir):
                     "id": "password-rules",
                     "bucket": "main",
                     "signature": {"x5u": "https://autograph/a/b/cert.pem"},
+                    "signatures": [
+                        {"x5u": "https://autograph/a/b/cert.pem"},
+                    ]
                 },
             ),
         ],
@@ -324,7 +327,7 @@ def test_monitor_changes_view(api_client):
 
 def test_monitor_changes_view_filtered_since(api_client):
     resp = api_client.get(
-        '/v2/buckets/monitor/collections/changes/changeset?_since="223456789"&_expected=0'
+        '/v2/buckets/monitor/collections/changes/changeset?_since=223456789&_expected=0'
     )
     assert resp.status_code == 200
     data = resp.json()
@@ -334,7 +337,7 @@ def test_monitor_changes_view_filtered_since(api_client):
 
 def test_monitor_changes_view_filtered_bad_since(api_client):
     resp = api_client.get(
-        '/v2/buckets/monitor/collections/changes/changeset?_since="223456789"&_expected=123456789'
+        '/v2/buckets/monitor/collections/changes/changeset?_since=223456789&_expected=123456789'
     )
     assert resp.status_code == 400
 
@@ -380,7 +383,7 @@ def test_changeset_unknown_collection(api_client):
 
 
 @pytest.mark.parametrize(
-    "since", ["42", '"not-a-number"', "123.456", "-1", '"223456789"']
+    "since", ['"42"', '"not-a-number"', "123.456", "-1", '"223456789"']
 )
 def test_changeset_bad_since(api_client, since):
     resp = api_client.get(
@@ -391,7 +394,7 @@ def test_changeset_bad_since(api_client, since):
 
 def test_changeset_unknown_since(api_client):
     resp = api_client.get(
-        '/v2/buckets/main/collections/password-rules/changeset?_since="42"',
+        '/v2/buckets/main/collections/password-rules/changeset?_since=42',
         follow_redirects=False,
     )
     assert resp.status_code == 307
@@ -403,7 +406,7 @@ def test_changeset_unknown_since(api_client):
 
 def test_changeset_since(api_client):
     resp = api_client.get(
-        '/v2/buckets/main/collections/password-rules/changeset?_since="113456789"'
+        '/v2/buckets/main/collections/password-rules/changeset?_since=113456789'
     )
     assert resp.status_code == 200
     data = resp.json()
