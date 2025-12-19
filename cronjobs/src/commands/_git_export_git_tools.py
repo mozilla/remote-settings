@@ -250,54 +250,95 @@ def delete_old_tags(
     return deleted_tags
 
 
-def delete_unreferenced_commits(repo: pygit2.Repository):
+def truncate_branch(
+    repo: pygit2.Repository, branch: str, tags_deletion_threshold: int
+) -> None:
     """
-    Truncate branches to the first tagged commit.
+    Rewrite the specified branch to start from the oldest tagged commit.
 
-    This will make all unreferenced commits unreachable/orphan.
+    This removes all commits prior to the oldest tagged commit in the branch,
+    and force-updates the branch to point to the new tip.
+    This function is destructive and rewrites history.
 
-    For each branch, walk from the oldest commit to the newest,
-    and truncate the branch to start from the first tagged commit.
+    A branch like:
+
+    o--o--o--o--o--o(tag)--o(tag)--o(tag)
+
+    would be forced to become
+
+    o(tag)--o(tag)--o(tag)
     """
-    oid_to_tag = {}
-    for refname in [t for t in repo.references if t.startswith("refs/tags/")]:
-        tag_ref = repo.references[refname]
-        tag_oid = tag_ref.target
-        obj = repo[tag_oid]
-        commit = obj.peel(pygit2.Commit)
-        oid_to_tag[commit.id] = refname
+    branch_ref_name = "refs/heads/" + branch
+    branch_ref = repo.references[branch_ref_name]
+    tip_oid = branch_ref.target
 
-    # For each local branch, walk back in time and find the oldest reachable tagged commit
-    for refname in [b for b in repo.references if b.startswith("refs/heads/")]:
-        branch = repo.references[refname]
-        tip_oid = branch.target
-
-        # Walk commits from oldest to newest along this branch history
-        walker = repo.walk(
-            tip_oid, pygit2.GIT_SORT_TOPOLOGICAL | pygit2.GIT_SORT_REVERSE
-        )
-        first_tagged_commit = None
-        for c in walker:
-            if c.id in oid_to_tag:
-                first_tagged_commit = c
-                break
-        assert first_tagged_commit is not None, (
-            f"No tagged commit found in branch {refname} (tags: {oid_to_tag})"
-        )
-        # If the tagged commit is already a root, nothing to do
-        if len(first_tagged_commit.parents) == 0:
+    # Precompute set of commits with tags
+    commits_to_refs = {}
+    for ref_name in repo.references:
+        if not ref_name.startswith("refs/tags/") or "/timestamps/" not in ref_name:
             continue
-
-        # Recreate the tagged commit as a *new root commit* (no parents), preserving metadata.
-        new_root_oid = repo.create_commit(
-            None,  # no ref update
-            first_tagged_commit.author,
-            first_tagged_commit.committer,
-            first_tagged_commit.message,
-            first_tagged_commit.tree.id,
-            [],  # <-- no parents => new branch root
+        tag_ref = repo.references[ref_name]
+        target_oid = tag_ref.target
+        obj = repo[target_oid]
+        assert isinstance(obj, pygit2.Commit), (
+            f"Tag {ref_name} does not point to a commit"
         )
-        # Now force-move the branch to the new root
-        msg = f"Truncate {refname} at {oid_to_tag[first_tagged_commit.id]} (new root)"
-        branch.set_target(new_root_oid, msg)
-        print(msg)
+        commits_to_refs[obj.id] = ref_name
+
+    # Walk commits from the tip towards roots: newest -> oldest
+    chain_commits: list[pygit2.Commit] = []
+    walker = repo.walk(tip_oid, pygit2.GIT_SORT_TOPOLOGICAL | pygit2.GIT_SORT_TIME)
+    to_delete_count = 0
+    for commit in walker:
+        # Stop when we reach an untagged commit
+        if commit.id not in commits_to_refs:
+            assert len(chain_commits) > 0, (
+                f"No tagged commit found in branch {branch}, cannot truncate"
+            )
+            to_delete_count += 1
+            break
+        chain_commits.append(commit)
+
+    if not chain_commits:
+        print(f"No untagged commit found in branch {branch}, nothing to do.")
+        return
+
+    # Reverse to have oldest -> newest
+    chain_commits.reverse()
+    if len(chain_commits[0].parents) == 0:
+        print(
+            f"Branch {branch} already starts from a tagged commit ({chain_commits[0].id}), nothing to do."
+        )
+        return
+
+    if to_delete_count < tags_deletion_threshold:
+        print(
+            f"Wait until more tags are deleted before truncating branch ({to_delete_count}/{tags_deletion_threshold})"
+        )
+
+    # Recreate the chain of commits to "rebuild" the branch.
+    print(f"Rebuilding branch (from {len(chain_commits) + to_delete_count} commits to {len(chain_commits)})")
+    parents_list = []  # for the first in chain, parent list will be []
+    new_root = None
+    for commit in chain_commits:
+        new_oid = repo.create_commit(
+            None,  # no ref update
+            commit.author,
+            commit.committer,
+            commit.message,
+            commit.tree.id,
+            parents_list,
+        )
+        if new_root is None:
+            new_root = new_oid
+        # Next commit will parent this one
+        parents_list = [new_oid]
+        # Move the tags that pointed to the old commit into the new commit
+        tag_ref = commits_to_refs[commit.id]
+        repo.references.set_target(tag_ref, new_oid)
+
+    # Now force-move the branch to the new tip
+    new_tip_oid = parents_list[0]
+    msg = f"Truncate {branch} at oldest tagged commit (root from {chain_commits[0].id} to {new_root}, tip from {tip_oid} to {new_tip_oid})"
+    branch_ref.set_target(new_tip_oid, msg)
+    print(msg)
