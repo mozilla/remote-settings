@@ -18,13 +18,13 @@ from pygit2 import (
 from ._git_export_git_tools import (
     clone_or_fetch,
     delete_old_tags,
-    delete_unreferenced_commits,
     iter_tree,
     make_lfs_pointer,
     parse_lfs_pointer,
     push_mirror,
     reset_repo,
     tree_upsert_blobs,
+    truncate_branch,
 )
 from ._git_export_lfs import (
     fetch_and_hash,
@@ -68,6 +68,10 @@ TAGS_MAX_AGE_DAYS = config("TAGS_MAX_AGE_DAYS", default=90, cast=int)
 MIN_TAGS_PER_COLLECTION_COUNT = config(
     "MIN_TAGS_PER_COLLECTION_COUNT", default=2, cast=int
 )
+# We truncate and force push the common branch only every 50 publications (a few days).
+# This is to avoid excessive rewriting of history. Truncating is only needed to
+# garbage collect old LFS objects that are no longer referenced by any tag.
+TAGS_DELETION_THRESHOLD = config("TAGS_DELETION_THRESHOLD", default=50, cast=int)
 
 # By default, we delete unreachable attachments only once every 2days between 12:00 and 12:15 UTC
 # This avoids running this potentially expensive operation on every cronjob run.
@@ -136,6 +140,8 @@ def git_export(event, context):
             repo_sync_content(repo)
         )
 
+        # Tags are files on disk, and having too many tags slows down git operations.
+        # Delete old ones to keep the repository size reasonable.
         deleted_tags = delete_old_tags(
             repo,
             max_age_days=TAGS_MAX_AGE_DAYS,
@@ -143,14 +149,16 @@ def git_export(event, context):
         )
         print(f"{len(deleted_tags)} old tags to delete.")
 
-        # Now that we deleted old tags, delete all commits that are no longer
-        # referenced by any tag.
-        # This will required checkout to use `--force` since we rewrite history.
-        # We do this to keep a reasonable number of objects, and most importantly
-        # to delete LFS files from remote storage (Github keeps LFS files as long as
-        # there is a reference to them in the git history).
+        # LFS are removed from remote storage as soon as they are no longer referenced
+        # by any commit.
+        # Now that we deleted old tags, we will rewrite the 'common' branch to remove
+        # commits that are no longer referenced by any tag.
         if len(deleted_tags) > 0:
-            delete_unreferenced_commits(repo)
+            truncate_branch(
+                repo,
+                f"{GIT_REF_PREFIX}/{COMMON_BRANCH}",
+                tags_deletion_threshold=TAGS_DELETION_THRESHOLD,
+            )
 
         print(f"{len(changed_attachments)} attachments to upload.")
         github_lfs_batch_upload_many(
@@ -172,6 +180,13 @@ def git_export(event, context):
         print("Rolling back local changes...")
         reset_repo(repo, callbacks=callbacks)
         raise exc
+
+
+def ts2dt(ts: int) -> datetime.datetime:
+    """
+    Convert a timestamp in milliseconds to a datetime object in UTC.
+    """
+    return datetime.datetime.fromtimestamp(ts / 1000, datetime.timezone.utc)
 
 
 def json_dumpb(obj: Any) -> bytes:
@@ -405,11 +420,13 @@ async def repo_sync_content(
     if common_base_tree is not None and monitor_tree_id == common_base_tree.id:
         print("No changes for common branch, skipping commit.")
     else:
+        ts = monitor_changeset["timestamp"]
+        dt = ts2dt(ts).isoformat()
         commit_oid = repo.create_commit(
             common_branch,
             author,
             committer,
-            f"Common branch content @ {monitor_changeset['timestamp']}",
+            f"common@{ts} ({dt})",
             monitor_tree_id,
             parents,
         )
@@ -424,7 +441,7 @@ async def repo_sync_content(
                 commit_oid,
                 pygit2.GIT_OBJECT_COMMIT,
                 author,
-                f"Common branch content @ {monitor_changeset['timestamp']}",
+                f"common@{ts} ({dt})",
             )
             print(f"Created tag common: {tag_name}")
             created_tags.append(tag_name)
@@ -437,7 +454,8 @@ async def repo_sync_content(
         cid = changeset["metadata"]["id"]
         timestamp = changeset["timestamp"]
         refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
-        commit_message = f"{bid}/{cid}@{timestamp}"
+        dtcollection = ts2dt(timestamp).isoformat()
+        commit_message = f"{bid}/{cid}@{timestamp} ({dtcollection})"
 
         # Find the bucket branch (changesets are not ordered by bucket)
         try:
