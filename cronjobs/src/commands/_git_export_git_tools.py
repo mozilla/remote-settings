@@ -279,11 +279,14 @@ def truncate_branch(
             continue
         tag_ref = repo.references[ref_name]
         target_oid = tag_ref.target
-        obj = repo[target_oid]
+        tag_obj = repo[target_oid]
+        obj = tag_obj.peel(pygit2.Commit)
         assert isinstance(obj, pygit2.Commit), (
             f"Tag {ref_name} does not point to a commit"
         )
         commits_to_refs[obj.id] = ref_name
+
+    assert commits_to_refs, "No timestamps tags found in the repository."
 
     # Walk commits from the tip towards roots: newest -> oldest
     chain_commits: list[pygit2.Commit] = []
@@ -299,15 +302,13 @@ def truncate_branch(
             break
         chain_commits.append(commit)
 
-    if not chain_commits:
-        print(f"No untagged commit found in branch {branch}, nothing to do.")
-        return
+    assert chain_commits, f"No tagged commit found in branch {branch}"
 
     # Reverse to have oldest -> newest
     chain_commits.reverse()
     if len(chain_commits[0].parents) == 0:
         print(
-            f"Branch {branch} already starts from a tagged commit ({chain_commits[0].id}), nothing to do."
+            f"Branch {branch} already starts from a tagged commit ({str(chain_commits[0].id)[:7]}), nothing to do."
         )
         return
 
@@ -315,9 +316,12 @@ def truncate_branch(
         print(
             f"Wait until more tags are deleted before truncating branch ({to_delete_count}/{tags_deletion_threshold})"
         )
+        return
 
     # Recreate the chain of commits to "rebuild" the branch.
-    print(f"Rebuilding branch (from {len(chain_commits) + to_delete_count} commits to {len(chain_commits)})")
+    print(
+        f"Rebuilding branch (from {len(chain_commits) + to_delete_count} commits to {len(chain_commits)})"
+    )
     parents_list = []  # for the first in chain, parent list will be []
     new_root = None
     for commit in chain_commits:
@@ -335,10 +339,10 @@ def truncate_branch(
         parents_list = [new_oid]
         # Move the tags that pointed to the old commit into the new commit
         tag_ref = commits_to_refs[commit.id]
-        repo.references.set_target(tag_ref, new_oid)
+        repo.references.create(tag_ref, new_oid, force=True)
 
     # Now force-move the branch to the new tip
     new_tip_oid = parents_list[0]
-    msg = f"Truncate {branch} at oldest tagged commit (root from {chain_commits[0].id} to {new_root}, tip from {tip_oid} to {new_tip_oid})"
+    msg = f"Truncate {branch} at oldest tagged commit (root from {str(chain_commits[0].id)[:7]} to {str(new_root)[:7]}, tip from {str(tip_oid)[:7]} to {str(new_tip_oid)[:7]})"
     branch_ref.set_target(new_tip_oid, msg)
     print(msg)
