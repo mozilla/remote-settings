@@ -9,7 +9,7 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import lru_cache
-from typing import Awaitable, BinaryIO, Callable, Generator
+from typing import Annotated, Awaitable, BinaryIO, Callable, Generator
 from urllib.parse import urlparse
 
 import lz4.block
@@ -437,25 +437,6 @@ class GitService:
                 return obj.data
 
 
-def clean_since_param(
-    _since: str | None = Query(None, alias="_since"),
-) -> int | None:
-    if _since is None:
-        return None
-    if not (_since.startswith('"') and _since.endswith('"')):
-        raise HTTPException(
-            status_code=422,
-            detail='Invalid format for _since. Must be quoted integer, e.g. "123"',
-        )
-    inner = _since.strip('"')
-    if not inner.isdigit():
-        raise HTTPException(
-            status_code=422,
-            detail="Invalid format for _since. Must contain only digits inside quotes",
-        )
-    return int(inner)
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -569,8 +550,8 @@ def hello(
     response_model=ChangesetResponse,
 )
 def monitor_changes(
-    _expected: int = 0,
-    _since: str | None = Depends(clean_since_param),
+    _expected: Annotated[int, Query(ge=0)] = 0,
+    _since: Annotated[int, Query(ge=0)] | None = None,
     bucket: str | None = None,
     collection: str | None = None,
     git: GitService = Depends(GitService.dep),
@@ -599,8 +580,8 @@ def collection_changeset(
     request: Request,
     bid: str,
     cid: str,
-    _expected: int = 0,
-    _since: str | None = Depends(clean_since_param),
+    _expected: Annotated[int, Query(ge=0)] = 0,
+    _since: Annotated[int, Query(ge=0)] | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
@@ -629,6 +610,10 @@ def collection_changeset(
         parsed = urlparse(x5u)
         rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
         metadata["signature"]["x5u"] = rewritten_x5u
+        for signature in metadata["signatures"]:
+            x5u = signature["x5u"]
+            rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+            signature["x5u"] = rewritten_x5u
 
     return ChangesetResponse(
         timestamp=timestamp,
