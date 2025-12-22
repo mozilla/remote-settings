@@ -9,7 +9,7 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import lru_cache
-from typing import Awaitable, BinaryIO, Callable, Generator
+from typing import Annotated, Awaitable, BinaryIO, Callable, Generator
 from urllib.parse import urlparse
 
 import lz4.block
@@ -17,7 +17,7 @@ import prometheus_client
 import pygit2
 from dockerflow import checks
 from dockerflow.fastapi import router as dockerflow_router
-from fastapi import Depends, FastAPI, Request, Response
+from fastapi import Depends, FastAPI, Query, Request, Response
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
@@ -550,8 +550,8 @@ def hello(
     response_model=ChangesetResponse,
 )
 def monitor_changes(
-    _expected: int = 0,
-    _since: int | None = None,
+    _expected: Annotated[int, Query(ge=0)] = 0,
+    _since: Annotated[int, Query(ge=0)] | None = None,
     bucket: str | None = None,
     collection: str | None = None,
     git: GitService = Depends(GitService.dep),
@@ -580,16 +580,11 @@ def collection_changeset(
     request: Request,
     bid: str,
     cid: str,
-    _expected: int = 0,
-    _since: int | None = None,
+    _expected: Annotated[int, Query(ge=0)] = 0,
+    _since: Annotated[int, Query(ge=0)] | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
-    if _since and _since < 0 or _expected and _expected < 0:
-        raise HTTPException(
-            status_code=400,
-            detail="_expected and _since must be positive integers"
-        )
     if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
