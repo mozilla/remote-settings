@@ -93,7 +93,7 @@ The following two endpoints MUST be used to retrieve data. Clients MUST NOT use 
 
 Returns the following response for the collection ``{cid}`` in the bucket ``{bid}`` (likely ``main``):
 
-- ``changes``: list of records, optionally filtered with ``?_since="{timestamp}"``
+- ``changes``: list of records, optionally filtered with ``?_since={timestamp}``
 - ``metadata``: collection attributes
 - ``timestamp``: records timestamp
 
@@ -119,7 +119,7 @@ For each collection, the amount of possible values for the timestamps is finite.
 
 Returns the list of collections and their current timestamp.
 
-- ``changes``: list of collections and their timestamp, optionally filtered with ``?_since="{timestamp}"``
+- ``changes``: list of collections and their timestamp, optionally filtered with ``?_since={timestamp}``
 - ``timestamp``: highest collections timestamp
 
 .. note::
@@ -177,12 +177,12 @@ If the HTTP status is not OK (>=400), the response contains a JSON mapping, with
       "code": 400,
       "errno": 107,
       "error": "Invalid parameters",
-      "message": "_since in querystring: The value should be integer between double quotes.",
+      "message": "_since in querystring: The value should be integer, optionally between double quotes.",
       "details": [
         {
           "location": "querystring",
           "name": "_since",
-          "description": "The value should be integer between double quotes."
+          "description": "The value should be integer, optionally between double quotes."
         }
       ]
     }
