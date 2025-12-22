@@ -18,6 +18,7 @@ LICENSE
 NOTES
 README.rst
 browser-tests
+git-reader
 
 # Ignore generated credentials from google-github-actions/auth
 gha-creds-*.json
