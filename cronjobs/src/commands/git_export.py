@@ -54,7 +54,6 @@ GITHUB_APP_PRIVATE_KEY_PATH = config("GITHUB_APP_PRIVATE_KEY_PATH", default=None
 
 # Internal parameters
 WORK_DIR = config("WORK_DIR", default="/tmp/git-export.git")
-FORCE = config("FORCE", default=False, cast=bool)
 MAX_PARALLEL_REQUESTS = config("MAX_PARALLEL_REQUESTS", default=10, cast=int)
 LOG_LEVEL = config("LOG_LEVEL", default="INFO").upper()
 GIT_SSH_USERNAME = config("GIT_SSH_USERNAME", default="git")
@@ -80,6 +79,12 @@ _SHOULD_DELETE_UNREACHABLE = _IS_EVEN_DAY and _now.hour == 12 and 0 < _now.minut
 DELETE_UNREACHABLE_ATTACHMENTS = config(
     "DELETE_UNREACHABLE_ATTACHMENTS", default=_SHOULD_DELETE_UNREACHABLE, cast=bool
 )
+
+# By default, we only synchronize if there are data changes.
+# But once a day, we run a full sync in order to synchronize collections whose data
+# didn't change but whose metadata did (e.g., signature refreshed, new certs, etc.).
+_SHOULD_FORCE = _now.hour == 0 and 0 < _now.minute < 15
+FORCE = config("FORCE", default=_SHOULD_FORCE, cast=bool)
 
 # Constants
 GIT_REF_PREFIX = "v1/"
