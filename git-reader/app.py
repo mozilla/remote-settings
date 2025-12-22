@@ -221,18 +221,9 @@ class GitService:
         Check that the repository has the expected branches and tags.
         """
         branches = {branch_name for branch_name in self.repo.branches.local}
-        bucket_branches = {
-            branch_name
-            for branch_name in branches
-            if branch_name.startswith(f"{GIT_REF_PREFIX}buckets/")
-        }
         if f"{GIT_REF_PREFIX}common" not in branches:
             raise RuntimeError(
                 f"Missing '{GIT_REF_PREFIX}common' branch in repository. Found: {branches}"
-            )
-        if not bucket_branches:
-            raise RuntimeError(
-                f"Missing '{GIT_REF_PREFIX}buckets/*' branches in repository. Found: {branches}"
             )
 
         # Check that the repository has timestamps/* tags.
