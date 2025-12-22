@@ -32,6 +32,7 @@ RUN mkdir /app/.ssh && \
 
 COPY --chown=app:app pyproject.toml .
 COPY --chown=app:app poetry.lock .
+COPY --chown=app:app version.json .
 
 RUN poetry install --no-root
 
