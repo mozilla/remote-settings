@@ -610,11 +610,10 @@ def collection_changeset(
         parsed = urlparse(x5u)
         rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
         metadata["signature"]["x5u"] = rewritten_x5u
-        if metadata["signatures"] is not None:
-            for signature in metadata["signatures"]:
-                x5u = signature["x5u"]
-                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
-                signature["x5u"] = rewritten_x5u
+        for signature in metadata["signatures"]:
+            x5u = signature["x5u"]
+            rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+            signature["x5u"] = rewritten_x5u
 
     return ChangesetResponse(
         timestamp=timestamp,
