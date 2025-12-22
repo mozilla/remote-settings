@@ -292,7 +292,7 @@ class QuotedTimestamp(colander.SchemaNode):
 
     schema_type = colander.String
     error_message = "The value should be integer, optionally between double quotes."
-    validator = colander.Regex('^"?([0-9]+?)"?(?!\n)$', msg=error_message)
+    validator = colander.Regex('^"([0-9]+?)"(?!\n)$|^([0-9]+?)(?!\n)$', msg=error_message)
 
     def deserialize(self, cstruct=colander.null):
         param = super(QuotedTimestamp, self).deserialize(cstruct)
