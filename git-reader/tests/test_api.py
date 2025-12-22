@@ -341,6 +341,16 @@ def test_monitor_changes_view_filtered_bad_since(api_client):
     )
     assert resp.status_code == 400
 
+def test_monitor_changes_negative_values(api_client):
+    resp = api_client.get(
+        '/v2/buckets/monitor/collections/changes/changeset?_since=-1&_expected=223456789'
+    )
+    assert resp.status_code == 422
+    resp = api_client.get(
+        '/v2/buckets/monitor/collections/changes/changeset?_since=_expected=-1'
+    )
+    assert resp.status_code == 422
+
 
 def test_monitor_changes_view_filtered_bid(api_client):
     resp = api_client.get(
