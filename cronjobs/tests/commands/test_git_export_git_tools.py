@@ -71,14 +71,16 @@ def test_delete_old_tags(tmp_repo):
     now_ts = int(time.time())
 
     commit = tmp_repo.revparse_single("main")
-    old_tag = "v1/timestamps/common/" + str(now_ts - 10 * 86400)  # 10 days ago
-    repo.create_tag(
-        old_tag,
-        commit.id,
-        pygit2.GIT_OBJECT_COMMIT,
-        pygit2.Signature("Tester", "test@example.com"),
-        "An old tag",
-    )
+    tags = [f"v1/timestamps/common/{now_ts - i * 86400!s}" for i in range(5, 10)]
+    for old_tag in tags:
+        repo.create_tag(
+            old_tag,
+            commit.id,
+            pygit2.GIT_OBJECT_COMMIT,
+            pygit2.Signature("Tester", "test@example.com"),
+            "An old tag",
+        )
+
     recent_tag = f"v1/timestamps/common/{now_ts}"
     repo.create_tag(
         recent_tag,
@@ -87,14 +89,18 @@ def test_delete_old_tags(tmp_repo):
         pygit2.Signature("Tester", "test@example.com"),
         "A recent tag",
     )
-    assert f"refs/tags/{old_tag}" in repo.references
-    assert f"refs/tags/{recent_tag}" in repo.references
 
-    deleted = delete_old_tags(repo, max_age_days=8, min_tags_per_collection=1)
-
-    assert deleted == [f"refs/tags/{old_tag}"]
-    assert f"refs/tags/{old_tag}" not in repo.references
     assert f"refs/tags/{recent_tag}" in repo.references
+    for old_tag in tags:
+        assert f"refs/tags/{old_tag}" in repo.references
+
+    deleted = delete_old_tags(repo, max_age_days=5, min_tags_per_collection=2)
+
+    assert len(deleted) == 3
+
+    assert f"refs/tags/{recent_tag}" in repo.references
+    for old_tag in tags[3:]:
+        assert f"refs/tags/{old_tag}" in repo.references
 
 
 def test_delete_unreferenced_commits(tmp_repo):
