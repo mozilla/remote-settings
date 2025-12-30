@@ -19,7 +19,12 @@ from dockerflow import checks
 from dockerflow.fastapi import router as dockerflow_router
 from fastapi import Depends, FastAPI, Query, Request, Response
 from fastapi.exceptions import HTTPException
-from fastapi.responses import PlainTextResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import (
+    FileResponse,
+    PlainTextResponse,
+    RedirectResponse,
+    StreamingResponse,
+)
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -701,4 +706,4 @@ def attachments(
 
     # Stream from disk
     mimetype, _ = mimetypes.guess_type(requested_path)
-    return StreamingResponse(open(requested_path, "rb"), media_type=mimetype)
+    return FileResponse(requested_path, media_type=mimetype)
