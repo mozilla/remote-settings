@@ -488,20 +488,21 @@ async def repo_sync_content(
             print(f"Created commit {bid}/{cid}@{timestamp}: {commit_oid}")
             changed_branches.add(refname)
 
-            # Tag the commit with the timestamp for traceability. If it already
-            # exists, ignore the error (idempotent tagging behavior).
+            # If the tag already exists (that happens when records don't change but metadata does),
+            # we move it to the new commit.
             tag_name = f"{GIT_REF_PREFIX}timestamps/{bid}/{cid}/{timestamp}"
-            try:
-                repo.create_tag(
-                    tag_name,
-                    commit_oid,
-                    pygit2.GIT_OBJECT_COMMIT,
-                    author,
-                    f"{bid}/{cid}/{timestamp}",
-                )
-                print(f"Created tag {tag_name}")
-                created_tags.append(tag_name)
-            except pygit2.AlreadyExistsError:  # pragma: no cover
-                print(f"Tag {tag_name} already exists, skipping.")
+            tag_exists = repo.references.get(f"refs/tags/{tag_name}") is not None
+            if tag_exists:
+                repo.references.delete(f"refs/tags/{tag_name}")
+
+            repo.create_tag(
+                tag_name,
+                commit_oid,
+                pygit2.GIT_OBJECT_COMMIT,
+                author,
+                f"{bid}/{cid}@{timestamp} ({dtcollection})",
+            )
+            print(f"{'Created' if not tag_exists else 'Moved'} tag {tag_name}")
+            created_tags.append(tag_name)
 
     return changed_attachments, changed_branches, created_tags
