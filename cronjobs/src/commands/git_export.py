@@ -366,18 +366,20 @@ async def repo_sync_content(
 
             attachment = record["attachment"]
             location = attachment["location"].lstrip("/")
-            path = f"attachments/{location}"
+            git_path = f"attachments/{location}"
             pointer_blob = make_lfs_pointer(attachment["hash"], attachment["size"])
-            common_content.append((path, pointer_blob))
+            common_content.append((git_path, pointer_blob))
 
             existing_hash = existing_size = None
-            if existing := existing_attachments.get(path):
+            if existing := existing_attachments.get(location):
                 existing_hash, existing_size = existing
             if (
                 existing_hash != attachment["hash"]
                 or existing_size != attachment["size"]
             ):
-                print(f"Attachment {path} is new or has changed")
+                print(
+                    f"Attachment {git_path} {'is new' if existing_hash is None else 'has changed'}"
+                )
                 changed_attachments.append(
                     (
                         attachment["hash"],
