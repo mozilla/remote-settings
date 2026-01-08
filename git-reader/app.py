@@ -84,7 +84,7 @@ class Settings(BaseSettings):
     git_repo_path: str = Field(..., description="Path to the Git repository")
     cdn_domain: str | None = Field(
         None,
-        description="Domain to use for attachment and certificiate URL rewrites behind a CDN"
+        description="Domain to use for attachment and certificiate URL rewrites behind a CDN",
     )
     self_contained: bool = Field(
         False,
@@ -522,9 +522,7 @@ def hello(
         assert settings.self_contained, (
             "ATTACHMENTS_BASE_URL is required when not SELF_CONTAINED"
         )
-        attachments_base_url = (
-            f"{request.url.scheme}://{settings.cdn_domain or request.url.netloc}/{API_PREFIX}attachments"
-        )
+        attachments_base_url = f"{request.url.scheme}://{settings.cdn_domain or request.url.netloc}/{API_PREFIX}attachments"
     if not attachments_base_url.endswith("/"):
         attachments_base_url += "/"
 
