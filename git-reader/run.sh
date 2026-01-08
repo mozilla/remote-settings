@@ -66,12 +66,11 @@ cmd_gitupdate() {
     else
         result=$?
         if [ $result -eq 1 ]; then
-            log "No update available"
-            exit 0
+            log "No LFS update available"
         else
             log "Error during update (exit code $result)"
+            exit $result
         fi
-        exit $result
     fi
 
     log "Switching latest symlink to $inactive_dir..."
