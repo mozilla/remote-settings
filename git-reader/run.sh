@@ -92,7 +92,8 @@ git_fetch_lfs() {
     local repo_path="$1"
 
     git -C "$repo_path" checkout v1/common
-    git -C "$repo_path" fetch --verbose $ORIGIN_NAME
+    # Fetch everything, remote references always win.
+    git -C "$repo_path" fetch --tags --force --verbose $ORIGIN_NAME
 
     # Check if there were any updates
     local_head=$(git -C "$repo_path" rev-parse HEAD)
