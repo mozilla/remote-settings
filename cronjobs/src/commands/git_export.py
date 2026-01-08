@@ -18,9 +18,8 @@ from pygit2 import (
 from ._git_export_git_tools import (
     clone_or_fetch,
     delete_old_tags,
-    iter_tree,
+    list_lfs_pointers,
     make_lfs_pointer,
-    parse_lfs_pointer,
     push_mirror,
     reset_repo,
     tree_upsert_blobs,
@@ -233,8 +232,7 @@ def fetch_all_cert_chains(
 
 
 async def repo_sync_content(
-    repo,
-    delete_unreachable_attachments=DELETE_UNREACHABLE_ATTACHMENTS,
+    repo, delete_unreachable_attachments: bool = DELETE_UNREACHABLE_ATTACHMENTS,
 ) -> tuple[list[tuple[str, int, str]], list[str], list[str]]:
     """
     Sync content from the remote server to the local git repository.
@@ -243,37 +241,13 @@ async def repo_sync_content(
     changed_attachments: list[tuple[str, int, str]] = []
     changed_branches: set[str] = set()
     created_tags: list[str] = []
+    author = committer = pygit2.Signature(GIT_USER, GIT_EMAIL)
 
-    author = pygit2.Signature(GIT_USER, GIT_EMAIL)
-    committer = author
+    common_branch_name = f"refs/heads/{GIT_REF_PREFIX}{COMMON_BRANCH}"
 
-    common_branch = f"refs/heads/{GIT_REF_PREFIX}{COMMON_BRANCH}"
-
-    # The repo may exist without the 'common' ref (first run).
-    try:
-        common_tip = repo.lookup_reference(common_branch).target
-        common_base_tree = repo.get(common_tip).tree
-        parents = [common_tip]
-    except KeyError:  # pragma: no cover
-        common_base_tree = None
-        parents = []
-
-    # Previous run timestamp, find latest tag starting with `timestamps/common/*`
-    refs = [ref.decode() for ref in repo.raw_listall_references()]
-    timestamps = [
-        int(t.split("/")[-1])
-        for t in refs
-        if t.startswith(f"refs/tags/{GIT_REF_PREFIX}timestamps/common/")
-    ]
-    if timestamps:
-        latest_timestamp = max(timestamps)
-        print(
-            f"Found latest tag: {latest_timestamp}.",
-            "Ignoring (forced)" if FORCE else "",
-        )
-    else:
-        print("No previous tags found.")
-        latest_timestamp = 0
+    common_branch_parents, common_base_tree, latest_timestamp = extract_branch_info(
+        repo, common_branch_name
+    )
 
     # Fetch content from Remote Settings server.
     client = kinto_http.AsyncClient(server_url=SERVER_URL)
@@ -319,28 +293,121 @@ async def repo_sync_content(
         print(f"Storing cert chain {cert_path}")
         common_content.append((cert_path, pem.encode()))
 
-    # Scan the existing LFS pointers in the repository, in order to detect changed attachments.
-    existing_attachments = {}
-    if common_base_tree is not None:
-        try:
-            attachment_tree = common_base_tree / "attachments"
-            objs = iter_tree(repo, attachment_tree)
-        except KeyError:
-            # No attachments/ folder yet.
-            objs = []
-        for path, oid in objs:
-            blob = repo[oid]
-            try:
-                sha256_hex, size = parse_lfs_pointer(blob.data)
-            except ValueError as exc:
-                print(f"Failed to parse LFS pointer for {path}: {exc}")
-            existing_attachments[path] = (sha256_hex, size)
-    print(f"Found {len(existing_attachments)} attachments in tree")
-
-    # Store all the attachments as LFS pointers.
     attachments_base_url = server_info["capabilities"]["attachments"][
         "base_url"
     ].rstrip("/")
+
+    # Scan the existing LFS pointers in the repository, in order to detect changed attachments.
+    existing_attachments = list_lfs_pointers(repo, common_base_tree)
+    print(f"Found {len(existing_attachments)} attachments in tree")
+    # Compare attachments in the changesets with existing ones, fetch the ones that
+    # have changed, and return the content of the 'common' branch.
+    changed_attachments, attachments_branch_common_content = process_attachments(
+        changesets=all_changesets,
+        existing_attachments=existing_attachments,
+        attachments_base_url=attachments_base_url,
+        delete_unreachable=delete_unreachable_attachments,
+    )
+    common_content += attachments_branch_common_content
+
+    # Write the 'common' branch. If nothing changed, the commit id will be the same.
+    monitor_tree_id = tree_upsert_blobs(
+        repo, common_content, base_tree=common_base_tree
+    )
+
+    if common_base_tree is not None and monitor_tree_id == common_base_tree.id:
+        print("No changes for common branch, skipping commit.")
+    else:
+        ts = monitor_changeset["timestamp"]
+        dt = ts2dt(ts).isoformat()
+        commit_oid = repo.create_commit(
+            common_branch_name,
+            author,
+            committer,
+            f"common@{ts} ({dt})",
+            monitor_tree_id,
+            common_branch_parents,
+        )
+        print(f"Created commit common: {commit_oid}")
+        changed_branches.add(common_branch_name)
+
+        # Tag with current timestamp for next runs
+        tag_name = f"{GIT_REF_PREFIX}timestamps/common/{monitor_changeset['timestamp']}"
+        try:
+            repo.create_tag(
+                tag_name,
+                commit_oid,
+                pygit2.GIT_OBJECT_COMMIT,
+                author,
+                f"common@{ts} ({dt})",
+            )
+            print(f"Created tag common: {tag_name}")
+            created_tags.append(tag_name)
+        except pygit2.AlreadyExistsError:
+            print(f"Tag {tag_name} already exists, skipping.")
+
+    changeset_changed_branches, changeset_created_tags = process_collections(
+        repo,
+        author,
+        committer,
+        all_changesets,
+    )
+
+    changed_branches.update(changeset_changed_branches)
+    created_tags += changeset_created_tags
+
+    return changed_attachments, changed_branches, created_tags
+
+
+def extract_branch_info(
+    repo, branch: str
+) -> tuple[list[pygit2.Oid], pygit2.Tree | None, int]:
+    """
+    Extract information about the given branch in the repository.
+    Return the list of parent commits, the base tree, and the latest timestamp found in tags
+    """
+    # The repo may exist without the 'common' ref (first run).
+    try:
+        common_tip = repo.lookup_reference(branch).target
+        common_base_tree = repo.get(common_tip).tree
+        parents = [common_tip]
+    except KeyError:  # pragma: no cover
+        common_base_tree = None
+        parents = []
+
+    # Previous run timestamp, find latest tag starting with `timestamps/common/*`
+    refs = [ref.decode() for ref in repo.raw_listall_references()]
+    timestamps = [
+        int(t.split("/")[-1])
+        for t in refs
+        if t.startswith(f"refs/tags/{GIT_REF_PREFIX}timestamps/common/")
+    ]
+    if timestamps:
+        latest_timestamp = max(timestamps)
+        print(
+            f"Found latest tag: {latest_timestamp}.",
+            "Ignoring (forced)" if FORCE else "",
+        )
+    else:
+        print("No previous tags found.")
+        latest_timestamp = 0
+    return parents, common_base_tree, latest_timestamp
+
+
+def process_attachments(
+    attachments_base_url: str,
+    changesets: list[dict[str, Any]],
+    existing_attachments: dict[str, tuple[str, int]],
+    delete_unreachable: bool,
+) -> tuple[list[tuple[str, int, str]], list[tuple[str, bytes | None]]]:
+    """
+    Process attachments from the given changesets.
+    Return the list of changed attachments to be uploaded to LFS,
+    and the list of blobs to be added to the 'common' branch.
+    """
+    delete_unreachable_attachments = delete_unreachable
+    changed_attachments: list[tuple[str, int, str]] = []
+    common_content: list[tuple[str, bytes | None]] = []
 
     # Delete unreachable attachments. Since this operation creates a lot of
     # hits, we do it only if the flag is enabled (less frequent than normal cronjob run).
@@ -353,13 +420,14 @@ async def repo_sync_content(
             print(f"Attachment {path} is unreachable, deleting from tree")
             common_content.append((f"attachments/{path}", None))  # Delete from tree
 
+    # Store all the attachments as LFS pointers.
     # Mark the attachments/ folder as fully managed via LFS.
     common_content.append(
         (".gitattributes", b"attachments/** filter=lfs diff=lfs merge=lfs -text\n")
     )
     # Iterate through all records that have attachments, and compare their sha256
     # with the existing LFS pointer. If new or changed, keep track of it for upload.
-    for changeset in all_changesets:
+    for changeset in changesets:
         for record in changeset["changes"]:
             if "attachment" not in record:
                 continue
@@ -393,7 +461,7 @@ async def repo_sync_content(
     # with existing LFS pointers.
     print("Fetching attachments bundles")
     bundles_locations: list[str] = ["bundles/startup.json.mozlz4"]
-    for changeset in all_changesets:
+    for changeset in changesets:
         if not changeset["metadata"].get("attachment", {}).get("bundle", False):
             continue
         has_attachment = any(r.get("attachment") for r in changeset["changes"])
@@ -414,44 +482,22 @@ async def repo_sync_content(
         if existing_hash != hash or existing_size != size:
             print(f"Bundle {path} is new or has changed")
             changed_attachments.append((hash, size, url))
+    return changed_attachments, common_content
 
-    monitor_tree_id = tree_upsert_blobs(
-        repo, common_content, base_tree=common_base_tree
-    )
 
-    if common_base_tree is not None and monitor_tree_id == common_base_tree.id:
-        print("No changes for common branch, skipping commit.")
-    else:
-        ts = monitor_changeset["timestamp"]
-        dt = ts2dt(ts).isoformat()
-        commit_oid = repo.create_commit(
-            common_branch,
-            author,
-            committer,
-            f"common@{ts} ({dt})",
-            monitor_tree_id,
-            parents,
-        )
-        print(f"Created commit common: {commit_oid}")
-        changed_branches.add(common_branch)
-
-        # Tag with current timestamp for next runs
-        tag_name = f"{GIT_REF_PREFIX}timestamps/common/{monitor_changeset['timestamp']}"
-        try:
-            repo.create_tag(
-                tag_name,
-                commit_oid,
-                pygit2.GIT_OBJECT_COMMIT,
-                author,
-                f"common@{ts} ({dt})",
-            )
-            print(f"Created tag common: {tag_name}")
-            created_tags.append(tag_name)
-        except pygit2.AlreadyExistsError:
-            print(f"Tag {tag_name} already exists, skipping.")
-
-    print("")
-    for changeset in all_changesets:
+def process_collections(
+    repo,
+    author: pygit2.Signature,
+    committer: pygit2.Signature,
+    changesets: list[dict[str, Any]],
+) -> tuple[list[str], list[str]]:
+    """
+    Process the given changesets and create/update branches and tags accordingly.
+    Return the list of changed branches and created tags.
+    """
+    changed_branches: set[str] = set()
+    created_tags: list[str] = []
+    for changeset in changesets:
         bid = changeset["metadata"]["bucket"]
         cid = changeset["metadata"]["id"]
         timestamp = changeset["timestamp"]
@@ -505,4 +551,4 @@ async def repo_sync_content(
             print(f"{'Created' if not tag_exists else 'Moved'} tag {tag_name}")
             created_tags.append(tag_name)
 
-    return changed_attachments, changed_branches, created_tags
+    return changed_branches, created_tags

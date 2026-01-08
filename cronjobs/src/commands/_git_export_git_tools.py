@@ -138,6 +138,31 @@ def parse_lfs_pointer(data: bytes) -> tuple[str, int]:
     return sha256_hex, size
 
 
+def list_lfs_pointers(repo, tree: pygit2.Tree | None) -> dict[str, tuple[str, int]]:
+    """
+    List all LFS pointers in the given tree.
+    Return a mapping of attachment path to (sha256, size).
+    """
+    if tree is None:
+        return {}
+
+    existing_attachments = {}
+    try:
+        attachment_tree = tree / "attachments"
+        objs = iter_tree(repo, attachment_tree)
+    except KeyError:
+        # No attachments/ folder yet.
+        objs = []
+    for path, oid in objs:
+        blob = repo[oid]
+        try:
+            sha256_hex, size = parse_lfs_pointer(blob.data)
+        except ValueError as exc:
+            print(f"Failed to parse LFS pointer for {path}: {exc}")
+        existing_attachments[path] = (sha256_hex, size)
+    return existing_attachments
+
+
 def iter_tree(
     repo: pygit2.Repository, tree: pygit2.Tree, prefix=""
 ) -> Generator[tuple[str, pygit2.Oid], None, None]:
