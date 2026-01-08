@@ -232,7 +232,8 @@ def fetch_all_cert_chains(
 
 
 async def repo_sync_content(
-    repo, delete_unreachable_attachments: bool = DELETE_UNREACHABLE_ATTACHMENTS,
+    repo,
+    delete_unreachable_attachments: bool = DELETE_UNREACHABLE_ATTACHMENTS,
 ) -> tuple[list[tuple[str, int, str]], list[str], list[str]]:
     """
     Sync content from the remote server to the local git repository.
@@ -320,32 +321,26 @@ async def repo_sync_content(
     else:
         ts = monitor_changeset["timestamp"]
         dt = ts2dt(ts).isoformat()
-        commit_oid = repo.create_commit(
-            common_branch_name,
+        message = f"common@{ts} ({dt})"
+        common_tag_name = (
+            f"{GIT_REF_PREFIX}timestamps/common/{monitor_changeset['timestamp']}"
+        )
+
+        commit_and_tag(
+            repo,
             author,
             committer,
-            f"common@{ts} ({dt})",
+            message,
             monitor_tree_id,
             common_branch_parents,
+            common_branch_name,
+            common_tag_name,
+            move_tag_if_exists=False,
         )
-        print(f"Created commit common: {commit_oid}")
         changed_branches.add(common_branch_name)
+        created_tags.append(common_tag_name)
 
-        # Tag with current timestamp for next runs
-        tag_name = f"{GIT_REF_PREFIX}timestamps/common/{monitor_changeset['timestamp']}"
-        try:
-            repo.create_tag(
-                tag_name,
-                commit_oid,
-                pygit2.GIT_OBJECT_COMMIT,
-                author,
-                f"common@{ts} ({dt})",
-            )
-            print(f"Created tag common: {tag_name}")
-            created_tags.append(tag_name)
-        except pygit2.AlreadyExistsError:
-            print(f"Tag {tag_name} already exists, skipping.")
-
+    # Now process each collection changeset, creating/updating branches and tags accordingly.
     changeset_changed_branches, changeset_created_tags = process_collections(
         repo,
         author,
@@ -501,13 +496,13 @@ def process_collections(
         bid = changeset["metadata"]["bucket"]
         cid = changeset["metadata"]["id"]
         timestamp = changeset["timestamp"]
-        refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
+        branch_refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
         dtcollection = ts2dt(timestamp).isoformat()
         commit_message = f"{bid}/{cid}@{timestamp} ({dtcollection})"
 
         # Find the bucket branch (changesets are not ordered by bucket)
         try:
-            branch_tip = repo.lookup_reference(refname).target
+            branch_tip = repo.lookup_reference(branch_refname).target
             base_tree = repo.get(branch_tip).tree
             parents = [branch_tip]
         except KeyError:
@@ -528,27 +523,60 @@ def process_collections(
             print(f"No changes for {bid}/{cid} branch, skipping commit.")
         else:
             # Commit and tag.
-            commit_oid = repo.create_commit(
-                refname, author, committer, commit_message, files_tree_id, parents
-            )
-            print(f"Created commit {bid}/{cid}@{timestamp}: {commit_oid}")
-            changed_branches.add(refname)
-
             # If the tag already exists (that happens when records don't change but metadata does),
             # we move it to the new commit.
             tag_name = f"{GIT_REF_PREFIX}timestamps/{bid}/{cid}/{timestamp}"
-            tag_exists = repo.references.get(f"refs/tags/{tag_name}") is not None
-            if tag_exists:
-                repo.references.delete(f"refs/tags/{tag_name}")
-
-            repo.create_tag(
-                tag_name,
-                commit_oid,
-                pygit2.GIT_OBJECT_COMMIT,
-                author,
-                f"{bid}/{cid}@{timestamp} ({dtcollection})",
+            tag_moved = commit_and_tag(
+                repo,
+                author=author,
+                committer=committer,
+                message=commit_message,
+                tree_id=files_tree_id,
+                parents=parents,
+                branch_name=branch_refname,
+                tag_name=tag_name,
+                move_tag_if_exists=True,
             )
-            print(f"{'Created' if not tag_exists else 'Moved'} tag {tag_name}")
-            created_tags.append(tag_name)
+            changed_branches.add(branch_refname)
+            if tag_moved:
+                created_tags.append(tag_name)
 
     return changed_branches, created_tags
+
+
+def commit_and_tag(
+    repo,
+    author: pygit2.Signature,
+    committer: pygit2.Signature,
+    message: str,
+    tree_id: pygit2.Oid,
+    parents: list[pygit2.Oid],
+    branch_name: str,
+    tag_name: str,
+    move_tag_if_exists=True,
+) -> bool:
+    """
+    Create a commit and tag it.
+    """
+    commit_oid = repo.create_commit(
+        branch_name, author, committer, message, tree_id, parents
+    )
+    print(f"Created commit {branch_name}: {commit_oid}")
+
+    tag_exists = repo.references.get(f"refs/tags/{tag_name}") is not None
+    if tag_exists and not move_tag_if_exists:
+        print(f"Tag {tag_name} already exists, skipping.")
+        return False
+
+    if tag_exists:
+        repo.references.delete(f"refs/tags/{tag_name}")
+
+    repo.create_tag(
+        tag_name,
+        commit_oid,
+        pygit2.GIT_OBJECT_COMMIT,
+        author,
+        message,
+    )
+    print(f"{'Created' if not tag_exists else 'Moved'} tag {tag_name}")
+    return True
