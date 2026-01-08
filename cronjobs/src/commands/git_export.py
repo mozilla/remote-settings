@@ -343,9 +343,10 @@ async def repo_sync_content(
     # Now process each collection changeset, creating/updating branches and tags accordingly.
     changeset_changed_branches, changeset_created_tags = process_collections(
         repo,
-        author,
-        committer,
-        all_changesets,
+        author=author,
+        committer=committer,
+        changesets=all_changesets,
+        is_first_run=common_base_tree is None,
     )
 
     changed_branches.update(changeset_changed_branches)
@@ -485,6 +486,7 @@ def process_collections(
     author: pygit2.Signature,
     committer: pygit2.Signature,
     changesets: list[dict[str, Any]],
+    is_first_run: bool,
 ) -> tuple[list[str], list[str]]:
     """
     Process the given changesets and create/update branches and tags accordingly.
@@ -492,6 +494,28 @@ def process_collections(
     """
     changed_branches: set[str] = set()
     created_tags: list[str] = []
+
+    # Create all necessary bucket branches.
+    # This is only necessary when running git-export for the first time,
+    # or during tests. In normal operation, bucket branches already exist.
+    for changeset in changesets:
+        bid = changeset["metadata"]["bucket"]
+        branch_refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
+        try:
+            repo.lookup_reference(branch_refname)
+        except KeyError:
+            # Bucket branch does not exist yet, create it as an empty branch.
+            empty_tree_id = repo.TreeBuilder().write()
+            commit_oid = repo.create_commit(
+                branch_refname,
+                author,
+                committer,
+                f"Initialize bucket branch {bid}",
+                empty_tree_id,
+                [],
+            )
+            print(f"Created bucket branch {branch_refname} at {commit_oid}")
+
     for changeset in changesets:
         bid = changeset["metadata"]["bucket"]
         cid = changeset["metadata"]["id"]
@@ -501,14 +525,9 @@ def process_collections(
         commit_message = f"{bid}/{cid}@{timestamp} ({dtcollection})"
 
         # Find the bucket branch (changesets are not ordered by bucket)
-        try:
-            branch_tip = repo.lookup_reference(branch_refname).target
-            base_tree = repo.get(branch_tip).tree
-            parents = [branch_tip]
-        except KeyError:
-            # Only first run, and first collection in the bucket.
-            base_tree = None
-            parents = []
+        branch_tip = repo.lookup_reference(branch_refname).target
+        base_tree = repo.get(branch_tip).tree
+        parents = [branch_tip]
 
         # Create one blob per record. We start a new tree for this collection
         # anything from previous commits is lost.
