@@ -82,6 +82,10 @@ mimetypes.init(files=[HERE / "mimetypes.txt"])
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", frozen=True)
     git_repo_path: str = Field(..., description="Path to the Git repository")
+    cdn_domain: str | None = Field(
+        None,
+        description="Domain to use for attachment and certificiate URL rewrites behind a CDN"
+    )
     self_contained: bool = Field(
         False,
         description="Whether to serve `attachments/` and `cert-chains/` endpoints.",
@@ -519,7 +523,7 @@ def hello(
             "ATTACHMENTS_BASE_URL is required when not SELF_CONTAINED"
         )
         attachments_base_url = (
-            f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}attachments"
+            f"{request.url.scheme}://{settings.cdn_domain or request.url.netloc}/{API_PREFIX}attachments"
         )
     if not attachments_base_url.endswith("/"):
         attachments_base_url += "/"
@@ -613,11 +617,11 @@ def collection_changeset(
         # Certificate chains are served from this server.
         x5u = metadata["signature"]["x5u"]
         parsed = urlparse(x5u)
-        rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+        rewritten_x5u = f"{request.url.scheme}://{settings.cdn_domain or request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
         metadata["signature"]["x5u"] = rewritten_x5u
         for signature in metadata["signatures"]:
             x5u = signature["x5u"]
-            rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+            rewritten_x5u = f"{request.url.scheme}://{settings.cdn_domain or request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
             signature["x5u"] = rewritten_x5u
 
     return ChangesetResponse(
@@ -690,7 +694,7 @@ def attachments(
             for changeset in startup_changesets:
                 x5u = changeset["metadata"]["signature"]["x5u"]
                 parsed = urlparse(x5u)
-                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+                rewritten_x5u = f"{request.url.scheme}://{settings.cdn_domain or request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
                 changeset["metadata"]["signature"]["x5u"] = rewritten_x5u
 
             # Dump into memory bytes and cache content to skip rewriting next time.

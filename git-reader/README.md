@@ -11,6 +11,7 @@ docker build -t remote-settings-git-reader .
 - ``GIT_REPO_PATH``: the path to the Git repository to use.
 - ``SELF_CONTAINED`` (default: `false`): if set to `true`, the application will serve all necessary content from the Git repository, including
   attachments and certificates chains.
+- ``CDN_DOMAIN`` (default: `None`): if running behind a CDN, this will ensure that URI rewrites for attachments and certificates will point at the CDN and not the origin server.
 - ``ATTACHMENTS_BASE_URL`` (default: `None`): this URL will be used as the base URL for attachments. If `SELF_CONTAINED` is `false`, this URL is required. With self-contained, the current domain will be used by default (`Host` request header) if not set.
 
 
