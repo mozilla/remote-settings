@@ -611,7 +611,7 @@ def collection_changeset(
         # Certificate chains are served from this server.
         x5u = metadata["signature"]["x5u"]
         parsed = urlparse(x5u)
-        rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+        rewritten_x5u = request.url_for("cert-chain", pem=parsed.path.lstrip("/"))
         metadata["signature"]["x5u"] = rewritten_x5u
         for signature in metadata["signatures"]:
             x5u = signature["x5u"]
