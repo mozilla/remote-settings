@@ -518,9 +518,7 @@ def hello(
         assert settings.self_contained, (
             "ATTACHMENTS_BASE_URL is required when not SELF_CONTAINED"
         )
-        attachments_base_url = (
-            f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}attachments"
-        )
+        attachments_base_url = str(request.url_for("attachments", path=""))
     if not attachments_base_url.endswith("/"):
         attachments_base_url += "/"
 
@@ -613,11 +611,13 @@ def collection_changeset(
         # Certificate chains are served from this server.
         x5u = metadata["signature"]["x5u"]
         parsed = urlparse(x5u)
-        rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+        rewritten_x5u = str(request.url_for("cert-chain", pem=parsed.path.lstrip("/")))
         metadata["signature"]["x5u"] = rewritten_x5u
         for signature in metadata["signatures"]:
             x5u = signature["x5u"]
-            rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+            rewritten_x5u = str(
+                request.url_for("cert-chain", pem=parsed.path.lstrip("/"))
+            )
             signature["x5u"] = rewritten_x5u
 
     return ChangesetResponse(
@@ -632,7 +632,11 @@ def broadcasts(git: GitService = Depends(GitService.dep)):
     return git.get_broadcasts()
 
 
-@app.get(f"/{API_PREFIX}cert-chains/{{pem:path}}", response_class=PlainTextResponse)
+@app.get(
+    f"/{API_PREFIX}cert-chains/{{pem:path}}",
+    response_class=PlainTextResponse,
+    name="cert-chain",
+)
 def cert_chain(
     pem: str,
     settings: Settings = Depends(get_settings),
@@ -646,7 +650,11 @@ def cert_chain(
         raise HTTPException(status_code=404, detail=f"{pem} not found")
 
 
-@app.api_route(f"/{API_PREFIX}attachments/{{path:path}}", methods=["GET", "HEAD"])
+@app.api_route(
+    f"/{API_PREFIX}attachments/{{path:path}}",
+    methods=["GET", "HEAD"],
+    name="attachments",
+)
 def attachments(
     request: Request,
     path: str,
@@ -690,7 +698,9 @@ def attachments(
             for changeset in startup_changesets:
                 x5u = changeset["metadata"]["signature"]["x5u"]
                 parsed = urlparse(x5u)
-                rewritten_x5u = f"{request.url.scheme}://{request.url.netloc}/{API_PREFIX}cert-chains/{parsed.path.lstrip('/')}"
+                rewritten_x5u = str(
+                    request.url_for("cert-chain", pem=parsed.path.lstrip("/"))
+                )
                 changeset["metadata"]["signature"]["x5u"] = rewritten_x5u
 
             # Dump into memory bytes and cache content to skip rewriting next time.
