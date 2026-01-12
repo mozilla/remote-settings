@@ -110,6 +110,11 @@ def mock_rs_server_content():
                     "bucket": "bid2",
                     "collection": "cid2",
                 },
+                {
+                    "last_modified": 1500000000000,
+                    "bucket": "bid2",
+                    "collection": "cid3",
+                },
             ],
         },
     )
@@ -125,6 +130,7 @@ def mock_rs_server_content():
                 "signature": {
                     "x5u": "https://autograph.example.com/keys/123",
                 },
+                "last_modified": 1777777777000,
             },
             "changes": [
                 {
@@ -147,6 +153,7 @@ def mock_rs_server_content():
                 "signature": {
                     "x5u": "https://autograph.example.com/keys/123",
                 },
+                "last_modified": 16666666666000,
             },
             "changes": [
                 {
@@ -160,6 +167,22 @@ def mock_rs_server_content():
                     },
                 }
             ],
+        },
+    )
+    responses.add(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/bid2/collections/cid3/changeset",
+        json={
+            "timestamp": 1500000000000,
+            "metadata": {
+                "bucket": "bid2",
+                "id": "cid3",
+                "signature": {
+                    "x5u": "https://autograph.example.com/keys/123",
+                },
+                "last_modified": 15555555555000,
+            },
+            "changes": [],
         },
     )
 
@@ -197,11 +220,15 @@ def read_file(repo, branch, filepath):
 def init_fake_repo(path):
     repo = pygit2.init_repository(path, bare=True, initial_head="main")
     repo.remotes.create("origin", git_export.GIT_REMOTE_URL)
+    return repo
+
+
+def create_branch_with_empty_commit(repo, branch_name):
     author = pygit2.Signature("Test User", "test@example.com")
     builder = repo.TreeBuilder()
     tree = builder.write()
     commit_id = repo.create_commit(
-        "HEAD",  # reference name
+        branch_name,  # reference name
         author,  # author
         author,  # committer
         "initial commit",
@@ -210,12 +237,10 @@ def init_fake_repo(path):
     )
     commit = repo[commit_id]
 
-    repo.branches.local.create("v1/common", commit)
-    refname = "refs/remotes/origin/v1/common"
+    repo.branches.local.create(branch_name, commit)
+    refname = f"refs/remotes/origin/{branch_name}"
     repo.references.create(refname, commit.id)
-
-    repo.set_head("refs/heads/v1/common")
-    return repo
+    repo.set_head(f"refs/heads/{branch_name}")
 
 
 def simulate_pushed(repo, mock_ls_remotes):
@@ -288,7 +313,7 @@ def test_repo_sync_content_starts_from_scratch_if_no_previous_run(
     mock_git_fetch.assert_called_once()
     stdout = capsys.readouterr().out
     assert "No previous tags found" in stdout
-    assert "2 collections changed" in stdout
+    assert "3 collections changed" in stdout
 
     (args, _) = mock_git_push.call_args_list[0]
     assert args == (
@@ -298,9 +323,23 @@ def test_repo_sync_content_starts_from_scratch_if_no_previous_run(
             "+refs/heads/v1/common:refs/heads/v1/common",
             "+refs/tags/v1/timestamps/bid1/cid1/1700000000000:refs/tags/v1/timestamps/bid1/cid1/1700000000000",
             "+refs/tags/v1/timestamps/bid2/cid2/1600000000000:refs/tags/v1/timestamps/bid2/cid2/1600000000000",
+            "+refs/tags/v1/timestamps/bid2/cid3/1500000000000:refs/tags/v1/timestamps/bid2/cid3/1500000000000",
             "+refs/tags/v1/timestamps/common/1700000000000:refs/tags/v1/timestamps/common/1700000000000",
         ],
     )
+
+    # Verify that all collections tags point to the same commit (initial commit with all collections)
+    all_timestamps_tags = set(
+        repo.lookup_reference(tag).peel().id  # commit id of the tag
+        for tag in repo.listall_references()
+        if tag.startswith("refs/tags/v1/timestamps/bid2")
+    )
+    assert len(all_timestamps_tags) == 1
+
+    # Verify that branch root contains all collections folders.
+    tree = repo.lookup_reference("refs/heads/v1/buckets/bid2").peel().tree
+    assert "cid2" in tree
+    assert "cid3" in tree
 
 
 @responses.activate
@@ -314,6 +353,10 @@ def test_repo_sync_does_nothing_if_up_to_date(
     mock_github_lfs,
     mock_git_push,
 ):
+    create_branch_with_empty_commit(repo, "v1/common")
+    create_branch_with_empty_commit(repo, "v1/buckets/bid1")
+    create_branch_with_empty_commit(repo, "v1/buckets/bid2")
+
     git_export.git_export(None, None)
     simulate_pushed(repo, mock_ls_remotes)
     capsys.readouterr()  # Clear previous output
@@ -338,6 +381,10 @@ def test_repo_sync_can_be_forced_even_if_up_to_date(
     mock_github_lfs,
     mock_git_push,
 ):
+    create_branch_with_empty_commit(repo, "v1/common")
+    create_branch_with_empty_commit(repo, "v1/buckets/bid1")
+    create_branch_with_empty_commit(repo, "v1/buckets/bid2")
+
     git_export.git_export(None, None)
     simulate_pushed(repo, mock_ls_remotes)
     capsys.readouterr()  # Clear previous output
@@ -361,6 +408,10 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
     mock_github_lfs,
     mock_git_push,
 ):
+    create_branch_with_empty_commit(repo, "v1/common")
+    create_branch_with_empty_commit(repo, "v1/buckets/bid1")
+    create_branch_with_empty_commit(repo, "v1/buckets/bid2")
+
     repo.create_tag(
         "v1/timestamps/common/1600000000000",
         repo.lookup_reference("refs/heads/v1/common").target,
@@ -405,6 +456,10 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
     mock_github_lfs,
     mock_git_push,
 ):
+    create_branch_with_empty_commit(repo, "v1/common")
+    create_branch_with_empty_commit(repo, "v1/buckets/bid1")
+    create_branch_with_empty_commit(repo, "v1/buckets/bid2")
+
     repo.create_tag(
         "v1/timestamps/common/1600000000000",
         repo.lookup_reference("refs/heads/v1/common").target,
@@ -421,7 +476,7 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
 
     stdout = capsys.readouterr().out
     assert "Found latest tag: 1600000000000. Ignoring (forced)" in stdout
-    assert "2 collections changed" in stdout
+    assert "3 collections changed" in stdout
     git_export.FORCE = False
 
 
@@ -579,6 +634,7 @@ def test_repo_syncs_attachment_bundles(
                 "signature": {
                     "x5u": "https://autograph.example.com/keys/123",
                 },
+                "last_modified": 188888888880000,
             },
             "changes": [
                 {
@@ -627,6 +683,7 @@ def test_attachment_bundles_is_skipped_if_no_attachment_in_changeset(
                 "signature": {
                     "x5u": "https://autograph.example.com/keys/123",
                 },
+                "last_modified": 188888888880000,
             },
             "changes": [{"id": "rid1-1", "last_modified": 1800000000000}],
         },
@@ -689,6 +746,10 @@ def test_repo_is_resetted_to_local_content_on_error(
     mock_git_push,
     mock_ls_remotes,
 ):
+    create_branch_with_empty_commit(repo, "v1/common")
+    create_branch_with_empty_commit(repo, "v1/buckets/bid1")
+    create_branch_with_empty_commit(repo, "v1/buckets/bid2")
+
     git_export.git_export(None, None)
     simulate_pushed(repo, mock_ls_remotes)
 
@@ -727,6 +788,7 @@ def test_repo_is_resetted_to_local_content_on_error(
                 "signature": {
                     "x5u": "https://autograph.example.com/keys/123",
                 },
+                "last_modified": 188888888880000,
             },
             "changes": [],
         },
