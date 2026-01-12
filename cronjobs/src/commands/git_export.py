@@ -262,6 +262,10 @@ async def repo_sync_content(
 
     server_info = await client.server_info()
 
+    # The config file timestamp changes on each redeploy. In order to avoid
+    # unnecessary commits, we remove it from the server info.
+    server_info["config"].pop("modified")
+
     # Store the server info and monitor changeset in `common` branch.
     # Anything from previous commits is lost.
     common_content = [

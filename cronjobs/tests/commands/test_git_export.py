@@ -81,6 +81,9 @@ def mock_rs_server_content():
         json={
             "capabilities": {
                 "attachments": {"base_url": "http://cdn.example.com/v1/attachments/"}
+            },
+            "config": {
+                "modified": "2024-01-01T00:00:00Z",
             }
         },
     )
