@@ -262,6 +262,10 @@ async def repo_sync_content(
 
     server_info = await client.server_info()
 
+    # The config file timestamp changes on each redeploy. In order to avoid
+    # unnecessary commits, we remove it from the server info.
+    server_info["config"].pop("modified")
+
     # Store the server info and monitor changeset in `common` branch.
     # Anything from previous commits is lost.
     common_content = [
@@ -473,10 +477,10 @@ def process_attachments(
         common_content.append((path, blob))
 
         existing_hash = existing_size = None
-        if existing := existing_attachments.get(path):
+        if existing := existing_attachments.get(location):
             existing_hash, existing_size = existing
         if existing_hash != hash or existing_size != size:
-            print(f"Bundle {path} is new or has changed")
+            print(f"Bundle {path} {'is new' if existing_hash is None else 'has changed'}")
             changed_attachments.append((hash, size, url))
     return changed_attachments, common_content
 
