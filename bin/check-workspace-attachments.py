@@ -166,14 +166,14 @@ async def main():
     print(f"{len(marked_for_deletion)} attachments are marked for deletion in GCS.")
 
     # Now check which of the only_workspace_attachments are marked for deletion.
-    to_postpone_deletion = []
+    to_postpone_deletion = set()
     for live_attachments in (
         all_workspace_attachments,
         all_preview_attachments,
         all_main_attachments,
     ):
         if marked := marked_for_deletion & live_attachments:
-            to_postpone_deletion.extend(marked)
+            to_postpone_deletion.update(marked)
 
     if to_postpone_deletion:
         print(
@@ -182,11 +182,13 @@ async def main():
         with storage_client.batch():
             for blob_name in to_postpone_deletion:
                 blob = bucket.blob(blob_name)
+                blob.reload()
                 # Once set, custom_time cannot be removed. We set it to date in the future.
                 blob.custom_time = datetime.datetime.now(
                     datetime.timezone.utc
                 ) + datetime.timedelta(days=POSTPONE_DELETION_MARK_DAYS)
                 blob.patch()
+                blob.reload()
                 print(
                     f"Postponed deletion mark of gs://{STORAGE_BUCKET_NAME}/{blob.name} to {blob.custom_time}"
                 )
