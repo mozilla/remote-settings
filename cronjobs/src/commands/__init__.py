@@ -83,7 +83,7 @@ def call_parallel(func, args_list, max_workers=PARALLEL_REQUESTS):
     return results
 
 
-def fetch_all_changesets(client):
+def fetch_all_changesets(client, with_workspace_buckets: bool = False):
     """
     Return the `/changeset` responses for all collections listed
     in the `monitor/changes` endpoint.
@@ -92,11 +92,37 @@ def fetch_all_changesets(client):
     """
     monitor_changeset = client.get_changeset("monitor", "changes", bust_cache=True)
     print("%s collections" % len(monitor_changeset["changes"]))
-
     args_list = [
         (c["bucket"], c["collection"], c["last_modified"])
         for c in monitor_changeset["changes"]
     ]
+
+    if with_workspace_buckets:
+        # For each collection exposed in the monitor/changes endpoint,
+        # we will look for its corresponding workspace bucket using the
+        # info exposed in the `signer` capability.
+        server_info = client.server_info()
+        try:
+            resources = server_info["capabilities"]["signer"]["resources"]
+        except KeyError:
+            raise RuntimeError(
+                "Cannot fetch workspace buckets: signer not enabled on server"
+            )
+
+        # Walk through all monitored changesets, and for each one,
+        # add the corresponding workspace collection. We do this only using the
+        # destination, not the preview, to avoid adding them twice.
+        for monitored_changeset in monitor_changeset["changes"]:
+            bucket = monitored_changeset["bucket"]
+            for resource in resources:
+                if bucket == resource["destination"]["bucket"]:
+                    source_bucket = resource["source"]["bucket"]
+                    args_list.append(
+                        # _expected=0 for workspace collections.
+                        (source_bucket, monitored_changeset["collection"], 0)
+                    )
+                    break
+
     all_changesets = call_parallel(
         lambda bid, cid, ts: client.get_changeset(bid, cid, _expected=ts), args_list
     )

@@ -17,6 +17,7 @@ STORAGE_BUCKET_NAME = os.getenv(
     "STORAGE_BUCKET_NAME", f"remote-settings-{REALM}-{ENVIRONMENT}-attachments"
 )
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", "100"))
+AUTH = os.getenv("AUTH")
 
 
 def expire_orphan_attachments(event, context):
@@ -28,8 +29,8 @@ def expire_orphan_attachments(event, context):
     Our `git_export` job will then also query GCS objects in order
     to purge files from the tree that 404s on the server.
     """
-    client = KintoClient(server_url=SERVER)
-    all_changesets = fetch_all_changesets(client)
+    client = KintoClient(server_url=SERVER, auth=AUTH)
+    all_changesets = fetch_all_changesets(client, with_workspace_buckets=True)
 
     attachments = set()
     total_size = 0

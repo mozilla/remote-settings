@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 import pytest
 import responses
@@ -84,6 +84,7 @@ def test_expire_orphan_attachments(mock_fetch_all_changesets, mock_storage_clien
     expire_orphan_attachments(None, None)
 
     assert patched_blobs == {"folder1/orphan1.bin", "folder2/orphan2.png"}
+    mock_fetch_all_changesets.assert_called_with(ANY, with_workspace_buckets=True)
 
 
 @responses.activate
