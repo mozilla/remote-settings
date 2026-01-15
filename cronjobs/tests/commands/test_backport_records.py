@@ -1,5 +1,6 @@
 import json
 import unittest
+from unittest import mock
 
 import pytest
 import responses
@@ -8,7 +9,6 @@ from commands.backport_records import backport_records
 
 class TestRecordsBackport(unittest.TestCase):
     server = "https://fake-server.net/v1"
-    auth = ("foo", "bar")
     source_bid = "main"
     source_cid = "one"
     dest_bid = "main-workspace"
@@ -24,6 +24,21 @@ class TestRecordsBackport(unittest.TestCase):
             f"{self.server}/buckets/{self.dest_bid}/collections/{self.dest_cid}"
         )
         self.dest_records_uri = f"{self.dest_collection_uri}/records"
+
+        # Set environment variables.
+        self.patcher = mock.patch.dict(
+            "os.environ",
+            {
+                "SERVER": self.server,
+                "BACKPORT_RECORDS_SOURCE_AUTH": "foo:bar",
+                "BACKPORT_RECORDS_SOURCE_BUCKET": self.source_bid,
+                "BACKPORT_RECORDS_SOURCE_COLLECTION": self.source_cid,
+                "BACKPORT_RECORDS_DEST_BUCKET": self.dest_bid,
+                "BACKPORT_RECORDS_DEST_COLLECTION": self.dest_cid,
+            },
+        )
+        self.patcher.start()
+        self.addCleanup(unittest.mock.patch.dict, "os.environ", {}, clear=True)
 
     @responses.activate
     def test_missing_records_are_backported(self):
@@ -52,18 +67,13 @@ class TestRecordsBackport(unittest.TestCase):
         )
         responses.add(responses.POST, self.server + "/batch", json={"responses": []})
 
-        backport_records(
-            event={
-                "server": self.server,
-                "backport_records_source_auth": self.auth,
-                "backport_records_source_bucket": self.source_bid,
-                "backport_records_source_collection": self.source_cid,
-                "backport_records_source_filters": '{"min_age": 20}',
-                "backport_records_dest_bucket": self.dest_bid,
-                "backport_records_dest_collection": self.dest_cid,
+        with mock.patch.dict(
+            "os.environ",
+            {
+                "BACKPORT_RECORDS_SOURCE_FILTERS": '{"min_age": 20}',
             },
-            context=None,
-        )
+        ):
+            backport_records()
 
         assert responses.calls[0].request.method == "GET"
         assert responses.calls[0].request.url.endswith("?min_age=20")
@@ -106,18 +116,8 @@ class TestRecordsBackport(unittest.TestCase):
         )
         responses.add(responses.POST, self.server + "/batch", json={"responses": []})
 
-        backport_records(
-            event={
-                "server": self.server,
-                "safe_headers": True,
-                "backport_records_source_auth": self.auth,
-                "backport_records_source_bucket": self.source_bid,
-                "backport_records_source_collection": self.source_cid,
-                "backport_records_dest_bucket": self.dest_bid,
-                "backport_records_dest_collection": self.dest_cid,
-            },
-            context=None,
-        )
+        with mock.patch.dict("os.environ", {"SAFE_HEADERS": "true"}):
+            backport_records()
 
         assert responses.calls[3].request.method == "POST"
         posted_records = json.loads(responses.calls[3].request.body)
@@ -162,17 +162,7 @@ class TestRecordsBackport(unittest.TestCase):
             },
         )
 
-        backport_records(
-            event={
-                "server": self.server,
-                "backport_records_source_auth": self.auth,
-                "backport_records_source_bucket": self.source_bid,
-                "backport_records_source_collection": self.source_cid,
-                "backport_records_dest_bucket": self.dest_bid,
-                "backport_records_dest_collection": self.dest_cid,
-            },
-            context=None,
-        )
+        backport_records()
 
         assert len(responses.calls) == 3
         assert responses.calls[0].request.method == "GET"
@@ -241,17 +231,7 @@ class TestRecordsBackport(unittest.TestCase):
             },
         )
 
-        backport_records(
-            event={
-                "server": self.server,
-                "backport_records_source_auth": self.auth,
-                "backport_records_source_bucket": self.source_bid,
-                "backport_records_source_collection": self.source_cid,
-                "backport_records_dest_bucket": self.dest_bid,
-                "backport_records_dest_collection": self.dest_cid,
-            },
-            context=None,
-        )
+        backport_records()
 
         assert len(responses.calls) == 6
         assert responses.calls[0].request.method == "GET"
@@ -301,14 +281,14 @@ class TestRecordsBackport(unittest.TestCase):
 )
 def test_correct_multiline_mappings(mapping_env, expected_calls):
     with unittest.mock.patch("commands.backport_records.execute_backport") as mocked:
-        backport_records(
-            event={
-                "server": "http://server",
-                "backport_records_source_auth": "admin:admin",
-                "backport_records_mappings": mapping_env,
+        with mock.patch.dict(
+            "os.environ",
+            {
+                "BACKPORT_RECORDS_SOURCE_AUTH": "admin:admin",
+                "BACKPORT_RECORDS_MAPPINGS": mapping_env,
             },
-            context=None,
-        )
+        ):
+            backport_records()
         for expected_params in expected_calls:
             mocked.assert_any_call(
                 unittest.mock.ANY,
@@ -327,13 +307,13 @@ def test_correct_multiline_mappings(mapping_env, expected_calls):
     ],
 )
 def test_incorrect_multiline_mappings(mapping_env):
-    with unittest.mock.patch("commands.backport_records.execute_backport"):
-        with pytest.raises(expected_exception=ValueError, match="Invalid syntax"):
-            backport_records(
-                event={
-                    "server": "http://server",
-                    "backport_records_source_auth": "admin:admin",
-                    "backport_records_mappings": mapping_env,
-                },
-                context=None,
-            )
+    with mock.patch.dict(
+        "os.environ",
+        {
+            "BACKPORT_RECORDS_SOURCE_AUTH": "admin:admin",
+            "BACKPORT_RECORDS_MAPPINGS": mapping_env,
+        },
+    ):
+        with unittest.mock.patch("commands.backport_records.execute_backport"):
+            with pytest.raises(expected_exception=ValueError, match="Invalid syntax"):
+                backport_records()

@@ -34,6 +34,4 @@ def test_run_git_export(capsys):
 
         main.main("git_export")
         importlib_mock.assert_called_with("commands.git_export")
-        entrypoint.assert_called_with(
-            {"server": main.SERVER_URL}, {"sentry_sdk": main.sentry_sdk}
-        )
+        entrypoint.assert_called()

@@ -97,7 +97,7 @@ GIT_USER = _user.strip()
 GIT_EMAIL = _email.rstrip(">")
 
 
-def git_export(event, context):
+def git_export():
     """
     Export Remote Settings data to a Git repository.
     """
@@ -499,7 +499,9 @@ def process_attachments(
         if existing := existing_attachments.get(location):
             existing_hash, existing_size = existing
         if existing_hash != hash or existing_size != size:
-            print(f"Bundle {path} {'is new' if existing_hash is None else 'has changed'}")
+            print(
+                f"Bundle {path} {'is new' if existing_hash is None else 'has changed'}"
+            )
             changed_attachments.append((hash, size, url))
     return changed_attachments, common_content
 

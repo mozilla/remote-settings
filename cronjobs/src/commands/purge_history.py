@@ -15,7 +15,7 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
-def purge_history(*args, **kwargs):
+def purge_history():
     """Purge old history entries on a regular basis."""
     server_url = config("SERVER", default="http://localhost:8888/v1")
     auth = config("AUTH", default="admin:s3cr3t")

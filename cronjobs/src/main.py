@@ -65,12 +65,7 @@ Available commands:
     )
 
 
-def run(command, event=None, context=None):
-    if event is None:
-        event = {"server": SERVER_URL}
-    if context is None:
-        context = {"sentry_sdk": sentry_sdk}
-
+def run(command):
     if isinstance(command, (str,)):
         # Import the command module and returns its main function.
         mod = importlib.import_module(f"commands.{command}")
@@ -82,10 +77,10 @@ def run(command, event=None, context=None):
     # See https://docs.sentry.io/platforms/python/guides/gcp-functions/
 
     # Option to test failure to test Sentry integration.
-    if event.get("force_fail") or os.getenv("FORCE_FAIL"):
+    if os.getenv("FORCE_FAIL"):
         raise Exception("Found forced failure flag")
 
-    return command(event, context)
+    return command()
 
 
 def main(*args):
