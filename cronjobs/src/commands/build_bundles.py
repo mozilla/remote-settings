@@ -19,7 +19,6 @@ from google.cloud import storage
 from . import KintoClient, call_parallel, fetch_all_changesets, retry_timeout
 
 
-SERVER = os.getenv("SERVER")
 BUNDLE_MAX_SIZE_BYTES = int(os.getenv("BUNDLE_MAX_SIZE_BYTES", "20_000_000"))
 ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
 REALM = os.getenv("REALM", "test")
@@ -114,7 +113,7 @@ def sync_cloud_storage(
             print(f"Deleted gs://{storage_bucket}/{blob.name}")
 
 
-def build_bundles(event, context):
+def build_bundles():
     """
     Build and upload bundles of changesets and attachments.
 
@@ -126,9 +125,8 @@ def build_bundles(event, context):
     - builds `{bid}--{cid}.zip` for each of them
     - send the bundles to the Cloud storage bucket
     """
-    rs_server = event.get("server") or SERVER
-
-    client = KintoClient(server_url=rs_server)
+    SERVER = os.getenv("SERVER")
+    client = KintoClient(server_url=SERVER)
 
     base_url = client.server_info()["capabilities"]["attachments"]["base_url"]
 
