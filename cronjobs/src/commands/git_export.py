@@ -14,6 +14,7 @@ from pygit2 import (
     Keypair,
     RemoteCallbacks,
 )
+from pygit2.enums import BranchType
 
 from ._git_export_git_tools import (
     clone_or_fetch,
@@ -591,8 +592,8 @@ def update_bucket_branches(
     # changed data.
     for bid, bucket_changesets in changesets_by_bucket.items():
         # Find the bucket branch tip and base tree.
-        branch_refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
-        branch_tip = repo.lookup_reference(branch_refname).target
+        branch_refname = f"{GIT_REF_PREFIX}buckets/{bid}"
+        branch_tip = repo.lookup_branch(f"origin/{branch_refname}", pygit2.enums.BranchType.REMOTE).target
         branch_tree = repo.get(branch_tip).tree
         parents = [branch_tip]
 
