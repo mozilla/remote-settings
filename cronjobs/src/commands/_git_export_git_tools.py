@@ -35,32 +35,36 @@ def clone_or_fetch(
             print("Head was at", repo.head.target)
         print(f"Fetching from {repo_url}...")
         remote.fetch(callbacks=callbacks, prune=True)
-        reset_repo(repo, callbacks=callbacks)
     else:
         # Clone remote repository into work dir.
         print(f"Clone {repo_url} into {repo_path}...")
         pygit2.clone_repository(repo_url, repo_path, callbacks=callbacks)
         repo = pygit2.Repository(repo_path)
+    reset_repo(repo, callbacks=callbacks)
     return repo
 
 
 def reset_repo(repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks):
     print("Reset local content to remote content...")
-    # Reset all local branches to their remote
-    for branch_name in repo.branches.local:
-        remote_ref_name = f"{REMOTE_NAME}/{branch_name}"
-        if remote_ref_name not in repo.branches:
-            print(f"Delete local branch {branch_name}")
-            repo.branches.delete(branch_name)
-        else:
-            local_branch = repo.branches[branch_name]
-            remote_branch = repo.branches[remote_ref_name]
-            if local_branch.target != remote_branch.target:
-                # Reset local branch to remote target
-                print(
-                    f"Resetting local branch {branch_name} to remote {remote_ref_name}"
-                )
-                local_branch.set_target(remote_branch.target)
+    # If the repo is freshly cloned, the remotes branches do not
+    # existing locally. Create them.
+    # If the repo was cloned from previous run, reset the local branches
+    # to the remote targets.
+    # Remote wins.
+    for branch_name in repo.branches.remote:
+        # Create `v1/buckets/{bid}` for each `origin/v1/buckets/{bid}`
+        branch_ref = repo.branches[branch_name]
+        target = branch_ref.target
+        branch_local_name = branch_name.replace("{REMOTE_NAME}/", "")
+        repo.branches.local.create(branch_local_name, target, force=True)
+        repo.create_reference(f"refs/heads/{branch_local_name}", target, force=True)
+
+    # Delete local branches that are not on remote
+    for branch_local_name in repo.branches.local:
+        remote_ref_name = f"{REMOTE_NAME}/{branch_local_name}"
+        if remote_ref_name not in repo.branches.remote:
+            print(f"Delete local branch {branch_local_name}")
+            repo.branches.delete(branch_local_name)
 
     # Delete local tags that are not on remote
     origin = repo.remotes[REMOTE_NAME]
