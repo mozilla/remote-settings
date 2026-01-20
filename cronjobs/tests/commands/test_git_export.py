@@ -282,6 +282,7 @@ def test_remote_is_clone_if_dir_missing(
     mock_truncate_branch,
     mock_github_lfs,
     mock_git_push,
+    mock_ls_remotes,
 ):
     def _fake_clone(url, path, *args, **kwargs):
         return init_fake_repo(path)
