@@ -164,9 +164,10 @@ def test_build_bundles(
     mock_write_zip,
     mock_write_json_mozlz4,
     mock_sync_cloud_storage,
+    monkeypatch,
 ):
     server_url = "http://testserver"
-    event = {"server": server_url}
+    monkeypatch.setenv("SERVER", server_url)
 
     responses.add(
         responses.GET,
@@ -282,7 +283,7 @@ def test_build_bundles(
         status=404,
     )
 
-    build_bundles(event, context={})
+    build_bundles()
 
     assert mock_write_zip.call_count == 1  # only one for the attachments
     calls = mock_write_zip.call_args_list

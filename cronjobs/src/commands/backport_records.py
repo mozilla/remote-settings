@@ -17,24 +17,15 @@ def parse_querystring(qs):
     }
 
 
-def backport_records(event, context, **kwargs):
+def backport_records():
     """Backport records creations, updates and deletions from one collection to another."""
-    server_url = event["server"]
-    source_auth = (
-        event.get("backport_records_source_auth")
-        or os.environ["BACKPORT_RECORDS_SOURCE_AUTH"]
-    )
-    dest_auth = event.get(
-        "backport_records_dest_auth",
-        os.getenv("BACKPORT_RECORDS_DEST_AUTH", source_auth),
-    )
+    SERVER_URL = os.environ["SERVER"]
+    source_auth = os.environ["BACKPORT_RECORDS_SOURCE_AUTH"]
+    dest_auth = os.getenv("BACKPORT_RECORDS_DEST_AUTH", source_auth)
 
     mappings = []
 
-    if mappings_env := (
-        event.get("backport_records_mappings")
-        or os.getenv("BACKPORT_RECORDS_MAPPINGS", "")
-    ):
+    if mappings_env := os.getenv("BACKPORT_RECORDS_MAPPINGS", ""):
         regexp = re.compile(
             r"^(?P<sbid>[^/]+)/(?P<scid>[^/\?]+)(?P<qs>\?.*)? -> (?P<dbid>[^/]+)/(?P<dcid>[^/]+)$"
         )
@@ -54,39 +45,23 @@ def backport_records(event, context, **kwargs):
             else:
                 raise ValueError(f"Invalid syntax in line {entry}")
     else:
-        sbid = (
-            event.get("backport_records_source_bucket")
-            or os.environ["BACKPORT_RECORDS_SOURCE_BUCKET"]
-        )
-        scid = (
-            event.get("backport_records_source_collection")
-            or os.environ["BACKPORT_RECORDS_SOURCE_COLLECTION"]
-        )
-        filters_json = event.get("backport_records_source_filters") or os.getenv(
-            "BACKPORT_RECORDS_SOURCE_FILTERS", ""
-        )
+        sbid = os.environ["BACKPORT_RECORDS_SOURCE_BUCKET"]
+        scid = os.environ["BACKPORT_RECORDS_SOURCE_COLLECTION"]
+        filters_json = os.getenv("BACKPORT_RECORDS_SOURCE_FILTERS", "")
         filters_dict = json.loads(filters_json or "{}")
 
-        dbid = event.get(
-            "backport_records_dest_bucket",
-            os.getenv("BACKPORT_RECORDS_DEST_BUCKET", sbid),
-        )
-        dcid = event.get(
-            "backport_records_dest_collection",
-            os.getenv("BACKPORT_RECORDS_DEST_COLLECTION", scid),
-        )
+        dbid = os.getenv("BACKPORT_RECORDS_DEST_BUCKET", sbid)
+        dcid = os.getenv("BACKPORT_RECORDS_DEST_COLLECTION", scid)
 
         if sbid == dbid and scid == dcid:
             raise ValueError("Cannot copy records: destination is identical to source")
 
         mappings.append((sbid, scid, filters_dict, dbid, dcid))
 
-    safe_headers = event.get(
-        "safe_headers", config("SAFE_HEADERS", default=False, cast=bool)
-    )
+    safe_headers = config("SAFE_HEADERS", default=False, cast=bool)
 
     for mapping in mappings:
-        execute_backport(server_url, source_auth, dest_auth, safe_headers, *mapping)
+        execute_backport(SERVER_URL, source_auth, dest_auth, safe_headers, *mapping)
 
 
 def execute_backport(

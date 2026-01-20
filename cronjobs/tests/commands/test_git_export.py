@@ -274,7 +274,7 @@ def test_clone_must_match_remote_url_if_dir_exists(mock_github_lfs):
     repo.remotes.create("origin", "https://example.com/repo.git")
 
     with pytest.raises(ValueError, match="does not match"):
-        git_export.git_export(None, None)
+        git_export.git_export()
 
 
 def test_remote_is_clone_if_dir_missing(
@@ -291,7 +291,7 @@ def test_remote_is_clone_if_dir_missing(
     ) as mock_clone:
         assert not os.path.exists(git_export.WORK_DIR)
 
-        git_export.git_export(None, None)
+        git_export.git_export()
 
     ((called_url, called_path, *_), _kwargs) = mock_clone.call_args
     assert called_url == git_export.GIT_REMOTE_URL
@@ -308,7 +308,7 @@ def test_repo_sync_content_starts_from_scratch_if_no_previous_run(
     mock_github_lfs,
     mock_git_push,
 ):
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     mock_git_fetch.assert_called_once()
     stdout = capsys.readouterr().out
@@ -357,11 +357,11 @@ def test_repo_sync_does_nothing_if_up_to_date(
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
-    git_export.git_export(None, None)
+    git_export.git_export()
     simulate_pushed(repo, mock_ls_remotes)
     capsys.readouterr()  # Clear previous output
 
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     stdout = capsys.readouterr().out
     assert "Found latest tag: 1700000000000" in stdout
@@ -385,12 +385,12 @@ def test_repo_sync_can_be_forced_even_if_up_to_date(
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
-    git_export.git_export(None, None)
+    git_export.git_export()
     simulate_pushed(repo, mock_ls_remotes)
     capsys.readouterr()  # Clear previous output
 
     git_export.FORCE = True
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     stdout = capsys.readouterr().out
     assert "No changes for common branch" in stdout
@@ -423,7 +423,7 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
         {"name": "refs/tags/v1/timestamps/common/1600000000000", "local": False}
     ]
 
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     stdout = capsys.readouterr().out
     assert "Found latest tag: 1600000000000" in stdout
@@ -472,7 +472,7 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
     ]
 
     git_export.FORCE = True
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     stdout = capsys.readouterr().out
     assert "Found latest tag: 1600000000000. Ignoring (forced)" in stdout
@@ -489,7 +489,7 @@ def test_repo_sync_stores_server_info(
     mock_github_lfs,
     mock_git_push,
 ):
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     blob = read_file(repo, "v1/common", "server-info.json")
     assert "capabilities" in blob.decode()
@@ -504,7 +504,7 @@ def test_repo_sync_stores_monitor_changes(
     mock_github_lfs,
     mock_git_push,
 ):
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     blob = read_file(repo, "v1/common", "monitor-changes.json")
     assert '{"changes":[{"bucket":"bid1","collection":"cid1"' in blob.decode()
@@ -519,7 +519,7 @@ def test_repo_sync_stores_broadcasts(
     mock_github_lfs,
     mock_git_push,
 ):
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     blob = read_file(repo, "v1/common", "broadcasts.json")
     assert "broadcasts/rs" in blob.decode()
@@ -534,7 +534,7 @@ def test_repo_sync_stores_cert_chains(
     mock_github_lfs,
     mock_git_push,
 ):
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     blob = read_file(repo, "v1/common", "cert-chains/keys/123")
     assert "---CERTIFICATE---" in blob.decode()
@@ -549,7 +549,7 @@ def test_repo_sync_tags_common_branch(
     mock_github_lfs,
     mock_git_push,
 ):
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     tags = [
         tag
@@ -568,7 +568,7 @@ def test_repo_sync_stores_collections_records_in_buckets_branches_with_tags(
     mock_github_lfs,
     mock_git_push,
 ):
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     branches = [
         b for b in repo.listall_references() if b.startswith("refs/heads/v1/buckets/")
@@ -596,7 +596,7 @@ def test_repo_sync_stores_attachments_as_lfs_pointers(
     mock_github_lfs,
     mock_git_push,
 ):
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     rid2 = read_file(repo, "v1/common", "attachments/bid2/random-name.bin")
     assert "lfs" in rid2.decode()
@@ -656,7 +656,7 @@ def test_repo_syncs_attachment_bundles(
         body=b"fake bundle content",
     )
 
-    git_export.git_export(None, None)
+    git_export.git_export()
 
     bundle = read_file(repo, "v1/common", "attachments/bundles/bid1--cid1.zip")
     assert "lfs" in bundle.decode()
@@ -690,7 +690,7 @@ def test_attachment_bundles_is_skipped_if_no_attachment_in_changeset(
     )
 
     # Does not fail with 404 on "http://cdn.example.com/v1/attachments/bundles/bid1--cid1.zip"
-    git_export.git_export(None, None)
+    git_export.git_export()
 
 
 @responses.activate
@@ -712,7 +712,7 @@ def test_repo_syncs_deletes_attachments_if_flag_set(
         "http://cdn.example.com/v1/attachments/bid2/random-name.bin",
         body=b"a" * 42,
     )
-    git_export.git_export(None, None)
+    git_export.git_export()
     # First check that attachment exists in repo.
     blob = read_file(repo, "v1/common", "attachments/bid2/random-name.bin")
     assert "lfs" in blob.decode()
@@ -750,7 +750,7 @@ def test_repo_is_resetted_to_local_content_on_error(
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
-    git_export.git_export(None, None)
+    git_export.git_export()
     simulate_pushed(repo, mock_ls_remotes)
 
     responses.replace(
@@ -797,7 +797,7 @@ def test_repo_is_resetted_to_local_content_on_error(
     mock_github_lfs.side_effect = Exception("GitHub LFS error")
 
     with pytest.raises(Exception, match="GitHub LFS error"):
-        git_export.git_export(None, None)
+        git_export.git_export()
 
     stdout = capsys.readouterr().out
     assert "Error occurred: GitHub LFS error" in stdout

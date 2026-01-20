@@ -97,7 +97,7 @@ GIT_USER = _user.strip()
 GIT_EMAIL = _email.rstrip(">")
 
 
-def git_export(event, context):
+def git_export():
     """
     Export Remote Settings data to a Git repository.
     """

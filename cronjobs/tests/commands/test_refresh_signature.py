@@ -36,6 +36,18 @@ class TestSignatureRefresh(unittest.TestCase):
     server = "https://fake-server.net/v1"
     auth = ("foo", "bar")
 
+    def setUp(self):
+        self.patcher = mock.patch.dict(
+            "os.environ",
+            {
+                "SERVER": self.server,
+                "REFRESH_SIGNATURE_AUTH": "foo:bar",
+                "MAX_SIGNATURE_AGE": "7",
+            },
+        )
+        self.patcher.start()
+        self.addCleanup(unittest.mock.patch.dict, "os.environ", {}, clear=True)
+
     @responses.activate
     def test_skip_recently_signed(self):
         responses.add(
@@ -77,12 +89,7 @@ class TestSignatureRefresh(unittest.TestCase):
 
         mocked.return_value = datetime(2019, 1, 20).replace(tzinfo=timezone.utc)
 
-        refresh_signature(
-            event={
-                "server": self.server,
-            },
-            context=None,
-        )
+        refresh_signature()
 
         patch_requests = [r for r in responses.calls if r.request.method == "PATCH"]
 
@@ -130,13 +137,8 @@ class TestSignatureRefresh(unittest.TestCase):
                 },
             )
 
-        refresh_signature(
-            event={
-                "server": self.server,
-                "max_signature_age": 0,
-            },
-            context=None,
-        )
+        with mock.patch.dict("os.environ", {"MAX_SIGNATURE_AGE": "0"}):
+            refresh_signature()
 
         patch_requests = [r for r in responses.calls if r.request.method == "PATCH"]
 

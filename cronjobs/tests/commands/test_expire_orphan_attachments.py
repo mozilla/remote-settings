@@ -81,7 +81,7 @@ def test_expire_orphan_attachments(mock_fetch_all_changesets, mock_storage_clien
         ),  # already marked
     ]
 
-    expire_orphan_attachments(None, None)
+    expire_orphan_attachments()
 
     assert patched_blobs == {"folder1/orphan1.bin", "folder2/orphan2.png"}
     mock_fetch_all_changesets.assert_called_with(ANY, with_workspace_buckets=True)
@@ -109,4 +109,4 @@ def test_expire_orphan_attachments_dry_run(
         MockBlob("folder1/orphan.bin"),
     ]
 
-    expire_orphan_attachments.expire_orphan_attachments(None, None)
+    expire_orphan_attachments.expire_orphan_attachments()

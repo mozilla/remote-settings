@@ -39,18 +39,15 @@ def get_signed_source(server_info, change):
             }
 
 
-def refresh_signature(event, context, **kwargs):
+def refresh_signature():
     """Refresh the signatures of each collection."""
-    server_url = event["server"]
-    auth = event.get("refresh_signature_auth") or os.getenv("REFRESH_SIGNATURE_AUTH")
-    max_signature_age = int(
-        event.get("max_signature_age", os.getenv("MAX_SIGNATURE_AGE", 7))
-    )
+
+    server = os.environ["SERVER"]
+    auth = os.getenv("REFRESH_SIGNATURE_AUTH")
+    max_signature_age = int(os.getenv("MAX_SIGNATURE_AGE", 7))
 
     # Look at the collections in the changes endpoint.
-    bucket = event.get("bucket", "monitor")
-    collection = event.get("collection", "changes")
-    client = Client(server_url=server_url, bucket=bucket, collection=collection)
+    client = Client(server_url=server, bucket="monitor", collection="changes")
     print("Looking at %s: " % client.get_endpoint("collection"))
     changes = client.get_records()
 
@@ -67,7 +64,7 @@ def refresh_signature(event, context, **kwargs):
             continue
 
         client = Client(
-            server_url=server_url,
+            server_url=server,
             bucket=source["bucket"],
             collection=source["collection"],
             auth=auth,

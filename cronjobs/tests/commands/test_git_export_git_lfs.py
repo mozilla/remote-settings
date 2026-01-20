@@ -17,7 +17,7 @@ from commands.git_export import (
 )
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def no_sleep(monkeypatch):
     monkeypatch.setattr(
         commands._git_export_lfs.time, "sleep", lambda s: None, raising=False
