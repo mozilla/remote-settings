@@ -66,13 +66,15 @@ def rewrite_from_scratch(bucket, blob_name):
     """
     with tempfile.NamedTemporaryFile(dir="/tmp", delete=False) as tmp:
         tmp_path = tmp.name
-    print(f"Rewrite {blob_name} using backup at {tmp_path}", end="")
+    print(f"Rewrite gs://{STORAGE_BUCKET_NAME}/{blob_name} using backup at {tmp_path}", end=" ")
     # Download
     blob = bucket.blob(blob_name)
     blob.download_to_filename(tmp_path)
     print(".", end="")
     # Delete all generations
-    bucket.delete_blobs(bucket.list_blobs(prefix=blob_name, versions=True))
+    versions = bucket.list_blobs(prefix=blob_name, versions=True)
+    print(".", end="")
+    bucket.delete_blobs(list(versions))
     print(".", end="")
     # Re-upload (same object name, new generation)
     new_blob = bucket.blob(blob_name)
@@ -87,6 +89,20 @@ def rewrite_from_scratch(bucket, blob_name):
     print(". Done.")
 
 
+async def list_all_attachments(client, collections):
+    records = await asyncio.gather(
+        *(client.get_records(bucket=bid, collection=cid) for bid, cid in collections)
+    )
+    return set(
+        [
+            r["attachment"]["location"]
+            for records in records
+            for r in records
+            if "attachment" in r
+        ]
+    )
+
+
 async def main():
     client = kinto_http.AsyncClient(server_url=SERVER_URL, auth=AUTH)
 
@@ -98,21 +114,7 @@ async def main():
     all_collections = list(itertools.chain.from_iterable(results))
     print(len(all_collections), "collections to analyze")
 
-    # List all attachments in workspace buckets.
-    all_workspace_records = await asyncio.gather(
-        *(
-            client.get_records(bucket=bid, collection=cid)
-            for bid, cid in all_collections
-        )
-    )
-    all_workspace_attachments = set(
-        [
-            r["attachment"]["location"]
-            for records in all_workspace_records
-            for r in records
-            if "attachment" in r
-        ]
-    )
+    all_workspace_attachments = await list_all_attachments(client, all_collections)
     print(f"Found {len(all_workspace_attachments)} draft attachments in total")
 
     # Now list all attachments in preview buckets.
@@ -128,19 +130,8 @@ async def main():
         for bid, cid in all_collections
         if cid not in without_preview_collection
     ]
-    all_preview_records = await asyncio.gather(
-        *(
-            client.get_records(bucket=bid, collection=cid)
-            for bid, cid in all_preview_collections
-        )
-    )
-    all_preview_attachments = set(
-        [
-            r["attachment"]["location"]
-            for records in all_preview_records
-            for r in records
-            if "attachment" in r
-        ]
+    all_preview_attachments = await list_all_attachments(
+        client, all_preview_collections
     )
 
     # Now list attachments in main buckets.
@@ -149,34 +140,17 @@ async def main():
         "security-state-staging": "security-state",
         "staging": "blocklists",
     }
-    all_main_collections = [
-        (main_buckets[bid], cid)
-        for bid, cid in all_collections
-        if cid not in without_preview_collection
-    ]
-    all_main_records = await asyncio.gather(
-        *(
-            client.get_records(bucket=bid, collection=cid)
-            for bid, cid in all_main_collections
-        )
-    )
-    all_main_attachments = set(
-        [
-            r["attachment"]["location"]
-            for records in all_main_records
-            for r in records
-            if "attachment" in r
-        ]
-    )
+    all_main_collections = [(main_buckets[bid], cid) for bid, cid in all_collections]
+    all_main_attachments = await list_all_attachments(client, all_main_collections)
 
+    # Check which of the only_workspace_attachments are missing from the server.
+    # We only check these since they are not checked by our Telescope attachments checks.
     only_workspace_attachments = (
         all_workspace_attachments - all_preview_attachments - all_main_attachments
     )
     print(
         f"{len(only_workspace_attachments)} attachments are only referenced in workspace buckets"
     )
-
-    # Check which of the only_workspace_attachments are missing from the server.
     server_info = await client.server_info()
     base_url = server_info["capabilities"]["attachments"]["base_url"]
     missing = await check_urls(
@@ -186,7 +160,7 @@ async def main():
     print("\n".join(missing))
 
     # Now check which GCS attachments are marked for deletion. And make sure that we do not
-    # have attachments referenced in preview and main buckets that are marked for deletion.
+    # have attachments referenced in buckets that are marked for deletion.
     print("Checking GCS for deletion marks...")
     storage_client = storage.Client()
     bucket = storage_client.bucket(STORAGE_BUCKET_NAME)
@@ -203,7 +177,7 @@ async def main():
         all_preview_attachments,
         all_main_attachments,
     ):
-        if marked := marked_for_deletion & live_attachments:
+        if marked := (marked_for_deletion & live_attachments):
             to_reset.update(marked)
 
     if to_reset:

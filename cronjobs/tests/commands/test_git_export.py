@@ -84,7 +84,7 @@ def mock_rs_server_content():
             },
             "config": {
                 "modified": "2024-01-01T00:00:00Z",
-            }
+            },
         },
     )
 
