@@ -7,9 +7,9 @@ Context: https://mozilla-hub.atlassian.net/browse/RMST-281
 """
 
 import asyncio
-import datetime
 import itertools
 import os
+import tempfile
 
 import kinto_http
 import requests
@@ -54,6 +54,37 @@ async def check_urls(urls, max_concurrent=10):
     tasks = [fetch(url) for url in urls]
     results = await asyncio.gather(*tasks)
     return [url for url, success in zip(urls, results) if not success]
+
+
+def rewrite_from_scratch(bucket, blob_name):
+    """
+    Since GCS does not let us remove the `custom_time` field which
+    is used in the retention policy rule, we rewrite the object from
+    scratch.
+
+    Note: `custom_time` is not overridable during `rewrite()`.
+    """
+    with tempfile.NamedTemporaryFile(dir="/tmp", delete=False) as tmp:
+        tmp_path = tmp.name
+    print(f"Rewrite {blob_name} using backup at {tmp_path}", end="")
+    # Download
+    blob = bucket.blob(blob_name)
+    blob.download_to_filename(tmp_path)
+    print(".", end="")
+    # Delete all generations
+    bucket.delete_blobs(bucket.list_blobs(prefix=blob_name, versions=True))
+    print(".", end="")
+    # Re-upload (same object name, new generation)
+    new_blob = bucket.blob(blob_name)
+    new_blob.metadata = blob.metadata
+    new_blob.content_type = blob.content_type
+    new_blob.upload_from_filename(tmp_path)
+    print(".", end="")
+    new_blob.reload()
+    assert new_blob.custom_time is None, (
+        f"{blob_name} has custom time as {new_blob.custom_time}"
+    )
+    print(". Done.")
 
 
 async def main():
@@ -166,32 +197,22 @@ async def main():
     print(f"{len(marked_for_deletion)} attachments are marked for deletion in GCS.")
 
     # Now check which of the only_workspace_attachments are marked for deletion.
-    to_postpone_deletion = set()
+    to_reset = set()
     for live_attachments in (
         all_workspace_attachments,
         all_preview_attachments,
         all_main_attachments,
     ):
         if marked := marked_for_deletion & live_attachments:
-            to_postpone_deletion.update(marked)
+            to_reset.update(marked)
 
-    if to_postpone_deletion:
+    if to_reset:
         print(
-            f"⚠️ {len(to_postpone_deletion)} attachments referenced in workspace/preview/main buckets are marked for deletion in GCS."
+            f"⚠️ {len(to_reset)} attachments referenced in workspace/preview/main buckets are marked for deletion in GCS."
         )
-        with storage_client.batch():
-            for blob_name in to_postpone_deletion:
-                blob = bucket.blob(blob_name)
-                blob.reload()
-                # Once set, custom_time cannot be removed. We set it to date in the future.
-                blob.custom_time = datetime.datetime.now(
-                    datetime.timezone.utc
-                ) + datetime.timedelta(days=POSTPONE_DELETION_MARK_DAYS)
-                blob.patch()
-                blob.reload()
-                print(
-                    f"Postponed deletion mark of gs://{STORAGE_BUCKET_NAME}/{blob.name} to {blob.custom_time}"
-                )
+        for blob_name in to_reset:
+            rewrite_from_scratch(bucket, blob_name)
+            print(f"Removed deletion mark of gs://{STORAGE_BUCKET_NAME}/{blob_name}")
     else:
         print(
             "✅ No attachment referenced in workspace/preview/main buckets is marked for deletion in GCS."
