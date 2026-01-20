@@ -239,8 +239,10 @@ class OldSinceRedirectTest(BaseWebTest, unittest.TestCase):
         assert resp.status_code == 307
 
     def test_bad_request_if_rewind(self):
-        resp = self.app.get(self.changes_uri + "?_since=42&_expected=1")
-        assert resp.status_code == 204
+        resp = self.app.get(
+            self.changes_uri + "?_since=42&_expected=1", expect_errors=True
+        )
+        assert resp.status_code == 400
 
     def test_redirects_keep_other_querystring_params(self):
         resp = self.app.get(self.changes_uri + "?_since=42&_foo=%22123456%22")
