@@ -223,7 +223,7 @@ def init_fake_repo(path):
     return repo
 
 
-def create_branch_with_empty_commit(repo, branch_name):
+def create_branch_with_empty_commit(repo, branch_name, set_as_repo_head=False):
     author = pygit2.Signature("Test User", "test@example.com")
     builder = repo.TreeBuilder()
     tree = builder.write()
@@ -237,10 +237,10 @@ def create_branch_with_empty_commit(repo, branch_name):
     )
     commit = repo[commit_id]
 
-    repo.branches.local.create(branch_name, commit)
     refname = f"refs/remotes/origin/{branch_name}"
     repo.references.create(refname, commit.id)
-    repo.set_head(f"refs/heads/{branch_name}")
+    if set_as_repo_head:
+        repo.set_head(branch_name)
 
 
 def simulate_pushed(repo, mock_ls_remotes):
@@ -354,7 +354,7 @@ def test_repo_sync_does_nothing_if_up_to_date(
     mock_github_lfs,
     mock_git_push,
 ):
-    create_branch_with_empty_commit(repo, "v1/common")
+    create_branch_with_empty_commit(repo, "v1/common", set_as_repo_head=True)
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
@@ -382,7 +382,7 @@ def test_repo_sync_can_be_forced_even_if_up_to_date(
     mock_github_lfs,
     mock_git_push,
 ):
-    create_branch_with_empty_commit(repo, "v1/common")
+    create_branch_with_empty_commit(repo, "v1/common", set_as_repo_head=True)
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
@@ -409,13 +409,13 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
     mock_github_lfs,
     mock_git_push,
 ):
-    create_branch_with_empty_commit(repo, "v1/common")
+    create_branch_with_empty_commit(repo, "v1/common", set_as_repo_head=True)
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
     repo.create_tag(
         "v1/timestamps/common/1600000000000",
-        repo.lookup_reference("refs/heads/v1/common").target,
+        repo.head.target,
         pygit2.GIT_OBJECT_COMMIT,
         pygit2.Signature("Test User", "test@example.com"),
         "Test tag at 1600000000000",
@@ -457,13 +457,13 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
     mock_github_lfs,
     mock_git_push,
 ):
-    create_branch_with_empty_commit(repo, "v1/common")
+    create_branch_with_empty_commit(repo, "v1/common", set_as_repo_head=True)
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
     repo.create_tag(
         "v1/timestamps/common/1600000000000",
-        repo.lookup_reference("refs/heads/v1/common").target,
+        repo.head.target,
         pygit2.GIT_OBJECT_COMMIT,
         pygit2.Signature("Test User", "test@example.com"),
         "Test tag at 1600000000000",
@@ -747,7 +747,7 @@ def test_repo_is_resetted_to_local_content_on_error(
     mock_git_push,
     mock_ls_remotes,
 ):
-    create_branch_with_empty_commit(repo, "v1/common")
+    create_branch_with_empty_commit(repo, "v1/common", set_as_repo_head=True)
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
