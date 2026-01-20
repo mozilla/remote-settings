@@ -125,8 +125,8 @@ def build_bundles():
     - builds `{bid}--{cid}.zip` for each of them
     - send the bundles to the Cloud storage bucket
     """
-    SERVER = os.getenv("SERVER")
-    client = KintoClient(server_url=SERVER)
+    server = os.getenv("SERVER")
+    client = KintoClient(server_url=server)
 
     base_url = client.server_info()["capabilities"]["attachments"]["base_url"]
 
