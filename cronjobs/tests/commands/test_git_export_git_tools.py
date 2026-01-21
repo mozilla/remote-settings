@@ -1,11 +1,14 @@
 import time
+from unittest import mock
 
 import pygit2
 import pytest
+from commands import git_export
 from commands._git_export_git_tools import (
     delete_old_tags,
     iter_tree,
     parse_lfs_pointer,
+    reset_repo,
     tree_upsert_blobs,
     truncate_branch,
 )
@@ -33,7 +36,15 @@ def tmp_repo(tmp_path):
         tree_oid,
         [],
     )
+    repo.remotes.create("origin", git_export.GIT_REMOTE_URL)
     return repo
+
+
+@pytest.fixture
+def mock_ls_remotes():
+    with mock.patch("pygit2.Remote.ls_remotes") as mock_ls:
+        mock_ls.return_value = []
+        yield mock_ls
 
 
 def test_valid_lfs_pointer():
@@ -69,6 +80,80 @@ def test_iter_tree_single_file(tmp_repo):
             "ac044e5e4649cd149e3d0cf9d23720d299288a1e",  # pragma: allowlist secret
         ),
     ]
+
+
+def test_reset_repo_creates_local_branches(tmp_repo, mock_ls_remotes):
+    repo = tmp_repo
+    commit = repo.revparse_single("main")
+    # remote branch can be created via reference only.
+    repo.create_reference(
+        "refs/remotes/origin/v1/buckets/main",
+        commit.id,
+        force=True,
+    )
+    assert "v1/buckets/main" not in repo.branches.local
+
+    reset_repo(repo, callbacks=None)
+
+    local_ref = repo.lookup_reference("refs/heads/v1/buckets/main")
+    remote_ref = repo.lookup_reference("refs/remotes/origin/v1/buckets/main")
+    assert local_ref.target == remote_ref.target
+
+
+def test_reset_repo_resets_local_branches_to_remote(tmp_repo, mock_ls_remotes):
+    repo = tmp_repo
+    commit = repo.revparse_single("main")
+    author = committer = pygit2.Signature("Test", "test@example.com")
+    repo.create_commit(
+        "refs/heads/v1/buckets/main",
+        author,
+        committer,
+        "diverging commit",
+        repo.TreeBuilder().write(),
+        [commit.id],
+    )
+    # remote branch can be created via reference only.
+    repo.create_reference(
+        "refs/remotes/origin/v1/buckets/main",
+        commit.id,
+        force=True,
+    )
+    # With this local commit, the branches have diverged.
+    local_ref = repo.lookup_reference("refs/heads/v1/buckets/main")
+    remote_ref = repo.lookup_reference("refs/remotes/origin/v1/buckets/main")
+    assert local_ref.target != remote_ref.target
+
+    reset_repo(repo, callbacks=None)
+
+    # Now they match.
+    local_ref = repo.lookup_reference("refs/heads/v1/buckets/main")
+    remote_ref = repo.lookup_reference("refs/remotes/origin/v1/buckets/main")
+    assert local_ref.target == remote_ref.target
+
+
+def test_reset_repo_deletes_extra_local_branches_and_tags(tmp_repo, mock_ls_remotes):
+    repo = tmp_repo
+    some_target = repo.references["refs/heads/main"].target
+    repo.create_reference("refs/remotes/origin/v1/buckets/main", some_target)
+    repo.create_reference("refs/heads/v1/buckets/main", some_target)
+    assert "v1/buckets/main" in repo.branches.local
+    # Create another ref that wouldn't be repo's head (to allow delete)
+    author = committer = pygit2.Signature("Test", "test@example.com")
+    commit_id = repo.create_commit(
+        "refs/heads/v1/buckets/main",
+        author,
+        committer,
+        "initial commit",
+        repo.TreeBuilder().write(),
+        [some_target],
+    )
+    # Create an extra branch.
+    repo.create_reference("refs/heads/v1/buckets/unknown", commit_id)
+
+    reset_repo(repo, callbacks=None)
+
+    assert "v1/buckets/main" in repo.branches.local
+    assert "v1/buckets/unknown" not in repo.branches.local
 
 
 def test_delete_old_tags(tmp_repo):

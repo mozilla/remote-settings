@@ -35,32 +35,47 @@ def clone_or_fetch(
             print("Head was at", repo.head.target)
         print(f"Fetching from {repo_url}...")
         remote.fetch(callbacks=callbacks, prune=True)
-        reset_repo(repo, callbacks=callbacks)
     else:
         # Clone remote repository into work dir.
         print(f"Clone {repo_url} into {repo_path}...")
         pygit2.clone_repository(repo_url, repo_path, callbacks=callbacks)
         repo = pygit2.Repository(repo_path)
+    reset_repo(repo, callbacks=callbacks)
     return repo
 
 
 def reset_repo(repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks):
     print("Reset local content to remote content...")
-    # Reset all local branches to their remote
-    for branch_name in repo.branches.local:
-        remote_ref_name = f"{REMOTE_NAME}/{branch_name}"
-        if remote_ref_name not in repo.branches:
-            print(f"Delete local branch {branch_name}")
-            repo.branches.delete(branch_name)
-        else:
-            local_branch = repo.branches[branch_name]
-            remote_branch = repo.branches[remote_ref_name]
-            if local_branch.target != remote_branch.target:
-                # Reset local branch to remote target
+    # If the repo is freshly cloned, the remotes branches do not exist locally. Create them.
+    # If the repo was cloned from previous run, reset the local branches to the remote targets.
+    # Remote always wins.
+
+    for branch_name in repo.branches.remote:
+        branch = repo.branches.remote[branch_name]
+        assert branch.remote_name == REMOTE_NAME
+        remote_target = branch.target
+        local_branch_name = branch_name.removeprefix(f"{REMOTE_NAME}/")
+        local_refname = f"refs/heads/{local_branch_name}"
+        if local_refname in repo.references:
+            local_ref = repo.lookup_reference(local_refname)
+            if local_ref.target != remote_target:
                 print(
-                    f"Resetting local branch {branch_name} to remote {remote_ref_name}"
+                    f"Resetting local branch {local_branch_name} to remote {branch_name}"
                 )
-                local_branch.set_target(remote_branch.target)
+                local_ref.set_target(
+                    remote_target,
+                    f"reset to {REMOTE_NAME}/{branch_name}",
+                )
+        else:
+            repo.create_reference(local_refname, remote_target)
+
+    # Delete local branches that are not on remote
+    for branch_name in repo.branches.local:
+        remote_branch_name = f"{REMOTE_NAME}/{branch_name}"
+        if remote_branch_name not in repo.branches.remote:
+            ref = repo.lookup_reference(f"refs/heads/{branch_name}")
+            print(f"Delete local branch {branch_name}")
+            ref.delete()
 
     # Delete local tags that are not on remote
     origin = repo.remotes[REMOTE_NAME]
