@@ -66,7 +66,10 @@ def rewrite_from_scratch(bucket, blob_name):
     """
     with tempfile.NamedTemporaryFile(dir="/tmp", delete=False) as tmp:
         tmp_path = tmp.name
-    print(f"Rewrite gs://{STORAGE_BUCKET_NAME}/{blob_name} using backup at {tmp_path}", end=" ")
+    print(
+        f"Rewrite gs://{STORAGE_BUCKET_NAME}/{blob_name} using backup at {tmp_path}",
+        end=" ",
+    )
     # Download
     blob = bucket.blob(blob_name)
     blob.download_to_filename(tmp_path)
