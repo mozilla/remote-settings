@@ -521,7 +521,8 @@ def changeset_to_branch_folder(
         branch_content.append((f"{cid}/{record['id']}.json", json_dumpb(record)))
 
     # Delete any records that were removed in this changeset.
-    if branch_tree is not None:
+    # (branch_tree is None on first run, and `cid` folder may not exist yet)
+    if branch_tree is not None and cid in branch_tree:
         for entry in branch_tree[cid]:
             basename = entry.name.rsplit(".json", 1)[0]
             if basename != "metadata" and basename not in {r["id"] for r in records}:
