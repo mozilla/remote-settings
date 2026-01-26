@@ -205,10 +205,16 @@ def mock_rs_server_content():
     )
 
 
-def read_file(repo, branch, filepath):
-    ref = f"refs/heads/{branch}"
-    branch_ref = repo.lookup_reference(ref)
-    commit = repo[branch_ref.target]
+def read_file(repo, ref_or_branch_name, filepath):
+    if not ref_or_branch_name.startswith("refs/"):
+        ref_name = f"refs/heads/{ref_or_branch_name}"
+    else:
+        ref_name = ref_or_branch_name
+    ref = repo.lookup_reference(ref_name)
+    commit = repo[ref.target]
+    # If it's a tag, peel to commit
+    if commit.type == pygit2.GIT_OBJECT_TAG:
+        commit = commit.peel(pygit2.GIT_OBJECT_COMMIT)
     node = commit.tree
     for part in filepath.split("/"):
         entry = node[part]
@@ -586,6 +592,65 @@ def test_repo_sync_stores_collections_records_in_buckets_branches_with_tags(
 
     rid2 = read_file(repo, "v1/buckets/bid2", "cid2/rid2-1.json")
     assert '"attachment":{' in rid2.decode()
+
+
+@responses.activate
+def test_repo_sync_deletes_records_from_past_runs(
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
+):
+    git_export.git_export()
+    simulate_pushed(repo, mock_ls_remotes)
+
+    # File exists before next run (not raising).
+    read_file(
+        repo, "refs/tags/v1/timestamps/bid2/cid2/1600000000000", "cid2/rid2-1.json"
+    )
+
+    # Now simulate that cid2 deleted its record.
+    responses.replace(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/monitor/collections/changes/changeset",
+        json={
+            "timestamp": 1800000000000,
+            "changes": [
+                {
+                    "last_modified": 1800000000000,
+                    "bucket": "bid2",
+                    "collection": "cid2",
+                }
+            ],
+        },
+    )
+    responses.add(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/bid2/collections/cid2/changeset",
+        json={
+            "timestamp": 1800000000000,
+            "metadata": {
+                "bucket": "bid2",
+                "id": "cid2",
+                "signature": {
+                    "x5u": "https://autograph.example.com/keys/123",
+                },
+                "last_modified": 1888888888000,
+            },
+            # Record was deleted (we don't use `_since`, so no tombstone)
+            "changes": [],
+        },
+    )
+
+    git_export.git_export()
+
+    # File not there anymore.
+    with pytest.raises(KeyError):
+        read_file(
+            repo, "refs/tags/v1/timestamps/bid2/cid2/1800000000000", "cid2/rid2-1.json"
+        )
 
 
 @responses.activate

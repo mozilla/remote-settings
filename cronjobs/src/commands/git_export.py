@@ -506,7 +506,9 @@ def process_attachments(
     return changed_attachments, common_content
 
 
-def changeset_to_branch_folder(changeset: dict[str, Any]) -> list[tuple[str, bytes]]:
+def changeset_to_branch_folder(
+    branch_tree: pygit2.Tree | None, changeset: dict[str, Any]
+) -> list[tuple[str, bytes]]:
     """
     Convert a changeset to a list of files to be stored in the corresponding branch folder.
     """
@@ -516,6 +518,14 @@ def changeset_to_branch_folder(changeset: dict[str, Any]) -> list[tuple[str, byt
     records = sorted(changeset["changes"], key=lambda r: r["id"])
     for record in records:
         branch_content.append((f"{cid}/{record['id']}.json", json_dumpb(record)))
+
+    # Delete any records that were removed in this changeset.
+    if branch_tree is not None:
+        for entry in branch_tree[cid]:
+            basename = entry.name.rsplit(".json", 1)[0]
+            if basename != "metadata" and basename not in {r["id"] for r in records}:
+                branch_content.append((f"{cid}/{entry.name}", None))
+
     return branch_content
 
 
@@ -536,7 +546,9 @@ def initialize_bucket_branches(
     for bid, bucket_changesets in changesets_by_bucket.items():
         branch_content: list[tuple[str, bytes]] = []
         for changeset in bucket_changesets:
-            branch_content += changeset_to_branch_folder(changeset)
+            branch_content += changeset_to_branch_folder(
+                branch_tree=None, changeset=changeset
+            )
 
         # Bucket branch does not exist yet, create it as an empty branch.
         empty_tree_id = repo.TreeBuilder().write()
@@ -605,7 +617,7 @@ def update_bucket_branches(
             dtcollection = ts2dt(timestamp).isoformat()
             commit_message = f"{bid}/{cid}@{timestamp} ({dtcollection})"
 
-            branch_content = changeset_to_branch_folder(changeset)
+            branch_content = changeset_to_branch_folder(branch_tree, changeset)
             files_tree_id = tree_upsert_blobs(
                 repo, branch_content, base_tree=branch_tree
             )
