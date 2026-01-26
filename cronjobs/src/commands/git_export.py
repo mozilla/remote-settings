@@ -132,7 +132,8 @@ def git_export():
     if not repo.raw_listall_references():
         print("No branches or tags found in the repository.")
     else:
-        print("Head is now at", repo.head.target)
+        if not repo.head_is_unborn:
+            print("Head is now at", repo.head.target)
 
     try:
         changed_attachments, changed_branches, created_tags = asyncio.run(
