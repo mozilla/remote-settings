@@ -32,7 +32,8 @@ def clone_or_fetch(
         if not repo.raw_listall_references():
             print("No branches or tags found in the repository.")
         else:
-            print("Head was at", repo.head.target)
+            if not repo.head_is_unborn:
+                print("Head was at", repo.head.target)
         print(f"Fetching from {repo_url}...")
         remote.fetch(callbacks=callbacks, prune=True)
     else:
