@@ -85,7 +85,7 @@ METRICS = {
 mimetypes.init(files=[HERE / "mimetypes.txt"])
 
 # Basic logging configuration. Everything to stdout.
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("git-reader")
 logging.config.dictConfig(
     {
         "version": 1,
@@ -103,6 +103,14 @@ logging.config.dictConfig(
         },
         "loggers": {
             "request.summary": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+            },
+            "uvicorn": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+            },
+            "git-reader": {
                 "handlers": ["console"],
                 "level": "DEBUG",
             },
@@ -127,7 +135,7 @@ class Settings(BaseSettings):
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     settings = Settings()
-    logger.info("Using settings:", settings)
+    logger.info("Using settings: %s", settings)
     return settings
 
 
@@ -138,7 +146,7 @@ def get_repo(settings: Settings = Depends(get_settings)) -> pygit2.Repository:
     if not os.path.exists(settings.git_repo_path):
         raise RuntimeError(f"GIT_REPO_PATH does not exist: {settings.git_repo_path}")
     try:
-        logger.info("Opening git repo at:", settings.git_repo_path)
+        logger.info("Opening git repo at: %s", settings.git_repo_path)
         repo = pygit2.Repository(settings.git_repo_path)
     except Exception as e:
         raise RuntimeError(
@@ -636,7 +644,10 @@ def collection_changeset(
         raise HTTPException(status_code=404, detail=f"{bid}/{cid} not found")
     except UnknownTimestamp:
         logger.info(
-            f"Unknown _since timestamp: {_since} for {bid}/{cid}, falling back to full changeset"
+            "Unknown _since timestamp: %s for %s/%s, falling back to full changeset",
+            _since,
+            bid,
+            cid,
         )
         without_since = request.url.remove_query_params("_since")
         return RedirectResponse(without_since, status_code=307)
