@@ -282,3 +282,15 @@ In order to test using a real application context instead of an arbitrary object
     );
 
     await FilterExpressions.eval("env.locale == 'fr-FR'", {env: ClientEnvironmentBase})
+
+
+How to change my collection JSON schema?
+''''''''''''''''''''''''''''''''''''''''
+
+Collections definition are managed via YAML files in the `remote-settings-permissions <https://github.com/mozilla/remote-settings-permissions>`_ Github repository.
+
+.. note::
+
+    Only members of the `mozilla/all-wg` workgroup have read access to this repository. If you are part of the `mozilla` Github organization, you can request your membership via the https://github.com/orgs/mozilla/teams/remote-settings-collections-owners/members team.
+
+    If you are stuck, please request your schema change via Bugzilla (`example <https://bugzilla.mozilla.org/show_bug.cgi?id=2012607>`_.)
