@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import io
 import json
+import logging
+import logging.config
 import mimetypes
 import os
 import pathlib
@@ -17,6 +19,10 @@ import prometheus_client
 import pygit2
 from dockerflow import checks
 from dockerflow.fastapi import router as dockerflow_router
+from dockerflow.fastapi.middleware import (
+    MozlogRequestSummaryLogger,
+    RequestIdMiddleware,
+)
 from fastapi import Depends, FastAPI, Query, Request, Response
 from fastapi.exceptions import HTTPException
 from fastapi.responses import (
@@ -78,6 +84,40 @@ METRICS = {
 # Augment the default mimetypes with our own.
 mimetypes.init(files=[HERE / "mimetypes.txt"])
 
+# Basic logging configuration. Everything to stdout.
+logger = logging.getLogger("git-reader")
+logging.config.dictConfig(
+    {
+        "version": 1,
+        "filters": {
+            "request_id": {
+                "()": "dockerflow.logging.RequestIdLogFilter",
+            },
+        },
+        "handlers": {
+            "console": {
+                "level": "DEBUG",
+                "class": "dockerflow.logging.MozlogHandler",
+                "filters": ["request_id"],
+            },
+        },
+        "loggers": {
+            "request.summary": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+            },
+            "uvicorn": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+            },
+            "git-reader": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+            },
+        },
+    }
+)
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", frozen=True)
@@ -95,7 +135,7 @@ class Settings(BaseSettings):
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     settings = Settings()
-    print("Using settings:", settings)
+    logger.info("Using settings: %s", settings)
     return settings
 
 
@@ -106,7 +146,7 @@ def get_repo(settings: Settings = Depends(get_settings)) -> pygit2.Repository:
     if not os.path.exists(settings.git_repo_path):
         raise RuntimeError(f"GIT_REPO_PATH does not exist: {settings.git_repo_path}")
     try:
-        print("Opening git repo at:", settings.git_repo_path)
+        logger.info("Opening git repo at: %s", settings.git_repo_path)
         repo = pygit2.Repository(settings.git_repo_path)
     except Exception as e:
         raise RuntimeError(
@@ -455,6 +495,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Remote Settings Over Git", lifespan=lifespan, version=VERSION)
 app.include_router(dockerflow_router, prefix=f"/{API_PREFIX[:-1]}", tags=["dockerflow"])
 app.mount(f"/{API_PREFIX}__metrics__", prometheus_client.make_asgi_app())
+app.add_middleware(MozlogRequestSummaryLogger)
+app.add_middleware(RequestIdMiddleware)
 
 
 @app.middleware("http")
@@ -491,7 +533,7 @@ def git_repo_health() -> list[checks.Check]:
     except LFSPointerFoundError as exc:
         result.append(checks.Error(str(exc), id="git.health.0002"))
     except Exception as exc:
-        print(exc)
+        logger.exception(exc)
         result.append(checks.Error(str(exc), id="git.health.0003"))
     return result
 
@@ -601,8 +643,11 @@ def collection_changeset(
     except CollectionNotFound:
         raise HTTPException(status_code=404, detail=f"{bid}/{cid} not found")
     except UnknownTimestamp:
-        print(
-            f"Unknown _since timestamp: {_since} for {bid}/{cid}, falling back to full changeset"
+        logger.info(
+            "Unknown _since timestamp: %s for %s/%s, falling back to full changeset",
+            _since,
+            bid,
+            cid,
         )
         without_since = request.url.remove_query_params("_since")
         return RedirectResponse(without_since, status_code=307)
@@ -691,7 +736,7 @@ def attachments(
         cached = request.state.cache.get("_cached_startup_bundle")
         current_commit: str = git.get_head_info()["id"]
         if cached != current_commit:
-            print("Rewriting x5u URL inside startup bundle")
+            logger.info("Rewriting x5u URL inside startup bundle")
             # Read from disk
             content = open(requested_path, "rb").read()
             startup_changesets = read_json_mozlz4(content)
