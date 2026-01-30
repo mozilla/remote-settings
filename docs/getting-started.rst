@@ -125,6 +125,10 @@ Consider the following summary table:
 Collection manifests
 --------------------
 
-Both STAGE and PROD collections attributes and permissions are managed via YAML files in the `remote-settings-permissions <https://github.com/mozilla-services/remote-settings-permissions>`_ Github repository.
+Both STAGE and PROD collections attributes and permissions are managed via YAML files in the `remote-settings-permissions <https://github.com/mozilla/remote-settings-permissions>`_ Github repository.
 
 If you want to accelerate the process of getting your collection deployed or adjust its schema, in DEV, STAGE or PROD, you can open a pull-request with the collection, and the definition of ``{collection}-editors`` and ``{collection}-reviewers`` groups. Check out the existing ones that were merged.
+
+.. note::
+
+    Only members of the `mozilla/all-wg` workgroup have read access to this repository. If you are part of the `mozilla` Github organization, you can request your membership via the https://github.com/orgs/mozilla/teams/remote-settings-collections-owners/members team.
