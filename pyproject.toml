@@ -100,7 +100,7 @@ git-reader = {path = "./git-reader", develop = true}
 [tool.poetry.group.dev.dependencies]
 pytest = "9.0.2"
 webtest = "3.0.7"
-coverage = "7.13.1"
+coverage = "7.13.2"
 detect-secrets = "^1.5.0"
 ruff = "^0.14.14"
 responses = "^0.25.8"
