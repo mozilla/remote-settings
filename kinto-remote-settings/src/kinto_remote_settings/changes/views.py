@@ -502,9 +502,6 @@ def broadcasts_view(request):
 
     # Current highest timestamp in the monitored collections:
     rs_timestamp = max(ts for _, _, ts in monitored_timestamps(request))
-    rs_age_seconds = (
-        utcnow() - datetime.fromtimestamp(rs_timestamp / 1000, timezone.utc)
-    ).total_seconds()
 
     # Last published timestamp (from cache).
     cache_key = f"{BROADCASTER_ID}/{CHANNEL_ID}/timestamp"
@@ -524,7 +521,8 @@ def broadcasts_view(request):
             utcnow() - datetime.fromtimestamp(last_timestamp / 1000, timezone.utc)
         ).total_seconds()
 
-        diff = min_debounce_interval - rs_age_seconds
+        # Have we published a change recently?
+        diff = min_debounce_interval - last_timestamp_age_seconds
         if diff > 0:
             log_msg = f"A change was published recently (<{min_debounce_interval}). "
             if last_timestamp_age_seconds < max_debounce_interval:
@@ -536,6 +534,7 @@ def broadcasts_view(request):
                 # Publish a new timestamp.
                 debounced_timestamp = rs_timestamp
         else:
+            # No, we haven't, publish a new timestamp!
             log_msg = f"Last timestamp is {last_timestamp_age_seconds} seconds old (>{min_debounce_interval}). Publish!"
             debounced_timestamp = rs_timestamp
 
@@ -544,7 +543,6 @@ def broadcasts_view(request):
             extra={
                 "min_debounce_interval": min_debounce_interval,
                 "max_debounce_interval": max_debounce_interval,
-                "rs_age_seconds": rs_age_seconds,
                 "last_timestamp_age_seconds": last_timestamp_age_seconds,
                 "wait_seconds": max(0, diff),
             },

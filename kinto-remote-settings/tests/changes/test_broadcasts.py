@@ -41,7 +41,7 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
         assert self.get_broadcasted_version() == '"42"'
         assert self.get_broadcasted_version() == '"42"'
 
-    def test_return_current_version_if_last_is_older_than_debounce_seconds(self):
+    def test_return_current_version_if_last_publish_is_older_than_max_debounce(self):
         # Last timestamp is too old (> max debounce), new one should be published
         old_timestamp = int(
             (FAKE_NOW - datetime.timedelta(minutes=25)).timestamp() * 1000
@@ -58,16 +58,16 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
 
         assert self.get_broadcasted_version() == f'"{new_timestamp}"'
 
-    def test_return_last_version_if_newer_than_debounce_seconds_and_last_is_recent(
+    def test_return_last_version_if_last_publish_is_younger_than_max_debounce(
         self,
     ):
         # New timestamp is too fresh (< debounce), and last timestamp is still valid
         latest_timestamp = int(
-            (FAKE_NOW - datetime.timedelta(minutes=3)).timestamp() * 1000
+            (FAKE_NOW - datetime.timedelta(minutes=42)).timestamp() * 1000
         )
         self.monitored_timestamps.return_value = [("main", "cid", latest_timestamp)]
         last_published = int(
-            (FAKE_NOW - datetime.timedelta(minutes=19)).timestamp() * 1000
+            (FAKE_NOW - datetime.timedelta(minutes=3)).timestamp() * 1000
         )
         self.app.app.registry.cache.set(
             "remote-settings/monitor_changes/timestamp",
@@ -77,7 +77,7 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
 
         assert self.get_broadcasted_version() == f'"{last_published}"'
 
-    def test_return_current_version_if_newer_than_debounce_seconds_but_last_is_old(
+    def test_return_current_version_if_last_publish_exceeds_max_debounce(
         self,
     ):
         old_timestamp = int(
