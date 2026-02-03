@@ -63,11 +63,11 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
     ):
         # New timestamp is too fresh (< debounce), and last timestamp is still valid
         latest_timestamp = int(
-            (FAKE_NOW - datetime.timedelta(minutes=3)).timestamp() * 1000
+            (FAKE_NOW - datetime.timedelta(minutes=42)).timestamp() * 1000
         )
         self.monitored_timestamps.return_value = [("main", "cid", latest_timestamp)]
         last_published = int(
-            (FAKE_NOW - datetime.timedelta(minutes=19)).timestamp() * 1000
+            (FAKE_NOW - datetime.timedelta(minutes=3)).timestamp() * 1000
         )
         self.app.app.registry.cache.set(
             "remote-settings/monitor_changes/timestamp",
