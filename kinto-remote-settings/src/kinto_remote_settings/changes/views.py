@@ -257,6 +257,32 @@ def _handle_old_since_redirect(request):
     raise response
 
 
+def _handle_quoted_expected_redirect(request):
+    """
+    Redirect requests with quoted _expected values to unquoted ones,
+    to maximize caching.
+    """
+    settings = request.registry.settings
+    qs_expected = request.GET.get("_expected")
+    if qs_expected and (unquoted := qs_expected.replace('"', "")) != qs_expected:
+        # Only redirect if unquoting changes the value
+        queryparams = request.GET.copy()
+        queryparams["_expected"] = unquoted
+        http_scheme = settings.get("http_scheme") or "https"
+        http_host = settings.get(
+            "changes.http_host", request.registry.settings.get("http_host")
+        )
+        host_uri = f"{http_scheme}://{http_host}"
+        redirect = (
+            host_uri
+            + request.matched_route.generate(request.matchdict)
+            + "?"
+            + urlencode(queryparams)
+        )
+        response = httpexceptions.HTTPTemporaryRedirect(redirect)
+        raise response
+
+
 @implementer(IAuthorizationPolicy)
 class ChangeSetRoute(RouteFactory):
     """The changeset endpoint should have the same permissions as the collection
@@ -337,6 +363,8 @@ def get_changeset(request):
         include_deleted = True
 
     if (bid, cid) == (MONITOR_BUCKET, CHANGES_COLLECTION):
+        # Redirect quoted _expected values, to simplify caching.
+        _handle_quoted_expected_redirect(request)
         # Reject requests with stale expected value
         _handle_stale_expected(request)
         # Redirect old since, on monitor/changes only.

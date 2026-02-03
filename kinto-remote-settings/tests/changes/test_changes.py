@@ -260,3 +260,22 @@ class OldSinceRedirectTest(BaseWebTest, unittest.TestCase):
         assert "Expires" in response.headers
         assert "Cache-Control" in response.headers
         assert response.headers["Cache-Control"] == "max-age=86400"
+
+
+class UnquoteExpectedRedirectTest(BaseWebTest, unittest.TestCase):
+    changes_uri = "/buckets/monitor/collections/changes/changeset"
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["kinto.changes.http_host"] = "cdn-host"
+        return settings
+
+    def test_redirects_and_drops_quotes(self):
+        for value in ("%2242%22", "42%22", "%2242"):
+            resp = self.app.get(self.changes_uri + f"?_expected={value}")
+            assert resp.status_code == 307
+            assert (
+                resp.headers["Location"]
+                == "https://cdn-host/v1/buckets/monitor/collections/changes/changeset?_expected=42"
+            )
