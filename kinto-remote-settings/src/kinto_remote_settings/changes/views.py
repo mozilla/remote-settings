@@ -555,7 +555,7 @@ def broadcasts_view(request):
         if last_timestamp_age_seconds > max_debounce_interval:
             # Max debounce interval exceeded, check database if a new change is available.
             current_rs_timestamp = get_rs_timestamp()
-            if current_rs_timestamp != last_published_timestamp:
+            if current_rs_timestamp > last_published_timestamp:
                 log_msg = "Max debounce interval exceeded and a new change is available. Publish!"
                 debounced_timestamp = current_rs_timestamp
             else:
@@ -564,7 +564,7 @@ def broadcasts_view(request):
             if last_timestamp_age_seconds > min_debounce_interval:
                 # Let's see if a new change is available.
                 current_rs_timestamp = get_rs_timestamp()
-                if current_rs_timestamp != last_published_timestamp:
+                if current_rs_timestamp > last_published_timestamp:
                     log_msg = "A new change is available. Publish!"
                     debounced_timestamp = current_rs_timestamp
                 else:

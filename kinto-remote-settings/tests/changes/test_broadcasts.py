@@ -7,6 +7,7 @@ from . import BaseWebTest
 
 FAKE_NOW = datetime.datetime(2023, 10, 1, 12, 0, 0, tzinfo=datetime.timezone.utc)
 DAY_IN_SECONDS = 24 * 60 * 60
+FAKE_TIMESTAMP = int(FAKE_NOW.timestamp() * 1000)
 
 
 class BroadcastsTest(BaseWebTest, unittest.TestCase):
@@ -30,56 +31,32 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
         return response.json["broadcasts"]["remote-settings/monitor_changes"]
 
     def test_first_call_returns_current_version(self):
-        self.monitored_timestamps.return_value = [("main", "cid", 42)]
+        self.monitored_timestamps.return_value = [("main", "cid", FAKE_TIMESTAMP)]
         self.app.app.registry.cache.flush()
 
-        assert self.get_broadcasted_version() == '"42"'
+        assert self.get_broadcasted_version() == f'"{FAKE_TIMESTAMP}"'
 
     def test_returns_current_value_if_up_to_date(self):
-        self.monitored_timestamps.return_value = [("main", "cid", 42)]
+        self.monitored_timestamps.return_value = [("main", "cid", FAKE_TIMESTAMP)]
 
-        assert self.get_broadcasted_version() == '"42"'
-        assert self.get_broadcasted_version() == '"42"'
+        assert self.get_broadcasted_version() == f'"{FAKE_TIMESTAMP}"'
+        assert self.get_broadcasted_version() == f'"{FAKE_TIMESTAMP}"'
 
-    def test_return_current_version_if_last_publish_is_older_than_max_debounce(self):
-        # Last timestamp is too old (> max debounce), new one should be published
+    def test_database_is_not_hit_when_last_published_is_younger_than_min_debounce(self):
         old_timestamp = int(
-            (FAKE_NOW - datetime.timedelta(minutes=25)).timestamp() * 1000
+            (FAKE_NOW - datetime.timedelta(minutes=3)).timestamp() * 1000
         )
         self.app.app.registry.cache.set(
             "remote-settings/monitor_changes/timestamp",
             old_timestamp,
             ttl=DAY_IN_SECONDS,
         )
-        new_timestamp = int(
-            (FAKE_NOW - datetime.timedelta(minutes=3)).timestamp() * 1000
-        )
-        self.monitored_timestamps.return_value = [("main", "cid", new_timestamp)]
 
-        assert self.get_broadcasted_version() == f'"{new_timestamp}"'
+        assert self.get_broadcasted_version() == f'"{old_timestamp}"'
+        self.monitored_timestamps.assert_not_called()
 
-    def test_return_last_version_if_last_publish_is_younger_than_max_debounce(
-        self,
-    ):
-        # New timestamp is too fresh (< debounce), and last timestamp is still valid
-        latest_timestamp = int(
-            (FAKE_NOW - datetime.timedelta(minutes=42)).timestamp() * 1000
-        )
-        self.monitored_timestamps.return_value = [("main", "cid", latest_timestamp)]
-        last_published = int(
-            (FAKE_NOW - datetime.timedelta(minutes=3)).timestamp() * 1000
-        )
-        self.app.app.registry.cache.set(
-            "remote-settings/monitor_changes/timestamp",
-            last_published,
-            ttl=DAY_IN_SECONDS,
-        )
-
-        assert self.get_broadcasted_version() == f'"{last_published}"'
-
-    def test_return_current_version_if_last_publish_exceeds_max_debounce(
-        self,
-    ):
+    def test_return_current_version_if_last_publish_is_older_than_max_debounce(self):
+        # Last timestamp is too old (> max debounce), new one should be published
         old_timestamp = int(
             (FAKE_NOW - datetime.timedelta(minutes=21)).timestamp() * 1000
         )
@@ -88,9 +65,51 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
             old_timestamp,
             ttl=DAY_IN_SECONDS,
         )
-        recent_timestamp = int(
-            (FAKE_NOW - datetime.timedelta(minutes=3)).timestamp() * 1000
-        )
-        self.monitored_timestamps.return_value = [("main", "cid", recent_timestamp)]
+        self.monitored_timestamps.return_value = [("main", "cid", FAKE_TIMESTAMP)]
 
-        assert self.get_broadcasted_version() == f'"{recent_timestamp}"'
+        assert self.get_broadcasted_version() == f'"{FAKE_TIMESTAMP}"'
+
+    def test_return_current_version_if_last_publish_is_equal_to_current_even_if_old(
+        self,
+    ):
+        latest_timestamp = int(
+            (FAKE_NOW - datetime.timedelta(minutes=21)).timestamp() * 1000
+        )
+        self.app.app.registry.cache.set(
+            "remote-settings/monitor_changes/timestamp",
+            latest_timestamp,
+            ttl=DAY_IN_SECONDS,
+        )
+        self.monitored_timestamps.return_value = [("main", "cid", latest_timestamp)]
+
+        assert self.get_broadcasted_version() == f'"{latest_timestamp}"'
+
+    def test_return_current_version_if_last_publish_is_equal_to_current_even_if_recent(
+        self,
+    ):
+        latest_timestamp = int(
+            (FAKE_NOW - datetime.timedelta(minutes=6)).timestamp() * 1000
+        )
+        self.app.app.registry.cache.set(
+            "remote-settings/monitor_changes/timestamp",
+            latest_timestamp,
+            ttl=DAY_IN_SECONDS,
+        )
+        self.monitored_timestamps.return_value = [("main", "cid", latest_timestamp)]
+
+        assert self.get_broadcasted_version() == f'"{latest_timestamp}"'
+
+    def test_return_current_version_if_last_publish_is_older_than_min_debounce_but_younger_than_max_debounce(
+        self,
+    ):
+        latest_timestamp = int(
+            (FAKE_NOW - datetime.timedelta(minutes=6)).timestamp() * 1000
+        )
+        self.app.app.registry.cache.set(
+            "remote-settings/monitor_changes/timestamp",
+            latest_timestamp,
+            ttl=DAY_IN_SECONDS,
+        )
+        self.monitored_timestamps.return_value = [("main", "cid", FAKE_TIMESTAMP)]
+
+        assert self.get_broadcasted_version() == f'"{FAKE_TIMESTAMP}"'
