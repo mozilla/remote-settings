@@ -528,43 +528,51 @@ def broadcasts_view(request):
         )  # 20 min by default.
     )
 
-    # Current highest timestamp in the monitored collections:
-    rs_timestamp = max(ts for _, _, ts in monitored_timestamps(request))
+    def get_rs_timestamp():
+        return max(ts for _, _, ts in monitored_timestamps(request))
 
-    # Last published timestamp (from cache).
+    # First, get the current value from cache.
     cache_key = f"{BROADCASTER_ID}/{CHANNEL_ID}/timestamp"
-    last_timestamp = request.registry.cache.get(cache_key)
-    if last_timestamp is None:
+    last_published_timestamp = request.registry.cache.get(cache_key)
+    debounced_timestamp = last_published_timestamp
+
+    if last_published_timestamp is None:
         # If no timestamp was published ever, we use the current timestamp.
-        debounced_timestamp = rs_timestamp
+        debounced_timestamp = get_rs_timestamp()
         logger.info(
             "No previous timestamp found in cache. Publishing current timestamp."
         )
     else:
+        # If the last published timestamp is recent, we don't publish a new one yet.
+        last_timestamp_age_seconds = (
+            utcnow()
+            - datetime.fromtimestamp(last_published_timestamp / 1000, timezone.utc)
+        ).total_seconds()
+
         # Avoid publishing too many Push notifications in a short time:
         # - if changes are published too close together (eg. < 5min), then we don't update the exposed timestamp
         # - but if changes are published continuously for too long (eg. > 20min), then we update the exposed timestamp
-
-        last_timestamp_age_seconds = (
-            utcnow() - datetime.fromtimestamp(last_timestamp / 1000, timezone.utc)
-        ).total_seconds()
-
-        # Have we published a change recently?
-        diff = min_debounce_interval - last_timestamp_age_seconds
-        if diff > 0:
-            log_msg = f"A change was published recently (<{min_debounce_interval}). "
-            if last_timestamp_age_seconds < max_debounce_interval:
-                log_msg += f"Last timestamp is {last_timestamp_age_seconds} seconds old (<{max_debounce_interval}). Can wait {diff} more seconds."
-                # Do not publish a new timestamp yet.
-                debounced_timestamp = last_timestamp
+        if last_timestamp_age_seconds > max_debounce_interval:
+            # Max debounce interval exceeded, check database if a new change is available.
+            current_rs_timestamp = get_rs_timestamp()
+            if current_rs_timestamp != last_published_timestamp:
+                log_msg = "Max debounce interval exceeded and a new change is available. Publish!"
+                debounced_timestamp = current_rs_timestamp
             else:
-                log_msg += f"Last timestamp is {last_timestamp_age_seconds} seconds old (>{max_debounce_interval}). Publish!"
-                # Publish a new timestamp.
-                debounced_timestamp = rs_timestamp
+                log_msg = "Nothing to do. No new change since last published timestamp."
         else:
-            # No, we haven't, publish a new timestamp!
-            log_msg = f"Last timestamp is {last_timestamp_age_seconds} seconds old (>{min_debounce_interval}). Publish!"
-            debounced_timestamp = rs_timestamp
+            if last_timestamp_age_seconds > min_debounce_interval:
+                # Let's see if a new change is available.
+                current_rs_timestamp = get_rs_timestamp()
+                if current_rs_timestamp != last_published_timestamp:
+                    log_msg = "A new change is available. Publish!"
+                    debounced_timestamp = current_rs_timestamp
+                else:
+                    log_msg = (
+                        "Nothing to do. No new change since last published timestamp."
+                    )
+            else:
+                log_msg = f"Nothing to do. A change was published very recently ({last_timestamp_age_seconds}<{min_debounce_interval})."
 
         logger.info(
             log_msg,
@@ -572,12 +580,11 @@ def broadcasts_view(request):
                 "min_debounce_interval": min_debounce_interval,
                 "max_debounce_interval": max_debounce_interval,
                 "last_timestamp_age_seconds": last_timestamp_age_seconds,
-                "wait_seconds": max(0, diff),
             },
         )
 
     # Store the published timestamp in the cache for next calls (skip write if unchanged).
-    if debounced_timestamp != last_timestamp:
+    if debounced_timestamp != last_published_timestamp:
         request.registry.cache.set(cache_key, debounced_timestamp, ttl=DAY_IN_SECONDS)
     # Expose it for the Push service to pull.
     return {
