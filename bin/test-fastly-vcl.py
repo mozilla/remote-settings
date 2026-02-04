@@ -100,8 +100,8 @@ OLD_EPOCH_MS = NOW_EPOCH_MS - 30 * 86400 * 1000  # 30 days ago
         ("/v2/buckets/main/collections/regions/records", 404),
         (
             "/v2/buckets/main/collections/regions/changeset",
-            200,
-        ),  # TODO: should be 4XX missing expected
+            400,
+        ),
         ("/v2/buckets/main/collections/regions/changeset?_expected=0", 200),
         (
             f'/v2/buckets/main/collections/regions/changeset?_expected="{NOW_EPOCH_MS}"',
