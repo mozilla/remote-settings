@@ -522,11 +522,6 @@ def broadcasts_view(request):
             "push_broadcast_min_debounce_interval_seconds", "300"
         )  # 5 min by default.
     )
-    max_debounce_interval = int(
-        settings.get(
-            "push_broadcast_max_debounce_interval_seconds", "1200"
-        )  # 20 min by default.
-    )
 
     def get_rs_timestamp():
         # We want to filter out preview entries, because we don't want to notify all clients
@@ -558,43 +553,32 @@ def broadcasts_view(request):
         ).total_seconds()
 
         # Avoid publishing too many Push notifications in a short time:
-        # - if changes are published too close together (eg. < 5min), then we don't update the exposed timestamp
-        # - but if changes are published continuously for too long (eg. > 20min), then we update the exposed timestamp
-        if last_timestamp_age_seconds > max_debounce_interval:
-            # Max debounce interval exceeded, check database if a new change is available.
+        # if changes are published too close together (eg. < 5min), then
+        # we don't update the exposed timestamp
+        if last_timestamp_age_seconds > min_debounce_interval:
+            # Let's see if a new change is available.
             current_rs_timestamp = get_rs_timestamp()
             if current_rs_timestamp > last_published_timestamp:
-                log_msg = "Max debounce interval exceeded and a new change is available. Publish!"
-                debounced_timestamp = current_rs_timestamp
+                log_msg = "A new change is available. "
+                # Check if it's too close to the last published change.
+                current_timestamp_diff_seconds = (
+                    current_rs_timestamp - last_published_timestamp
+                ) / 1000
+                # We publish only if more than `min_debounce_interval` seconds have passed since the last published change.
+                if current_timestamp_diff_seconds > min_debounce_interval:
+                    log_msg += "Publish!"
+                    debounced_timestamp = current_rs_timestamp
+                else:
+                    log_msg += f"It's too close to previously broadcasted ({current_timestamp_diff_seconds}<={min_debounce_interval})."
             else:
                 log_msg = "Nothing to do. No new change since last published timestamp."
         else:
-            if last_timestamp_age_seconds > min_debounce_interval:
-                # Let's see if a new change is available.
-                current_rs_timestamp = get_rs_timestamp()
-                current_timestamp_age_seconds = (
-                    utcnow()
-                    - datetime.fromtimestamp(current_rs_timestamp / 1000, timezone.utc)
-                ).total_seconds()
-                if current_rs_timestamp > last_published_timestamp:
-                    log_msg = "A new change is available. "
-                    if current_timestamp_age_seconds > min_debounce_interval:
-                        log_msg += "Publish!"
-                        debounced_timestamp = current_rs_timestamp
-                    else:
-                        log_msg += f"It's too recent ({current_timestamp_age_seconds}<{min_debounce_interval})."
-                else:
-                    log_msg = (
-                        "Nothing to do. No new change since last published timestamp."
-                    )
-            else:
-                log_msg = f"Nothing to do. A change was published very recently ({last_timestamp_age_seconds}<{min_debounce_interval})."
+            log_msg = f"Nothing to do. A change was published very recently ({last_timestamp_age_seconds}<={min_debounce_interval})."
 
         logger.info(
             log_msg,
             extra={
                 "min_debounce_interval": min_debounce_interval,
-                "max_debounce_interval": max_debounce_interval,
                 "last_timestamp_age_seconds": last_timestamp_age_seconds,
             },
         )
