@@ -564,9 +564,17 @@ def broadcasts_view(request):
             if last_timestamp_age_seconds > min_debounce_interval:
                 # Let's see if a new change is available.
                 current_rs_timestamp = get_rs_timestamp()
+                current_timestamp_age_seconds = (
+                    utcnow()
+                    - datetime.fromtimestamp(current_rs_timestamp / 1000, timezone.utc)
+                ).total_seconds()
                 if current_rs_timestamp > last_published_timestamp:
-                    log_msg = "A new change is available. Publish!"
-                    debounced_timestamp = current_rs_timestamp
+                    log_msg = "A new change is available. "
+                    if current_timestamp_age_seconds > min_debounce_interval:
+                        log_msg += "Publish!"
+                        debounced_timestamp = current_rs_timestamp
+                    else:
+                        log_msg += f"It's too recent ({current_timestamp_age_seconds}<{min_debounce_interval})."
                 else:
                     log_msg = (
                         "Nothing to do. No new change since last published timestamp."

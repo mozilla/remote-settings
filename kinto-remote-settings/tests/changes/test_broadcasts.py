@@ -99,17 +99,54 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
 
         assert self.get_broadcasted_version() == f'"{latest_timestamp}"'
 
-    def test_return_current_version_if_last_publish_is_older_than_min_debounce_but_younger_than_max_debounce(
+    def test_return_current_version_if_cached_and_current_are_older_than_min_debounce(
         self,
     ):
         latest_timestamp = int(
             (FAKE_NOW - datetime.timedelta(minutes=6)).timestamp() * 1000
         )
+        cache_timestamp = latest_timestamp
         self.app.app.registry.cache.set(
             "remote-settings/monitor_changes/timestamp",
-            latest_timestamp,
+            cache_timestamp,
             ttl=DAY_IN_SECONDS,
         )
-        self.monitored_timestamps.return_value = [("main", "cid", FAKE_TIMESTAMP)]
+        self.monitored_timestamps.return_value = [("main", "cid", latest_timestamp)]
 
-        assert self.get_broadcasted_version() == f'"{FAKE_TIMESTAMP}"'
+        assert self.get_broadcasted_version() == f'"{latest_timestamp}"'
+
+    def test_return_cache_version_if_latest_changes_are_newer_than_min_debounce(
+        self,
+    ):
+        latest_timestamp = int(
+            (FAKE_NOW - datetime.timedelta(minutes=2)).timestamp() * 1000
+        )
+        cache_timestamp = int(
+            (FAKE_NOW - datetime.timedelta(minutes=6)).timestamp() * 1000
+        )
+        self.app.app.registry.cache.set(
+            "remote-settings/monitor_changes/timestamp",
+            cache_timestamp,
+            ttl=DAY_IN_SECONDS,
+        )
+        self.monitored_timestamps.return_value = [("main", "cid", latest_timestamp)]
+
+        assert self.get_broadcasted_version() == f'"{cache_timestamp}"'
+
+    def test_return_current_version_if_latest_changes_are_older_than_min_debounce(
+        self,
+    ):
+        latest_timestamp = int(
+            (FAKE_NOW - datetime.timedelta(minutes=6)).timestamp() * 1000
+        )
+        cache_timestamp = int(
+            (FAKE_NOW - datetime.timedelta(minutes=8)).timestamp() * 1000
+        )
+        self.app.app.registry.cache.set(
+            "remote-settings/monitor_changes/timestamp",
+            cache_timestamp,
+            ttl=DAY_IN_SECONDS,
+        )
+        self.monitored_timestamps.return_value = [("main", "cid", latest_timestamp)]
+
+        assert self.get_broadcasted_version() == f'"{latest_timestamp}"'
