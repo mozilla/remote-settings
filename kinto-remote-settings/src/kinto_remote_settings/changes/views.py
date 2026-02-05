@@ -529,7 +529,15 @@ def broadcasts_view(request):
     )
 
     def get_rs_timestamp():
-        return max(ts for _, _, ts in monitored_timestamps(request))
+        # We want to filter out preview entries, because we don't want to notify all clients
+        # when a review is requested.
+        # Note: This will also filter out the `nimbus-preview` collection which isn't directly
+        # consumed by clients and therefore doesn't need to trigger a broadcast when it changes.
+        return max(
+            ts
+            for bid, cid, ts in monitored_timestamps(request)
+            if "-preview" not in f"{bid}/{cid}"
+        )
 
     # First, get the current value from cache.
     cache_key = f"{BROADCASTER_ID}/{CHANNEL_ID}/timestamp"

@@ -31,7 +31,20 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
         return response.json["broadcasts"]["remote-settings/monitor_changes"]
 
     def test_first_call_returns_current_version(self):
-        self.monitored_timestamps.return_value = [("main", "cid", FAKE_TIMESTAMP)]
+        self.monitored_timestamps.return_value = [
+            ("main", "cid", FAKE_TIMESTAMP),
+            ("main", "cid2", FAKE_TIMESTAMP - 1000),
+        ]
+        self.app.app.registry.cache.flush()
+
+        assert self.get_broadcasted_version() == f'"{FAKE_TIMESTAMP}"'
+
+    def test_preview_buckets_and_collections_are_ignored(self):
+        self.monitored_timestamps.return_value = [
+            ("main-preview", "cid", FAKE_TIMESTAMP + 2000),
+            ("main", "cid-preview", FAKE_TIMESTAMP + 1000),
+            ("main", "cid", FAKE_TIMESTAMP),
+        ]
         self.app.app.registry.cache.flush()
 
         assert self.get_broadcasted_version() == f'"{FAKE_TIMESTAMP}"'
