@@ -595,7 +595,7 @@ def hello(
     response_model=ChangesetResponse,
 )
 def monitor_changes(
-    _expected: Annotated[int, Query(ge=0)] = 0,
+    _expected: Annotated[int, Query(ge=0)],
     _since: Annotated[int, Query(ge=0)] | None = None,
     bucket: str | None = None,
     collection: str | None = None,
@@ -625,7 +625,7 @@ def collection_changeset(
     request: Request,
     bid: str,
     cid: str,
-    _expected: Annotated[int, Query(ge=0)] = 0,
+    _expected: Annotated[int, Query(ge=0)],
     _since: Annotated[int, Query(ge=0)] | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),

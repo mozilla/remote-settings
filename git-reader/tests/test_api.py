@@ -335,6 +335,15 @@ def test_monitor_changes_view_filtered_since(api_client):
     assert data["changes"] == []
 
 
+@pytest.mark.parametrize("_expected", ["", "-1", "abc", '"42"'])
+def test_monitor_changes_bad_expected(api_client, _expected):
+    expected_param = f"?_expected={_expected}" if _expected else ""
+    resp = api_client.get(
+        f"/v2/buckets/monitor/collections/changes/changeset{expected_param}"
+    )
+    assert resp.status_code in (400, 422)
+
+
 def test_monitor_changes_view_filtered_bad_since(api_client):
     resp = api_client.get(
         "/v2/buckets/monitor/collections/changes/changeset?_since=223456789&_expected=123456789"
@@ -348,14 +357,14 @@ def test_monitor_changes_negative_values(api_client):
     )
     assert resp.status_code == 422
     resp = api_client.get(
-        "/v2/buckets/monitor/collections/changes/changeset?_since=_expected=-1"
+        "/v2/buckets/monitor/collections/changes/changeset?_since=-2&_expected=-1"
     )
     assert resp.status_code == 422
 
 
 def test_monitor_changes_view_filtered_bid(api_client):
     resp = api_client.get(
-        "/v2/buckets/monitor/collections/changes/changeset?bucket=main"
+        "/v2/buckets/monitor/collections/changes/changeset?_expected=0&bucket=main"
     )
     assert resp.status_code == 200
     data = resp.json()
@@ -366,7 +375,7 @@ def test_monitor_changes_view_filtered_bid(api_client):
 
 def test_monitor_changes_view_filtered_cid(api_client):
     resp = api_client.get(
-        "/v2/buckets/monitor/collections/changes/changeset?collection=intermediates"
+        "/v2/buckets/monitor/collections/changes/changeset?_expected=0&collection=intermediates"
     )
     assert resp.status_code == 200
     data = resp.json()
@@ -376,7 +385,9 @@ def test_monitor_changes_view_filtered_cid(api_client):
 
 
 def test_changeset(api_client):
-    resp = api_client.get("/v2/buckets/main/collections/password-rules/changeset")
+    resp = api_client.get(
+        "/v2/buckets/main/collections/password-rules/changeset?_expected=0"
+    )
     assert resp.status_code == 200
     data = resp.json()
 
@@ -389,7 +400,9 @@ def test_changeset(api_client):
 
 
 def test_changeset_unknown_collection(api_client):
-    resp = api_client.get("/v2/buckets/main/collections/wallpapers/changeset")
+    resp = api_client.get(
+        "/v2/buckets/main/collections/wallpapers/changeset?_expected=0"
+    )
     assert resp.status_code == 404
 
 
@@ -403,21 +416,30 @@ def test_changeset_bad_since(api_client, since):
     assert resp.status_code in (400, 422)
 
 
+@pytest.mark.parametrize("_expected", ["", "-1", "abc", '"42"'])
+def test_changeset_bad_expected(api_client, _expected):
+    expected_param = f"?_expected={_expected}" if _expected else ""
+    resp = api_client.get(
+        f"/v2/buckets/main/collections/password-rules/changeset{expected_param}"
+    )
+    assert resp.status_code in (400, 422)
+
+
 def test_changeset_unknown_since(api_client):
     resp = api_client.get(
-        "/v2/buckets/main/collections/password-rules/changeset?_since=42",
+        "/v2/buckets/main/collections/password-rules/changeset?_expected=0&_since=42",
         follow_redirects=False,
     )
     assert resp.status_code == 307
     assert (
         resp.headers["Location"]
-        == "http://test/v2/buckets/main/collections/password-rules/changeset"
+        == "http://test/v2/buckets/main/collections/password-rules/changeset?_expected=0"
     )
 
 
 def test_changeset_since(api_client):
     resp = api_client.get(
-        "/v2/buckets/main/collections/password-rules/changeset?_since=113456789"
+        "/v2/buckets/main/collections/password-rules/changeset?_expected=0&_since=113456789"
     )
     assert resp.status_code == 200
     data = resp.json()
