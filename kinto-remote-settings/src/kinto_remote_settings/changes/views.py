@@ -547,10 +547,13 @@ def broadcasts_view(request):
         )
     else:
         # If the last published timestamp is recent, we don't publish a new one yet.
-        last_timestamp_age_seconds = (
-            utcnow()
-            - datetime.fromtimestamp(last_published_timestamp / 1000, timezone.utc)
-        ).total_seconds()
+        last_timestamp_age_seconds = int(
+            (
+                utcnow()
+                - datetime.fromtimestamp(last_published_timestamp / 1000, timezone.utc)
+            ).total_seconds()
+        )
+        current_rs_timestamp = None
 
         # Avoid publishing too many Push notifications in a short time:
         # if changes are published too close together (eg. < 5min), then
@@ -561,25 +564,29 @@ def broadcasts_view(request):
             if current_rs_timestamp > last_published_timestamp:
                 log_msg = "A new change is available. "
                 # Check if it's too close to the last published change.
-                current_timestamp_diff_seconds = (
-                    current_rs_timestamp - last_published_timestamp
-                ) / 1000
+                current_timestamp_diff_seconds = int(
+                    (current_rs_timestamp - last_published_timestamp) / 1000
+                )
                 # We publish only if more than `min_debounce_interval` seconds have passed since the last published change.
                 if current_timestamp_diff_seconds > min_debounce_interval:
-                    log_msg += "Publish!"
+                    log_msg += (
+                        f"Last is {current_timestamp_diff_seconds}s old. Publish!"
+                    )
                     debounced_timestamp = current_rs_timestamp
                 else:
-                    log_msg += f"It's too close to previously broadcasted ({current_timestamp_diff_seconds}<={min_debounce_interval})."
+                    log_msg += f"It's too close to previously broadcasted {current_timestamp_diff_seconds}s ago."
             else:
                 log_msg = "Nothing to do. No new change since last published timestamp."
         else:
-            log_msg = f"Nothing to do. A change was published very recently ({last_timestamp_age_seconds}<={min_debounce_interval})."
+            log_msg = f"Nothing to do. A change was published very recently, {last_timestamp_age_seconds}s ago."
 
         logger.info(
             log_msg,
             extra={
                 "min_debounce_interval": min_debounce_interval,
+                "last_published_timestamp": last_published_timestamp,
                 "last_timestamp_age_seconds": last_timestamp_age_seconds,
+                "current_rs_timestamp": current_rs_timestamp,
             },
         )
 
