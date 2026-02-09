@@ -15,8 +15,7 @@ RUN python -m venv $POETRY_HOME && \
 
 WORKDIR /opt
 COPY ./poetry.lock ./pyproject.toml ./
-RUN $POETRY_HOME/bin/poetry install --only main --no-root && \
-    uwsgi --build-plugin https://github.com/Datadog/uwsgi-dogstatsd
+RUN $POETRY_HOME/bin/poetry install --only main --no-root
 
 # though we have kinto-remote-settings specified as a dependency in
 # pyproject.toml, we have it configured to install in editable mode for local
@@ -40,15 +39,18 @@ FROM python:3.14.3-slim AS production
 ENV KINTO_INI=config/local.ini \
     KINTO_ADMIN_ASSETS_PATH=/app/kinto-admin/build/ \
     PATH="/opt/.venv/bin:$PATH" \
-    PORT=8888 \
+    GRANIAN_HOST="0.0.0.0" \
+    GRANIAN_PORT=8888 \
+    GRANIAN_TRUSTED_HOSTS="*" \
+    GRANIAN_METRICS_ENABLED=true \
+    GRANIAN_METRICS_ADDRESS="127.0.0.1" \
+    GRANIAN_METRICS_PORT="9090" \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/.venv \
     PROMETHEUS_MULTIPROC_DIR="/tmp/metrics"
 
 COPY /bin/update_and_install_system_packages.sh /opt
 RUN /opt/update_and_install_system_packages.sh \
-    # Needed for UWSGI
-    libxml2-dev \
     # Needed for psycopg2
     libpq-dev
 
@@ -59,19 +61,23 @@ RUN chown 10001:10001 /app && \
     groupadd --gid 10001 app && \
     useradd --no-create-home --uid 10001 --gid 10001 --home-dir /app app
 COPY --chown=app:app . .
-COPY --from=compile /opt/dogstatsd_plugin.so .
 
 COPY --from=get-admin /opt/kinto-admin/build $KINTO_ADMIN_ASSETS_PATH
 
 # Generate local key pair to simplify running without Autograph out of the box (see `config/testing.ini`)
 RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.pem /app/ecdsa.public.pem
 
-EXPOSE $PORT
+EXPOSE $GRANIAN_PORT
 USER app
 ENTRYPOINT ["./bin/run.sh"]
-# Run uwsgi by default
+# Run server by default
 CMD ["start"]
 
 FROM production AS local
+
+# Serve attachments at /attachments
+ENV GRANIAN_STATIC_PATH_ROUTE=/attachments
+ENV GRANIAN_STATIC_PATH_MOUNT=/tmp/attachments
+
 # create directories for volume mounts used in browser tests / local development
 RUN mkdir -p -m 777 /app/mail && mkdir -p -m 777 /tmp/attachments
