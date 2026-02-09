@@ -19,6 +19,7 @@ NOTES
 README.rst
 browser-tests
 git-reader
-
+remote-settings-data
+git-export*
 # Ignore generated credentials from google-github-actions/auth
 gha-creds-*.json
