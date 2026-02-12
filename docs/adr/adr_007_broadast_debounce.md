@@ -114,10 +114,10 @@ When a changeset is published:
 
 This ensures cluster-wide consistency.
 
-**Complexity**: Mid. Requires introducing a new dependency (Redis) to just store a single timestamp.
-**Cost of implementation**: Low. Kinto already supports Redis as a cache backend. Enabling with Terraform is straightforward (see [this PR](https://github.com/mozilla/webservices-infra/pull/9534)).
-**Cost of operation**: High (~$3–4k/year across environments)  
-**Scalability**: High. Reading from Redis is fast and readers can easily scale horizontally.
+- **Complexity**: Mid. Requires introducing a new dependency (Redis) to just store a single timestamp.
+- **Cost of implementation**: Low. Kinto already supports Redis as a cache backend. Enabling with Terraform is straightforward (see [this PR](https://github.com/mozilla/webservices-infra/pull/9534)).
+- **Cost of operation**: High (~$3–4k/year across environments)  
+- **Scalability**: High. Reading from Redis is fast and readers can easily scale horizontally.
 
 Redis is technically sound but arguably disproportionate to the problem.
 
@@ -128,10 +128,10 @@ Write the current timestamp into a file stored in GCS, updated via a scheduled j
 
 The broadcast endpoint serves a `3XX Redirect` to the GCS file.
 
-**Complexity**: Mid. We can control the frequency of broadcasts by controlling how often we update the file on GCS. However, it introduces a new moving part (the cronjob), but we already have Telescope checks in place to monitor the broadcasted value.
-**Cost of implementation**: Low. We already have the code to write files on GCS. We already have scheduled jobs.
-**Cost of operation**: Low. GCS is cheap to use, and we would only write a file every 5min, which is negligible in terms of cost. It would also remove the current trafic on our origins.
-**Scalability**: High. Serving a redirect is cheap, and GCS can handle a large number of requests without any issue.
+- **Complexity**: Mid. We can control the frequency of broadcasts by controlling how often we update the file on GCS. However, it introduces a new moving part (the cronjob), but we already have Telescope checks in place to monitor the broadcasted value.
+- **Cost of implementation**: Low. We already have the code to write files on GCS. We already have scheduled jobs.
+- **Cost of operation**: Low. GCS is cheap to use, and we would only write a file every 5min, which is negligible in terms of cost. It would also remove the current trafic on our origins.
+- **Scalability**: High. Serving a redirect is cheap, and GCS can handle a large number of requests without any issue.
 
 Concerns:
 
@@ -149,10 +149,10 @@ Introduce a dedicated Nginx container per deployment:
 - It microcaches the upstream response (e.g., 5 min TTL).
 - The Python endpoint simply returns the current timestamp.
 
-**Complexity**: Mid. Requires introducing a new service (Nginx microcache) to handle the debouncing logic. k8s can be configured to always keep a single replica of the Nginx microcache running, and avoid interruptions during deployments.
-**Cost of implementation**: Mid. Requires changes to the Ingress configuration and setting up DNS resolution of the Nginx debouncer to one of the pods (see [Pull request](https://github.com/mozilla/webservices-infra/pull/9552).
-**Cost of operation**: Low. Nginx is lightweight and can be easily scaled, and it would only cache the response for a short duration, which is negligible in terms of cost.
-**Scalability**: High. A single Nginx can handle a large number of requests from its microcache without any issue.
+- **Complexity**: Mid. Requires introducing a new service (Nginx microcache) to handle the debouncing logic. k8s can be configured to always keep a single replica of the Nginx microcache running, and avoid interruptions during deployments.
+- **Cost of implementation**: Mid. Requires changes to the Ingress configuration and setting up DNS resolution of the Nginx debouncer to one of the pods (see [Pull request](https://github.com/mozilla/webservices-infra/pull/9552).
+- **Cost of operation**: Low. Nginx is lightweight and can be easily scaled, and it would only cache the response for a short duration, which is negligible in terms of cost.
+- **Scalability**: High. A single Nginx can handle a large number of requests from its microcache without any issue.
 
 Moves debouncing to the HTTP caching layer.
 
@@ -172,10 +172,10 @@ Architecturally clean, but not minimal.
 Use a Kubernetes shared volume between pods and store the timestamp on disk.
 
 
-**Complexity**: Low. This is very simple to reason about
-**Cost of implementation**: Mid. Requires a shared volume between pods, and handling file locking to avoid race conditions, and TTL management to ensure the timestamp is updated correctly.
-**Cost of operation**: Low. Sahred volumes are not expensive
-**Scalability**: Mid. Reading from disk is slower than reading from memory, but it should be sufficient for our use case
+- **Complexity**: Low. This is very simple to reason about
+- *Cost of implementation**: Mid. Requires a shared volume between pods, and handling file locking to avoid race conditions, and TTL management to ensure the timestamp is updated correctly.
+- **Cost of operation**: Low. Sahred volumes are not expensive
+- **Scalability**: Mid. Reading from disk is slower than reading from memory, but it should be sufficient for our use case
 
 Concerns:
 
@@ -186,10 +186,10 @@ Concerns:
 
 Route all broadcast endpoint traffic to a single pod and rely on its microcache.
 
-**Complexity**: Low. This is a simple solution that does not require any additional infrastructure.
-**Cost of implementation**: Low. Adding a specific label to the first pod, and configuring the Ingress to send requests to the broadcast endpoint to that pod is straightforward.
-**Cost of operation**: Low. This does not introduce any additional cost.
-**Scalability**: High. However it creates an implicit singleton, which becomes a single point of failure.
+- **Complexity**: Low. This is a simple solution that does not require any additional infrastructure.
+- **Cost of implementation**: Low. Adding a specific label to the first pod, and configuring the Ingress to send requests to the broadcast endpoint to that pod is straightforward.
+- **Cost of operation**: Low. This does not introduce any additional cost.
+- **Scalability**: High. However it creates an implicit singleton, which becomes a single point of failure.
 
 
 ### Option 7 - CDN caching
@@ -198,10 +198,10 @@ Let Push servers pull from CDN endpoints instead of origins.
 
 Control TTL using `Cache-Control` headers. 5min on the broadcast endpoint, and a longer TTL on the other changeset endpoints.
 
-**Complexity**: Low.
-**Cost of implementation**: Low.
-**Cost of operation**: Low.
-**Scalability**: High.
+- **Complexity**: Low.
+- **Cost of implementation**: Low.
+- **Cost of operation**: Low.
+- **Scalability**: High.
 
 - Uses existing infrastructure.
 - Requires no new services.
@@ -217,7 +217,7 @@ Concerns:
 
 Same as *Option 1*, but share an instance between Telecope and Remote Settings.
 
-**Complexity**: Mid. Same as Option 1.
-**Cost of implementation**: Low. Same as Option 1.
-**Cost of operation**: Low, because shared with Telescope.
-**Scalability**: High. Same as Option 1.
+- **Complexity**: Mid. Same as Option 1.
+- **Cost of implementation**: Low. Same as Option 1.
+- **Cost of operation**: Low, because shared with Telescope.
+- **Scalability**: High. Same as Option 1.
