@@ -497,6 +497,7 @@ class SignoffEventsTest(BaseWebTest, unittest.TestCase):
         )
         assert isinstance(self.events[-1], signer_events.ReviewApproved)
         assert self.events[-1].changes_count == 2
+        assert self.events[-1].changes_size_bytes == 216
 
     def test_changes_count_is_zero_when_no_changes(self):
         self.app.delete(
