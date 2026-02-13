@@ -12,12 +12,14 @@ class BaseEvent(object):
 
 
 class ReviewRequested(BaseEvent):
-    def __init__(self, changes_count, comment, **kwargs):
+    def __init__(self, changes_count, changes_size_bytes, comment, **kwargs):
         super().__init__(**kwargs)
         self.comment = comment
         self.changes_count = changes_count
+        self.changes_size_bytes = changes_size_bytes
         self.payload["comment"] = comment
         self.payload["changes_count"] = changes_count
+        self.payload["changes_size_bytes"] = changes_size_bytes
 
 
 class ReviewRejected(BaseEvent):
@@ -28,10 +30,12 @@ class ReviewRejected(BaseEvent):
 
 
 class ReviewApproved(BaseEvent):
-    def __init__(self, changes_count, **kwargs):
+    def __init__(self, changes_count, changes_size_bytes, **kwargs):
         super().__init__(**kwargs)
         self.changes_count = changes_count
+        self.changes_size_bytes = changes_size_bytes
         self.payload["changes_count"] = changes_count
+        self.payload["changes_size_bytes"] = changes_size_bytes
 
 
 class ReviewCanceled(BaseEvent):

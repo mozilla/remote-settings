@@ -285,6 +285,24 @@ def records_diff(left, right):
     return results
 
 
+def attachments_size_diff(left, right):
+    """
+    Return the size of the new attachments in `left` list of records.
+    """
+    right_by_location = {
+        r["attachment"]["location"]: r["attachment"]["size"]
+        for r in right
+        if "attachment" in r
+    }
+    changed = 0
+    for r in left:
+        if "attachment" not in r or r["attachment"]["location"] in right_by_location:
+            # Locations are unique. If present in both, no change.
+            continue
+        changed += r["attachment"]["size"]
+    return changed
+
+
 def fetch_cert(url):
     """
     Returns the SSL certificate object for the specified `url`.

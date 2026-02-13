@@ -299,3 +299,62 @@ def test_fetch_cert():
             ].value
             == "remote-settings.content-signature.mozilla.org"
         )
+
+
+@pytest.mark.parametrize(
+    ("left", "right", "expected"),
+    [
+        # No records
+        ([], [], 0),
+        # No attachments
+        ([{"id": "a"}, {"id": "b"}], [{"id": "c"}], 0),
+        # No change
+        (
+            [
+                {"id": "1", "attachment": {"location": "file1", "size": 100}},
+            ],
+            [
+                {"id": "2", "attachment": {"location": "file1", "size": 100}},
+            ],
+            0,
+        ),
+        # New file
+        (
+            [
+                {"attachment": {"location": "file1", "size": 100}},
+                {"attachment": {"location": "file2", "size": 200}},
+            ],
+            [
+                {"attachment": {"location": "file1", "size": 100}},
+            ],
+            200,
+        ),
+        # 2 new attachments
+        (
+            [
+                {"attachment": {"location": "a", "size": 50}},
+                {"attachment": {"location": "b", "size": 75}},
+                {"attachment": {"location": "c", "size": 25}},
+            ],
+            [
+                {"attachment": {"location": "a", "size": 50}},
+            ],
+            100,  # b + c
+        ),
+        (
+            [
+                {"id": "1"},
+                {"attachment": {"location": "x", "size": 30}},
+            ],
+            [],
+            30,
+        ),
+        (
+            [],
+            [{"attachment": {"location": "a", "size": 1}}],
+            0,
+        ),
+    ],
+)
+def test_attachments_size_diff(left, right, expected):
+    assert utils.attachments_size_diff(left, right) == expected

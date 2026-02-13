@@ -169,12 +169,13 @@ def sign_collection_data(event, resources, **kwargs):
 
             updater.destination = resource["destination"]
             review_event_cls = signer_events.ReviewApproved
-            changes_count = updater.sign_and_update_destination(
+            changes_count, changes_size_bytes = updater.sign_and_update_destination(
                 event.request,
                 source_attributes=new_collection,
                 previous_source_status=old_status,
             )
             review_event_kw["changes_count"] = changes_count
+            review_event_kw["changes_size_bytes"] = changes_size_bytes
             logger.info(
                 "%s approved %s changes on %s",
                 current_user_id,
@@ -184,6 +185,7 @@ def sign_collection_data(event, resources, **kwargs):
                     **logger_fields,
                     "action": "approve",
                     "changes_count": changes_count,
+                    "changes_size_bytes": changes_size_bytes,
                 },
             )
 
@@ -191,7 +193,7 @@ def sign_collection_data(event, resources, **kwargs):
             if has_preview_collection:
                 # If preview collection: update and sign preview collection
                 updater.destination = resource["preview"]
-                changes_count = updater.sign_and_update_destination(
+                changes_count, changes_size_bytes = updater.sign_and_update_destination(
                     event.request,
                     source_attributes=new_collection,
                     next_source_status=STATUS.TO_REVIEW,
@@ -200,8 +202,10 @@ def sign_collection_data(event, resources, **kwargs):
                 # If no preview collection: just track `last_editor`
                 updater.update_source_review_request_by(event.request)
                 changes_count = None
+                changes_size_bytes = None
             review_event_cls = signer_events.ReviewRequested
             review_event_kw["changes_count"] = changes_count
+            review_event_kw["changes_size_bytes"] = changes_size_bytes
             review_event_kw["comment"] = new_collection.get("last_editor_comment", "")
             logger.info(
                 "%s requested review for %s changes on %s",
