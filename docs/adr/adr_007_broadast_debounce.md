@@ -72,14 +72,16 @@ To choose our solution, we considered the following criteria:
 
 ## Considered Options
 
-1. [Option 0 – Do Nothing](#option-0--do-nothing)  
-1. [Option 1 – Use a Redis Backend](#option-1--use-a-redis-backend)  
+1. [Option 0 – Do Nothing](#option-0--do-nothing)
+1. [Option 1 – Use a Redis Backend](#option-1--use-a-redis-backend)
+1. [Option 2 – Shared Redis instance](#option-2--shared-redis-instance)
 1. [Option 3 – Use a File on GCS](#option-3--use-a-file-on-gcs)  
 1. [Option 4 – Use a Dedicated Nginx Microcache](#option-4--use-a-dedicated-nginx-microcache)  
 1. [Option 5 – Use a File on Disk (Shared Volume)](#option-5--use-a-file-on-disk-shared-volume)  
-1. [Option 6 – Sticky Session](#option-6--sticky-session)  
+1. [Option 6 – Kubernetes Leader Election](#option-6--kubernetes-leader-election)
 1. [Option 7 – CDN Caching](#option-7--cdn-caching)  
-1. [Option 8 – Shared Redis instance](#option-8--shared-redis-instance)  
+1. [Option 8 – Use git-reader Broadcast Endpoint](#option-8--use-git-reader-broadcast-endpoint)
+1. [Option 9 – Use a Dedicated Container for the Broadcast Endpoint](#option-9--use-a-dedicated-container-for-the-broadcast-endpoint)
 
 ## Decision Outcome
 
@@ -102,6 +104,7 @@ Because this cache is local to each worker process:
 - **Cost of implementation**: Low
 - **Scalability**: Low. This solution does not scale well, as it can lead to multiple broadcasts in a short time, which increases CDN cache cardinality and load on the origins
 
+
 ### Option 1 - Use a Redis backend
 
 Use Redis as a shared cache backend to store the last broadcast timestamp.
@@ -120,6 +123,9 @@ This ensures cluster-wide consistency.
 - **Scalability**: High. Reading from Redis is fast and readers can easily scale horizontally.
 
 Redis is technically sound but arguably disproportionate to the problem.
+
+> Note: in order to reduce cost, we could run a tiny Redis container. We could afford loosing the data on restarts,
+> as it would only result in a temporary loss of the last broadcast timestamp.
 
 
 ### Option 3 - Use file on GCS
@@ -140,6 +146,7 @@ Concerns:
 - Adds an additional moving part (cron).
 
 Viable, but indirect and less elegant.
+
 
 ### Option 4 - Use a dedicated Nginx microcache
 
@@ -182,14 +189,20 @@ Concerns:
 - Requires distributed file locking.
 - Risk of race conditions.
 
-### Option 6 - Sticky session
 
-Route all broadcast endpoint traffic to a single pod and rely on its microcache.
+### Option 6 - Kubertnetes Leader Election
+
+Since version 1.33, Kubernetes has built-in [leader election](https://kubernetes.io/docs/concepts/cluster-administration/coordinated-leader-election/) support.
+
+We could leverage this mechanism to elect a single leader pod, and route all broadcast endpoint traffic to a single pod and rely on its microcache.
 
 - **Complexity**: Low. This is a simple solution that does not require any additional infrastructure.
-- **Cost of implementation**: Low. Adding a specific label to the first pod, and configuring the Ingress to send requests to the broadcast endpoint to that pod is straightforward.
+- **Cost of implementation**: Mid. Requires to dive in Kubernetes leader election configuration and implementation.
 - **Cost of operation**: Low. This does not introduce any additional cost.
 - **Scalability**: High. However it creates an implicit singleton, which becomes a single point of failure.
+
+Concerns:
+- While our shared cluster is on version 1.33, leader election is not enabled by default and would require the feature activation.
 
 
 ### Option 7 - CDN caching
@@ -211,13 +224,34 @@ Control TTL using `Cache-Control` headers. 5min on the broadcast endpoint, and a
 
 Concerns:
 - Less control over exact timing of broadcasts (depends on CDN behavior).
+- Fastly has many edge servers at each POP, and clients would hit a random one of them. There aren't any guarantees that the cached state is consistent across edge servers, which could lead to inconsistent broadcasts and almost impossible to reproduce and debug.
 
 
-### Option 8 - Shared Redis instance
+### Option 8 - Use git-reader Broadcast Endpoint
 
-Same as *Option 1*, but share an instance between Telecope and Remote Settings.
+The git-reader service reads its data from the Git repository, which is updated by the `git-export` cronjob every 5 minutes.
 
-- **Complexity**: Mid. Same as Option 1.
-- **Cost of implementation**: Low. Same as Option 1.
-- **Cost of operation**: Low, because shared with Telescope.
-- **Scalability**: High. Same as Option 1.
+We could point the Push server to the git-reader endpoints (`/v2/__broadcasts__` instead of `/v1/__broadcasts__`).
+
+- **Complexity**: Low.
+- **Cost of implementation**: Zero.
+- **Cost of operation**: Zero.
+- **Scalability**: Mid-High. The git-reader service is designed to handle a large number of requests.
+
+Concerns:
+
+- The published timestamp could take up to 10 minutes to be broadcasted (5min for the cronjob, and up to 5min for the git-reader clone to be updated).
+- If the git-export cronjob fails or git-reader clone is not updated, the broadcast could be delayed or frozen. Note that this would be a general issue for all git-reader data, and not specific to the broadcast endpoint.
+
+
+### Option 9 - Use a Dedicated Container for the Broadcast Endpoint
+
+Same as Option 4, but instead of using a dedicated Nginx microcache, we could use a dedicated container for the broadcast endpoint.
+
+The dedicated container would run the Remote Settings service but with a single process to avoid in-memory cache inconsistencies.
+It would be fronted by a microcache with a 5min TTL to ensure debouncing.
+
+- **Complexity**: Mid. This solution requires introducing a new service (dedicated container) just to handle the debouncing logic.
+- **Cost of implementation**: Mid. This requires to duplicate the Remote Settings service configuration to only set the process number to 1.
+- **Cost of operation**: Low. The dedicated container would be lightweight.
+- **Scalability**: High. The dedicated container can handle a large number of requests, and the microcache would ensure that the broadcast is debounced.
