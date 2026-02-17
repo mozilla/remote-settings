@@ -82,6 +82,7 @@ To choose our solution, we considered the following criteria:
 1. [Option 7 – CDN Caching](#option-7--cdn-caching)  
 1. [Option 8 – Use git-reader Broadcast Endpoint](#option-8--use-git-reader-broadcast-endpoint)
 1. [Option 9 – Use a Dedicated Container for the Broadcast Endpoint](#option-9--use-a-dedicated-container-for-the-broadcast-endpoint)
+1. [Option 10 - Run a Small Memcached Instance](#option-10--run-a-small-memcached-instance)
 
 ## Decision Outcome
 
@@ -255,3 +256,13 @@ It would be fronted by a microcache with a 5min TTL to ensure debouncing.
 - **Cost of implementation**: Mid. This requires to duplicate the Remote Settings service configuration to only set the process number to 1.
 - **Cost of operation**: Low. The dedicated container would be lightweight.
 - **Scalability**: High. The dedicated container can handle a large number of requests, and the microcache would ensure that the broadcast is debounced.
+
+
+### Option 10 - Run a Small Memcached Instance
+
+Run a small Memcached instance to store the last broadcast timestamp, and use it as a shared cache backend for the broadcast endpoint.
+
+- **Complexity**: Mid. Requires introducing a new dependency (Memcached) to just store a single timestamp.
+- **Cost of implementation**: Low. Kinto already supports Memcached as a cache backend. Deploying a small Memcached instance in a dedicated container is straightforward.
+- **Cost of operation**: Low. A small Memcached instance is cheap to run, especially if we can afford losing the data on restarts.
+- **Scalability**: High. Reading from Memcached is fast and readers can easily scale horizontally.
