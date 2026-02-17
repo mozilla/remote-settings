@@ -1,6 +1,6 @@
 # Broadcast Endpoint Debounce
 
-* Status: draft
+* Status: accepted
 * Deciders: acottner, mleplatre, smarnach
 * Date: Feb 12, 2026
 
@@ -86,7 +86,10 @@ To choose our solution, we considered the following criteria:
 
 ## Decision Outcome
 
-Chosen option: **Option X**. This approach offers XXX, while YYY.
+Chosen option: **Option 10**, consisting in runing a tiny Memcached container.
+
+Although all options have their merits, this approach offers a good balance between complexity and cost. The debouncing logic remains in the application layer, no code changes are required, since Kinto has a built-in support for Memcached, making it a very simple solution easy to reason about. Memcached is lighter than Redis, and since we can afford losing cached data, we don't need to worry about persistence or high availability.
+
 
 ## Pros and Cons of the Options
 
