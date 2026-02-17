@@ -7,7 +7,13 @@ from kinto.core.storage.exceptions import RecordNotFoundError
 from pyramid.authorization import Everyone
 
 from .serializer import canonical_json
-from .utils import STATUS, ensure_resource_exists, notify_resource_event, records_diff
+from .utils import (
+    STATUS,
+    attachments_size_diff,
+    ensure_resource_exists,
+    notify_resource_event,
+    records_diff,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -110,7 +116,7 @@ class LocalUpdater(object):
         next_source_status=STATUS.SIGNED,
         previous_source_status=None,
         push_records=True,
-    ):
+    ) -> tuple[int, int]:
         """Sign the specified collection.
 
         0. Create the destination bucket / collection
@@ -119,13 +125,18 @@ class LocalUpdater(object):
         3. Compute a hash of these records
         4. Ask the signer for a signature
         5. Send the signature to the destination.
+
+        Return number of changes and size of changes.
         """
         changes_count = 0
+        changes_size_bytes = 0
 
         self.create_destination(request)
 
         if push_records:
-            changes_count = self.push_records_to_destination(request)
+            changes_count, changes_size_bytes = self.push_records_to_destination(
+                request
+            )
 
         records, timestamp = self.get_destination_records(empty_none=False)
         serialized_records = canonical_json(records, timestamp)
@@ -138,7 +149,7 @@ class LocalUpdater(object):
                 next_source_status, request, previous_source_status
             )
 
-        return changes_count
+        return changes_count, changes_size_bytes
 
     def refresh_signature(self, request, next_source_status=None):
         """Refresh the signature without moving records."""
@@ -310,14 +321,19 @@ class LocalUpdater(object):
     def get_destination_records(self, **kwargs):
         return self._get_records(self.destination, **kwargs)
 
-    def push_records_to_destination(self, request) -> int:
+    def push_records_to_destination(self, request) -> tuple[int, int]:
         dest_records, _dest_timestamp = self.get_destination_records()
         source_records, _source_timestamp = self.get_source_records()
         new_records = records_diff(source_records, dest_records)
         changes_count = len(new_records)
+        if changes_count == 0:
+            return 0, 0
 
-        if len(new_records) == 0:
-            return 0
+        # Compute size of payload pulled by clients on diff and all new
+        # attachments size.
+        changes_size_bytes = len(
+            canonical_json(new_records, 0)
+        ) + attachments_size_diff(source_records, dest_records)
 
         # Update the destination collection.
         for record in new_records:
@@ -377,7 +393,7 @@ class LocalUpdater(object):
                 old=before,
             )
 
-        return changes_count
+        return changes_count, changes_size_bytes
 
     def set_destination_signatures(
         self, signatures: list[dict], source_attributes, request

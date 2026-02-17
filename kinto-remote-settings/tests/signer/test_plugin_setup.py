@@ -329,6 +329,10 @@ class OnCollectionChangedTest(unittest.TestCase):
     def setUp(self):
         patch = mock.patch("kinto_remote_settings.signer.listeners.LocalUpdater")
         self.updater_mocked = patch.start()
+        self.updater_mocked.return_value.sign_and_update_destination.return_value = (
+            123,
+            456,
+        )
         self.addCleanup(patch.stop)
 
     def test_nothing_happens_when_resource_is_not_configured(self):
