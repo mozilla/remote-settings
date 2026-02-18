@@ -18,7 +18,11 @@ services:
 
   memcached:
     platform: linux/amd64
-    image: memcached:1
+    image: memcached:1-alpine
+    command: memcached -m 32 -p 11211 -p 11212 -c 32
+    ports:
+      - 11211:11211
+      - 11212:11212
 
   autograph:
     platform: linux/amd64
