@@ -90,6 +90,13 @@ cmd_gitupdate() {
 git_fetch_lfs() {
     local repo_path="$1"
 
+    # Remove Git lock if any. Or fetch will fail with "fatal: Unable to create '.../.git/index.lock': File exists."
+    lock_file="$repo_path/.git/index.lock"
+    if [ -f "$lock_file" ]; then
+        log "Removing stale lock file $lock_file..."
+        rm -f "$lock_file"
+    fi
+
     git -C "$repo_path" checkout v1/common
     # Fetch everything, remote references always win.
     git -C "$repo_path" fetch --tags --force --verbose $ORIGIN_NAME

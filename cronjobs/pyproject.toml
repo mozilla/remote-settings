@@ -15,7 +15,7 @@ google-cloud-storage = "^3.0.0"
 lz4 = "^4.3.3"
 pygit2 = "^1.19.0"
 pyjwt = "^2.10.1"
-cryptography = "^46.0.3"
+cryptography = "^46.0.5"
 
 [tool.pytest_env]
 # Environment variables (thanks to pytest-env)

@@ -271,7 +271,7 @@ class LocalUpdaterTest(unittest.TestCase):
 
         self.patch(self.storage, "update_records")
         self.patch(self.updater, "get_destination_records", return_value=([], "0"))
-        self.patch(self.updater, "push_records_to_destination")
+        self.patch(self.updater, "push_records_to_destination", return_value=(0, 0))
         self.patch(self.updater, "set_destination_signatures")
 
         self.updater.sign_and_update_destination(DummyRequest(), {"id": "source"})
