@@ -2,7 +2,7 @@ import os
 import logging.config
 import configparser
 
-from granian.utils.proxies import wrap_wsgi_with_proxy_headers
+# from granian.utils.proxies import wrap_wsgi_with_proxy_headers
 from kinto import main
 
 
@@ -24,8 +24,10 @@ def load_application():
         **dict(config.items("app:main")),
     )
 
-    trusted_hosts = os.getenv("GRANIAN_TRUSTED_HOSTS", "").split(",")
-    return wrap_wsgi_with_proxy_headers(app, trusted_hosts=trusted_hosts)
+    # Try whether removing the proxy fixes the functional tests.
+    # trusted_hosts = os.getenv("GRANIAN_TRUSTED_HOSTS", "").split(",")
+    # return wrap_wsgi_with_proxy_headers(app, trusted_hosts=trusted_hosts)
+    return app
 
 
 app = load_application()
