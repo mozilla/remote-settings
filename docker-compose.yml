@@ -16,13 +16,13 @@ services:
       timeout: 3s
       retries: 30
 
-  memcached:
-    platform: linux/amd64
+  memcached1:
     image: memcached:1-alpine
-    command: memcached -m 32 -p 11211 -p 11212 -c 32
-    ports:
-      - 11211:11211
-      - 11212:11212
+    command: memcached -m 16 -c 32
+
+  memcached2:
+    image: memcached:1-alpine
+    command: memcached -m 16 -c 32
 
   autograph:
     platform: linux/amd64
@@ -39,11 +39,12 @@ services:
     image: remotesettings/local
     depends_on:
       - db
-      - memcached
+      - memcached1
+      - memcached2
       - autograph
     environment:
       - KINTO_CACHE_BACKEND=kinto.core.cache.memcached
-      - KINTO_CACHE_HOSTS=memcached:11211 memcached:11212
+      - KINTO_CACHE_HOSTS=memcached1:11211 memcached2:11211
       - KINTO_STORAGE_BACKEND=kinto.core.storage.postgresql
       - KINTO_STORAGE_URL=postgresql://postgres@db/postgres
       - KINTO_PERMISSION_BACKEND=kinto.core.permission.postgresql
