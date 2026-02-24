@@ -179,11 +179,11 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
         self,
     ):
         """
-        ==o==x======>>>
+        ==x==o======>>>
           |  |
-          |  +----> latest timestamp (6 min ago, but 2 min diff with previous, too close)
+          |  +----> latest timestamp (2min diff with previous, but no new in the last 6 minutes), publish!
           |
-          +-------> latest published (8 min ago > min debounce)
+          +-------> latest published (8 min ago)
         """
         latest_timestamp = int(
             (FAKE_NOW - datetime.timedelta(minutes=6)).timestamp() * 1000
@@ -198,4 +198,4 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
         )
         self.monitored_timestamps.return_value = [("main", "cid", latest_timestamp)]
 
-        assert self.get_broadcasted_version() == f'"{cache_timestamp}"'
+        assert self.get_broadcasted_version() == f'"{latest_timestamp}"'
