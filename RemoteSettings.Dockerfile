@@ -45,6 +45,8 @@ ENV KINTO_INI=config/local.ini \
     GRANIAN_METRICS_ENABLED=true \
     GRANIAN_METRICS_ADDRESS="127.0.0.1" \
     GRANIAN_METRICS_PORT="9090" \
+    # cap concurrent WSGI requests to something reasonable relative to the DB pool size
+    GRANIAN_BACKPRESSURE="32" \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/.venv \
     PROMETHEUS_MULTIPROC_DIR="/tmp/metrics"
