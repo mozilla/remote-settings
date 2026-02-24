@@ -38,10 +38,14 @@ services:
       context: .
     image: remotesettings/local
     depends_on:
-      - db
-      - memcached1
-      - memcached2
-      - autograph
+      db:
+        condition: service_healthy
+      memcached1:
+        condition: service_started
+      memcached2:
+        condition: service_started
+      autograph:
+        condition: service_started
     environment:
       - KINTO_CACHE_BACKEND=kinto.core.cache.memcached
       - KINTO_CACHE_HOSTS=memcached1:11211 memcached2:11211
