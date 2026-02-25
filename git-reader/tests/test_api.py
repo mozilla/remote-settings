@@ -528,6 +528,10 @@ def test_attachment_unknown_mimetype(api_client):
 
 
 def test_metrics_traces_durations(api_client):
+    # Generate metrics by hitting the endpoints that produce the expected metric labels.
+    api_client.get("/v2/buckets/main/collections/password-rules/changeset?_expected=0")
+    api_client.get("/v2/cert-chains/a/b/cert.pem")
+
     resp = api_client.get("/v2/__metrics__")
     assert resp.status_code == 200
     metrics_text = resp.text
