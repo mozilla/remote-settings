@@ -16,20 +16,11 @@ jobs:
         env:
           ACTIONLINT_VERSION: 1.7.7
           ACTIONLINT_SHA256: 023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757  # pragma: allowlist secret
-      - name: Install poetry
-        run: pipx install poetry
-      - uses: actions/cache@v5
-        # We need to use this caching strategy (rather than setting `cache: poetry` in setup-python)
-        # because our use of dependency groups. We want separate caches for each dependency group.
-        # https://github.com/actions/setup-python/issues/505
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          path: |
-            ~/.cache/pypoetry/virtualenvs
-            ~/.cache/pypoetry/cache
-            ~/.cache/pypoetry/artifacts
-          key: poetry-dev-${{ hashFiles('poetry.lock') }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14.0"
@@ -41,23 +32,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14.0"
-      - uses: actions/cache@v5
-        # We need to use this caching strategy (rather than setting `cache: poetry`` in setup-python)
-        # because our use of dependency groups. We want separate caches for each dependency group.
-        # https://github.com/actions/setup-python/issues/505
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
-        with:
-          path: |
-            ~/.cache/pypoetry/virtualenvs
-            ~/.cache/pypoetry/cache
-            ~/.cache/pypoetry/artifacts
-          key: poetry-docs-${{ hashFiles('poetry.lock') }}
       - name: Check documentation build
         run: make docs
   run_test:
@@ -81,23 +63,14 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v6
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14.0"
-      - uses: actions/cache@v5
-        # We need to use this caching strategy (rather than setting `cache: poetry`` in setup-python)
-        # because our use of dependency groups. We want separate caches for each dependency group.
-        # https://github.com/actions/setup-python/issues/505
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
-        with:
-          path: |
-            ~/.cache/pypoetry/virtualenvs
-            ~/.cache/pypoetry/cache
-            ~/.cache/pypoetry/artifacts
-          key: poetry-dev-${{ hashFiles('poetry.lock') }}
       - name: Install dependencies
         run: make install
       - name: Run tests
