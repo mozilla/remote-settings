@@ -46,6 +46,7 @@ lint: $(INSTALL_STAMP)  ## Analyze code base
 
 test: $(INSTALL_STAMP)  ## Run unit tests
 	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings cronjobs git-reader
+	$(VENV)/bin/coverage combine
 	$(VENV)/bin/coverage report -m --fail-under 99
 
 browser-test:  ## Run browser tests using Docker
