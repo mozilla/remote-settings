@@ -175,7 +175,7 @@ class BroadcastsTest(BaseWebTest, unittest.TestCase):
 
         assert self.get_broadcasted_version() == f'"{latest_timestamp}"'
 
-    def test_return_current_version_if_latest_changes_are_older_than_min_debounce(
+    def test_publishes_if_latest_changes_are_older_than_min_debounce(
         self,
     ):
         """
