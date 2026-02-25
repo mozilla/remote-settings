@@ -1,3 +1,51 @@
+[project]
+name = "remote-settings"
+version = "0"
+description = "Easily manage evergreen settings data in Firefox"
+authors = [{name = "Contactless", email = "postmaster@localhost"}]
+license = {text = "MPL"}
+readme = "README.rst"
+requires-python = ">=3.11,<3.15"
+dependencies = [
+    "canonicaljson-rs==0.9.3",
+    "cryptography==46.0.5",
+    "ecdsa==0.19.1",
+    "kinto[postgresql,memcached,monitoring]>=25.0.0,<26",
+    "kinto-attachment==7.2.0",
+    "kinto-emailer==3.0.4",
+    "requests-hawk==1.2.1",
+    "uwsgi==2.0.31",
+    "prometheus-client>=0.23.1",
+]
+
+[dependency-groups]
+kinto-remote-settings = ["kinto-remote-settings"]
+cronjobs = ["cronjobs"]
+git-reader = ["git-reader"]
+dev = [
+    "pytest==9.0.2",
+    "webtest==3.0.7",
+    "coverage==7.13.4",
+    "detect-secrets>=1.5.0",
+    "ruff>=0.15.2",
+    "responses>=0.26.0",
+    "httpx>=0.28.1",
+    "setuptools<80",
+]
+docs = [
+    "docutils==0.22.4",
+    "sphinx==9.0.4",
+]
+
+[tool.uv.sources]
+kinto-remote-settings = {path = "./kinto-remote-settings", editable = true}
+cronjobs = {path = "./cronjobs", editable = true}
+git-reader = {path = "./git-reader", editable = true}
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [tool.ruff]
 extend-exclude = [
     "__pycache__",
@@ -61,63 +109,6 @@ pythonpath = ["git-reader", "cronjobs"]
         "from",
         "import"
     ]
-
-[tool.poetry]
-name = "remote-settings"
-version = "0"
-description = "Easily manage evergreen settings data in Firefox"
-authors = ["Contactless <postmaster@localhost>"]
-license = "MPL"
-readme = "README.rst"
-
-[tool.poetry.dependencies]
-python = ">=3.11, <3.15"
-canonicaljson-rs = "0.9.3"
-cryptography = "46.0.5"
-ecdsa = "0.19.1"
-kinto = {version = "^25.0.0", extras = ["postgresql","memcached","monitoring"]}
-kinto-attachment = "7.2.0"
-kinto-emailer = "3.0.4"
-requests-hawk = "1.2.1"
-uwsgi = "2.0.31"
-prometheus-client = "^0.23.1"
-
-[tool.poetry.group.kinto-remote-settings.dependencies]
-kinto-remote-settings = {path = "./kinto-remote-settings", develop = true}
-
-[tool.poetry.group.cronjobs]
-optional = true
-
-[tool.poetry.group.cronjobs.dependencies]
-cronjobs = {path = "./cronjobs", develop = true}
-
-[tool.poetry.group.git-reader]
-optional = true
-
-[tool.poetry.group.git-reader.dependencies]
-git-reader = {path = "./git-reader", develop = true}
-
-[tool.poetry.group.dev.dependencies]
-pytest = "9.0.2"
-webtest = "3.0.7"
-coverage = "7.13.4"
-detect-secrets = "^1.5.0"
-ruff = "^0.15.2"
-responses = "^0.26.0"
-# For git-reader tests
-httpx = "^0.28.1"
-
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-docutils = "0.22.4"
-sphinx = "9.0.4"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
 
 [tool.pytest_env]
 SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # pragma: allowlist secret
