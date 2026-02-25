@@ -39,6 +39,7 @@ pythonpath = ["git-reader", "cronjobs"]
 [tool.coverage]
 # https://github.com/nedbat/coveragepy
     [tool.coverage.run]
+    parallel = true
     omit = [
         '*/.local/*',
         '/usr/*',
