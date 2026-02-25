@@ -53,6 +53,7 @@ services:
       - KINTO_STORAGE_URL=postgresql://postgres@db/postgres
       - KINTO_PERMISSION_BACKEND=kinto.core.permission.postgresql
       - KINTO_PERMISSION_URL=postgresql://postgres@db/postgres
+      - GRANIAN_ACCESS_LOG=true
     volumes:
       - ./config:/app/config
       - ./kinto-remote-settings:/app/kinto-remote-settings
