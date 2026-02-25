@@ -31,7 +31,7 @@ lines-after-imports = 2
 # -ra: shows test summary for all EXCEPT passed and passed with output
 # --showlocals: show local variables in tracebacks
 # --tb=native: traceback printing with Python standard library formatting
-addopts = "-ra --showlocals --tb=native -n auto"
+addopts = "-ra --showlocals --tb=native -n auto --dist loadgroup"
 sensitive_url = ".mozaws.net"
 asyncio_mode = "strict"
 pythonpath = ["git-reader", "cronjobs"]
