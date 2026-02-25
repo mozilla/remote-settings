@@ -108,6 +108,7 @@ ruff = "^0.15.2"
 responses = "^0.26.0"
 # For git-reader tests
 httpx = "^0.28.1"
+pytest-cov = "^7.0.0"
 
 [tool.poetry.group.docs]
 optional = true
