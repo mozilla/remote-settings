@@ -20,7 +20,7 @@ def upsert_blobs(repo, items, base_tree=None):
                 # Deletion
                 try:
                     b.remove(parts[0])
-                except KeyError:
+                except KeyError:  # pragma: no cover
                     pass
             else:
                 b.insert(parts[0], oid, pygit2.GIT_FILEMODE_BLOB)
@@ -455,6 +455,13 @@ def test_cert_chain(api_client):
     resp = api_client.get("/v2/cert-chains/a/b/cert.pem")
     assert resp.status_code == 200
     assert "-----BEGIN CERTIFICATE-----" in resp.text
+
+
+def test_cert_chain_404(api_client):
+    resp = api_client.get("/v2/cert-chains/a/b/")
+    assert resp.status_code == 404
+    resp = api_client.get("/v2/cert-chains/a/b/unknown.pem")
+    assert resp.status_code == 404
 
 
 def test_startup_rewrites_x5u(api_client, temp_dir):

@@ -50,7 +50,7 @@ test: $(INSTALL_STAMP)  ## Run unit tests
     --cov=cronjobs \
     --cov=git-reader \
     --cov-report=term-missing \
-    --cov-fail-under=98 \
+    --cov-fail-under=99 \
     kinto-remote-settings cronjobs git-reader
 
 browser-test:  ## Run browser tests using Docker

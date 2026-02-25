@@ -41,6 +41,7 @@ pythonpath = ["git-reader", "cronjobs"]
     [tool.coverage.run]
     parallel = true
     omit = [
+        '*/setup.py',
         '*/.local/*',
         '/usr/*',
         '*/.venv/*',
@@ -49,7 +50,6 @@ pythonpath = ["git-reader", "cronjobs"]
     ]
 
     [tool.coverage.report]
-
     exclude_lines = [
         "# noqa",
         "raise NotImplementedError",
