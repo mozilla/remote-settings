@@ -1,3 +1,7 @@
+############################
+# Compile stage
+############################
+
 FROM python:3.14.3 AS compile
 
 ENV VIRTUAL_ENV=/opt/.venv \
@@ -22,7 +26,12 @@ RUN uv sync --frozen --no-install-project \
 # non-editable mode
 COPY ./kinto-remote-settings ./kinto-remote-settings
 COPY version.json .
-RUN pip install ./kinto-remote-settings
+RUN uv pip install ./kinto-remote-settings
+
+
+############################
+# Kinto Admin stage
+############################
 
 # We pull the Kinto Admin assets at the version specified in `kinto-admin/VERSION`.
 FROM alpine:3 AS get-admin
@@ -31,6 +40,10 @@ COPY bin/pull-kinto-admin.sh .
 COPY kinto-admin/ kinto-admin/
 RUN ./pull-kinto-admin.sh
 
+
+############################
+# Production stage
+############################
 
 FROM python:3.14.3-slim AS production
 
@@ -72,6 +85,11 @@ USER app
 ENTRYPOINT ["./bin/run.sh"]
 # Run server by default
 CMD ["start"]
+
+
+############################
+# Local stage
+############################
 
 FROM production AS local
 
