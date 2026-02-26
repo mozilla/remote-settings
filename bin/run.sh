@@ -12,7 +12,8 @@ case $1 in
     kinto migrate --ini $KINTO_INI
     ;;
   start)
-    uwsgi --http :$PORT --ini $KINTO_INI
+    shift
+    exec granian server:app --interface wsgi "$@"
     ;;
   *)
     exec "$@"
