@@ -1,6 +1,11 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+[project]
+name = "kinto-remote-settings"
+version = "0.0.0"
+description = "Remote Settings plugin for Kinto"
+requires-python = ">=3.12"
+dependencies = [
+    "kinto",
+    "canonicaljson-rs",
+    "ecdsa",
+    "requests-hawk",
 ]
-build-backend = "setuptools.build_meta"

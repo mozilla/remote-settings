@@ -19,14 +19,13 @@ RUN uv sync --frozen --no-install-project --no-editable \
     --no-group dev \
     --no-group docs
 
-# though we have kinto-remote-settings specified as a dependency in
-# pyproject.toml, we have it configured to install in editable mode for local
-# development. For building the container, we only install the "main"
-# dependency group so that we can use pip to install the packages in
-# non-editable mode
 COPY ./kinto-remote-settings ./kinto-remote-settings
-COPY version.json .
-RUN uv pip install ./kinto-remote-settings
+RUN uv sync --frozen --no-install-project --no-editable \
+    --group kinto-remote-settings \
+    --no-group cronjobs \
+    --no-group git-reader \
+    --no-group dev \
+    --no-group docs
 
 
 ############################
@@ -60,7 +59,8 @@ ENV KINTO_INI=config/local.ini \
     GRANIAN_BACKPRESSURE="32" \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/.venv \
-    PROMETHEUS_MULTIPROC_DIR="/tmp/metrics"
+    PROMETHEUS_MULTIPROC_DIR="/tmp/metrics" \
+    VERSION_FILE=/app/version.json
 
 COPY /bin/update_and_install_system_packages.sh /opt
 RUN /opt/update_and_install_system_packages.sh \
