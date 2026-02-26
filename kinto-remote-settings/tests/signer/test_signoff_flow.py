@@ -4,6 +4,7 @@ import string
 import unittest
 from unittest import mock
 
+import pytest
 from kinto.core.errors import ERRORS
 from kinto.core.testing import FormattedErrorMixin
 
@@ -13,6 +14,7 @@ from .support import BaseWebTest, get_user_headers
 RE_ISO8601 = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00")
 
 
+@pytest.mark.xdist_group(name="signoff_flow")
 class PostgresWebTest(BaseWebTest):
     source_bucket = "/buckets/alice"
     source_collection = "/buckets/alice/collections/scid"

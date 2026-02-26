@@ -531,41 +531,60 @@ def test_batch_upload_and_verify():
         auth_header="Bearer TOKEN",
     )
 
-    (
-        _batch_call,
-        _dl_call_1,
-        _dl_call_2,
-        _upload_call_1,
-        _upload_call_2,
-        verify_call_1,
-        verify_call_2,
-    ) = responses.calls
+    calls = responses.calls
 
-    sent = json.loads(_batch_call.request.body.decode("utf-8"))
+    batch_call = next(
+        c for c in calls if c.request.url.endswith("/info/lfs/objects/batch")
+    )
+
+    download_calls = [
+        c for c in calls if c.request.url in {download_url_1, download_url_2}
+    ]
+
+    upload_calls = [
+        c
+        for c in calls
+        if c.request.url
+        in {
+            "https://upload.example.com/a",
+            "https://upload.example.com/b",
+        }
+    ]
+
+    verify_calls = [
+        c
+        for c in calls
+        if c.request.url
+        in {
+            "https://verify.example.com/a",
+            "https://verify.example.com/b",
+        }
+    ]
+    assert len(download_calls) == 2
+    assert len(upload_calls) == 2
+    assert len(verify_calls) == 2
+
+    sent = json.loads(batch_call.request.body.decode("utf-8"))
     # order preserved: two objects with (oid,size)
     assert sent["operation"] == "upload"
     assert {o["oid"] for o in sent["objects"]} == {o1[0], o2[0]}
 
-    if _dl_call_1.request.url == download_url_2:
-        _dl_call_1, _dl_call_2 = _dl_call_2, _dl_call_1
+    if download_calls[0].request.url == download_url_2:
+        download_calls.reverse()
+    assert download_calls[0].request.url == download_url_1
+    assert download_calls[1].request.url == download_url_2
 
-    assert _dl_call_1.request.url == download_url_1
-    assert _dl_call_2.request.url == download_url_2
+    assert upload_calls[0].request.method == "PUT"
+    assert upload_calls[1].request.method == "PUT"
 
-    assert _upload_call_1.request.method == "PUT"
-    assert _upload_call_2.request.method == "PUT"
+    verify_a = next(c for c in verify_calls if c.request.url.endswith("/a"))
+    assert verify_a.request.method == "POST"
+    body_a = json.loads(verify_a.request.body.decode())
+    assert body_a == {"oid": o1[0], "size": o1[1]}
+    assert verify_a.request.headers["V"] == "A"
 
-    if verify_call_1.request.url == "https://verify.example.com/b":
-        verify_call_1, verify_call_2 = verify_call_2, verify_call_1
-
-    assert verify_call_1.request.url == "https://verify.example.com/a"
-    assert verify_call_1.request.method == "POST"
-    assert verify_call_1.request.headers.get("V") == "A"
-    body1 = json.loads(verify_call_1.request.body.decode("utf-8"))
-    assert body1 == {"oid": o1[0], "size": o1[1]}
-
-    assert verify_call_2.request.url == "https://verify.example.com/b"
-    assert verify_call_2.request.method == "POST"
-    assert verify_call_2.request.headers.get("V") == "B"
-    body2 = json.loads(verify_call_2.request.body.decode("utf-8"))
-    assert body2 == {"oid": o2[0], "size": o2[1]}
+    verify_b = next(c for c in verify_calls if c.request.url.endswith("/b"))
+    assert verify_b.request.method == "POST"
+    body_b = json.loads(verify_b.request.body.decode())
+    assert body_b == {"oid": o2[0], "size": o2[1]}
+    assert verify_b.request.headers["V"] == "B"

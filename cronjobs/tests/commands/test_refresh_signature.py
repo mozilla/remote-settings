@@ -2,8 +2,9 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from unittest import mock
 
+import pytest
 import responses
-from commands.refresh_signature import refresh_signature
+from commands.refresh_signature import RefreshError, refresh_signature
 
 
 SERVER_INFO = {
@@ -143,3 +144,26 @@ class TestSignatureRefresh(unittest.TestCase):
         patch_requests = [r for r in responses.calls if r.request.method == "PATCH"]
 
         assert len(patch_requests) == 2
+
+    @responses.activate
+    def test_errors_are_reported(self):
+        responses.add(responses.GET, self.server + "/", json=SERVER_INFO)
+        responses.add(
+            responses.GET,
+            self.server + "/buckets/monitor/collections/changes/records",
+            json=MONITOR_CHANGES,
+        )
+        responses.add(
+            responses.GET,
+            self.server + "/buckets/main-workspace/collections/top-sites",
+            status=500,
+            json={"message": "Boom"},
+        )
+        responses.add(
+            responses.GET,
+            self.server + "/buckets/main-workspace/collections/search-config",
+            status=500,
+        )
+        with pytest.raises(RefreshError) as excinfo:
+            refresh_signature()
+        assert "Boom" in str(excinfo.value)

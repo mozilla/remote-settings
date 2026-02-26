@@ -383,7 +383,7 @@ def github_lfs_batch_upload_many(
         to_verify: list[tuple[tuple[str, int], tuple[str, str, dict[str, str]]]] = []
         for oid, size, url in chunk:
             api_obj = api_objs_by_oid.get(oid)
-            if not api_obj:
+            if not api_obj:  # pragma: no cover
                 print(
                     f"LFS: warning: server omitted oid {oid} in batch response; skipping"
                 )

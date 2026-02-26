@@ -31,7 +31,7 @@ lines-after-imports = 2
 # -ra: shows test summary for all EXCEPT passed and passed with output
 # --showlocals: show local variables in tracebacks
 # --tb=native: traceback printing with Python standard library formatting
-addopts = "-ra --showlocals --tb=native"
+addopts = "-ra --showlocals --tb=native -n auto --dist loadgroup"
 sensitive_url = ".mozaws.net"
 asyncio_mode = "strict"
 pythonpath = ["git-reader", "cronjobs"]
@@ -39,7 +39,9 @@ pythonpath = ["git-reader", "cronjobs"]
 [tool.coverage]
 # https://github.com/nedbat/coveragepy
     [tool.coverage.run]
+    parallel = true
     omit = [
+        '*/setup.py',
         '*/.local/*',
         '/usr/*',
         '*/.venv/*',
@@ -48,7 +50,6 @@ pythonpath = ["git-reader", "cronjobs"]
     ]
 
     [tool.coverage.report]
-
     exclude_lines = [
         "# noqa",
         "raise NotImplementedError",
@@ -99,6 +100,7 @@ git-reader = {path = "./git-reader", develop = true}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "9.0.2"
+pytest-xdist = "^3.6"
 webtest = "3.0.7"
 coverage = "7.13.4"
 detect-secrets = "^1.5.0"
@@ -106,6 +108,7 @@ ruff = "^0.15.2"
 responses = "^0.26.0"
 # For git-reader tests
 httpx = "^0.28.1"
+pytest-cov = "^7.0.0"
 
 [tool.poetry.group.docs]
 optional = true
