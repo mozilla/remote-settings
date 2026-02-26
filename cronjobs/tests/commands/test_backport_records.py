@@ -284,6 +284,7 @@ def test_correct_multiline_mappings(mapping_env, expected_calls):
         with mock.patch.dict(
             "os.environ",
             {
+                "SERVER": "https://fake-server.net/v1",
                 "BACKPORT_RECORDS_SOURCE_AUTH": "admin:admin",
                 "BACKPORT_RECORDS_MAPPINGS": mapping_env,
             },
@@ -310,6 +311,7 @@ def test_incorrect_multiline_mappings(mapping_env):
     with mock.patch.dict(
         "os.environ",
         {
+            "SERVER": "https://fake-server.net/v1",
             "BACKPORT_RECORDS_SOURCE_AUTH": "admin:admin",
             "BACKPORT_RECORDS_MAPPINGS": mapping_env,
         },

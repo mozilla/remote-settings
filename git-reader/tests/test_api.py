@@ -20,7 +20,7 @@ def upsert_blobs(repo, items, base_tree=None):
                 # Deletion
                 try:
                     b.remove(parts[0])
-                except KeyError:
+                except KeyError:  # pragma: no cover
                     pass
             else:
                 b.insert(parts[0], oid, pygit2.GIT_FILEMODE_BLOB)
@@ -457,6 +457,13 @@ def test_cert_chain(api_client):
     assert "-----BEGIN CERTIFICATE-----" in resp.text
 
 
+def test_cert_chain_404(api_client):
+    resp = api_client.get("/v2/cert-chains/a/b/")
+    assert resp.status_code == 404
+    resp = api_client.get("/v2/cert-chains/a/b/unknown.pem")
+    assert resp.status_code == 404
+
+
 def test_startup_rewrites_x5u(api_client, temp_dir):
     with open(
         os.path.join(temp_dir, "attachments", "bundles", "startup.json.mozlz4"), "wb"
@@ -528,6 +535,10 @@ def test_attachment_unknown_mimetype(api_client):
 
 
 def test_metrics_traces_durations(api_client):
+    # Generate metrics by hitting the endpoints that produce the expected metric labels.
+    api_client.get("/v2/buckets/main/collections/password-rules/changeset?_expected=0")
+    api_client.get("/v2/cert-chains/a/b/cert.pem")
+
     resp = api_client.get("/v2/__metrics__")
     assert resp.status_code == 200
     metrics_text = resp.text

@@ -712,7 +712,7 @@ def cleanup_preview_destination(event, resources):
                     object_id=obj_id,
                     with_deleted=not should_hard_delete,
                 )
-            except ObjectNotFoundError:
+            except ObjectNotFoundError:  # pragma: no cover
                 # Already deleted
                 pass
 
@@ -738,8 +738,9 @@ def cleanup_preview_destination(event, resources):
                         object_id=cid,
                         with_deleted=False,
                     )
-                except ObjectNotFoundError:
-                    # Already deleted
+                except ObjectNotFoundError:  # pragma: no cover
+                    # Already deleted. This in practice should not happen since the
+                    # collection deletion is protected by the ``signer_impacts_resource`` event listener.
                     pass
                 # Delete all tombstones and timestamps of this collection.
                 storage.purge_deleted(resource_name=None, parent_id=collection_uri)

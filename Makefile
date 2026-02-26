@@ -41,8 +41,13 @@ lint: $(INSTALL_STAMP)  ## Analyze code base
 	$(VENV)/bin/python bin/repo-python-versions.py
 
 test: $(INSTALL_STAMP)  ## Run unit tests
-	PYTHONPATH=. $(VENV)/bin/coverage run -m pytest kinto-remote-settings cronjobs git-reader
-	$(VENV)/bin/coverage report -m --fail-under 99
+	PYTHONPATH=. $(VENV)/bin/pytest \
+    --cov=kinto-remote-settings \
+    --cov=cronjobs \
+    --cov=git-reader \
+    --cov-report=term-missing \
+    --cov-fail-under=99 \
+    kinto-remote-settings cronjobs git-reader
 
 browser-test:  ## Run browser tests using Docker
 	docker compose --profile=browser-tests build browser-tests -q

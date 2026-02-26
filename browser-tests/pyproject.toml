@@ -13,6 +13,7 @@ dependencies = [
     "webtest==3.0.4",
     "playwright==1.52.0",
     "pytest-playwright==0.7.0",
+    "pytest-timeout==2.4.0",
 ]
 
 [build-system]

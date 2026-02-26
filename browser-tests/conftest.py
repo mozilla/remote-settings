@@ -1,3 +1,4 @@
+import functools
 import os
 import random
 from typing import Callable, Tuple
@@ -131,6 +132,7 @@ def request_session(server) -> requests.Session:
     session = requests.Session()
     retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
     session.mount(f"{server.split('://')[0]}://", HTTPAdapter(max_retries=retries))
+    session.request = functools.partial(session.request, timeout=30)
     return session
 
 

@@ -304,34 +304,40 @@ def includeme(config):
             event.app.registry.settings["signer.auto_create_resources_principals"]
         )
 
-        for resource in resources.values():
-            perms = {"write": write_principals}
-            bucket = resource["source"]["bucket"]
-            collection = resource["source"]["collection"]
+        # Wrap in transaction.manager to ensure the writes are committed even
+        # when running outside of a Pyramid request (no pyramid_tm context).
+        # Without this, with transaction_per_request=True (kinto's default),
+        # the postgres writes stay open as "idle in transaction", blocking
+        # subsequent requests that try to write to the same resources.
+        with transaction.manager:
+            for resource in resources.values():
+                perms = {"write": write_principals}
+                bucket = resource["source"]["bucket"]
+                collection = resource["source"]["collection"]
 
-            bucket_uri = f"/buckets/{bucket}"
-            utils.storage_create_raw(
-                storage_backend=storage,
-                permission_backend=permission,
-                resource_name="bucket",
-                parent_id="",
-                object_uri=bucket_uri,
-                object_id=bucket,
-                permissions=perms,
-            )
-
-            # If resource is configured for specific collection, create it too.
-            if collection:
-                collection_uri = f"{bucket_uri}/collections/{collection}"
+                bucket_uri = f"/buckets/{bucket}"
                 utils.storage_create_raw(
                     storage_backend=storage,
                     permission_backend=permission,
-                    resource_name="collection",
-                    parent_id=bucket_uri,
-                    object_uri=collection_uri,
-                    object_id=collection,
+                    resource_name="bucket",
+                    parent_id="",
+                    object_uri=bucket_uri,
+                    object_id=bucket,
                     permissions=perms,
                 )
+
+                # If resource is configured for specific collection, create it too.
+                if collection:
+                    collection_uri = f"{bucket_uri}/collections/{collection}"
+                    utils.storage_create_raw(
+                        storage_backend=storage,
+                        permission_backend=permission,
+                        resource_name="collection",
+                        parent_id=bucket_uri,
+                        object_uri=collection_uri,
+                        object_id=collection,
+                        permissions=perms,
+                    )
 
     # Create resources on startup (except when executing `migrate`).
     if (
