@@ -133,6 +133,7 @@ jobs:
         with:
           cache-from: type=local,src=${{ env.DOCKER_CACHE}}/cronjobs
           cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/cronjobs,mode=max
+          load: true
           file: cronjobs/Dockerfile
           context: cronjobs/
           tags: remote-settings/cronjobs:latest  # Like with docker compose build cronjobs
