@@ -7,8 +7,8 @@ wait_for_server () {
   echo "Waiting for $SERVER to become available"
   wget -q --retry-connrefused --waitretry=1 -O /dev/null $SERVER || (echo "Can't reach $SERVER" && exit 1)
   echo "verifying $SERVER heartbeat"
-  http --check-status --body --json --pretty format GET $SERVER/__heartbeat__ ; echo
+  http --check-status --body --json --pretty format --timeout=30 GET $SERVER/__heartbeat__ ; echo
 }
 
 wait_for_server
-pytest --browser firefox $@
+pytest --browser firefox --timeout=120 -v --tracing=retain-on-failure --screenshot=only-on-failure $@
