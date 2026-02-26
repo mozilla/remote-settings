@@ -1,36 +1,24 @@
-FROM python:3.14.0-slim-bookworm AS build
+FROM python:3.14.0-slim-bookworm
 
 ENV VIRTUAL_ENV=/opt/.venv \
     PATH="/opt/.venv/bin:$PATH" \
-    PYTHONPATH="/app:$PYTHONPATH"
-
-RUN apt-get update && apt-get -y install build-essential
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH="/app"
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-WORKDIR /opt
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-install-project
-
-FROM python:3.14.0-slim-bookworm
-
-ENV PATH="/opt/.venv/bin:$PATH" \
-    PYTHONUNBUFFERED=1 \
-    VIRTUAL_ENV=/opt/.venv \
-    PYTHONPATH="/app:$PYTHONPATH"
-
-RUN apt-get update && apt-get -y install wget build-essential
-
-RUN addgroup --gid 10001 app && \
-    adduser --disabled-password --gecos '' --gid 10001 --home /app --uid 10001 app
-
-COPY --from=build --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
-
-RUN playwright install-deps firefox
-
-USER app
-RUN playwright install firefox
-
 WORKDIR /app
+COPY pyproject.toml uv.lock ./
+
+RUN apt-get update && apt-get install -y --no-install-recommends wget build-essential \
+ && uv venv "$VIRTUAL_ENV" \
+ && uv sync --frozen --no-install-project \
+ && uv run playwright install-deps firefox \
+ && uv run playwright install firefox \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN addgroup --gid 10001 app \
+ && adduser --disabled-password --gecos '' --gid 10001 --home /app --uid 10001 app
+USER app
 COPY . .
-ENTRYPOINT ["/app/run.sh"]
+ENTRYPOINT ["./run.sh"]
