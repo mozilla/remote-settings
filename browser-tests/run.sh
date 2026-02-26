@@ -7,5 +7,5 @@ until wget -qO- "$SERVER/__heartbeat__" >/dev/null; do
   sleep 1
 done
 
-uv run pytest --browser firefox --timeout=120 -v \
+pytest --browser firefox --timeout=120 -v \
   --tracing=retain-on-failure --screenshot=only-on-failure "$@"
