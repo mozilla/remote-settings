@@ -1,5 +1,6 @@
 import json
 import unittest
+import unittest.mock
 from unittest import mock
 
 import pytest
@@ -76,13 +77,13 @@ class TestRecordsBackport(unittest.TestCase):
             backport_records()
 
         assert responses.calls[0].request.method == "GET"
-        assert responses.calls[0].request.url.endswith("?min_age=20")
+        assert responses.calls[0].request.url.endswith("?min_age=20")  # type: ignore[unresolved-attribute]
 
         assert responses.calls[1].request.method == "GET"
         assert responses.calls[2].request.method == "GET"
 
         assert responses.calls[3].request.method == "POST"
-        posted_records = json.loads(responses.calls[3].request.body)
+        posted_records = json.loads(responses.calls[3].request.body)  # type: ignore[arg-type]
         assert posted_records["requests"] == [
             {
                 "body": {"data": {"age": 30, "id": "b", "last_modified": 10}},
@@ -120,7 +121,7 @@ class TestRecordsBackport(unittest.TestCase):
             backport_records()
 
         assert responses.calls[3].request.method == "POST"
-        posted_records = json.loads(responses.calls[3].request.body)
+        posted_records = json.loads(responses.calls[3].request.body)  # type: ignore[arg-type]
         assert posted_records["requests"] == [
             {
                 "body": {"data": {"age": 22, "id": "a"}},
@@ -166,12 +167,12 @@ class TestRecordsBackport(unittest.TestCase):
 
         assert len(responses.calls) == 3
         assert responses.calls[0].request.method == "GET"
-        assert responses.calls[0].request.url.endswith(self.source_records_uri)
+        assert responses.calls[0].request.url.endswith(self.source_records_uri)  # type: ignore[unresolved-attribute]
         assert responses.calls[1].request.method == "GET"
-        assert responses.calls[1].request.url.endswith(self.dest_records_uri)
+        assert responses.calls[1].request.url.endswith(self.dest_records_uri)  # type: ignore[unresolved-attribute]
         # Check if the destination collection is signed.
         assert responses.calls[2].request.method == "GET"
-        assert responses.calls[2].request.url.endswith(self.dest_collection_uri)
+        assert responses.calls[2].request.url.endswith(self.dest_collection_uri)  # type: ignore[unresolved-attribute]
 
     @responses.activate
     def test_pending_changes(self):
@@ -235,12 +236,12 @@ class TestRecordsBackport(unittest.TestCase):
 
         assert len(responses.calls) == 6
         assert responses.calls[0].request.method == "GET"
-        assert responses.calls[0].request.url.endswith(self.source_records_uri)
+        assert responses.calls[0].request.url.endswith(self.source_records_uri)  # type: ignore[unresolved-attribute]
         assert responses.calls[1].request.method == "GET"
-        assert responses.calls[1].request.url.endswith(self.dest_records_uri)
+        assert responses.calls[1].request.url.endswith(self.dest_records_uri)  # type: ignore[unresolved-attribute]
         # Check if the destination collection is signed.
         assert responses.calls[2].request.method == "GET"
-        assert responses.calls[2].request.url.endswith(self.dest_collection_uri)
+        assert responses.calls[2].request.url.endswith(self.dest_collection_uri)  # type: ignore[unresolved-attribute]
         # Fetch server info for batch requests size.
         assert responses.calls[3].request.method == "GET"
         assert responses.calls[3].request.url == self.server + "/"
@@ -249,8 +250,8 @@ class TestRecordsBackport(unittest.TestCase):
         assert responses.calls[4].request.url == self.server + "/"
         # Request signing.
         assert responses.calls[5].request.method == "PATCH"
-        assert responses.calls[5].request.url.endswith(self.dest_collection_uri)
-        sign_request = json.loads(responses.calls[5].request.body)
+        assert responses.calls[5].request.url.endswith(self.dest_collection_uri)  # type: ignore[unresolved-attribute]
+        sign_request = json.loads(responses.calls[5].request.body)  # type: ignore[arg-type]
         assert sign_request == {"data": {"status": "to-sign"}}
 
 

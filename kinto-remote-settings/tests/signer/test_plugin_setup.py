@@ -407,11 +407,11 @@ class OnCollectionChangedTest(unittest.TestCase):
 
 class PatchAutographMixin:
     def setUp(self):
-        super().setUp()
+        super().setUp()  # type: ignore[unresolved-attribute]
         # Patch calls to Autograph.
         patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
         mocked = patch.start()
-        self.addCleanup(patch.stop)
+        self.addCleanup(patch.stop)  # type: ignore[unresolved-attribute]
         mocked.post.return_value.json.side_effect = lambda: [
             {
                 "signature": uuid.uuid4().hex,

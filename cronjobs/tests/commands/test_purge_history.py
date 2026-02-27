@@ -51,8 +51,8 @@ def test_deletes_from_all_history_endpoints(mocked_now):
         product(("bid1", "bid2"), ("account:user1", "account:user2"))
     ):
         assert (
-            responses.calls[i].request.headers["Authorization"] == "Basic cm9vdDoxMjM="
+            responses.calls[i].request.headers["Authorization"] == "Basic cm9vdDoxMjM="  # type: ignore[index]
         )
-        assert responses.calls[i].request.params["_before"] == '"1711287420000"'
+        assert responses.calls[i].request.params["_before"] == '"1711287420000"'  # type: ignore[unresolved-attribute]
         assert f"/buckets/{bid}/history" in responses.calls[i].request.path_url
-        assert responses.calls[i].request.params["user_id"] == user
+        assert responses.calls[i].request.params["user_id"] == user  # type: ignore[unresolved-attribute]

@@ -313,7 +313,7 @@ changeset = kinto.core.Service(
 )
 
 
-class QuotedTimestamp(colander.SchemaNode):
+class QuotedTimestamp(colander.SchemaNode):  # type: ignore[unsupported-base]
     """Integer with optional quotes used in _since querystring."""
 
     schema_type = colander.String

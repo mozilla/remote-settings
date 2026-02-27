@@ -12,7 +12,7 @@ class RefreshError(Exception):
 
 def timestamp_to_date(timestamp_milliseconds):
     timestamp_seconds = int(timestamp_milliseconds) / 1000
-    return datetime.utcfromtimestamp(timestamp_seconds).strftime(
+    return datetime.fromtimestamp(timestamp_seconds, tz=timezone.utc).strftime(
         "%Y-%m-%d %H:%M:%S UTC"
     )
 

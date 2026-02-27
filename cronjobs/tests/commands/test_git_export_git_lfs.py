@@ -2,6 +2,7 @@ import json
 from unittest import mock
 
 import commands
+import commands._git_export_lfs
 import jwt
 import pytest
 import requests
@@ -208,11 +209,11 @@ def test_github_lfs_batch_request_success(operation):
     assert call.request.url == url
     assert call.request.method == "POST"
     # Headers
-    assert call.request.headers["Accept"] == "application/vnd.git-lfs+json"
-    assert call.request.headers["Content-Type"] == "application/vnd.git-lfs+json"
-    assert call.request.headers["Authorization"] == "Bearer TOKEN"
+    assert call.request.headers["Accept"] == "application/vnd.git-lfs+json"  # type: ignore[index]
+    assert call.request.headers["Content-Type"] == "application/vnd.git-lfs+json"  # type: ignore[index]
+    assert call.request.headers["Authorization"] == "Bearer TOKEN"  # type: ignore[index]
     # Body
-    sent = json.loads(call.request.body.decode("utf-8"))
+    sent = json.loads(call.request.body.decode("utf-8"))  # type: ignore[unresolved-attribute]
     assert sent["operation"] == operation
     assert sent["transfers"] == ["basic"]
     assert sent["objects"] == objects
@@ -280,7 +281,7 @@ def test_success_first_try(no_sleep):
     upload = responses.calls[1]
     assert upload.request.url == upload_url
     assert upload.request.method == "PUT"
-    assert upload.request.headers.get("X-Foo") == "Bar"
+    assert upload.request.headers.get("X-Foo") == "Bar"  # type: ignore[unresolved-attribute]
     # Body came from the temp file; just ensure something was sent
     assert upload.request.body is not None
 
@@ -302,7 +303,7 @@ def test_fail_after_max_retries(no_sleep):
     with pytest.raises(RuntimeError, match="failed to download"):
         _download_from_cdn_and_upload_to_lfs_volume(source, dest)
 
-    methods = [r.request.method.upper() for r in responses.calls]
+    methods = [r.request.method.upper() for r in responses.calls]  # type: ignore[unresolved-attribute]
     assert "PUT" not in methods
 
 
@@ -362,8 +363,8 @@ def test_verify_upload_success(status):
     call = responses.calls[0]
     assert call.request.method == "POST"
     assert call.request.url == href
-    assert call.request.headers.get("X-Verify") == "yes"
-    payload = json.loads(call.request.body.decode("utf-8"))
+    assert call.request.headers.get("X-Verify") == "yes"  # type: ignore[unresolved-attribute]
+    payload = json.loads(call.request.body.decode("utf-8"))  # type: ignore[unresolved-attribute]
     assert payload == {"oid": oid, "size": size}
 
 
@@ -534,7 +535,9 @@ def test_batch_upload_and_verify():
     calls = responses.calls
 
     batch_call = next(
-        c for c in calls if c.request.url.endswith("/info/lfs/objects/batch")
+        c
+        for c in calls
+        if c.request.url.endswith("/info/lfs/objects/batch")  # type: ignore[unresolved-attribute]
     )
 
     download_calls = [
@@ -564,7 +567,7 @@ def test_batch_upload_and_verify():
     assert len(upload_calls) == 2
     assert len(verify_calls) == 2
 
-    sent = json.loads(batch_call.request.body.decode("utf-8"))
+    sent = json.loads(batch_call.request.body.decode("utf-8"))  # type: ignore[unresolved-attribute]
     # order preserved: two objects with (oid,size)
     assert sent["operation"] == "upload"
     assert {o["oid"] for o in sent["objects"]} == {o1[0], o2[0]}
@@ -577,14 +580,14 @@ def test_batch_upload_and_verify():
     assert upload_calls[0].request.method == "PUT"
     assert upload_calls[1].request.method == "PUT"
 
-    verify_a = next(c for c in verify_calls if c.request.url.endswith("/a"))
+    verify_a = next(c for c in verify_calls if c.request.url.endswith("/a"))  # type: ignore[unresolved-attribute]
     assert verify_a.request.method == "POST"
-    body_a = json.loads(verify_a.request.body.decode())
+    body_a = json.loads(verify_a.request.body.decode())  # type: ignore[unresolved-attribute]
     assert body_a == {"oid": o1[0], "size": o1[1]}
-    assert verify_a.request.headers["V"] == "A"
+    assert verify_a.request.headers["V"] == "A"  # type: ignore[index]
 
-    verify_b = next(c for c in verify_calls if c.request.url.endswith("/b"))
+    verify_b = next(c for c in verify_calls if c.request.url.endswith("/b"))  # type: ignore[unresolved-attribute]
     assert verify_b.request.method == "POST"
-    body_b = json.loads(verify_b.request.body.decode())
+    body_b = json.loads(verify_b.request.body.decode())  # type: ignore[unresolved-attribute]
     assert body_b == {"oid": o2[0], "size": o2[1]}
-    assert verify_b.request.headers["V"] == "B"
+    assert verify_b.request.headers["V"] == "B"  # type: ignore[index]

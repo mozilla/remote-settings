@@ -4,6 +4,7 @@ import os
 import backoff
 import kinto_http
 import requests
+import requests.adapters
 from requests.adapters import TimeoutSauce
 
 
@@ -28,7 +29,7 @@ class CustomTimeout(TimeoutSauce):
         super().__init__(*args, **kwargs)
 
 
-requests.adapters.TimeoutSauce = CustomTimeout
+requests.adapters.TimeoutSauce = CustomTimeout  # type: ignore[assignment]
 
 
 class KintoClient(kinto_http.Client):
