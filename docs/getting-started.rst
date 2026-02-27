@@ -120,6 +120,24 @@ Consider the following summary table:
         won't be able to synchronize your collection (signature verification will fail).
 
 
+Attachments Size Limit
+''''''''''''''''''''''
+
+Attachments below 20MB will be compressed automatically by the CDN (`gzip` or `brotli`).
+
+If you plan on serving bigger attachments:
+- files MUST be compressed upstream, ie. before uploading on server;
+- an exception MUST be requested by opening a Bugzilla ticket against the `Server: Remote Settings` component, and providing the collection name,
+  the expected size of attachments, and a justification for this need.
+
+.. warning::
+
+    Serving big files is very (very) costly, especially if they are updated often.
+
+Also, if your client side code requires a specific decompression logic, please reach out to us (``#delivery`` on Slack) to discuss the best way to implement it,
+we would be happy to generalize what we already have in place internally (eg. `zip` and `.json.mozlz4`).
+
+
 .. _collection-manifests:
 
 Collection manifests
