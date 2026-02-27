@@ -1,30 +1,36 @@
+############################
+# Compile stage
+############################
+
 FROM python:3.14.3 AS compile
 
-ENV PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    VIRTUAL_ENV=/opt/.venv \
+ENV VIRTUAL_ENV=/opt/.venv \
     PATH="/opt/.venv/bin:$PATH"
 
-# Install Poetry
-RUN python -m venv $POETRY_HOME && \
-    $POETRY_HOME/bin/pip install poetry==2.0.1 && \
-    $POETRY_HOME/bin/poetry --version
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 WORKDIR /opt
-COPY ./poetry.lock ./pyproject.toml ./
-RUN $POETRY_HOME/bin/poetry install --only main --no-root
+COPY ./uv.lock ./pyproject.toml ./
+RUN uv venv $VIRTUAL_ENV
+RUN uv sync --frozen --no-install-project --no-editable \
+    --no-group kinto-remote-settings \
+    --no-group cronjobs \
+    --no-group git-reader \
+    --no-group dev \
+    --no-group docs
 
-# though we have kinto-remote-settings specified as a dependency in
-# pyproject.toml, we have it configured to install in editable mode for local
-# development. For building the container, we only install the "main"
-# dependency group so that we can use pip to install the packages in
-# non-editable mode
 COPY ./kinto-remote-settings ./kinto-remote-settings
-COPY version.json .
-RUN pip install ./kinto-remote-settings
+RUN uv sync --frozen --no-install-project --no-editable \
+    --group kinto-remote-settings \
+    --no-group cronjobs \
+    --no-group git-reader \
+    --no-group dev \
+    --no-group docs
+
+
+############################
+# Kinto Admin stage
+############################
 
 # We pull the Kinto Admin assets at the version specified in `kinto-admin/VERSION`.
 FROM alpine:3 AS get-admin
@@ -33,6 +39,10 @@ COPY bin/pull-kinto-admin.sh .
 COPY kinto-admin/ kinto-admin/
 RUN ./pull-kinto-admin.sh
 
+
+############################
+# Production stage
+############################
 
 FROM python:3.14.3-slim AS production
 
@@ -49,7 +59,8 @@ ENV KINTO_INI=config/local.ini \
     GRANIAN_BACKPRESSURE="32" \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/.venv \
-    PROMETHEUS_MULTIPROC_DIR="/tmp/metrics"
+    PROMETHEUS_MULTIPROC_DIR="/tmp/metrics" \
+    VERSION_FILE=/app/version.json
 
 COPY /bin/update_and_install_system_packages.sh /opt
 RUN /opt/update_and_install_system_packages.sh \
@@ -74,6 +85,11 @@ USER app
 ENTRYPOINT ["./bin/run.sh"]
 # Run server by default
 CMD ["start"]
+
+
+############################
+# Local stage
+############################
 
 FROM production AS local
 

@@ -1,22 +1,14 @@
 FROM python:3.14.0 AS build
 
-ENV PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    VIRTUAL_ENV=/opt/.venv \
+ENV VIRTUAL_ENV=/opt/.venv \
     PATH="/opt/.venv/bin:$PATH" \
     PYTHONPATH="/app:$PYTHONPATH"
 
-# Install Poetry
-RUN python -m venv $POETRY_HOME && \
-    $POETRY_HOME/bin/pip install poetry==2.0.1 && \
-    $POETRY_HOME/bin/poetry --version
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 WORKDIR /opt
-COPY pyproject.toml poetry.lock ./
-RUN $POETRY_HOME/bin/poetry install --no-root
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-install-project
 
 
 FROM python:3.14.0-slim

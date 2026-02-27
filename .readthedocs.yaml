@@ -9,7 +9,6 @@ build:
     python: "3.13"
   jobs:
     post_create_environment:
-      - pip install poetry
-      - poetry config virtualenvs.create false
+      - pip install uv
     post_install:
-      - poetry install --no-root --only docs
+      - uv sync --group docs --no-install-project

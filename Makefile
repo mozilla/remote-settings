@@ -25,13 +25,9 @@ maintainer-clean: distclean ## Delete all non versioned files
 	find . -name '*.orig' -delete
 	docker compose down --remove-orphans --volumes --rmi all
 
-$(VENV)/bin/python:  ## Create virtualenv
-	python3 -m venv $(VENV)
-
-install: $(VENV)/bin/python $(INSTALL_STAMP)  ## Install dependencies
-$(INSTALL_STAMP): poetry.lock
-	@if [ -z $(shell command -v poetry 2> /dev/null) ]; then echo "Poetry could not be found. See https://python-poetry.org/docs/"; exit 2; fi
-	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --with cronjobs --with git-reader --no-root
+install: $(INSTALL_STAMP)  ## Install dependencies
+$(INSTALL_STAMP): uv.lock
+	uv sync --no-install-project --group kinto-remote-settings --group dev --group cronjobs --group git-reader
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)  ## Format code base
@@ -41,7 +37,7 @@ format: $(INSTALL_STAMP)  ## Format code base
 lint: $(INSTALL_STAMP)  ## Analyze code base
 	$(VENV)/bin/ruff check $(SOURCES)
 	$(VENV)/bin/ruff format $(SOURCES)
-	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v poetry.lock` --baseline .secrets.baseline
+	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v uv.lock` --baseline .secrets.baseline
 	$(VENV)/bin/python bin/repo-python-versions.py
 
 test: $(INSTALL_STAMP)  ## Run unit tests
@@ -84,9 +80,9 @@ stop:  ## Stop the services
 down:  ## Shutdown all containers and remove volumes
 	docker compose down --volumes
 
-install-docs: $(VENV)/bin/python $(DOC_STAMP)  ## Install documentation build dependencies
-$(DOC_STAMP): poetry.lock
-	POETRY_VIRTUALENVS_IN_PROJECT=1 poetry install --no-root --only docs
+install-docs: $(DOC_STAMP)  ## Install documentation build dependencies
+$(DOC_STAMP): uv.lock
+	uv sync --no-install-project --group docs
 	touch $(DOC_STAMP)
 
 docs: install-docs  ## Build documentation
