@@ -126,9 +126,10 @@ Attachments Size Limit
 Attachments below 20MB will be compressed automatically by the CDN (`gzip` or `brotli`).
 
 If you plan on serving bigger attachments:
-- files MUST be compressed upstream, ie. before uploading on server;
-- an exception MUST be requested by opening a Bugzilla ticket against the `Server: Remote Settings` component, and providing the collection name,
-  the expected size of attachments, and a justification for this need.
+
+- files MUST be compressed upstream, ie. before uploading them on server;
+
+- an exception MUST be requested by opening `a Bugzilla ticket <https://bugzilla.mozilla.org/enter_bug.cgi?bug_ignored=0&bug_severity=--&bug_status=NEW&cf_accessibility_severity=---&cf_fx_iteration=---&cf_fx_points=---&cf_status_conduit_push=---&cf_status_firefox148=---&cf_status_firefox149=---&cf_status_firefox150=---&cf_status_firefox_esr115=---&cf_status_firefox_esr140=---&cf_tracking_conduit_push=---&cf_tracking_firefox148=---&cf_tracking_firefox149=---&cf_tracking_firefox150=---&cf_tracking_firefox_esr115=---&cf_tracking_firefox_esr140=---&cf_tracking_firefox_relnote=---&comment=Please%20allow%20big%20attachments%20on%20collection%20%60NAME%60.%0D%0A%0D%0A-%20Estimated%20attachment%20size%3A%20___%20MB%0D%0A-%20Estimated%20update%20frequency%3A%20%20___%20%2F%20month%0D%0A%0D%0ANote%3A%0D%0A%0D%0A-%20Files%20must%20be%20compressed%20upstream%20%28eg.%20%60.json.mzlz4%60%2C%20%60.zip%60%2C%20etc.%29.%20Reach%20out%20in%20%60%23delivery%60%20for%20help%20%0D%0A&component=Server%3A%20Remote%20Settings&contenttypemethod=list&contenttypeselection=text%2Fplain&defined_groups=1&filed_via=standard_form&flag_type-37=X&flag_type-607=X&flag_type-708=X&flag_type-721=X&flag_type-737=X&flag_type-748=X&flag_type-787=X&flag_type-803=X&flag_type-846=X&flag_type-864=X&flag_type-936=X&flag_type-963=X&flag_type-968=X&needinfo_role=other&needinfo_type=needinfo_from&op_sys=Unspecified&priority=--&product=Cloud%20Services&rep_platform=Unspecified&short_desc=Please%20allow%20big%20attachments%20on%20collection%20%60NAME%60&target_milestone=---&version=unspecified>`_ in order to justify this need.
 
 .. warning::
 
