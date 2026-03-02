@@ -43,6 +43,7 @@ jobs:
       - name: Check documentation build
         run: make docs
   run_test:
+    needs: run_lint
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -76,7 +77,46 @@ jobs:
       - name: Run tests
         run: make test
 
+  cronjobs-test:
+    needs: run_test
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_CACHE: /tmp/docker-cache
+    steps:
+      - uses: actions/checkout@v6
+      - name: Compute cache key
+        # Create hash of hashes of checked in files not in Dockerignore
+        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f .dockerignore | awk '{print $3}' | git hash-object --stdin)" >> "$GITHUB_ENV"
+
+      - uses: actions/cache@v5
+        with:
+          path: ${{ env.DOCKER_CACHE}}
+          key: docker-build-${{ hashFiles('cronjobs/Dockerfile') }}-${{ env.CACHE_KEY }}
+          restore-keys: |
+            docker-build-${{ hashFiles('cronjobs/Dockerfile') }}-${{ env.CACHE_KEY }}
+            docker-build-${{ hashFiles('cronjobs/Dockerfile') }}-
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - name: Build cronjobs container
+        uses: docker/build-push-action@v6
+        with:
+          cache-from: type=local,src=${{ env.DOCKER_CACHE}}/cronjobs
+          cache-to: type=local,dest=${{ env.DOCKER_CACHE}}/cronjobs,mode=max
+          load: true
+          file: cronjobs/Dockerfile
+          context: cronjobs/
+          tags: remote-settings/cronjobs:latest  # Like with docker compose build cronjobs
+
+      - name: Run cronjobs container
+        # `help` command will import all modules, and make sure all dependencies are correctly installed.
+        run: docker run --rm remote-settings/cronjobs help
+
   browser-test:
+    needs: run_test
     runs-on: ubuntu-latest
     env:
       DOCKER_CACHE: /tmp/docker-cache
@@ -85,7 +125,7 @@ jobs:
 
       - name: Compute cache key
         # Create hash of hashes of checked in files not in Dockerignore
-        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f RemoteSettings.dockerignore | awk '{print $3}' | git hash-object --stdin)" >> "$GITHUB_ENV"
+        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f .dockerignore | awk '{print $3}' | git hash-object --stdin)" >> "$GITHUB_ENV"
 
       - uses: actions/cache@v5
         with:
