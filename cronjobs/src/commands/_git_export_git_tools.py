@@ -1,12 +1,13 @@
 import os
 import time
-from typing import Any, Generator, Iterable, Optional
+from typing import Any, Generator, Iterable, Optional, cast
 
 import pygit2
 from pygit2 import (
     GIT_FILEMODE_BLOB,
     GIT_FILEMODE_TREE,
 )
+from pygit2.enums import FetchPrune, SortMode
 
 
 REMOTE_NAME = "origin"
@@ -35,7 +36,7 @@ def clone_or_fetch(
             if not repo.head_is_unborn:
                 print("Head was at", repo.head.target)
         print(f"Fetching from {repo_url}...")
-        remote.fetch(callbacks=callbacks, prune=True)
+        remote.fetch(callbacks=callbacks, prune=FetchPrune.PRUNE)
     else:
         # Clone remote repository into work dir.
         print(f"Clone {repo_url} into {repo_path}...")
@@ -45,7 +46,7 @@ def clone_or_fetch(
     return repo
 
 
-def reset_repo(repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks):
+def reset_repo(repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks | None):
     print("Reset local content to remote content...")
     # If the repo is freshly cloned, the remotes branches do not exist locally. Create them.
     # If the repo was cloned from previous run, reset the local branches to the remote targets.
@@ -94,8 +95,8 @@ def reset_repo(repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks):
 
 def push_mirror(
     repo: pygit2.Repository,
-    branches: list[str],
-    tags: list[str],
+    branches: Iterable[str],
+    tags: Iterable[str],
     callbacks: pygit2.RemoteCallbacks,
 ):
     """
@@ -126,7 +127,7 @@ def push_mirror(
     remote.push(to_push, callbacks=callbacks)
 
 
-def make_lfs_pointer(sha256_hex: str, size: int) -> pygit2.Oid:
+def make_lfs_pointer(sha256_hex: str, size: int) -> bytes:
     """
     Create a Git LFS pointer blob with the given object id and size.
     """
@@ -164,7 +165,7 @@ def list_lfs_pointers(repo, tree: pygit2.Tree | None) -> dict[str, tuple[str, in
 
     existing_attachments = {}
     try:
-        attachment_tree = tree / "attachments"
+        attachment_tree = cast(pygit2.Tree, tree / "attachments")
         objs = iter_tree(repo, attachment_tree)
     except KeyError:
         # No attachments/ folder yet.
@@ -192,7 +193,9 @@ def iter_tree(
         if entry.type == pygit2.GIT_OBJECT_BLOB:
             yield path, entry.id  # file
         elif entry.type == pygit2.GIT_OBJECT_TREE:  # descend
-            yield from iter_tree(repo, repo[entry.id], prefix=path + "/")
+            yield from iter_tree(
+                repo, cast(pygit2.Tree, repo[entry.id]), prefix=path + "/"
+            )
 
 
 def tree_upsert_blobs(
@@ -218,7 +221,7 @@ def tree_upsert_blobs(
     items = list(items)
     updates_trie: dict[str, Any] = {}
 
-    def put(trie: dict[str, Any], path: str, blob_oid: pygit2.Oid) -> None:
+    def put(trie: dict[str, Any], path: str, blob_oid: pygit2.Oid | object) -> None:
         parts = [p for p in path.lstrip("/").split("/") if p]
         *dirs, fname = parts
         node = trie
@@ -245,7 +248,7 @@ def tree_upsert_blobs(
                     try:
                         entry = base[name]
                         if entry.filemode == GIT_FILEMODE_TREE:
-                            existing_subtree = repo[entry.id]
+                            existing_subtree = cast(pygit2.Tree, repo[entry.id])
                     except KeyError:
                         pass
                 child_oid = merge(val, existing_subtree)
@@ -345,7 +348,7 @@ def truncate_branch(
 
     # Walk commits from the tip towards roots: newest -> oldest
     chain_commits: list[pygit2.Commit] = []
-    walker = repo.walk(tip_oid, pygit2.GIT_SORT_TOPOLOGICAL | pygit2.GIT_SORT_TIME)
+    walker = repo.walk(tip_oid, SortMode.TOPOLOGICAL | SortMode.TIME)
     to_delete_count = 0
     for commit in walker:
         # Stop when we reach an untagged commit

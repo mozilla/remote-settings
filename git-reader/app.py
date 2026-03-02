@@ -11,7 +11,7 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import lru_cache
-from typing import Annotated, Awaitable, BinaryIO, Callable, Generator
+from typing import Annotated, Awaitable, BinaryIO, Callable, Generator, cast
 from urllib.parse import urlparse
 
 import lz4.block
@@ -90,8 +90,8 @@ logging.config.dictConfig(
     {
         "version": 1,
         "filters": {
-            "request_id": {
-                "()": "dockerflow.logging.RequestIdLogFilter",
+            "request_id": {  # type: ignore[missing-typed-dict-key]
+                "()": "dockerflow.logging.RequestIdLogFilter",  # type: ignore[invalid-key]
             },
         },
         "handlers": {
@@ -292,12 +292,12 @@ class GitService:
                     f"{STARTUP_BUNDLE_FILE} is a Git LFS pointer file"
                 )
 
-    def get_head_info(self, branch: str = f"{GIT_REF_PREFIX}common") -> dict[str, str]:
+    def get_head_info(self, branch: str = f"{GIT_REF_PREFIX}common") -> dict:
         """
         Get the HEAD information for a specific branch.
         """
         refobj = self.repo.lookup_reference(f"refs/heads/{branch}")
-        commit = self.repo[refobj.target]
+        commit = cast(pygit2.Commit, self.repo[refobj.target])
         return {
             "id": str(commit.id),
             "timestamp": commit.commit_time,
@@ -329,14 +329,14 @@ class GitService:
         # 1. Read the collection content at latest timestamp.
         refobj = self.repo.lookup_reference(latest_ref)
         tag = self.repo[refobj.target]
-        commit = tag.peel(pygit2.GIT_OBJECT_COMMIT)
+        commit = tag.peel(pygit2.Commit)
         tree = commit.tree
 
         metadata = None
         records_by_id = {}
         for path, oid in self._scan_folder(tree, path=cid):
             # Get metadata and records from {cid}/ folder.
-            bcontent = self.repo[oid].data
+            bcontent = cast(pygit2.Blob, self.repo[oid]).data
             content = json.loads(bcontent.decode("utf-8"))
             if path.endswith("metadata.json"):
                 metadata = content
@@ -356,12 +356,12 @@ class GitService:
                 raise UnknownTimestamp(_since)
 
             old_tag = self.repo[old_refobj.target]
-            old_commit = old_tag.peel(pygit2.GIT_OBJECT_COMMIT)
+            old_commit = old_tag.peel(pygit2.Commit)
             old_tree = old_commit.tree
             old_records_by_id = {}
             for path, oid in self._scan_folder(old_tree, path=cid):
                 if not path.endswith("metadata.json"):
-                    bcontent = self.repo[oid].data
+                    bcontent = cast(pygit2.Blob, self.repo[oid]).data
                     content = json.loads(bcontent.decode("utf-8"))
                     rid = pathlib.Path(path).stem
                     old_records_by_id[rid] = content
@@ -445,7 +445,7 @@ class GitService:
             if entry.name == path:
                 if entry.type != pygit2.GIT_OBJECT_TREE:
                     raise ValueError(f"Path is not a folder: {path}")
-                folder_tree = self.repo[entry.id]
+                folder_tree = cast(pygit2.Tree, self.repo[entry.id])
                 for subentry in folder_tree:
                     if subentry.type == pygit2.GIT_OBJECT_BLOB:
                         yield subentry.name, subentry.id
@@ -462,6 +462,8 @@ class GitService:
         node = commit.tree
 
         parts = [p for p in path.strip("/").split("/") if p]
+        if not parts:
+            raise FileNotFoundError(f"Empty path: {path}")
         for i, name in enumerate(parts):
             try:
                 entry = node[name]
@@ -475,11 +477,12 @@ class GitService:
                     raise FileNotFoundError(
                         f"Path component '{name}' is a file, not a directory: {path}"
                     )
-                node = obj  # descend into the subtree
+                node = cast(pygit2.Tree, obj)  # descend into the subtree
             else:
                 if entry.type != pygit2.GIT_OBJECT_BLOB:
                     raise IsADirectoryError(f"Path is a directory, not a file: {path}")
-                return obj.data
+                return cast(pygit2.Blob, obj).data
+        raise FileNotFoundError(f"File not found: {path}")
 
 
 @asynccontextmanager
@@ -495,8 +498,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Remote Settings Over Git", lifespan=lifespan, version=VERSION)
 app.include_router(dockerflow_router, prefix=f"/{API_PREFIX[:-1]}", tags=["dockerflow"])
 app.mount(f"/{API_PREFIX}__metrics__", prometheus_client.make_asgi_app())
-app.add_middleware(MozlogRequestSummaryLogger)
-app.add_middleware(RequestIdMiddleware)
+app.add_middleware(MozlogRequestSummaryLogger)  # type: ignore[invalid-argument-type]
+app.add_middleware(RequestIdMiddleware)  # type: ignore[invalid-argument-type]
 
 
 @app.middleware("http")
@@ -516,14 +519,14 @@ async def requests_metrics(
         request.path_params.get("bid", ""),
         request.path_params.get("cid", ""),
     )
-    METRICS["request_summary"].labels(*labels).inc()
-    METRICS["request_duration_seconds"].labels(*labels).observe(elapsed_sec)
+    METRICS["request_summary"].labels(*labels).inc()  # type: ignore[unresolved-attribute]
+    METRICS["request_duration_seconds"].labels(*labels).observe(elapsed_sec)  # type: ignore[unresolved-attribute]
 
     return response
 
 
 @checks.register
-def git_repo_health() -> list[checks.Check]:
+def git_repo_health() -> list:
     result = []
     try:
         git = GitService.dep(
@@ -553,7 +556,7 @@ def hello(
     request: Request,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
-) -> str:
+) -> dict:
     # Determine attachments base URL
     attachments_base_url = settings.attachments_base_url
     if attachments_base_url is None:
@@ -568,7 +571,7 @@ def hello(
     common_branch_info = git.get_head_info(branch=f"{GIT_REF_PREFIX}common")
 
     repo_age_seconds = int(time.time()) - common_branch_info["timestamp"]
-    METRICS["repository_age_seconds"].set(repo_age_seconds)
+    METRICS["repository_age_seconds"].set(repo_age_seconds)  # type: ignore[unresolved-attribute]
 
     return {
         "project_name": server_info["project_name"],

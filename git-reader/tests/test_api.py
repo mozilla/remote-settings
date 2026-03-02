@@ -7,6 +7,7 @@ import pygit2
 import pytest
 from app import read_json_mozlz4, write_json_mozlz4
 from fastapi.testclient import TestClient
+from pygit2.enums import ObjectType
 
 
 def upsert_blobs(repo, items, base_tree=None):
@@ -149,7 +150,7 @@ def fake_repo(temp_dir):
     repo.create_tag(
         "v1/timestamps/main/password-rules/113456789",
         oid,
-        pygit2.GIT_OBJECT_COMMIT,
+        ObjectType.COMMIT,
         author,
         "Message",
     )
@@ -177,7 +178,7 @@ def fake_repo(temp_dir):
     repo.create_tag(
         "v1/timestamps/main/password-rules/123456789",
         oid,
-        pygit2.GIT_OBJECT_COMMIT,
+        ObjectType.COMMIT,
         author,
         "Message",
     )

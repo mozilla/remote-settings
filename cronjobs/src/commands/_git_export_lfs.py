@@ -99,7 +99,7 @@ def github_lfs_batch_request(
     operation: str,  # "upload" or "download",
     repo_owner: str,
     repo_name: str,
-    timeout: float = HTTP_TIMEOUT_BATCH_SECONDS,
+    timeout: float | tuple[float, float] = HTTP_TIMEOUT_BATCH_SECONDS,
 ) -> dict[str, Any]:
     """
     Generic Git LFS Batch call.
@@ -131,7 +131,7 @@ def _download_from_cdn_and_upload_to_lfs_volume(
     dest: tuple[str, str, dict[str, str]],  # (href, method, headers),
     retry_max_count: int = HTTP_RETRY_MAX_COUNT,
     retry_delay: float = HTTP_RETRY_DELAY_SECONDS,
-    timeout: float = HTTP_TIMEOUT_UPLOAD_SECONDS,
+    timeout: float | tuple[float, float] = HTTP_TIMEOUT_UPLOAD_SECONDS,
 ) -> None:
     """
     Downloads the file locally (verifies digest/size), then uploads to specified URL.
@@ -174,9 +174,9 @@ def _download_from_cdn_and_upload_to_lfs_volume(
 
 
 def _github_lfs_verify_upload(
-    source: tuple[str, str],  # (sha256_hex, size)
-    dest: tuple[str, dict[str, str, str]],  # (href, method, headers)
-    timeout: float = HTTP_TIMEOUT_SECONDS,
+    source: tuple[str, int],  # (sha256_hex, size)
+    dest: tuple[str, str, dict[str, str]],  # (href, method, headers)
+    timeout: float | tuple[float, float] = HTTP_TIMEOUT_SECONDS,
 ) -> None:
     """
     The LFS upload API returns a verify action that the client has to call in
@@ -296,9 +296,9 @@ def github_lfs_validate_credentials(
     github_username: str | None = None,
     github_token: str | None = None,
     # Option B: GitHub App authentication
-    github_app_id: str | None = None,
+    github_app_id: str | int | None = None,
     github_app_private_key_path: str | None = None,
-    timeout: float = HTTP_TIMEOUT_BATCH_SECONDS,
+    timeout: float | tuple[float, float] = HTTP_TIMEOUT_BATCH_SECONDS,
 ) -> str:
     """
     Test GitHub LFS credentials by making a dummy batch request.
@@ -318,7 +318,7 @@ def github_lfs_validate_credentials(
         # For LFS, use Basic with username 'x-access-token' and the installation token as the password.
         # private key -> JWT -> installation ID -> installation token -> Basic auth with token
         # See https://docs.github.com/en/rest/reference/apps#authentication
-        jwt_token = _create_app_jwt(github_app_id, github_app_private_key_path)
+        jwt_token = _create_app_jwt(str(github_app_id), github_app_private_key_path)
         installation_id = _resolve_installation_id(jwt_token, repo_owner, repo_name)
         installation_token, expires_at = _mint_installation_access_token(
             jwt_token, installation_id
@@ -379,7 +379,9 @@ def github_lfs_batch_upload_many(
         api_objs_by_oid = {o.get("oid"): o for o in resp_objects if o.get("oid")}
 
         # Decide which to upload or/and verify
-        to_upload: list[tuple[tuple[str, int, str], tuple[str, dict[str, str]]]] = []
+        to_upload: list[
+            tuple[tuple[str, int, str], tuple[str, str, dict[str, str]]]
+        ] = []
         to_verify: list[tuple[tuple[str, int], tuple[str, str, dict[str, str]]]] = []
         for oid, size, url in chunk:
             api_obj = api_objs_by_oid.get(oid)

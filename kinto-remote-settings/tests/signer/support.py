@@ -1,10 +1,5 @@
+import configparser
 import os
-
-
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
 
 from kinto import main as kinto_main
 from kinto.core.testing import BaseWebTest as CoreWebTest
@@ -32,5 +27,5 @@ class BaseWebTest(CoreWebTest):
         config = configparser.ConfigParser()
         config.read(ini_path)
         settings = dict(config.items("app:main"))
-        settings["signer.to_review_enabled"] = False
+        settings["signer.to_review_enabled"] = False  # type: ignore[assignment]
         return settings

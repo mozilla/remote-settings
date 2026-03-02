@@ -12,13 +12,13 @@ client = kinto_http.AsyncClient(server_url=SERVER_URL)
 
 async def fetch_collections(bucket_id):
     """Fetch collections for a given bucket."""
-    collections = await client.get_collections(bucket=bucket_id)
+    collections = await client.get_collections(bucket=bucket_id)  # type: ignore[invalid-await]
     return [(bucket_id, c["id"]) for c in collections]
 
 
 async def fetch_jexl_expressions(bucket_id, collection_id):
     """Fetch records for a given bucket and collection."""
-    records = await client.get_records(bucket=bucket_id, collection=collection_id)
+    records = await client.get_records(bucket=bucket_id, collection=collection_id)  # type: ignore[invalid-await]
     return [
         record["filter_expression"]
         for record in records

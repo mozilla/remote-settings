@@ -54,7 +54,7 @@ def fetch_attachment(url):
     return resp.content
 
 
-def write_zip(output_path: str, content: list[tuple[str, bytes]]):
+def write_zip(output_path: str, content: list[tuple[str, str | bytes]]):
     """
     Write a Zip at the specified `output_path` location with the specified `content`.
     The content is specified as a list of file names and their binary content.
@@ -105,10 +105,10 @@ def sync_cloud_storage(
         blob.upload_from_filename(filename)
         print(f"Uploaded {filename} to gs://{storage_bucket}/{remote_file_path}")
 
-    to_delete = {os.path.join(remote_folder, f) for f in to_delete}
+    to_delete_set = {os.path.join(remote_folder, f) for f in to_delete}
     blobs = bucket.list_blobs(prefix=remote_folder)
     for blob in blobs:
-        if blob.name in to_delete:
+        if blob.name in to_delete_set:
             blob.delete()
             print(f"Deleted gs://{storage_bucket}/{blob.name}")
 

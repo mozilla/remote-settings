@@ -4,6 +4,7 @@ import json
 import os
 import traceback
 import urllib
+import urllib.parse
 from typing import Any, Iterable
 
 import kinto_http
@@ -235,7 +236,7 @@ def fetch_all_cert_chains(
 async def repo_sync_content(
     repo,
     delete_unreachable_attachments: bool = DELETE_UNREACHABLE_ATTACHMENTS,
-) -> tuple[list[tuple[str, int, str]], list[str], list[str]]:
+) -> tuple[list[tuple[str, int, str]], set[str], list[str]]:
     """
     Sync content from the remote server to the local git repository.
     Return the list of changed attachments to be uploaded to LFS, the list of changed branches, and the list of changed tags.
@@ -261,7 +262,7 @@ async def repo_sync_content(
         print("No new changes since last run.")
         return changed_attachments, changed_branches, created_tags
 
-    server_info = await client.server_info()
+    server_info = await client.server_info()  # type: ignore[invalid-await]
 
     # The config file timestamp changes on each redeploy. In order to avoid
     # unnecessary commits, we remove it from the server info.
@@ -434,7 +435,7 @@ def process_attachments(
     if delete_unreachable_attachments:
         attachments_paths = existing_attachments.keys()
         obsolete_attachments = list_unreachable_paths(
-            attachments_base_url, attachments_paths
+            attachments_base_url, list(attachments_paths)
         )
         for path in obsolete_attachments:
             print(f"Attachment {path} is unreachable, deleting from tree")
@@ -523,7 +524,8 @@ def changeset_to_branch_folder(
     # Delete any records that were removed in this changeset.
     # (branch_tree is None on first run, and `cid` folder may not exist yet)
     if branch_tree is not None and cid in branch_tree:
-        for entry in branch_tree[cid]:
+        for entry in branch_tree[cid]:  # type: ignore[index]
+            assert entry.name is not None
             basename = entry.name.rsplit(".json", 1)[0]
             if basename != "metadata" and basename not in {r["id"] for r in records}:
                 branch_content.append((f"{cid}/{entry.name}", None))
@@ -595,10 +597,10 @@ def update_bucket_branches(
     author: pygit2.Signature,
     committer: pygit2.Signature,
     changesets_by_bucket: dict[str, list[dict[str, Any]]],
-) -> tuple[list[str], list[str]]:
+) -> tuple[set[str], list[str]]:
     """
     Process the given changesets and create/update branches and tags accordingly.
-    Return the list of changed branches and created tags.
+    Return the set of changed branches and created tags.
     """
     changed_branches: set[str] = set()
     created_tags: list[str] = []

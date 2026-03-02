@@ -29,7 +29,7 @@ class BaseWebTest(CoreWebTest):
         return settings
 
     def setUp(self):
-        super(BaseWebTest, self).setUp()
+        super(BaseWebTest, self).setUp()  # type: ignore[unresolved-attribute]
         self.create_collection("blocklists", "certificates")
 
     def create_collection(self, bucket_id, collection_id):

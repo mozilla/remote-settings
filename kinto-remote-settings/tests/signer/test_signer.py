@@ -20,7 +20,8 @@ SIGNATURE = (
 
 
 def save_key(key, key_name):
-    tmp = tempfile.mktemp(key_name)
+    fd, tmp = tempfile.mkstemp(suffix=key_name)
+    os.close(fd)
     with open(tmp, "wb+") as tmp_file:
         tmp_file.write(key)
     return tmp

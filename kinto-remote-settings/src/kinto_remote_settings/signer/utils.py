@@ -3,6 +3,7 @@ import re
 import ssl
 from collections import OrderedDict
 from enum import Enum
+from typing import Any
 from urllib.parse import urlparse
 
 import cryptography
@@ -224,7 +225,7 @@ def storage_create_raw(
         )
         logger.debug(f"Created {object_uri} with permissions {permissions}")
     except UnicityError:
-        logger.warn(f"{object_uri} already exists.")
+        logger.warning(f"{object_uri} already exists.")
 
 
 def notify_resource_event(
@@ -246,6 +247,7 @@ def notify_resource_event(
     has_changed_attachment = (
         resource_name == "record"
         and action == ACTIONS.UPDATE
+        and old is not None
         and "attachment" in old
         and old["attachment"] != obj.get("attachment")
     )
@@ -317,8 +319,8 @@ def fetch_cert(url):
 
 
 def expand_collections_glob_settings(
-    storage, settings: dict[str, any]
-) -> dict[str, any]:
+    storage, settings: dict[str, Any]
+) -> dict[str, Any]:
     r"""
     Expand glob patterns in settings using actual bucket and collection names from storage.
 

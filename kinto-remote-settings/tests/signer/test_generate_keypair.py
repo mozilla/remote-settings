@@ -1,3 +1,4 @@
+import os
 import tempfile
 import unittest
 
@@ -7,8 +8,10 @@ from kinto_remote_settings.signer.generate_keypair import generate_keypair
 
 class KeyPairGeneratorTest(unittest.TestCase):
     def test_generated_keypairs_can_be_loaded(self):
-        private_key_location = tempfile.mktemp("private_key")
-        public_key_location = tempfile.mktemp("public_key")
+        fd, private_key_location = tempfile.mkstemp(suffix="private_key")
+        os.close(fd)
+        fd, public_key_location = tempfile.mkstemp(suffix="public_key")
+        os.close(fd)
 
         generate_keypair(private_key_location, public_key_location)
         backend = ECDSASigner(private_key=private_key_location)

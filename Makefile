@@ -4,6 +4,7 @@ DOC_STAMP := $(VENV)/.doc.install.stamp
 SPHINX_BUILDDIR = docs/_build
 PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
 SOURCES := kinto-remote-settings cronjobs git-reader browser-tests bin
+TY_SOURCES := kinto-remote-settings cronjobs git-reader bin
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of the following commands.\n"
@@ -37,6 +38,7 @@ format: $(INSTALL_STAMP)  ## Format code base
 lint: $(INSTALL_STAMP)  ## Analyze code base
 	$(VENV)/bin/ruff check $(SOURCES)
 	$(VENV)/bin/ruff format $(SOURCES)
+	$(VENV)/bin/ty check $(TY_SOURCES)
 	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v uv.lock` --baseline .secrets.baseline
 	$(VENV)/bin/python bin/repo-python-versions.py
 

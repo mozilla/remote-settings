@@ -3,6 +3,7 @@ import hashlib
 import warnings
 
 import ecdsa
+import ecdsa.util
 from ecdsa import NIST384p, SigningKey, VerifyingKey
 
 from ..utils import get_first_matching_setting
