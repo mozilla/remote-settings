@@ -141,7 +141,7 @@ case "${1:-}" in
     mkdir -p "${parent_dir}" || die "Failed to create parent directory ${parent_dir}."
     (
         # See https://manpages.debian.org/testing/util-linux/flock.1.en.html#EXAMPLES
-        flock -n 9 || { echo "Update already running."; exit 1; };
+        flock -n 9 || { echo "Update already running."; exit 0; };
         cmd_gitupdate "${parent_dir}";
     ) 9>"${parent_dir}/.fetch-lock"
     ;;
