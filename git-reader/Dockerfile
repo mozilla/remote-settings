@@ -6,9 +6,6 @@ FROM python:3.14.0-slim-trixie
 ARG UID
 ARG GID
 
-ENV VIRTUAL_ENV=/opt/.venv \
-    PATH="/opt/.venv/bin:$PATH"
-
 RUN apt-get update && apt-get -y install git git-lfs rsync util-linux media-types build-essential
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
@@ -34,8 +31,9 @@ COPY --chown=app:app app.py mimetypes.txt ./
 
 USER app
 
-ENV GIT_REPO_PATH=/mnt/data/latest
-ENV SELF_CONTAINED=false
+ENV GIT_REPO_PATH=/mnt/data/latest \
+    SELF_CONTAINED=false \
+    PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
 
