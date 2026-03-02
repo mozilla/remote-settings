@@ -148,3 +148,10 @@ Alternatively, if you have access to the `remote-settings-permissions <https://g
     ./manage.py deletecollection COLECTION_NAME
 
 And open a pull-request with the command output as description (See `this example <https://github.com/mozilla/remote-settings-permissions/pull/748>_`).
+
+.. note::
+
+    Deleting a collection is irreversible and will delete all its records and attachments.
+
+    The collection won't be listed in the monitor/changes list, and clients will stop synchronizing it.
+    However, the clients' local data will remain stored in users' profiles.
