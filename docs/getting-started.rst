@@ -151,3 +151,26 @@ If you want to accelerate the process of getting your collection deployed or adj
 .. note::
 
     Only members of the `mozilla/all-wg` workgroup have read access to this repository. If you are part of the `mozilla` Github organization, you can request your membership via the https://github.com/orgs/mozilla/teams/remote-settings-collections-owners/members team.
+
+
+.. _collection-offboarding:
+
+Collection Offboarding
+----------------------
+
+If you want to decommission a collection, please `open a Bugzilla ticket <https://bugzilla.mozilla.org/enter_bug.cgi?assigned_to=mathieu%40mozilla.com&bug_ignored=0&bug_severity=--&bug_status=NEW&cf_accessibility_severity=---&cf_fx_iteration=---&cf_fx_points=---&cf_status_conduit_push=---&cf_status_firefox148=---&cf_status_firefox149=---&cf_status_firefox150=---&cf_status_firefox_esr115=---&cf_status_firefox_esr140=---&cf_tracking_conduit_push=---&cf_tracking_firefox148=---&cf_tracking_firefox149=---&cf_tracking_firefox150=---&cf_tracking_firefox_esr115=---&cf_tracking_firefox_esr140=---&cf_tracking_firefox_relnote=---&component=Server%3A%20Remote%20Settings&contenttypemethod=list&contenttypeselection=text%2Fplain&defined_groups=1&filed_via=standard_form&flag_type-37=X&flag_type-607=X&flag_type-708=X&flag_type-721=X&flag_type-737=X&flag_type-748=X&flag_type-787=X&flag_type-803=X&flag_type-846=X&flag_type-864=X&flag_type-936=X&flag_type-963=X&flag_type-968=X&needinfo_role=other&needinfo_type=needinfo_from&op_sys=Unspecified&priority=--&product=Cloud%20Services&rep_platform=Unspecified&short_desc=Please%20delete%20the%20collection%20%60NAME%60&target_milestone=---&version=unspecified>`_.
+
+Alternatively, if you have access to the `remote-settings-permissions <https://github.com/mozilla/remote-settings-permissions/pulls>`_ repository, you can fork it and run the following command from its root directory:
+
+.. code-block:: bash
+
+    ./manage.py deletecollection COLECTION_NAME
+
+And open a pull-request with the command output as description (See `this example <https://github.com/mozilla/remote-settings-permissions/pull/748>_`).
+
+.. note::
+
+    Deleting a collection is irreversible and will delete all its records and attachments.
+
+    The collection won't be listed in the monitor/changes list, and clients will stop synchronizing it.
+    However, the clients' local data will remain stored in users' profiles.
