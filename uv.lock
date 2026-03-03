@@ -1025,7 +1025,7 @@ postgresql = [
 
 [[package]]
 name = "kinto-attachment"
-version = "7.2.0"
+version = "7.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "boto" },
@@ -1034,9 +1034,9 @@ dependencies = [
     { name = "kinto", extra = ["monitoring"] },
     { name = "pyramid-storage" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/00/2a/6d4142a7ba534c7bea72308033b5eb7a27ec19afd85961610343e55d1121/kinto_attachment-7.2.0.tar.gz", hash = "sha256:790dbdbbb0e6feb51bad44239ad9ac03d1ecf863c52dcd6a555d0a2e7ee936cc", size = 71656, upload-time = "2025-11-10T13:36:33.814Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/58/ef489046808f2d65593ec54f4826682776a912ecbb1f8b2a0a9c158e593c/kinto_attachment-7.3.1.tar.gz", hash = "sha256:05ec7215eda4306a59774a1eeeeee4490611c14fb38f637b64a6533394324789", size = 72508, upload-time = "2026-03-02T17:41:32.09Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b7/cc/9c73d8cbbf7b9b673780c956e2d9b08ccd8a8c7376daf4de4378d18cb8f7/kinto_attachment-7.2.0-py3-none-any.whl", hash = "sha256:ae709495e6f6a5bb148a5e1576ac7076c9f6753803306498a166b6a6b40b9fa9", size = 20629, upload-time = "2025-11-10T13:36:32.593Z" },
+    { url = "https://files.pythonhosted.org/packages/80/64/72bd4b424b0a5ddaa5c549bc58316369e1cb756359bebaa70c1d03c945e4/kinto_attachment-7.3.1-py3-none-any.whl", hash = "sha256:fabf0046bdef07e1faf33ea84f75daa4dfa45b8f8ebaca831ee99e7b3d6ab7fa", size = 20994, upload-time = "2026-03-02T17:41:30.48Z" },
 ]
 
 [[package]]
@@ -1878,7 +1878,7 @@ requires-dist = [
     { name = "ecdsa", specifier = "==0.19.1" },
     { name = "granian", specifier = ">=2.7.0,<3.0.0" },
     { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=25.0.0,<26" },
-    { name = "kinto-attachment", specifier = "<8" },
+    { name = "kinto-attachment", specifier = ">=7.3.1,<8" },
     { name = "kinto-emailer", specifier = "<4" },
     { name = "prometheus-client", specifier = ">=0.23.1" },
     { name = "requests-hawk", specifier = "<2" },
