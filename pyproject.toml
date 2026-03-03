@@ -11,7 +11,7 @@ dependencies = [
     "cryptography<47",
     "ecdsa==0.19.1",
     "kinto[postgresql,memcached,monitoring]>=25.0.0,<26",
-    "kinto-attachment<8",
+    "kinto-attachment>=7.3.1,<8",
     "kinto-emailer<4",
     "requests-hawk<2",
     "prometheus-client>=0.23.1",
