@@ -33,6 +33,7 @@ USER app
 
 ENV GIT_REPO_PATH=/mnt/data/latest \
     SELF_CONTAINED=false \
+    GRANIAN_TRUSTED_HOSTS="*" \
     PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
