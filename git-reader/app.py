@@ -773,4 +773,12 @@ def attachments(
     return FileResponse(requested_path, media_type=mimetype)
 
 
-app = wrap_asgi_with_proxy_headers(app, trusted_hosts=get_settings().trusted_hosts)
+def app_factory() -> FastAPI:
+    """
+    Factory function to create and configure the ASGI application.
+    Only works with ``--factory`` CLI flag.
+    """
+    global app
+    settings = get_settings()
+    app = wrap_asgi_with_proxy_headers(app, trusted_hosts=settings.trusted_hosts)
+    return app

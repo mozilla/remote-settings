@@ -7,7 +7,7 @@ die() { log "ERROR: $*"; exit 1; }
 ORIGIN_NAME="origin"
 
 cmd_web() {
-    granian --interface asgi --host 0.0.0.0 --port 8000 app:app
+    granian --interface asgi --host 0.0.0.0 --port 8000 --factory app:app_factory
 }
 
 
