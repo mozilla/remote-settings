@@ -99,6 +99,7 @@ logging.config.dictConfig(
                 "level": "DEBUG",
                 "class": "dockerflow.logging.MozlogHandler",
                 "filters": ["request_id"],
+                "stream": "ext://sys.stdout",
             },
         },
         "loggers": {
@@ -500,6 +501,15 @@ app.include_router(dockerflow_router, prefix=f"/{API_PREFIX[:-1]}", tags=["docke
 app.mount(f"/{API_PREFIX}__metrics__", prometheus_client.make_asgi_app())
 app.add_middleware(MozlogRequestSummaryLogger)  # type: ignore[invalid-argument-type]
 app.add_middleware(RequestIdMiddleware)  # type: ignore[invalid-argument-type]
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    # This shouldn't be necessary when ran with `uvicorn``, which already does that.
+    # Doing it here gives us more control on future requirements about format etc.,
+    # and most importantly allows us to test it with `TestClient`.
+    logger.exception(exc)
+    return Response(status_code=500)
 
 
 @app.middleware("http")
