@@ -33,10 +33,12 @@ USER app
 
 ENV GIT_REPO_PATH=/mnt/data/latest \
     SELF_CONTAINED=false \
+    GRANIAN_HOST="0.0.0.0" \
+    GRANIAN_PORT=8000 \
     GRANIAN_TRUSTED_HOSTS="*" \
     PATH="/app/.venv/bin:$PATH"
 
-EXPOSE 8000
+EXPOSE $GRANIAN_PORT
 
 ENTRYPOINT [ "/app/run.sh" ]
 CMD [ "web" ]
