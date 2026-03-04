@@ -31,6 +31,7 @@ from fastapi.responses import (
     RedirectResponse,
     StreamingResponse,
 )
+from granian.utils.proxies import wrap_asgi_with_proxy_headers
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -106,7 +107,7 @@ logging.config.dictConfig(
                 "handlers": ["console"],
                 "level": "DEBUG",
             },
-            "uvicorn": {
+            "granian": {
                 "handlers": ["console"],
                 "level": "DEBUG",
             },
@@ -129,6 +130,11 @@ class Settings(BaseSettings):
     attachments_base_url: str | None = Field(
         None,
         description="Base URL for attachments. Required if SELF_CONTAINED is false.",
+    )
+    trusted_hosts: str = Field(
+        "",
+        alias="granian_trusted_hosts",
+        description="List of trusted hosts for proxy headers.",
     )
 
 
@@ -765,3 +771,6 @@ def attachments(
     # Stream from disk
     mimetype, _ = mimetypes.guess_type(requested_path)
     return FileResponse(requested_path, media_type=mimetype)
+
+
+app = wrap_asgi_with_proxy_headers(app, trusted_hosts=get_settings().trusted_hosts)

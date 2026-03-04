@@ -6,10 +6,8 @@ die() { log "ERROR: $*"; exit 1; }
 
 ORIGIN_NAME="origin"
 
-
 cmd_web() {
-    log "Starting web server..."
-    uvicorn app:app --host 0.0.0.0 --port 8000
+    granian --interface asgi --host 0.0.0.0 --port 8000 app:app
 }
 
 
@@ -146,7 +144,6 @@ case "${1:-}" in
     ) 9>"${parent_dir}/.fetch-lock"
     ;;
   web)
-    log "Starting web server..."
     cmd_web;
     ;;
   *)
