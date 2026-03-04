@@ -53,8 +53,8 @@ ENV KINTO_INI=config/local.ini \
     GRANIAN_PORT=8888 \
     GRANIAN_TRUSTED_HOSTS="*" \
     GRANIAN_METRICS_ENABLED=true \
-    GRANIAN_METRICS_ADDRESS="127.0.0.1" \
-    GRANIAN_METRICS_PORT="9090" \
+    GRANIAN_METRICS_ADDRESS="0.0.0.0" \
+    GRANIAN_METRICS_PORT=9090 \
     # cap concurrent WSGI requests to something reasonable relative to the DB pool size
     GRANIAN_BACKPRESSURE="32" \
     PYTHONUNBUFFERED=1 \
@@ -80,7 +80,7 @@ COPY --from=get-admin /opt/kinto-admin/build $KINTO_ADMIN_ASSETS_PATH
 # Generate local key pair to simplify running without Autograph out of the box (see `config/testing.ini`)
 RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.pem /app/ecdsa.public.pem
 
-EXPOSE $GRANIAN_PORT
+EXPOSE $GRANIAN_PORT $GRANIAN_METRICS_PORT
 USER app
 ENTRYPOINT ["./bin/run.sh"]
 # Run server by default
