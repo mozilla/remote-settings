@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import shutil
 import tempfile
@@ -264,6 +265,16 @@ def test_heartbeat_failing(api_client, temp_dir, monkeypatch):
 
     assert resp.status_code == 500
     assert resp.json()["checks"]["git_repo_health"] == "error"
+
+
+def test_error_endpoint(caplog, app):
+    with caplog.at_level(logging.ERROR):
+        with TestClient(
+            app=app, base_url="http://test", raise_server_exceptions=False
+        ) as client:
+            resp = client.get("/v2/__error__")
+    assert resp.status_code == 500
+    assert "This is a test exception from the /__error__ endpoint." in caplog.text
 
 
 def test_bad_git_folder(api_client, monkeypatch):

@@ -135,11 +135,11 @@ wheels = [
 
 [[package]]
 name = "dockerflow"
-version = "2026.1.26"
+version = "2026.3.4"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/11/08/7abe8458ce6fa82e694ba9b792b4158596fd681782976699d3f15642a23a/dockerflow-2026.1.26.tar.gz", hash = "sha256:c45667ec078944a468b9a634c866587b4cf31559d0e6f369fbadd21edce66b38", size = 68042, upload-time = "2026-01-26T15:30:06.606Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/03/935f8399094611981b37634a7ee078484b3995f744135339e51385638f6c/dockerflow-2026.3.4.tar.gz", hash = "sha256:6cc7fcab2a078d06aeca8b02e22fd7f6766dca322fb30aed6910684dbc08690c", size = 68701, upload-time = "2026-03-04T09:01:28.178Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/de/88/26cec1e8ce09b4022233f232962fba72650c22941d7a609d10b9eec9f748/dockerflow-2026.1.26-py2.py3-none-any.whl", hash = "sha256:26f02d8842672921b2a49f1e019fac54ed2ee69dc673ed80f7b237b67394c2be", size = 35992, upload-time = "2026-01-26T15:30:05.525Z" },
+    { url = "https://files.pythonhosted.org/packages/86/b9/2d7bf30eb0c24e60e61e4f6ae7574e123d3fa51b39a612e146c94158446a/dockerflow-2026.3.4-py2.py3-none-any.whl", hash = "sha256:38fe0ad30a4aedf68e589919695d502fc6f584a761b56a91f56e80cbadfbf61a", size = 36424, upload-time = "2026-03-04T09:01:26.631Z" },
 ]
 
 [[package]]
@@ -178,7 +178,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "asgiref", specifier = ">=3.11.0" },
-    { name = "dockerflow", specifier = ">=2026.1.26" },
+    { name = "dockerflow", specifier = ">=2026.3.4" },
     { name = "fastapi", specifier = ">=0.120.2" },
     { name = "lz4", specifier = ">=4.4.5" },
     { name = "prometheus-client", specifier = ">=0.23.1" },
