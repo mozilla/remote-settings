@@ -8,12 +8,12 @@ dependencies = [
     "fastapi>=0.120.2",
     "pydantic-settings>=2.10.1",
     "pygit2>=1.18.2",
-    "uvicorn>=0.35.0",
     "uvloop>=0.21.0",
     "pyjwt>=2.10.1",
     "lz4>=4.4.5",
     "prometheus-client>=0.23.1",
     "asgiref>=3.11.0",
+    "granian>=2.7.2",
 ]
 
 [build-system]
