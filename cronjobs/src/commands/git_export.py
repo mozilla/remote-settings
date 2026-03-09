@@ -270,7 +270,7 @@ async def repo_sync_content(
 
     # Store the server info and monitor changeset in `common` branch.
     # Anything from previous commits is lost.
-    common_content = [
+    common_content: list[tuple[str, bytes | None]] = [
         ("server-info.json", json_dumpb(server_info)),
         ("monitor-changes.json", json_dumpb(monitor_changeset)),
     ]
@@ -315,7 +315,7 @@ async def repo_sync_content(
         attachments_base_url=attachments_base_url,
         delete_unreachable=delete_unreachable_attachments,
     )
-    common_content += attachments_branch_common_content
+    common_content += attachments_branch_common_content or []
 
     # Write the 'common' branch. If nothing changed, the commit id will be the same.
     monitor_tree_id = tree_upsert_blobs(
@@ -510,13 +510,15 @@ def process_attachments(
 
 def changeset_to_branch_folder(
     branch_tree: pygit2.Tree | None, changeset: dict[str, Any]
-) -> list[tuple[str, bytes]]:
+) -> list[tuple[str, bytes | None]]:
     """
     Convert a changeset to a list of files to be stored in the corresponding branch folder.
     """
     # Create one blob per record.
     cid = changeset["metadata"]["id"]
-    branch_content = [(f"{cid}/metadata.json", json_dumpb(changeset["metadata"]))]
+    branch_content: list[tuple[str, bytes | None]] = [
+        (f"{cid}/metadata.json", json_dumpb(changeset["metadata"]))
+    ]
     records = sorted(changeset["changes"], key=lambda r: r["id"])
     for record in records:
         branch_content.append((f"{cid}/{record['id']}.json", json_dumpb(record)))
@@ -548,7 +550,7 @@ def initialize_bucket_branches(
     # On first run, we process all changesets to create the initial branches and tags.
     # Each branch will all records of all collections of the related bucket.
     for bid, bucket_changesets in changesets_by_bucket.items():
-        branch_content: list[tuple[str, bytes]] = []
+        branch_content: list[tuple[str, bytes | None]] = []
         for changeset in bucket_changesets:
             branch_content += changeset_to_branch_folder(
                 branch_tree=None, changeset=changeset

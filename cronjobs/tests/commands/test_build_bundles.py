@@ -148,7 +148,10 @@ def test_get_modified_timestamp_missing():
 
 
 def test_write_zip(tmpdir):
-    content = [("file1.txt", "content1"), ("file2.txt", "content2")]
+    content: list[tuple[str, str | bytes]] = [
+        ("file1.txt", b"content1"),
+        ("file2.txt", b"content2"),
+    ]
     output_path = os.path.join(tmpdir, "test.zip")
     write_zip(output_path, content)
 
