@@ -85,6 +85,11 @@ print("Old time (epoch ms):", OLD_EPOCH_MS)
             "Changeset with old timestamp as quoted _expected should return 307",
         ),
         (
+            f"/v1/buckets/main/collections/regions/changeset?_expected={OLD_EPOCH_MS}",
+            200,
+            "Changeset with old timestamp as _expected should return return 200",
+        ),
+        (
             "/v1/buckets/monitor/collections/changes/records",
             406,
             "Decommissioned monitor/changes records",
@@ -111,7 +116,7 @@ print("Old time (epoch ms):", OLD_EPOCH_MS)
         ),
         (
             f'/v1/buckets/monitor/collections/changes/changeset?_expected="{NOW_EPOCH_MS}"',
-            200,
+            307,
             "Changeset with current timestamp as quoted _expected should return 200 for monitor/changes changeset",
         ),
         (
@@ -131,13 +136,13 @@ print("Old time (epoch ms):", OLD_EPOCH_MS)
         ),
         (
             f'/v1/buckets/monitor/collections/changes/changeset?_expected="{NOW_EPOCH_MS}"&_since="{NOW_EPOCH_MS}"',
-            200,
-            "Changeset with current timestamp as quoted _expected and quoted current timestamp as _since should return 200 for monitor/changes changeset",
+            307,
+            "Changeset with current timestamp as quoted _expected redirects to unquoted in monitor/changes changeset",
         ),
         (
             f'/v1/buckets/monitor/collections/changes/changeset?_expected="{NOW_EPOCH_MS}"&_since={NOW_EPOCH_MS}',
-            200,
-            "Changeset with current timestamp as quoted _expected and current timestamp as _since should return 200 for monitor/changes changeset",
+            307,
+            "Changeset with current timestamp as quoted _expected redirects to unquoted in monitor/changes changeset",
         ),
         ("/v2/boo", 406, "Unknown endpoint should return 406"),
         ("/v2/buckets", 404, "Buckets endpoint should return 404 in v2"),
@@ -159,8 +164,8 @@ print("Old time (epoch ms):", OLD_EPOCH_MS)
         ),
         (
             "/v2/buckets/main/collections/regions/changeset",
-            400,
-            "Missing _expected should return 400 for v2 changeset",
+            422,
+            "Missing _expected should return 422 for v2 changeset",
         ),
         (
             "/v2/buckets/main/collections/regions/changeset?_expected=0",
@@ -189,13 +194,13 @@ print("Old time (epoch ms):", OLD_EPOCH_MS)
         ),
         (
             f'/v2/buckets/monitor/collections/changes/changeset?_expected={NOW_EPOCH_MS}&_since="{OLD_EPOCH_MS}"',
-            422,
-            "Quoted _since should return 422 for monitor/changes changeset in v2",
+            307,
+            "Quoted old _since should redirect to unfiltered monitor/changes changeset in v2",
         ),
         (
             f"/v2/buckets/monitor/collections/changes/changeset?_expected={NOW_EPOCH_MS}&_since={OLD_EPOCH_MS}",
-            200,
-            "Unquoted _since should return 200 for monitor/changes changeset in v2",
+            307,
+            "Unquoted old _since should redirect to unfiltered monitor/changes changeset in v2",
         ),
     ],
 )
