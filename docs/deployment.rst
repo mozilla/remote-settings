@@ -8,7 +8,7 @@ Reader Service
 
 The *reader* service is made of three components:
 
-- a folder where the Remote Settings git repository is checked out
+- a folder where the Remote Settings Data git repository is checked out
 - a Web API service that points to this folder
 - a cronjob that regularly pulls the latest data from the Git origin
 
