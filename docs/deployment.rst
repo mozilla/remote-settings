@@ -14,8 +14,8 @@ The *reader* service is made of three components:
 
 The reader service has two modes:
 
-- ``SELF_CONTAINED=false`` (*default*): only collection data is server by the Web API. Certificates chains are served from the Autograph CDN and attachments are served from the ``ATTACHMENTS_BASE_URL`` domain.
-- ``SELF_CONTAINED=true``: everything is served by the Web API: collection data, certificates chains, attachments. This is relevant when the clients activity must be confined to a single server/domain (eg. on premise instance).
+- ``SELF_CONTAINED=false`` (*default*): only collection data is served by the Web API. Certificate chains are served from the Autograph CDN and attachments are served from the ``ATTACHMENTS_BASE_URL`` domain.
+- ``SELF_CONTAINED=true``: everything is served by the Web API: collection data, certificate chains, attachments. This is relevant when the clients activity must be confined to a single server/domain (eg. on premise instance).
 
 
 Official Git Repositories
