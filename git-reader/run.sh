@@ -105,8 +105,8 @@ git_fetch_lfs() {
     log "Local HEAD: $local_head"
     log "Remote HEAD: $origin_head"
     if [ "$local_head" = "$origin_head" ]; then
-        log "No updates, exiting..."
-        exit 0
+        log "No LFS updates..."
+        return 0
     fi
 
     log "Updates found, set to remote content..."
