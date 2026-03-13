@@ -71,12 +71,42 @@ As of January 2025:
 +------------------------+--------+--------------------------------------+---------------+----------+
 
 
+Servers
+-------
+
+Domains
+'''''''
+
+* PROD: ``https://firefox.settings.services.mozilla.com``
+* STAGE: ``https://firefox.settings.services.allizom.org``
+* DEV: ``https://remote-settings-dev.services.mozilla.com``
+
+``/v1/``
+''''''''
+
+This has been the only version of the Remote Settings API for almost 10 years, and is still widely used by our clients.
+
+Remote Settings v1 is a layer on top of the `Kinto API <https://docs.kinto-storage.org/en/stable/api/1.x/index.html#full-reference>`_. Although every read-only operation offered by the Kinto API is available on our Remote Settings server, clients must restrict the amount of distinct interactions. Millions of devices sending arbitrary requests could have a significant impact on infrastructure.
+
+When using v1, clients developers MUST keep their implementation as close as possible to the existing ones, or at least get in touch with us if there is a solid reason to derive from it.
+
+
+``/v2/``
+''''''''
+
+Version 2 of the Remote Settings API is currently in early stages of roll out since the end of 2025.
+
+In Remote Settings v2, we are moving away from the Kinto API, and serving a custom API with only the necessary endpoints for our clients. This allows us to have more control on the cacheability of our responses, and to prevent clients from using non-optimized routes.
+
+
 Specifications
 --------------
 
-Remote Settings is a layer on top of the `Kinto API <https://docs.kinto-storage.org/en/stable/api/1.x/index.html#full-reference>`_. Although every read-only operation offered by the Kinto API is available on our Remote Settings server, clients must restrict the amount of distinct interactions. Millions of devices sending arbitrary requests could have a significant impact on infrastructure.
+All endpoints described below are the recommended ones for both the ``/v1/`` and ``/v2/``.
 
-That's why clients developers MUST keep their implementation as close as possible to the existing ones, or at least get in touch with us if there is a solid reason to derive from it.
+We use ``{SERVER}`` as a placeholder for the server URL without trailing slash.
+For example, production ``{SERVER}`` is ``https://firefox.settings.services.mozilla.com/v2``.
+
 
 Endpoints
 '''''''''
@@ -89,11 +119,11 @@ The following two endpoints MUST be used to retrieve data. Clients MUST NOT use 
 
 **Fetch collection**:
 
-``GET /v1/buckets/{bid}/collections/{cid}/changeset?_expected={timestamp}``.
+``GET {SERVER}/buckets/{bid}/collections/{cid}/changeset?_expected={timestamp}``.
 
 Returns the following response for the collection ``{cid}`` in the bucket ``{bid}`` (likely ``main``):
 
-- ``changes``: list of records, optionally filtered with ``?_since="{timestamp}"``
+- ``changes``: list of records, optionally filtered with ``?_since={timestamp}``
 - ``metadata``: collection attributes
 - ``timestamp``: records timestamp
 
@@ -115,11 +145,11 @@ For each collection, the amount of possible values for the timestamps is finite.
 
 **Poll for changes**:
 
-``GET /v1/buckets/monitor/collections/changes/changeset?_expected={timestamp}``.
+``GET {SERVER}/buckets/monitor/collections/changes/changeset?_expected={timestamp}``.
 
 Returns the list of collections and their current timestamp.
 
-- ``changes``: list of collections and their timestamp, optionally filtered with ``?_since="{timestamp}"``
+- ``changes``: list of collections and their timestamp, optionally filtered with ``?_since={timestamp}``
 - ``timestamp``: highest collections timestamp
 
 .. note::
@@ -177,12 +207,12 @@ If the HTTP status is not OK (>=400), the response contains a JSON mapping, with
       "code": 400,
       "errno": 107,
       "error": "Invalid parameters",
-      "message": "_since in querystring: The value should be integer between double quotes.",
+      "message": "_since in querystring: The value should be integer",
       "details": [
         {
           "location": "querystring",
           "name": "_since",
-          "description": "The value should be integer between double quotes."
+          "description": "The value should be integer"
         }
       ]
     }
@@ -355,7 +385,7 @@ Attachments
 
 The attachments base URL is obtained on the root URL of the server:
 
-``GET /v1/``
+``GET {SERVER}/``
 
 Returns the metadata of the server.
 
