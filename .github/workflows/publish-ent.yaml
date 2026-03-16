@@ -76,7 +76,7 @@ jobs:
           cache-to: type=gha,mode=max # Save cache to GitHub Actions
       - name: Notify DEVs of build failure
         if: failure()
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@v3.0.1
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
