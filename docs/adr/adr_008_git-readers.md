@@ -82,7 +82,7 @@ The STAGE data is stored in a separate repository (e.g. `remote-settings-data-st
 
 Remote Settings attachments are referenced in records as relative URLs. In order to fetch them, the client concatenates the base URL obtained from the server root URL with the location field of the record.  
 Attachments can weigh from a few kilobytes (e.g. intermediates .pem files) to a hundred of megabytes (translation models files). As of Aug 29, 2025, the total amount of attachments is about \~7GB.  
-In Remote Settings, the attachments are not versioned and are unmutable. When a user updates the attachment of an existing record, a new file is published under a new randomly generated location.
+In Remote Settings, the attachments are not versioned and are immutable. When a user updates the attachment of an existing record, a new file is published under a new randomly generated location.
 
 Since we want the git repository to be self-contained, the attachments have to be part of the repository.   
 However, most git hosting platforms have file limits (eg. 100MB per file and 5GB total on Github). [Git LFS](https://git-lfs.com/) seems an adequate solution to overcome this limitation:
