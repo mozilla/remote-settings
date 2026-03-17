@@ -22,7 +22,7 @@ cmd_gitupdate() {
         # If A doesn't exist, clone into A.
         if [ ! -d "$repo_path/A" ]; then
             log "Cloning repository ${GIT_REPO_URL} into $repo_path/A..."
-            GIT_LFS_SKIP_SMUDGE=1 git clone "${GIT_REPO_URL}" "$repo_path/A"
+            git clone "${GIT_REPO_URL}" "$repo_path/A"
             # Fresh clone don't contain attachments, fetch them from LFS.
             if [ "${SELF_CONTAINED:-false}" = "true" ]; then
                 git_fetch_lfs "$repo_path/A"
