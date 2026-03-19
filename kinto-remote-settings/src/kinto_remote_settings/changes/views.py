@@ -157,10 +157,28 @@ def _handle_cache_expires(request, bid, cid):
     settings = request.registry.settings
     prefix = f"{bid}.{cid}.record_cache"
     default_expires = settings.get(f"{prefix}_expires_seconds")
+    minimum_expires = settings.get(f"{prefix}_minimum_expires_seconds", default_expires)
     maximum_expires = settings.get(f"{prefix}_maximum_expires_seconds", default_expires)
 
-    has_cache_busting = "_expected" in request.GET
-    cache_expires = maximum_expires if has_cache_busting else default_expires
+    if cache_bust_value := request.GET.get("_expected"):
+        # If cache busting value is "0", or starts with "9999" (random cache busts values
+        # in our libraries), then we reduce the CDN cache TTL. This should help our users
+        # when QA'ing their changes.
+        #
+        # Important:
+        # - `_expected=0` is used in the Rust client when polling changes:
+        #   https://github.com/mozilla/application-services/blob/3c2907c0d/components/remote_settings/src/client.rs#L657-L662
+        # - `_expected=0` is used in Desktop client on `.get()` with an empty DB
+        #   https://searchfox.org/firefox-main/rev/fa20ce29b1a82b/services/settings/RemoteSettingsClient.sys.mjs#496
+        #   https://searchfox.org/firefox-main/rev/fa20ce29b1a82b/services/settings/RemoteSettingsClient.sys.mjs#658-666
+        if cache_bust_value == "0" or cache_bust_value.startswith("9999"):
+            cache_expires = minimum_expires
+        else:
+            cache_expires = maximum_expires
+    else:
+        # If cache busting is not present, we use the default expires value.
+        # This can only happen in the /records endpoint since _expected is mandatory in /changeset.
+        cache_expires = default_expires
 
     if cache_expires is not None:
         request.response.cache_expires(seconds=int(cache_expires))

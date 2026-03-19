@@ -28,6 +28,8 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
         settings["record_cache_expires_seconds"] = "180"
         settings["main.record_cache_expires_seconds"] = "360"
         settings["blocklists.certificates.record_cache_expires_seconds"] = 1234
+        settings["blocklists.certificates.record_cache_minimum_expires_seconds"] = 42
+        settings["blocklists.certificates.record_cache_maximum_expires_seconds"] = 3600
         return settings
 
     def test_changeset_is_accessible(self):
@@ -153,9 +155,24 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
     def test_extra_param_is_allowed(self):
         self.app.get(self.changeset_uri + "&_extra=abc", headers=self.headers)
 
-    def test_cache_control_headers_are_set(self):
-        resp = self.app.get(self.changeset_uri, headers=self.headers)
-        assert resp.headers["Cache-Control"] == "max-age=1234"
+    def test_cache_control_headers_are_set_to_maximum_if_expected_is_set(self):
+        resp = self.app.get(
+            "/buckets/blocklists/collections/certificates/changeset?_expected=1773913097658",
+            headers=self.headers,
+        )
+        assert resp.headers["Cache-Control"] == "max-age=3600"
+
+    def test_cache_control_headers_are_set_to_minimum_if_0_or_9999(self):
+        resp = self.app.get(
+            "/buckets/blocklists/collections/certificates/changeset?_expected=0",
+            headers=self.headers,
+        )
+        assert resp.headers["Cache-Control"] == "max-age=42"
+        resp = self.app.get(
+            "/buckets/blocklists/collections/certificates/changeset?_expected=99999996565",
+            headers=self.headers,
+        )
+        assert resp.headers["Cache-Control"] == "max-age=42"
 
     def test_cache_control_can_be_set_per_bucket(self):
         self.create_collection("main", "cfr")
