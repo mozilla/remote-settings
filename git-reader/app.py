@@ -137,6 +137,14 @@ class Settings(BaseSettings):
         alias="granian_trusted_hosts",
         description="List of trusted hosts for proxy headers.",
     )
+    cache_control_short: int = Field(
+        60,
+        description="Sets the cache-control response header to max-age={value} for volatile endpoints, default is 60",
+    )
+    cache_control_long: int = Field(
+        3600,
+        description="Sets the cache-control response header to max-age={value} for stable/static endpoints, default is 3600",
+    )
 
 
 @lru_cache(maxsize=1)
@@ -541,6 +549,18 @@ async def requests_metrics(
     return response
 
 
+@app.middleware("http")
+async def set_default_headers(
+    request: Request,
+    call_next: Callable[[Request], Awaitable[Response]],
+    settings=get_settings(),
+) -> Response:
+    response = await call_next(request)
+    if "cache-control" not in response.headers:
+        response.headers["cache-control"] = f"max-age={settings.cache_control_long}"
+    return response
+
+
 @checks.register
 def git_repo_health() -> list:
     result = []
@@ -570,6 +590,7 @@ def hello_unsuffixed():
 @app.get(f"/{API_PREFIX}", response_model=HelloResponse)
 def hello(
     request: Request,
+    response: Response,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ) -> dict:
@@ -614,10 +635,12 @@ def hello(
     response_model=ChangesetResponse,
 )
 def monitor_changes(
+    response: Response,
     _expected: Annotated[int, Query(ge=0)],
     _since: Annotated[int, Query(ge=0)] | None = None,
     bucket: str | None = None,
     collection: str | None = None,
+    settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
     if _since and _expected > 0 and _expected < _since:
@@ -625,6 +648,9 @@ def monitor_changes(
             status_code=400,
             detail="_expected must be superior to _since if both are provided",
         )
+
+    if _expected == 0 or f"{_expected}".startswith("9999"):
+        response.headers["cache-control"] = f"max-age={settings.cache_control_short}"
 
     timestamp, metadata, changes = git.get_monitor_changes_changeset(
         _since=_since, bucket=bucket, collection=collection
@@ -642,6 +668,7 @@ def monitor_changes(
 )
 def collection_changeset(
     request: Request,
+    response: Response,
     bid: str,
     cid: str,
     _expected: Annotated[int, Query(ge=0)],
@@ -671,6 +698,9 @@ def collection_changeset(
         without_since = request.url.remove_query_params("_since")
         return RedirectResponse(without_since, status_code=307)
 
+    if "-preview" in bid:
+        response.headers["cache-control"] = f"max-age={settings.cache_control_short}"
+
     if settings.self_contained:
         # Certificate chains are served from this server.
         x5u = metadata["signature"]["x5u"]
@@ -692,7 +722,12 @@ def collection_changeset(
 
 
 @app.get(f"/{API_PREFIX}__broadcasts__", response_model=BroadcastsResponse)
-def broadcasts(git: GitService = Depends(GitService.dep)):
+def broadcasts(
+    response: Response,
+    settings: Settings = Depends(get_settings),
+    git: GitService = Depends(GitService.dep),
+):
+    response.headers["cache-control"] = f"max-age={settings.cache_control_short}"
     return git.get_broadcasts()
 
 

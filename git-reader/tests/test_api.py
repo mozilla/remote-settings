@@ -316,6 +316,7 @@ def test_hello_view(api_client):
     assert (
         data["capabilities"]["attachments"]["base_url"] == "http://test/v2/attachments/"
     )
+    assert resp.headers["cache-control"] == "max-age=3600"
 
 
 def test_broadcast_view(api_client):
@@ -323,7 +324,7 @@ def test_broadcast_view(api_client):
     assert resp.status_code == 200
     data = resp.json()
     assert "remote-settings/monitor_changes" in data["broadcasts"]
-
+    assert resp.headers["cache-control"] == "max-age=60"
 
 def test_monitor_changes_view(api_client):
     resp = api_client.get(
@@ -335,6 +336,7 @@ def test_monitor_changes_view(api_client):
     assert data["changes"][0]["bucket"] == "main"
     assert data["changes"][0]["collection"] == "password-rules"
     assert "last_modified" in data["changes"][0]
+    assert resp.headers["cache-control"] == "max-age=60"
 
 
 def test_monitor_changes_view_filtered_since(api_client):
@@ -354,6 +356,7 @@ def test_monitor_changes_bad_expected(api_client, _expected):
         f"/v2/buckets/monitor/collections/changes/changeset{expected_param}"
     )
     assert resp.status_code in (400, 422)
+    assert resp.headers["cache-control"] == "max-age=3600"
 
 
 def test_monitor_changes_view_filtered_bad_since(api_client):
@@ -409,6 +412,7 @@ def test_changeset(api_client):
         == "http://test/v2/cert-chains/a/b/cert.pem"
     )
     assert data["changes"] == [{"id": "abc", "last_modified": 123456789, "foo": "bar"}]
+    assert resp.headers["cache-control"] == "max-age=3600"
 
 
 def test_changeset_unknown_collection(api_client):
@@ -416,6 +420,13 @@ def test_changeset_unknown_collection(api_client):
         "/v2/buckets/main/collections/wallpapers/changeset?_expected=0"
     )
     assert resp.status_code == 404
+
+
+def test_changeset_preview_collection(api_client):
+    resp = api_client.get(
+        "/v2/buckets/main-preview/collections/wallpapers/changeset?_expected=0"
+    )
+    assert resp.headers["cache-control"] == "max-age=60"
 
 
 @pytest.mark.parametrize(
