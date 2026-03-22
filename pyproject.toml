@@ -26,7 +26,7 @@ dev = [
     "pytest==9.0.2",
     "pytest-cov<8.0.0",
     "webtest==3.0.7",
-    "coverage==7.13.4",
+    "coverage==7.13.5",
     "detect-secrets>=1.5.0",
     "ruff>=0.15.2",
     "responses>=0.26.0",
