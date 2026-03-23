@@ -137,11 +137,11 @@ class Settings(BaseSettings):
         alias="granian_trusted_hosts",
         description="List of trusted hosts for proxy headers.",
     )
-    cache_control_short: int = Field(
+    cache_control_short_expires_seconds: int = Field(
         60,
         description="Sets the cache-control response header to max-age={value} for volatile endpoints, default is 60",
     )
-    cache_control_long: int = Field(
+    cache_control_long_expires_seconds_expires_seconds: int = Field(
         3600,
         description="Sets the cache-control response header to max-age={value} for stable/static endpoints, default is 3600",
     )
@@ -557,7 +557,9 @@ async def set_default_headers(
 ) -> Response:
     response = await call_next(request)
     if "cache-control" not in response.headers:
-        response.headers["cache-control"] = f"max-age={settings.cache_control_long}"
+        response.headers["cache-control"] = (
+            f"max-age={settings.cache_control_long_expires_seconds}"
+        )
     return response
 
 
@@ -650,7 +652,9 @@ def monitor_changes(
         )
 
     if _expected == 0 or f"{_expected}".startswith("9999"):
-        response.headers["cache-control"] = f"max-age={settings.cache_control_short}"
+        response.headers["cache-control"] = (
+            f"max-age={settings.cache_control_short_expires_seconds}"
+        )
 
     timestamp, metadata, changes = git.get_monitor_changes_changeset(
         _since=_since, bucket=bucket, collection=collection
@@ -699,7 +703,9 @@ def collection_changeset(
         return RedirectResponse(without_since, status_code=307)
 
     if "-preview" in bid:
-        response.headers["cache-control"] = f"max-age={settings.cache_control_short}"
+        response.headers["cache-control"] = (
+            f"max-age={settings.cache_control_short_expires_seconds}"
+        )
 
     if settings.self_contained:
         # Certificate chains are served from this server.
@@ -727,7 +733,9 @@ def broadcasts(
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
-    response.headers["cache-control"] = f"max-age={settings.cache_control_short}"
+    response.headers["cache-control"] = (
+        f"max-age={settings.cache_control_short_expires_seconds}"
+    )
     return git.get_broadcasts()
 
 

@@ -326,6 +326,7 @@ def test_broadcast_view(api_client):
     assert "remote-settings/monitor_changes" in data["broadcasts"]
     assert resp.headers["cache-control"] == "max-age=60"
 
+
 def test_monitor_changes_view(api_client):
     resp = api_client.get(
         "/v2/buckets/monitor/collections/changes/changeset?_expected=0"
