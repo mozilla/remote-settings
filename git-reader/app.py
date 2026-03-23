@@ -702,7 +702,7 @@ def collection_changeset(
         without_since = request.url.remove_query_params("_since")
         return RedirectResponse(without_since, status_code=307)
 
-    if "-preview" in bid:
+    if "-preview" in f"{bid}/{cid}":
         response.headers["cache-control"] = (
             f"max-age={settings.cache_control_short_expires_seconds}"
         )
