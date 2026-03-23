@@ -141,7 +141,7 @@ class Settings(BaseSettings):
         60,
         description="Sets the cache-control response header to max-age={value} for volatile endpoints, default is 60",
     )
-    cache_control_long_expires_seconds_expires_seconds: int = Field(
+    cache_control_long_expires_seconds: int = Field(
         3600,
         description="Sets the cache-control response header to max-age={value} for stable/static endpoints, default is 3600",
     )
