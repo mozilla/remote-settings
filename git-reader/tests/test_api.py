@@ -132,9 +132,24 @@ def fake_repo(temp_dir):
                 {"id": "def", "last_modified": 113456789, "pim": "pam"},
             ),
             (
+                "password-rules-preview/abc.json",
+                {"id": "abc", "last_modified": 113456788, "foo": "baz"},
+            ),
+            (
                 "password-rules/metadata.json",
                 {
                     "id": "password-rules",
+                    "bucket": "main",
+                    "signature": {"x5u": "https://autograph/a/b/cert.pem"},
+                    "signatures": [
+                        {"x5u": "https://autograph/a/b/cert.pem"},
+                    ],
+                },
+            ),
+            (
+                "password-rules-preview/metadata.json",
+                {
+                    "id": "password-rules-preview",
                     "bucket": "main",
                     "signature": {"x5u": "https://autograph/a/b/cert.pem"},
                     "signatures": [
@@ -150,6 +165,13 @@ def fake_repo(temp_dir):
     )
     repo.create_tag(
         "v1/timestamps/main/password-rules/113456789",
+        oid,
+        ObjectType.COMMIT,
+        author,
+        "Message",
+    )
+    repo.create_tag(
+        "v1/timestamps/main/password-rules-preview/113456789",
         oid,
         ObjectType.COMMIT,
         author,
@@ -425,8 +447,9 @@ def test_changeset_unknown_collection(api_client):
 
 def test_changeset_preview_collection(api_client):
     resp = api_client.get(
-        "/v2/buckets/main-preview/collections/wallpapers/changeset?_expected=0"
+        "/v2/buckets/main/collections/password-rules-preview/changeset?_expected=0"
     )
+    assert resp.status_code == 200
     assert resp.headers["cache-control"] == "max-age=60"
 
 

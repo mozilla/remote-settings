@@ -553,12 +553,11 @@ async def requests_metrics(
 async def set_default_headers(
     request: Request,
     call_next: Callable[[Request], Awaitable[Response]],
-    settings=get_settings(),
 ) -> Response:
     response = await call_next(request)
     if "cache-control" not in response.headers:
         response.headers["cache-control"] = (
-            f"max-age={settings.cache_control_long_expires_seconds}"
+            f"max-age={get_settings().cache_control_long_expires_seconds}"
         )
     return response
 
