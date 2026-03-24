@@ -231,14 +231,17 @@ def clear_settings_cache():
 
 
 @pytest.fixture
-def get_settings_override(temp_dir):
+def get_settings_override(temp_dir, monkeypatch):
     from app import Settings
+
+    # we must patch GIT_REPO_PATH to something, or the set_default_headers middleware will throw an error
+    monkeypatch.setenv("GIT_REPO_PATH", temp_dir)
 
     return lambda: Settings(self_contained=True, git_repo_path=temp_dir)
 
 
 @pytest.fixture
-def app(get_settings_override):
+def app(get_settings_override, monkeypatch):
     from app import app, get_settings
 
     app.dependency_overrides[get_settings] = get_settings_override

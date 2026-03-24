@@ -43,7 +43,6 @@ lint: $(INSTALL_STAMP)  ## Analyze code base
 	$(VENV)/bin/python bin/repo-python-versions.py
 
 test: $(INSTALL_STAMP)  ## Run unit tests
-	GIT_REPO_PATH=./ \
 	PYTHONPATH=. $(VENV)/bin/pytest \
     --cov=kinto-remote-settings \
     --cov=cronjobs \
