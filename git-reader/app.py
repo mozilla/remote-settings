@@ -555,9 +555,10 @@ async def set_default_headers(
     call_next: Callable[[Request], Awaitable[Response]],
 ) -> Response:
     response = await call_next(request)
+    settings = get_settings()
     if "cache-control" not in response.headers:
         response.headers["cache-control"] = (
-            f"max-age={get_settings().cache_control_long_expires_seconds}"
+            f"max-age={settings.cache_control_long_expires_seconds}"
         )
     return response
 
