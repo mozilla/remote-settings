@@ -43,14 +43,17 @@ Container Entry Points
 ''''''''''''''''''''''
 
 * ``web`` (*default*): runs the Web API on port ``8000`` with Prometheus metrics on port ``9090``. The following env vars must be set:
-  - ``GIT_REPO_PATH``: the path to the checked out git repo folder
-  - ``SELF_CONTAINED``: whether to serve everything from the Web API
-  - ``ATTACHMENTS_BASE_URL``: the attachments base URL if ``SELF_CONTAINED=false``
+    - ``GIT_REPO_PATH``: the path to the checked out git repo folder
+    - ``SELF_CONTAINED``: whether to serve everything from the Web API
+    - ``ATTACHMENTS_BASE_URL``: the attachments base URL if ``SELF_CONTAINED=false``
+    - ``CACHE_CONTROL_SHORT_EXPIRES_SECONDS``: sets the ``cache-control`` response header to ``max-age={value}`` value for volatile endpoints. Default is 60.
+    - ``CACHE_CONTROL_LONG_EXPIRES_SECONDS``: sets the ``cache-control`` response header ``max-age={value}`` value for stable endpoints. Default is 3600.
+    - ``CACHE_CONTROL_STATIC_EXPIRES_SECONDS``: sets the ``cache-control`` response header ``max-age={value}`` value for static content, like attachments. Default is 604800 (1 week).
 
 * ``gitupdate``: initializes or update the checked out git repo folder. Requires the following settings:
-  - ``GIT_REPO_PATH``: the path to the checked out git repo folder
-  - ``GIT_REPO_URL``: the Git+SSH origin URL
-  - In order to avoid rate limiting with pulling large amounts of files from Git LFS, SSH authentication must be setup. Recommended way is to mount SSH keys into the container at ``/app/.ssh/id_ed25519`` and ``/app/.ssh/id_ed25519.pub``. See git-reader's README for more details.
+    - ``GIT_REPO_PATH``: the path to the checked out git repo folder
+    - ``GIT_REPO_URL``: the Git+SSH origin URL
+    - In order to avoid rate limiting with pulling large amounts of files from Git LFS, SSH authentication must be setup. Recommended way is to mount SSH keys into the container at ``/app/.ssh/id_ed25519`` and ``/app/.ssh/id_ed25519.pub``. See git-reader's README for more details.
 
 Liveliness and readiness probe at ``:8000/__lbheartbeat__``.
 

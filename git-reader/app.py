@@ -137,6 +137,18 @@ class Settings(BaseSettings):
         alias="granian_trusted_hosts",
         description="List of trusted hosts for proxy headers.",
     )
+    cache_control_short_expires_seconds: int = Field(
+        60,
+        description="Sets the cache-control response header to max-age={value} for volatile endpoints, default is 60",
+    )
+    cache_control_long_expires_seconds: int = Field(
+        3600,
+        description="Sets the cache-control response header to max-age={value} for stable endpoints, default is 3600",
+    )
+    cache_control_static_expires_seconds: int = Field(
+        604800,
+        description="Sets the cache-control response header to max-age={value} for static content, like attachments. Default is 604800 (1 week)",
+    )
 
 
 @lru_cache(maxsize=1)
@@ -541,6 +553,20 @@ async def requests_metrics(
     return response
 
 
+@app.middleware("http")
+async def set_default_headers(
+    request: Request,
+    call_next: Callable[[Request], Awaitable[Response]],
+) -> Response:
+    response = await call_next(request)
+    settings = get_settings()
+    if "cache-control" not in response.headers:
+        response.headers["cache-control"] = (
+            f"max-age={settings.cache_control_long_expires_seconds}"
+        )
+    return response
+
+
 @checks.register
 def git_repo_health() -> list:
     result = []
@@ -570,6 +596,7 @@ def hello_unsuffixed():
 @app.get(f"/{API_PREFIX}", response_model=HelloResponse)
 def hello(
     request: Request,
+    response: Response,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ) -> dict:
@@ -614,16 +641,23 @@ def hello(
     response_model=ChangesetResponse,
 )
 def monitor_changes(
+    response: Response,
     _expected: Annotated[int, Query(ge=0)],
     _since: Annotated[int, Query(ge=0)] | None = None,
     bucket: str | None = None,
     collection: str | None = None,
+    settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
     if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
             detail="_expected must be superior to _since if both are provided",
+        )
+
+    if _expected == 0 or f"{_expected}".startswith("9999"):
+        response.headers["cache-control"] = (
+            f"max-age={settings.cache_control_short_expires_seconds}"
         )
 
     timestamp, metadata, changes = git.get_monitor_changes_changeset(
@@ -642,6 +676,7 @@ def monitor_changes(
 )
 def collection_changeset(
     request: Request,
+    response: Response,
     bid: str,
     cid: str,
     _expected: Annotated[int, Query(ge=0)],
@@ -671,6 +706,11 @@ def collection_changeset(
         without_since = request.url.remove_query_params("_since")
         return RedirectResponse(without_since, status_code=307)
 
+    if "-preview" in f"{bid}/{cid}":
+        response.headers["cache-control"] = (
+            f"max-age={settings.cache_control_short_expires_seconds}"
+        )
+
     if settings.self_contained:
         # Certificate chains are served from this server.
         x5u = metadata["signature"]["x5u"]
@@ -692,7 +732,14 @@ def collection_changeset(
 
 
 @app.get(f"/{API_PREFIX}__broadcasts__", response_model=BroadcastsResponse)
-def broadcasts(git: GitService = Depends(GitService.dep)):
+def broadcasts(
+    response: Response,
+    settings: Settings = Depends(get_settings),
+    git: GitService = Depends(GitService.dep),
+):
+    response.headers["cache-control"] = (
+        f"max-age={settings.cache_control_short_expires_seconds}"
+    )
     return git.get_broadcasts()
 
 
@@ -703,12 +750,16 @@ def broadcasts(git: GitService = Depends(GitService.dep)):
 )
 def cert_chain(
     pem: str,
+    response: Response,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
     if not settings.self_contained:
         raise HTTPException(status_code=404, detail="cert-chains/ not enabled")
     try:
+        response.headers["cache-control"] = (
+            f"max-age={settings.cache_control_static_expires_seconds}"
+        )
         return git.get_cert_chain(pem)
     except (FileNotFoundError, IsADirectoryError):
         raise HTTPException(status_code=404, detail=f"{pem} not found")
@@ -776,11 +827,23 @@ def attachments(
         cached_content: io.BytesIO = request.state.cache["_cached_startup_content"]
         cached_content.seek(0)
         # Stream from memory.
-        return StreamingResponse(cached_content, media_type="application/x-mozlz4")
+        return StreamingResponse(
+            cached_content,
+            media_type="application/x-mozlz4",
+            headers={
+                "cache-control": f"max-age={settings.cache_control_static_expires_seconds}"
+            },
+        )
 
     # Stream from disk
     mimetype, _ = mimetypes.guess_type(requested_path)
-    return FileResponse(requested_path, media_type=mimetype)
+    return FileResponse(
+        requested_path,
+        media_type=mimetype,
+        headers={
+            "cache-control": f"max-age={settings.cache_control_static_expires_seconds}"
+        },
+    )
 
 
 def app_factory() -> FastAPI:

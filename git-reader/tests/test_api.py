@@ -132,9 +132,24 @@ def fake_repo(temp_dir):
                 {"id": "def", "last_modified": 113456789, "pim": "pam"},
             ),
             (
+                "password-rules-preview/abc.json",
+                {"id": "abc", "last_modified": 113456788, "foo": "baz"},
+            ),
+            (
                 "password-rules/metadata.json",
                 {
                     "id": "password-rules",
+                    "bucket": "main",
+                    "signature": {"x5u": "https://autograph/a/b/cert.pem"},
+                    "signatures": [
+                        {"x5u": "https://autograph/a/b/cert.pem"},
+                    ],
+                },
+            ),
+            (
+                "password-rules-preview/metadata.json",
+                {
+                    "id": "password-rules-preview",
                     "bucket": "main",
                     "signature": {"x5u": "https://autograph/a/b/cert.pem"},
                     "signatures": [
@@ -150,6 +165,13 @@ def fake_repo(temp_dir):
     )
     repo.create_tag(
         "v1/timestamps/main/password-rules/113456789",
+        oid,
+        ObjectType.COMMIT,
+        author,
+        "Message",
+    )
+    repo.create_tag(
+        "v1/timestamps/main/password-rules-preview/113456789",
         oid,
         ObjectType.COMMIT,
         author,
@@ -209,14 +231,17 @@ def clear_settings_cache():
 
 
 @pytest.fixture
-def get_settings_override(temp_dir):
+def get_settings_override(temp_dir, monkeypatch):
     from app import Settings
+
+    # we must patch GIT_REPO_PATH to something, or the set_default_headers middleware will throw an error
+    monkeypatch.setenv("GIT_REPO_PATH", temp_dir)
 
     return lambda: Settings(self_contained=True, git_repo_path=temp_dir)
 
 
 @pytest.fixture
-def app(get_settings_override):
+def app(get_settings_override, monkeypatch):
     from app import app, get_settings
 
     app.dependency_overrides[get_settings] = get_settings_override
@@ -316,6 +341,7 @@ def test_hello_view(api_client):
     assert (
         data["capabilities"]["attachments"]["base_url"] == "http://test/v2/attachments/"
     )
+    assert resp.headers["cache-control"] == "max-age=3600"
 
 
 def test_broadcast_view(api_client):
@@ -323,6 +349,7 @@ def test_broadcast_view(api_client):
     assert resp.status_code == 200
     data = resp.json()
     assert "remote-settings/monitor_changes" in data["broadcasts"]
+    assert resp.headers["cache-control"] == "max-age=60"
 
 
 def test_monitor_changes_view(api_client):
@@ -335,6 +362,7 @@ def test_monitor_changes_view(api_client):
     assert data["changes"][0]["bucket"] == "main"
     assert data["changes"][0]["collection"] == "password-rules"
     assert "last_modified" in data["changes"][0]
+    assert resp.headers["cache-control"] == "max-age=60"
 
 
 def test_monitor_changes_view_filtered_since(api_client):
@@ -354,6 +382,7 @@ def test_monitor_changes_bad_expected(api_client, _expected):
         f"/v2/buckets/monitor/collections/changes/changeset{expected_param}"
     )
     assert resp.status_code in (400, 422)
+    assert resp.headers["cache-control"] == "max-age=3600"
 
 
 def test_monitor_changes_view_filtered_bad_since(api_client):
@@ -409,6 +438,7 @@ def test_changeset(api_client):
         == "http://test/v2/cert-chains/a/b/cert.pem"
     )
     assert data["changes"] == [{"id": "abc", "last_modified": 123456789, "foo": "bar"}]
+    assert resp.headers["cache-control"] == "max-age=3600"
 
 
 def test_changeset_unknown_collection(api_client):
@@ -416,6 +446,14 @@ def test_changeset_unknown_collection(api_client):
         "/v2/buckets/main/collections/wallpapers/changeset?_expected=0"
     )
     assert resp.status_code == 404
+
+
+def test_changeset_preview_collection(api_client):
+    resp = api_client.get(
+        "/v2/buckets/main/collections/password-rules-preview/changeset?_expected=0"
+    )
+    assert resp.status_code == 200
+    assert resp.headers["cache-control"] == "max-age=60"
 
 
 @pytest.mark.parametrize(
@@ -466,6 +504,7 @@ def test_changeset_since(api_client):
 def test_cert_chain(api_client):
     resp = api_client.get("/v2/cert-chains/a/b/cert.pem")
     assert resp.status_code == 200
+    assert resp.headers["cache-control"] == "max-age=604800"
     assert "-----BEGIN CERTIFICATE-----" in resp.text
 
 
@@ -489,6 +528,7 @@ def test_startup_rewrites_x5u(api_client, temp_dir):
 
     resp = api_client.get("/v2/attachments/bundles/startup.json.mozlz4")
     assert resp.status_code == 200
+    assert resp.headers["cache-control"] == "max-age=604800"
     data = read_json_mozlz4(resp.content)
     assert (
         data[0]["metadata"]["signature"]["x5u"]
