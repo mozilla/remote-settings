@@ -143,7 +143,11 @@ class Settings(BaseSettings):
     )
     cache_control_long_expires_seconds: int = Field(
         3600,
-        description="Sets the cache-control response header to max-age={value} for stable/static endpoints, default is 3600",
+        description="Sets the cache-control response header to max-age={value} for stable endpoints, default is 3600",
+    )
+    cache_control_static_expires_seconds: int = Field(
+        604800,
+        description="Sets the cache-control response header to max-age={value} for static content, like attachments. Default is 604800 (1 week)",
     )
 
 
@@ -746,12 +750,16 @@ def broadcasts(
 )
 def cert_chain(
     pem: str,
+    response: Response,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ):
     if not settings.self_contained:
         raise HTTPException(status_code=404, detail="cert-chains/ not enabled")
     try:
+        response.headers["cache-control"] = (
+            f"max-age={settings.cache_control_static_expires_seconds}"
+        )
         return git.get_cert_chain(pem)
     except (FileNotFoundError, IsADirectoryError):
         raise HTTPException(status_code=404, detail=f"{pem} not found")
@@ -819,11 +827,23 @@ def attachments(
         cached_content: io.BytesIO = request.state.cache["_cached_startup_content"]
         cached_content.seek(0)
         # Stream from memory.
-        return StreamingResponse(cached_content, media_type="application/x-mozlz4")
+        return StreamingResponse(
+            cached_content,
+            media_type="application/x-mozlz4",
+            headers={
+                "cache-control": f"max-age={settings.cache_control_static_expires_seconds}"
+            },
+        )
 
     # Stream from disk
     mimetype, _ = mimetypes.guess_type(requested_path)
-    return FileResponse(requested_path, media_type=mimetype)
+    return FileResponse(
+        requested_path,
+        media_type=mimetype,
+        headers={
+            "cache-control": f"max-age={settings.cache_control_static_expires_seconds}"
+        },
+    )
 
 
 def app_factory() -> FastAPI:

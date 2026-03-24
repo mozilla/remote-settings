@@ -47,7 +47,8 @@ Container Entry Points
   - ``SELF_CONTAINED``: whether to serve everything from the Web API
   - ``ATTACHMENTS_BASE_URL``: the attachments base URL if ``SELF_CONTAINED=false``
   - ``CACHE_CONTROL_SHORT_EXPIRES_SECONDS``: sets the ``cache-control`` response header to ``max-age={value}`` value for volatile endpoints. Default is 60.
-  - ``CACHE_CONTROL_LONG_EXPIRES_SECONDS``: sets the ``cache-control`` response header ``max-age={value}`` value for stable/static endpoints. Default is 3600.
+  - ``CACHE_CONTROL_LONG_EXPIRES_SECONDS``: sets the ``cache-control`` response header ``max-age={value}`` value for stable endpoints. Default is 3600.
+  - ``CACHE_CONTROL_STATIC_EXPIRES_SECONDS``: sets the ``cache-control`` response header ``max-age={value}`` value for static content, like attachments. Default is 604800 (1 week).
 
 * ``gitupdate``: initializes or update the checked out git repo folder. Requires the following settings:
   - ``GIT_REPO_PATH``: the path to the checked out git repo folder

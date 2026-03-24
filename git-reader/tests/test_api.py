@@ -504,6 +504,7 @@ def test_changeset_since(api_client):
 def test_cert_chain(api_client):
     resp = api_client.get("/v2/cert-chains/a/b/cert.pem")
     assert resp.status_code == 200
+    assert resp.headers["cache-control"] == "max-age=604800"
     assert "-----BEGIN CERTIFICATE-----" in resp.text
 
 
@@ -527,6 +528,7 @@ def test_startup_rewrites_x5u(api_client, temp_dir):
 
     resp = api_client.get("/v2/attachments/bundles/startup.json.mozlz4")
     assert resp.status_code == 200
+    assert resp.headers["cache-control"] == "max-age=604800"
     data = read_json_mozlz4(resp.content)
     assert (
         data[0]["metadata"]["signature"]["x5u"]
