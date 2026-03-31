@@ -80,6 +80,9 @@ ignore = [
 [tool.ruff.lint.isort]
 lines-after-imports = 2
 
+[tool.ty.src]
+exclude = ["**/tests"]
+
 [tool.pytest.ini_options]
 # https://docs.pytest.org/en/6.2.x/usage.html
 # -ra: shows test summary for all EXCEPT passed and passed with output
