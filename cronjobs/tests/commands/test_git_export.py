@@ -436,7 +436,7 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
     assert "Found latest tag: 1600000000000" in stdout
     assert "1 collections changed" in stdout
 
-    urls = [call.request.url.split("?")[0] for call in responses.calls]  # type: ignore[unresolved-attribute]
+    urls = [call.request.url.split("?")[0] for call in responses.calls]
     assert "http://testserver:9999/v1/buckets/bid1/collections/cid1/changeset" in urls
     assert (
         "http://testserver:9999/v1/buckets/bid2/collections/cid2/changeset" not in urls
