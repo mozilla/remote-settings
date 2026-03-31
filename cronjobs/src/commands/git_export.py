@@ -262,7 +262,7 @@ async def repo_sync_content(
         print("No new changes since last run.")
         return changed_attachments, changed_branches, created_tags
 
-    server_info = await client.server_info()  # type: ignore[invalid-await]
+    server_info = await client.server_info()  # ty: ignore[invalid-await]
 
     # The config file timestamp changes on each redeploy. In order to avoid
     # unnecessary commits, we remove it from the server info.
@@ -526,7 +526,7 @@ def changeset_to_branch_folder(
     # Delete any records that were removed in this changeset.
     # (branch_tree is None on first run, and `cid` folder may not exist yet)
     if branch_tree is not None and cid in branch_tree:
-        for entry in branch_tree[cid]:  # type: ignore[index]
+        for entry in branch_tree[cid]:  # ty: ignore[not-iterable]
             assert entry.name is not None
             basename = entry.name.rsplit(".json", 1)[0]
             if basename != "metadata" and basename not in {r["id"] for r in records}:

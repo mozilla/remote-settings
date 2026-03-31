@@ -29,7 +29,7 @@ class CustomTimeout(TimeoutSauce):
         super().__init__(*args, **kwargs)
 
 
-requests.adapters.TimeoutSauce = CustomTimeout  # type: ignore[assignment]
+requests.adapters.TimeoutSauce = CustomTimeout  # ty: ignore[invalid-assignment]
 
 
 class KintoClient(kinto_http.Client):

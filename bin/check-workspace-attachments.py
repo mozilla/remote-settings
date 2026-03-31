@@ -154,7 +154,7 @@ async def main():
     print(
         f"{len(only_workspace_attachments)} attachments are only referenced in workspace buckets"
     )
-    server_info = await client.server_info()  # type: ignore[invalid-await]
+    server_info = await client.server_info()  # ty: ignore[invalid-await]
     base_url = server_info["capabilities"]["attachments"]["base_url"]
     missing = await check_urls(
         [f"{base_url}{location}" for location in only_workspace_attachments]

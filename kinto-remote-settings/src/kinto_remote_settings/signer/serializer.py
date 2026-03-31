@@ -9,6 +9,6 @@ def canonical_json(records, last_modified):
 
     payload = {"data": records, "last_modified": "%s" % last_modified}
 
-    dump = canonicaljson.dumps(payload)  # type: ignore[unresolved-attribute]
+    dump = canonicaljson.dumps(payload)  # ty: ignore[unresolved-attribute]
 
     return dump
