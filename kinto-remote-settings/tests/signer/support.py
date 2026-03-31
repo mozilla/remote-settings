@@ -27,5 +27,5 @@ class BaseWebTest(CoreWebTest):
         config = configparser.ConfigParser()
         config.read(ini_path)
         settings = dict(config.items("app:main"))
-        settings["signer.to_review_enabled"] = False  # type: ignore[assignment]
+        settings["signer.to_review_enabled"] = False
         return settings

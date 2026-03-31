@@ -22,10 +22,10 @@ class PostgresWebTest(BaseWebTest):
     destination_collection = "/buckets/alice/collections/dcid"
 
     def setUp(self):
-        super(PostgresWebTest, self).setUp()  # type: ignore[unresolved-attribute]
+        super(PostgresWebTest, self).setUp()
         # Patch calls to Autograph.
         patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
-        self.addCleanup(patch.stop)  # type: ignore[unresolved-attribute]
+        self.addCleanup(patch.stop)
         self.mocked_autograph = patch.start()
 
         def fake_sign():

@@ -98,7 +98,7 @@ class LocalUpdaterTest(unittest.TestCase):
         )
         self.patch(self.updater, "get_source_records", return_value=(records, 1325))
         self.updater.push_records_to_destination(DummyRequest())
-        assert self.updater.get_source_records.call_count == 1  # type: ignore[unresolved-attribute]
+        assert self.updater.get_source_records.call_count == 1
         assert self.storage.update.call_count == 2
         assert self.storage.delete.call_count == 2
 
@@ -126,7 +126,7 @@ class LocalUpdaterTest(unittest.TestCase):
         ]
         self.patch(self.updater, "get_source_records", return_value=(records, 1325))
         self.updater.push_records_to_destination(DummyRequest())
-        assert self.updater.get_source_records.call_count == 1  # type: ignore[unresolved-attribute]
+        assert self.updater.get_source_records.call_count == 1
         assert self.storage.update.call_count == 3
 
     def test_set_destination_signatures_modifies_the_destination_collection(self):
@@ -276,9 +276,9 @@ class LocalUpdaterTest(unittest.TestCase):
 
         self.updater.sign_and_update_destination(DummyRequest(), {"id": "source"})
 
-        assert self.updater.get_destination_records.call_count == 1  # type: ignore[unresolved-attribute]
-        assert self.updater.push_records_to_destination.call_count == 1  # type: ignore[unresolved-attribute]
-        assert self.updater.set_destination_signatures.call_count == 1  # type: ignore[unresolved-attribute]
+        assert self.updater.get_destination_records.call_count == 1
+        assert self.updater.push_records_to_destination.call_count == 1
+        assert self.updater.set_destination_signatures.call_count == 1
 
     def test_refresh_signature_does_not_push_records(self):
         self.storage.list_all.return_value = []
@@ -287,8 +287,8 @@ class LocalUpdaterTest(unittest.TestCase):
 
         self.updater.refresh_signature(DummyRequest(), "signed")
 
-        assert self.updater.set_destination_signatures.call_count == 1  # type: ignore[unresolved-attribute]
-        assert self.updater.push_records_to_destination.call_count == 0  # type: ignore[unresolved-attribute]
+        assert self.updater.set_destination_signatures.call_count == 1
+        assert self.updater.push_records_to_destination.call_count == 0
 
     def test_refresh_signature_restores_status_on_source(self):
         self.storage.list_all.return_value = []

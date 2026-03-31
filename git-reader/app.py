@@ -91,8 +91,8 @@ logging.config.dictConfig(
     {
         "version": 1,
         "filters": {
-            "request_id": {  # type: ignore[missing-typed-dict-key]
-                "()": "dockerflow.logging.RequestIdLogFilter",  # type: ignore[invalid-key]
+            "request_id": {
+                "()": "dockerflow.logging.RequestIdLogFilter",
             },
         },
         "handlers": {
@@ -467,7 +467,7 @@ class GitService:
                 folder_tree = cast(pygit2.Tree, self.repo[entry.id])
                 for subentry in folder_tree:
                     if subentry.type == pygit2.GIT_OBJECT_BLOB:
-                        yield subentry.name, subentry.id
+                        yield subentry.name or "", subentry.id
 
     @measure_git_read_time(operation="get_file_content")
     def _get_file_content(
@@ -517,8 +517,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Remote Settings Over Git", lifespan=lifespan, version=VERSION)
 app.include_router(dockerflow_router, prefix=f"/{API_PREFIX[:-1]}", tags=["dockerflow"])
 app.mount(f"/{API_PREFIX}__metrics__", prometheus_client.make_asgi_app())
-app.add_middleware(MozlogRequestSummaryLogger)  # type: ignore[invalid-argument-type]
-app.add_middleware(RequestIdMiddleware)  # type: ignore[invalid-argument-type]
+app.add_middleware(MozlogRequestSummaryLogger)
+app.add_middleware(RequestIdMiddleware)
 
 
 @app.exception_handler(Exception)
@@ -547,8 +547,8 @@ async def requests_metrics(
         request.path_params.get("bid", ""),
         request.path_params.get("cid", ""),
     )
-    METRICS["request_summary"].labels(*labels).inc()  # type: ignore[unresolved-attribute]
-    METRICS["request_duration_seconds"].labels(*labels).observe(elapsed_sec)  # type: ignore[unresolved-attribute]
+    METRICS["request_summary"].labels(*labels).inc()  # ty: ignore[unresolved-attribute]
+    METRICS["request_duration_seconds"].labels(*labels).observe(elapsed_sec)  # ty: ignore[unresolved-attribute]
 
     return response
 
@@ -614,7 +614,7 @@ def hello(
     common_branch_info = git.get_head_info(branch=f"{GIT_REF_PREFIX}common")
 
     repo_age_seconds = int(time.time()) - common_branch_info["timestamp"]
-    METRICS["repository_age_seconds"].set(repo_age_seconds)  # type: ignore[unresolved-attribute]
+    METRICS["repository_age_seconds"].set(repo_age_seconds)  # ty: ignore[unresolved-attribute]
 
     return {
         "project_name": server_info["project_name"],
