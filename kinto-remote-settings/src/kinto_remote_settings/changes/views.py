@@ -25,7 +25,7 @@ from . import (
     CHANNEL_ID,
     MONITOR_BUCKET,
 )
-from .utils import bound_limit, change_entry_id, monitored_timestamps
+from .utils import bound_limit, change_entry_id, monitored_timestamps, paginated
 
 
 DAY_IN_SECONDS = 24 * 60 * 60
@@ -438,16 +438,18 @@ def get_changeset(request):
             raise
 
         # Fetch list of changes.
-        changes = storage.list_all(
-            resource_name="record",
-            parent_id=collection_uri,
-            filters=filters,
-            limit=limit,
-            id_field="id",
-            modified_field="last_modified",
-            deleted_field="deleted",
-            sorting=[Sort("last_modified", -1)],
-            include_deleted=include_deleted,
+        changes = list(
+            paginated(
+                storage,
+                resource_name="record",
+                parent_id=collection_uri,
+                filters=filters,
+                limit=limit,
+                id_field="id",
+                modified_field="last_modified",
+                deleted_field="deleted",
+                include_deleted=include_deleted,
+            )
         )
         # Fetch current collection timestamp.
         records_timestamp = storage.resource_timestamp(
