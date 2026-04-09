@@ -2,7 +2,7 @@
 # Compile stage
 ############################
 
-FROM python:3.14.3 AS compile
+FROM python:3.15.0a8 AS compile
 
 ENV VIRTUAL_ENV=/opt/.venv \
     PATH="/opt/.venv/bin:$PATH"
@@ -44,7 +44,7 @@ RUN ./pull-kinto-admin.sh
 # Production stage
 ############################
 
-FROM python:3.14.3-slim AS production
+FROM python:3.15.0a8-slim AS production
 
 ENV KINTO_INI=config/local.ini \
     KINTO_ADMIN_ASSETS_PATH=/app/kinto-admin/build/ \
