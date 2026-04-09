@@ -4,6 +4,9 @@ on:
   release:
     types:
       - released
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
