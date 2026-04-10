@@ -81,6 +81,7 @@ METRICS = {
         buckets=[0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, float("inf")],
     ),
 }
+NO_GIT_ERROR = "Unable to load state from git. Has the update job completed?"
 
 # Augment the default mimetypes with our own.
 mimetypes.init(files=[HERE / "mimetypes.txt"])
@@ -158,12 +159,23 @@ def get_settings() -> Settings:
     return settings
 
 
+def get_last_modified(settings: Settings = Depends(get_settings)) -> int | float:
+    try:
+        return os.path.getmtime(settings.git_repo_path)
+    except Exception:
+        return -1
+
+
 @lru_cache(maxsize=1)
-def get_repo(settings: Settings = Depends(get_settings)) -> pygit2.Repository:
+def get_repo(
+    settings: Settings = Depends(get_settings),
+    cache_bust: int = Depends(get_last_modified),
+) -> pygit2.Repository:
     if not settings.git_repo_path:
         raise RuntimeError("GIT_REPO_PATH is not set")
     if not os.path.exists(settings.git_repo_path):
-        raise RuntimeError(f"GIT_REPO_PATH does not exist: {settings.git_repo_path}")
+        logger.error(f"GIT_REPO_PATH does not exist: {settings.git_repo_path}")
+        return pygit2.Repository()
     try:
         logger.info("Opening git repo at: %s", settings.git_repo_path)
         repo = pygit2.Repository(settings.git_repo_path)
@@ -205,6 +217,11 @@ class HelloResponse(BaseModel):
 class BroadcastsResponse(BaseModel):
     broadcasts: dict[str, str] = Field(description="Broadcasts")
     code: int = Field(description="HTTP status code")
+    detail: str | None = Field(
+        None,
+        description="Error message detailing the potential problem",
+        exclude_if=lambda v: v is None,
+    )
 
 
 class ChangesetResponse(BaseModel):
@@ -441,9 +458,17 @@ class GitService:
         """
         Get the broadcasts from the common branch.
         """
-        bcontent = self._get_file_content("broadcasts.json")
-        content = json.loads(bcontent.decode("utf-8"))
-        return content
+        try:
+            bcontent = self._get_file_content("broadcasts.json")
+            content = json.loads(bcontent.decode("utf-8"))
+            return content
+        except Exception as e:
+            logger.error(e)
+            return {
+                "broadcasts": {"remote-settings/monitor_changes": '"-1"'},
+                "code": 503,
+                "detail": NO_GIT_ERROR,
+            }
 
     def get_cert_chain(self, pem: str) -> str:
         """
@@ -600,6 +625,12 @@ def hello(
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
 ) -> dict:
+    if git.repo.workdir is None:
+        raise HTTPException(
+            status_code=503,
+            detail=NO_GIT_ERROR,
+        )
+
     # Determine attachments base URL
     attachments_base_url = settings.attachments_base_url
     if attachments_base_url is None:
