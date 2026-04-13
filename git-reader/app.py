@@ -81,7 +81,9 @@ METRICS = {
         buckets=[0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, float("inf")],
     ),
 }
-NO_GIT_ERROR = "Unable to load state from git. Has the update job completed?"
+NO_GIT_ERROR = (
+    "Unable to load state from `GIT_REPO_PATH`. Has the `gitupdate` job completed?"
+)
 
 # Augment the default mimetypes with our own.
 mimetypes.init(files=[HERE / "mimetypes.txt"])
@@ -162,7 +164,7 @@ def get_settings() -> Settings:
 def get_last_modified(settings: Settings = Depends(get_settings)) -> int | float:
     try:
         return os.path.getmtime(settings.git_repo_path)
-    except Exception:
+    except OSError:
         return -1
 
 
@@ -217,11 +219,6 @@ class HelloResponse(BaseModel):
 class BroadcastsResponse(BaseModel):
     broadcasts: dict[str, str] = Field(description="Broadcasts")
     code: int = Field(description="HTTP status code")
-    detail: str | None = Field(
-        None,
-        description="Error message detailing the potential problem",
-        exclude_if=lambda v: v is None,
-    )
 
 
 class ChangesetResponse(BaseModel):
@@ -465,9 +462,8 @@ class GitService:
         except Exception as e:
             logger.error(e)
             return {
-                "broadcasts": {"remote-settings/monitor_changes": '"-1"'},
-                "code": 503,
-                "detail": NO_GIT_ERROR,
+                "broadcasts": {},
+                "code": 200,
             }
 
     def get_cert_chain(self, pem: str) -> str:

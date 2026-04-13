@@ -6,7 +6,12 @@ import tempfile
 
 import pygit2
 import pytest
-from app import NO_GIT_ERROR, get_repo, read_json_mozlz4, write_json_mozlz4
+from app import (
+    NO_GIT_ERROR,
+    get_repo,
+    read_json_mozlz4,
+    write_json_mozlz4,
+)
 from fastapi.testclient import TestClient
 from pygit2.enums import ObjectType
 
@@ -372,8 +377,7 @@ def test_broadcast_view_git_error(app, api_client):
 
     assert resp.status_code == 200
     data = resp.json()
-    assert data["broadcasts"]["remote-settings/monitor_changes"] == '"-1"'
-    assert data["detail"]
+    assert data["broadcasts"] == {}
 
 
 def test_monitor_changes_view(api_client):
@@ -632,3 +636,16 @@ def test_metrics_traces_durations(api_client):
         'remotesettings_repository_read_latency_seconds_bucket{le="0.001",operation="get_file_content"}'
         in metrics_text
     )
+
+
+def test_repo_caching(temp_dir, app, api_client):
+    resp = api_client.get("/v2/")
+    assert resp.status_code == 200
+    os.rename(temp_dir, f"{temp_dir}-bak")
+
+    resp = api_client.get("/v2/")
+    assert resp.status_code == 503
+    os.rename(f"{temp_dir}-bak", temp_dir)
+
+    resp = api_client.get("/v2/")
+    assert resp.status_code == 200
