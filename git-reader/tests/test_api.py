@@ -6,7 +6,12 @@ import tempfile
 
 import pygit2
 import pytest
-from app import read_json_mozlz4, write_json_mozlz4
+from app import (
+    NO_GIT_ERROR,
+    get_repo,
+    read_json_mozlz4,
+    write_json_mozlz4,
+)
 from fastapi.testclient import TestClient
 from pygit2.enums import ObjectType
 
@@ -49,6 +54,10 @@ def upsert_blobs(repo, items, base_tree=None):
         rec(root, [p for p in path.strip("/").split("/") if p], oid)
 
     return root.write()
+
+
+def empty_get_repo():
+    return pygit2.Repository()
 
 
 @pytest.fixture(scope="module")
@@ -244,6 +253,7 @@ def get_settings_override(temp_dir, monkeypatch):
 def app(get_settings_override, monkeypatch):
     from app import app, get_settings
 
+    app.dependency_overrides = {}
     app.dependency_overrides[get_settings] = get_settings_override
     return app
 
@@ -344,12 +354,30 @@ def test_hello_view(api_client):
     assert resp.headers["cache-control"] == "max-age=3600"
 
 
+def test_hello_view_git_error(app, api_client):
+    app.dependency_overrides[get_repo] = empty_get_repo
+    resp = api_client.get("/v2/")
+
+    assert resp.status_code == 503
+    data = resp.json()
+    assert data["detail"] == NO_GIT_ERROR
+
+
 def test_broadcast_view(api_client):
     resp = api_client.get("/v2/__broadcasts__")
     assert resp.status_code == 200
     data = resp.json()
     assert "remote-settings/monitor_changes" in data["broadcasts"]
     assert resp.headers["cache-control"] == "max-age=60"
+
+
+def test_broadcast_view_git_error(app, api_client):
+    app.dependency_overrides[get_repo] = empty_get_repo
+    resp = api_client.get("/v2/__broadcasts__")
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["broadcasts"] == {}
 
 
 def test_monitor_changes_view(api_client):
@@ -608,3 +636,16 @@ def test_metrics_traces_durations(api_client):
         'remotesettings_repository_read_latency_seconds_bucket{le="0.001",operation="get_file_content"}'
         in metrics_text
     )
+
+
+def test_repo_caching(temp_dir, app, api_client):
+    resp = api_client.get("/v2/")
+    assert resp.status_code == 200
+    os.rename(temp_dir, f"{temp_dir}-bak")
+
+    resp = api_client.get("/v2/")
+    assert resp.status_code == 503
+    os.rename(f"{temp_dir}-bak", temp_dir)
+
+    resp = api_client.get("/v2/")
+    assert resp.status_code == 200
