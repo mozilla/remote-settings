@@ -189,7 +189,8 @@ def test_delete_old_tags(tmp_repo):
     assert len(deleted) == 3
 
     assert f"refs/tags/{recent_tag}" in repo.references
-    for old_tag in tags[3:]:
+    # Keep the 2 most-recent old tags (closest to the threshold boundary).
+    for old_tag in tags[:2]:
         assert f"refs/tags/{old_tag}" in repo.references
 
 

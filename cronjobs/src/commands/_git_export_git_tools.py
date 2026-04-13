@@ -287,13 +287,13 @@ def delete_old_tags(
         group_by_collection.setdefault(collection, []).append((ref_name, timestamp))
 
     # For each collection, we find all the tags that are older than
-    # theshold. We keep at least `min_tags_per_collection` after that threshold
-    # to make sure let client catch up with synchronization.
-    # This logics helps us cover the situation described in mozilla/remote-settings#1109
+    # threshold. We keep the most recent `min_tags_per_collection` old tags
+    # to make sure clients can catch up with synchronization.
+    # This logic helps us cover the situation described in mozilla/remote-settings#1109
     # (several updates in a short period of time after a long inactivity).
     for collection, tags in group_by_collection.items():
         kept_count = 0
-        for ref_name, timestamp in tags:
+        for ref_name, timestamp in reversed(tags):
             age_days = (now_ts - timestamp) / (60 * 60 * 24)
             if age_days < max_age_days:
                 continue
