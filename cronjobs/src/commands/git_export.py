@@ -157,7 +157,7 @@ def git_export():
         if len(deleted_tags) > 0:
             truncate_branch(
                 repo,
-                f"{GIT_REF_PREFIX}/{COMMON_BRANCH}",
+                f"{GIT_REF_PREFIX}{COMMON_BRANCH}",
                 tags_deletion_threshold=TAGS_DELETION_THRESHOLD,
             )
 
