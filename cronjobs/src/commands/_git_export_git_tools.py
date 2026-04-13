@@ -350,15 +350,17 @@ def truncate_branch(
     chain_commits: list[pygit2.Commit] = []
     walker = repo.walk(tip_oid, SortMode.TOPOLOGICAL | SortMode.TIME)
     to_delete_count = 0
+    past_tagged_region = False
     for commit in walker:
-        # Stop when we reach an untagged commit
         if commit.id not in commits_to_refs:
             assert len(chain_commits) > 0, (
                 f"No tagged commit found in branch {branch}, cannot truncate"
             )
+            # Count all untagged commits below the oldest tagged commit.
+            past_tagged_region = True
             to_delete_count += 1
-            break
-        chain_commits.append(commit)
+        elif not past_tagged_region:
+            chain_commits.append(commit)
 
     assert chain_commits, f"No tagged commit found in branch {branch}"
 
