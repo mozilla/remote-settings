@@ -287,13 +287,13 @@ def delete_old_tags(
         group_by_collection.setdefault(collection, []).append((ref_name, timestamp))
 
     # For each collection, we find all the tags that are older than
-    # theshold. We keep at least `min_tags_per_collection` after that threshold
-    # to make sure let client catch up with synchronization.
-    # This logics helps us cover the situation described in mozilla/remote-settings#1109
+    # threshold. We keep the most recent `min_tags_per_collection` old tags
+    # to make sure clients can catch up with synchronization.
+    # This logic helps us cover the situation described in mozilla/remote-settings#1109
     # (several updates in a short period of time after a long inactivity).
     for collection, tags in group_by_collection.items():
         kept_count = 0
-        for ref_name, timestamp in tags:
+        for ref_name, timestamp in reversed(tags):
             age_days = (now_ts - timestamp) / (60 * 60 * 24)
             if age_days < max_age_days:
                 continue
@@ -350,15 +350,17 @@ def truncate_branch(
     chain_commits: list[pygit2.Commit] = []
     walker = repo.walk(tip_oid, SortMode.TOPOLOGICAL | SortMode.TIME)
     to_delete_count = 0
+    past_tagged_region = False
     for commit in walker:
-        # Stop when we reach an untagged commit
         if commit.id not in commits_to_refs:
             assert len(chain_commits) > 0, (
                 f"No tagged commit found in branch {branch}, cannot truncate"
             )
+            # Count all untagged commits below the oldest tagged commit.
+            past_tagged_region = True
             to_delete_count += 1
-            break
-        chain_commits.append(commit)
+        elif not past_tagged_region:
+            chain_commits.append(commit)
 
     assert chain_commits, f"No tagged commit found in branch {branch}"
 
