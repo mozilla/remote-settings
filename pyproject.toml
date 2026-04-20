@@ -10,7 +10,7 @@ dependencies = [
     "canonicaljson-rs==0.9.3",
     "cryptography<47",
     "ecdsa==0.19.2",
-    "kinto[postgresql,memcached,monitoring]>=25.0.3,<26",
+    "kinto[postgresql,memcached,monitoring]>=26.0.0,<27",
     "kinto-attachment>=8.0.0,<9",
     "kinto-emailer<4",
     "requests-hawk<2",

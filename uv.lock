@@ -974,7 +974,7 @@ wheels = [
 
 [[package]]
 name = "kinto"
-version = "25.0.3"
+version = "26.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bcrypt" },
@@ -993,9 +993,9 @@ dependencies = [
     { name = "transaction" },
     { name = "waitress" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/dc/1c/982a67c816d6eaf93ec19216759b85854de5fae070647b6fa4ce3959eb37/kinto-25.0.3.tar.gz", hash = "sha256:60141b3a2f611b85c8cb70719c97bf69196af1248f8e63101447f8d60fb916a3", size = 1571225, upload-time = "2026-03-03T10:18:10.996Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/19/00/f020fedbdb37dceaa9544b5b40086aea0d5b73b47d957b28b90af023524c/kinto-26.0.0.tar.gz", hash = "sha256:d01a5e26086604d1fc3b2497a755be7f46067bc26570dfef20aa63847fc46b37", size = 1571799, upload-time = "2026-04-14T09:11:04.836Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/ce/acc0251d776c3174a2dff4ef3fc07c1173589454cd629c026aceb0697511/kinto-25.0.3-py3-none-any.whl", hash = "sha256:05e52b31ff1630a99b339ade969935e2be6320020bd15e694a63afa017db986c", size = 242835, upload-time = "2026-03-03T10:18:09.534Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/45/107552d3772b5b1cc3f5ea4e03e9c5b1bd061ba4f1caebd74bf06cd8a1f8/kinto-26.0.0-py3-none-any.whl", hash = "sha256:1d20acecc0376f210452d97eccf394557f50578ce101860527ed2bff34f9a3af", size = 242253, upload-time = "2026-04-14T09:11:03.054Z" },
 ]
 
 [package.optional-dependencies]
@@ -1855,7 +1855,7 @@ requires-dist = [
     { name = "cryptography", specifier = "<47" },
     { name = "ecdsa", specifier = "==0.19.2" },
     { name = "granian", specifier = ">=2.7.3,<3.0.0" },
-    { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=25.0.3,<26" },
+    { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.0.0,<27" },
     { name = "kinto-attachment", specifier = ">=8.0.0,<9" },
     { name = "kinto-emailer", specifier = "<4" },
     { name = "prometheus-client", specifier = ">=0.25.0" },
