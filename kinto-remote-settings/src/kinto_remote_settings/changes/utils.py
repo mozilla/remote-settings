@@ -3,19 +3,21 @@ from typing import Optional
 from uuid import UUID
 
 from kinto.core import utils as core_utils
+from kinto.core.storage import Filter, Sort
+from kinto.core.utils import COMPARISON
 from pyramid.settings import aslist
 
 
-def bound_limit(settings: dict, value: Optional[int]) -> int:
+def bound_limit(settings: dict, value: Optional[int]) -> Optional[int]:
     """
     ``_limit`` querystring value has to be within what is configured as
     pagination size and max storage fetching size (respectively defaults
     as `None` and 10000 in `kinto.core.DEFAULT_SETTINGS`)
     """
     max_fetch_size = settings["storage_max_fetch_size"]
-    paginate_by = settings["paginate_by"] or max_fetch_size
-    max_limit = min(paginate_by, max_fetch_size)
-    return min(abs(value), max_limit) if value is not None else max_limit
+    # paginate_by = settings["paginate_by"] or max_fetch_size
+    # max_limit = min(paginate_by, max_fetch_size)
+    return min(abs(value), max_fetch_size) if value is not None else None
 
 
 def monitored_timestamps(request):
@@ -83,3 +85,30 @@ def change_entry_id(request, http_host, bucket_id, collection_id):
         entry_id = str(UUID(identifier))
         _CHANGES_ENTRIES_ID_CACHE[cache_key] = entry_id
     return _CHANGES_ENTRIES_ID_CACHE[cache_key]
+
+
+def paginated(storage, **kwargs):
+    """Paginated results from `storage.list_all()`.
+
+    :param kwargs: Passed through unchanged to `list_all()`.
+    """
+
+    sorting = [Sort("last_modified", -1)]
+    kwargs["sorting"] = sorting
+    object_pagination = None
+    while True:
+        objects = storage.list_all(
+           pagination_rules=object_pagination, **kwargs
+        )
+
+        if not objects:
+            break
+
+        for obj in objects:
+            yield obj
+
+        last = objects[-1]
+
+        object_pagination = [
+            [Filter(sorting[0].field, last[sorting[0].field], COMPARISON.LT), Filter('id', last['id'], COMPARISON.NOT)],
+        ]
