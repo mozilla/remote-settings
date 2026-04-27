@@ -8,7 +8,7 @@ readme = "README.rst"
 requires-python = ">=3.12,<3.15"
 dependencies = [
     "canonicaljson-rs==0.9.3",
-    "cryptography<47",
+    "cryptography<48",
     "ecdsa==0.19.2",
     "kinto[postgresql,memcached,monitoring]>=26.0.1,<27",
     "kinto-attachment>=8.0.0,<9",
