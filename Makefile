@@ -28,7 +28,7 @@ maintainer-clean: distclean ## Delete all non versioned files
 
 install: $(INSTALL_STAMP)  ## Install dependencies
 $(INSTALL_STAMP): uv.lock
-	uv sync --no-install-project --group kinto-remote-settings --group kinto-slack --group dev --group cronjobs --group git-reader
+	uv sync --no-install-project --group kinto-remote-settings --group dev --group cronjobs --group git-reader
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)  ## Format code base

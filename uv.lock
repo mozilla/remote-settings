@@ -1864,9 +1864,6 @@ git-reader = [
 kinto-remote-settings = [
     { name = "kinto-remote-settings" },
 ]
-kinto-slack = [
-    { name = "kinto-slack" },
-]
 
 [package.metadata]
 requires-dist = [
@@ -1903,7 +1900,6 @@ docs = [
 ]
 git-reader = [{ name = "git-reader", editable = "git-reader" }]
 kinto-remote-settings = [{ name = "kinto-remote-settings", editable = "kinto-remote-settings" }]
-kinto-slack = [{ name = "kinto-slack", editable = "kinto-slack" }]
 
 [[package]]
 name = "repoze-sendmail"

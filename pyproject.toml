@@ -21,7 +21,6 @@ dependencies = [
 
 [dependency-groups]
 kinto-remote-settings = ["kinto-remote-settings"]
-kinto-slack = ["kinto-slack"]
 cronjobs = ["cronjobs"]
 git-reader = ["git-reader"]
 dev = [
