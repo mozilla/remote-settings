@@ -15,6 +15,9 @@ In the `Kinto <http://kinto.readthedocs.io/>`_ settings:
 The webhook URL is the incoming webhook URL of your Slack app, the same kind
 used in GitHub Actions with ``webhook-type: incoming-webhook``.
 
+The setting can also be provided as the ``KINTO_SLACK_WEBHOOK_URL`` environment
+variable (or ``SLACK_WEBHOOK_URL``), which takes precedence over the ini file value.
+
 
 Usage
 =====

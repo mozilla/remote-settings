@@ -2,6 +2,7 @@ import logging
 import re
 
 import requests
+from kinto.core import load_default_settings
 from kinto.core.errors import raise_invalid
 from kinto.core.events import AfterResourceChanged, ResourceChanged
 
@@ -126,6 +127,8 @@ def _validate_slack_settings(event):
 
 
 def includeme(config):
+    load_default_settings(config, {"slack.webhook_url": None})
+
     config.add_api_capability(
         "slack",
         "Slack notifications plugin for Kinto",
