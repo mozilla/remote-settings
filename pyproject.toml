@@ -13,6 +13,7 @@ dependencies = [
     "kinto[postgresql,memcached,monitoring]>=26.0.1,<27",
     "kinto-attachment>=8.0.0,<9",
     "kinto-emailer<4",
+    "kinto-slack",
     "requests-hawk<2",
     "prometheus-client>=0.25.0",
     "granian>=2.7.3,<3.0.0",
@@ -20,6 +21,7 @@ dependencies = [
 
 [dependency-groups]
 kinto-remote-settings = ["kinto-remote-settings"]
+kinto-slack = ["kinto-slack"]
 cronjobs = ["cronjobs"]
 git-reader = ["git-reader"]
 dev = [
@@ -42,6 +44,7 @@ docs = [
 
 [tool.uv.sources]
 kinto-remote-settings = {path = "./kinto-remote-settings", editable = true}
+kinto-slack = {path = "./kinto-slack", editable = true}
 cronjobs = {path = "./cronjobs", editable = true}
 git-reader = {path = "./git-reader", editable = true}
 

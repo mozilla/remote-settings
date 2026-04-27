@@ -3,8 +3,8 @@ INSTALL_STAMP := $(VENV)/.install.stamp
 DOC_STAMP := $(VENV)/.doc.install.stamp
 SPHINX_BUILDDIR = docs/_build
 PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
-SOURCES := kinto-remote-settings cronjobs git-reader browser-tests bin
-TY_SOURCES := kinto-remote-settings cronjobs git-reader bin
+SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader browser-tests bin
+TY_SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader bin
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of the following commands.\n"
@@ -28,7 +28,7 @@ maintainer-clean: distclean ## Delete all non versioned files
 
 install: $(INSTALL_STAMP)  ## Install dependencies
 $(INSTALL_STAMP): uv.lock
-	uv sync --no-install-project --group kinto-remote-settings --group dev --group cronjobs --group git-reader
+	uv sync --no-install-project --group kinto-remote-settings --group kinto-slack --group dev --group cronjobs --group git-reader
 	touch $(INSTALL_STAMP)
 
 format: $(INSTALL_STAMP)  ## Format code base
