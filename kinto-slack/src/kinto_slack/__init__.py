@@ -2,9 +2,9 @@ import logging
 import re
 
 import requests
-from kinto.core import load_default_settings
 from kinto.core.errors import raise_invalid
 from kinto.core.events import AfterResourceChanged, ResourceChanged
+from kinto.core.utils import read_env
 
 
 logger = logging.getLogger(__name__)
@@ -127,7 +127,10 @@ def _validate_slack_settings(event):
 
 
 def includeme(config):
-    load_default_settings(config, {"slack.webhook_url": None})
+    settings = config.get_settings()
+    webhook_url = settings.get("slack.webhook_url")
+    webhook_url = read_env("kinto.slack.webhook_url", webhook_url)
+    config.add_settings({"slack.webhook_url": webhook_url})
 
     config.add_api_capability(
         "slack",
