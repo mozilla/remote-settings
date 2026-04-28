@@ -103,6 +103,22 @@ class GetMessagesTest(unittest.TestCase):
         (msg,) = get_messages(self.storage, review_context)
         assert msg["channel"] == "#reviews"
 
+    def test_template_with_review_fields_absent_from_context(self):
+        self.storage.get.return_value = {
+            "kinto-slack": {
+                "hooks": [
+                    {
+                        "resource_name": "record",
+                        "action": "create",
+                        "channel": "#security-alerts",
+                        "template": "{record_id} comment={comment} count={changes_count}",
+                    }
+                ]
+            }
+        }
+        # CONTEXT has no 'comment' or 'changes_count' — should not raise KeyError
+        (msg,) = get_messages(self.storage, CONTEXT)
+        assert msg["text"] == "abc123 comment= count="
 
     def test_regex_filter(self):
         metadata = {

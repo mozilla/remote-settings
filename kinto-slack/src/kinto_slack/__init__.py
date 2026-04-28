@@ -1,5 +1,6 @@
 import logging
 import re
+from collections import defaultdict
 
 import requests
 from kinto.core.errors import raise_invalid
@@ -61,7 +62,7 @@ def get_messages(storage, context):
         messages.append(
             {
                 "channel": hook["channel"],
-                "text": hook["template"].format(**context),
+                "text": hook["template"].format_map(defaultdict(str, context)),
             }
         )
 
