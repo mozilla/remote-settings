@@ -30,6 +30,7 @@ CONTEXT = {
     "action": "create",
     "id": "abc123",
     "record_id": "abc123",
+    "event": "kinto.core.events.ResourceChanged",
     "impacted_objects": [{"new": {"id": "abc123"}}],
 }
 
@@ -76,6 +77,32 @@ class GetMessagesTest(unittest.TestCase):
 
         context = {**CONTEXT, "record_id": "specific-id", "id": "specific-id"}
         assert len(get_messages(self.storage, context)) == 1
+
+    def test_filters_by_event(self):
+        metadata = {
+            "kinto-slack": {
+                "hooks": [
+                    {
+                        "event": "kinto_remote_settings.signer.events.ReviewRequested",
+                        "channel": "#reviews",
+                        "template": "{collection_id} needs review",
+                    }
+                ]
+            }
+        }
+        self.storage.get.return_value = metadata
+        # Generic ResourceChanged event should not match
+        assert get_messages(self.storage, CONTEXT) == []
+        # ReviewRequested event should match
+        review_context = {
+            **CONTEXT,
+            "event": "kinto_remote_settings.signer.events.ReviewRequested",
+            "comment": "please review",
+            "changes_count": 3,
+        }
+        (msg,) = get_messages(self.storage, review_context)
+        assert msg["channel"] == "#reviews"
+
 
     def test_regex_filter(self):
         metadata = {
