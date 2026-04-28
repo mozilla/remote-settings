@@ -1,5 +1,6 @@
 import logging
 import re
+from collections import defaultdict
 
 import requests
 from kinto.core.errors import raise_invalid
@@ -8,6 +9,10 @@ from kinto.core.utils import read_env
 
 
 logger = logging.getLogger(__name__)
+
+
+def qualname(obj):
+    return str(obj.__class__).split("'")[1]
 
 
 def _match(pattern, value):
@@ -41,7 +46,7 @@ def _get_slack_hooks(storage, context):
 
 def get_messages(storage, context):
     hooks = _get_slack_hooks(storage, context)
-    filters = ("action", "resource_name", "id", "record_id", "collection_id")
+    filters = ("action", "resource_name", "id", "record_id", "collection_id", "event")
     messages = []
 
     for hook in hooks:
@@ -57,7 +62,7 @@ def get_messages(storage, context):
         messages.append(
             {
                 "channel": hook["channel"],
-                "text": hook["template"].format(**context),
+                "text": hook["template"].format_map(defaultdict(str, context)),
             }
         )
 
@@ -71,6 +76,7 @@ def build_notification(event):
         root_url=event.request.route_url("hello"),
         client_address=event.request.client_addr,
         impacted_objects=event.impacted_objects,
+        event=qualname(event),
         **event.payload,
     )
     context.setdefault("record_id", "{record_id}")
