@@ -1076,6 +1076,21 @@ requires-dist = [
 ]
 
 [[package]]
+name = "kinto-slack"
+version = "0.0.0"
+source = { editable = "kinto-slack" }
+dependencies = [
+    { name = "kinto" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "kinto" },
+    { name = "requests" },
+]
+
+[[package]]
 name = "legacy-cgi"
 version = "2.6.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1817,6 +1832,7 @@ dependencies = [
     { name = "kinto", extra = ["memcached", "monitoring", "postgresql"] },
     { name = "kinto-attachment" },
     { name = "kinto-emailer" },
+    { name = "kinto-slack" },
     { name = "prometheus-client" },
     { name = "requests-hawk" },
 ]
@@ -1858,6 +1874,7 @@ requires-dist = [
     { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.0.1,<27" },
     { name = "kinto-attachment", specifier = ">=8.0.0,<9" },
     { name = "kinto-emailer", specifier = "<4" },
+    { name = "kinto-slack", editable = "kinto-slack" },
     { name = "prometheus-client", specifier = ">=0.25.0" },
     { name = "requests-hawk", specifier = "<2" },
 ]

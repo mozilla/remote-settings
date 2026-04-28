@@ -11,6 +11,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 WORKDIR /opt
 COPY ./uv.lock ./pyproject.toml ./
+COPY ./kinto-slack ./kinto-slack
 RUN uv venv $VIRTUAL_ENV
 RUN uv sync --frozen --no-install-project --no-editable \
     --no-group kinto-remote-settings \
