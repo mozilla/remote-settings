@@ -99,4 +99,4 @@ ENV GRANIAN_STATIC_PATH_ROUTE=/attachments
 ENV GRANIAN_STATIC_PATH_MOUNT=/tmp/attachments
 
 # create directories for volume mounts used in browser tests / local development
-RUN mkdir -p -m 777 /app/mail && mkdir -p -m 777 /tmp/attachments
+RUN mkdir -p -m 777 /app/mail && mkdir -p -m 777 /app/slack && mkdir -p -m 777 /tmp/attachments
