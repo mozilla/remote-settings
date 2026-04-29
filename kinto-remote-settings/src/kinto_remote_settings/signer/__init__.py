@@ -296,6 +296,15 @@ def includeme(config):
     except ImportError:  # pragma: no cover
         pass
 
+    try:
+        from kinto_slack import build_notification
+
+        config.add_subscriber(build_notification, ReviewRequested)
+        config.add_subscriber(build_notification, ReviewApproved)
+        config.add_subscriber(build_notification, ReviewRejected)
+    except ImportError:  # pragma: no cover
+        pass
+
     # Automatically create resources on startup if option is enabled.
     def auto_create_resources(event, resources):
         storage = event.app.registry.storage
