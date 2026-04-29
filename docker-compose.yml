@@ -1,6 +1,7 @@
 volumes:
   db-data:
   debug-mail:
+  debug-slack:
   attachments:
 services:
   db:
@@ -54,10 +55,12 @@ services:
       - KINTO_PERMISSION_BACKEND=kinto.core.permission.postgresql
       - KINTO_PERMISSION_URL=postgresql://postgres@db/postgres
       - GRANIAN_ACCESS_LOG=true
+      - KINTO_SLACK_DEBUG_DIR=/app/slack
     volumes:
       - ./config:/app/config
       - ./kinto-remote-settings:/app/kinto-remote-settings
       - debug-mail:/app/mail
+      - debug-slack:/app/slack
       - attachments:/tmp/attachments
 
   git-reader:
@@ -82,8 +85,10 @@ services:
     environment:
       - SERVER=http://web:8888/v1
       - MAIL_DIR=/var/debug-mail/
+      - SLACK_DIR=/var/debug-slack/
     volumes:
       - debug-mail:/var/debug-mail/
+      - debug-slack:/var/debug-slack/
     shm_size: 2gb
   cronjobs:
     build:

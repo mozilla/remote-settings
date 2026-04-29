@@ -29,6 +29,7 @@ DEFAULT_SETUP_AUTH = os.getenv("SETUP_AUTH", "user:pass")
 DEFAULT_EDITOR_AUTH = os.getenv("EDITOR_AUTH", "editor:pass")
 DEFAULT_REVIEWER_AUTH = os.getenv("REVIEWER_AUTH", "reviewer:pass")
 DEFAULT_MAIL_DIR = os.getenv("MAIL_DIR", "mail")
+DEFAULT_SLACK_DIR = os.getenv("SLACK_DIR", "")
 
 
 Auth = Tuple[str, str]
@@ -67,6 +68,13 @@ def pytest_addoption(parser):
         help="Directory of debug email files (from server). Set as empty "
         "string to disable email tests. Should be disabled for browser/integration "
         "tests",
+    )
+    parser.addoption(
+        "--slack-dir",
+        action="store",
+        default=DEFAULT_SLACK_DIR,
+        help="Directory where kinto-slack writes notification files (slack.debug_dir). "
+        "Set as empty string to disable Slack tests.",
     )
 
 
@@ -124,6 +132,15 @@ def mail_dir(request) -> str:
     directory = request.config.getoption("--mail-dir")
     if not directory:
         pytest.skip("MAIL_DIR set to empty string. Skipping email test.")
+    return directory
+
+
+@pytest.fixture(scope="session")
+def slack_dir(request) -> str:
+    directory = request.config.getoption("--slack-dir")
+    if not directory:
+        pytest.skip("SLACK_DIR not set. Skipping Slack test.")
+    os.makedirs(directory, exist_ok=True)
     return directory
 
 

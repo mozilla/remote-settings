@@ -1,5 +1,8 @@
+import json
 import logging
+import os
 import re
+import time
 from collections import defaultdict
 
 import requests
@@ -89,7 +92,8 @@ def build_notification(event):
         _context[resource_name + "_id"] = _context["id"] = obj["id"]
         messages += get_messages(storage, _context)
 
-    setattr(event.request, "_kinto_slack_messages", messages)
+    existing = getattr(event.request, "_kinto_slack_messages", [])
+    setattr(event.request, "_kinto_slack_messages", existing + messages)
 
 
 def send_notification(event):
@@ -99,16 +103,24 @@ def send_notification(event):
 
     settings = event.request.registry.settings
     webhook_url = settings.get("slack.webhook_url")
-    if not webhook_url:
+    debug_dir = settings.get("slack.debug_dir")
+
+    if not webhook_url and not debug_dir:
         logger.warning("slack.webhook_url is not configured")
         return
 
     for msg in messages:
-        try:
-            resp = requests.post(webhook_url, json=msg, timeout=5)
-            resp.raise_for_status()
-        except Exception:
-            logger.exception("Could not send Slack notification")
+        if debug_dir:
+            os.makedirs(debug_dir, exist_ok=True)
+            filename = os.path.join(debug_dir, f"{time.time_ns()}.json")
+            with open(filename, "w") as f:
+                json.dump(msg, f)
+        if webhook_url:
+            try:
+                resp = requests.post(webhook_url, json=msg, timeout=5)
+                resp.raise_for_status()
+            except Exception:
+                logger.exception("Could not send Slack notification")
 
 
 def _validate_slack_settings(event):
@@ -137,6 +149,10 @@ def includeme(config):
     webhook_url = settings.get("slack.webhook_url")
     webhook_url = read_env("kinto.slack.webhook_url", webhook_url)
     config.add_settings({"slack.webhook_url": webhook_url})
+
+    tmp_dir = settings.get("slack.debug_dir")
+    tmp_dir = read_env("kinto.slack.debug_dir", tmp_dir)
+    config.add_settings({"slack.debug_dir": tmp_dir})
 
     config.add_api_capability(
         "slack",
