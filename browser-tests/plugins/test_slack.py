@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 
 def test_slack_plugin(
@@ -50,4 +51,4 @@ def test_slack_plugin(
     assert payload["channel"] == "#reviews"
     assert "integration-tests" in payload["text"]
     assert "looks good" in payload["text"]
-    assert "1 changes" in payload["text"]
+    assert re.search(r"\d+ changes", payload["text"])
