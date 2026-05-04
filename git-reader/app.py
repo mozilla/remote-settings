@@ -271,7 +271,7 @@ def measure_git_read_time(operation: str):
                 elapsed_sec = time.time() - start_time
                 METRICS["repository_read_latency_seconds"].labels(
                     operation=operation
-                ).observe(elapsed_sec)
+                ).observe(elapsed_sec)  # ty: ignore[unresolved-attribute]
 
         return wrapper
 
