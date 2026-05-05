@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, patch
 from commands.consumption_movers import (
     MIN_AVG_BYTES,
     consumption_movers,
-    rows_to_dict,
 )
 
 
@@ -11,31 +10,25 @@ BIG_SIZE = MIN_AVG_BYTES * 2  # clearly above threshold
 SMALL_SIZE = MIN_AVG_BYTES / 10  # clearly below threshold
 
 
-def make_rows(data: dict) -> list[dict]:
-    return [{"collection_id": k, "avg_size": v} for k, v in data.items()]
-
-
-def run_movers(previous: dict, last: dict, webhook_url="https://hooks.slack.com/test"):
-    with patch("commands.consumption_movers.bigquery.Client"):
-        with patch(
-            "commands.consumption_movers.execute_query",
-            side_effect=[make_rows(previous), make_rows(last)],
-        ):
-            with patch("commands.consumption_movers.SLACK_WEBHOOK_URL", webhook_url):
-                with patch("commands.consumption_movers.requests.post") as mock_post:
-                    mock_post.return_value = MagicMock()
-                    consumption_movers()
-                    return mock_post
+def run_movers(
+    previous: dict[str, float],
+    last: dict[str, float],
+    webhook_url="https://hooks.slack.com/test",
+):
+    with patch("commands.consumption_movers.bigquery.Client") as mock_client:
+        mock_client.return_value.query.return_value.result.side_effect = [
+            previous,
+            last,
+        ]
+        with patch("commands.consumption_movers.SLACK_WEBHOOK_URL", webhook_url):
+            with patch("commands.consumption_movers.requests.post") as mock_post:
+                mock_post.return_value = MagicMock()
+                consumption_movers()
+                return mock_post
 
 
 def slack_text(mock_post) -> str:
     return mock_post.call_args.kwargs["json"]["text"]
-
-
-def test_rows_to_dict():
-    rows = [{"id": "a", "val": 1.0}, {"id": "b", "val": 2.0}]
-    assert rows_to_dict(rows, "id", "val") == {"a": 1.0, "b": 2.0}
-    assert rows_to_dict([], "id", "val") == {}
 
 
 def test_new_collections_are_ignored():

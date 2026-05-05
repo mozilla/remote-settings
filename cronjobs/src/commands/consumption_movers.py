@@ -1,3 +1,4 @@
+import heapq
 from datetime import date, timedelta
 
 import requests
@@ -35,15 +36,6 @@ GROUP BY collection_id
 """
 
 
-def execute_query(client: bigquery.Client, query: str) -> list[dict]:
-    rows = client.query(query).result()
-    return [dict(row) for row in rows]
-
-
-def rows_to_dict(rows: list[dict], idxfield: str, valuefield: str) -> dict:
-    return {row[idxfield]: row[valuefield] for row in rows}
-
-
 def consumption_movers() -> None:
     """
     Identify the collections with the biggest increases and decreases in bandwidth consumption,
@@ -53,24 +45,22 @@ def consumption_movers() -> None:
     start_day = end_day - timedelta(days=LAST_PERIOD_DAYS)
 
     client = bigquery.Client()
-    previous_rows = execute_query(
-        client,
-        COLLECTIONS_AVERAGE.format(
-            interval_days_start=PREVIOUS_PERIOD_DAYS + LAST_PERIOD_DAYS,
-            interval_days_end=LAST_PERIOD_DAYS,
-        ),
+    previous = dict(
+        client.query(
+            COLLECTIONS_AVERAGE.format(
+                interval_days_start=PREVIOUS_PERIOD_DAYS + LAST_PERIOD_DAYS,
+                interval_days_end=LAST_PERIOD_DAYS,
+            )
+        ).result()
     )
-    last_rows = execute_query(
-        client,
-        COLLECTIONS_AVERAGE.format(
-            interval_days_start=LAST_PERIOD_DAYS,
-            interval_days_end=0,
-        ),
+    last = dict(
+        client.query(
+            COLLECTIONS_AVERAGE.format(
+                interval_days_start=LAST_PERIOD_DAYS,
+                interval_days_end=0,
+            )
+        ).result()
     )
-
-    previous = rows_to_dict(previous_rows, "collection_id", "avg_size")
-    last = rows_to_dict(last_rows, "collection_id", "avg_size")
-
     movers = []
     for collection_id, last_avg in last.items():
         if collection_id not in previous:
@@ -83,7 +73,7 @@ def consumption_movers() -> None:
 
         previous_avg = previous[collection_id]
         delta = last_avg - previous_avg
-        pct_change = (last_avg / previous_avg - 1) * 100
+        pct_change = (last_avg / previous_avg - 1) * 100 if previous_avg > 0 else 100
         movers.append(
             {
                 "collection_id": collection_id,
@@ -92,25 +82,19 @@ def consumption_movers() -> None:
             }
         )
 
-    top_increase = sorted(
-        [m for m in movers if m["pct_change"] > 0],
-        key=lambda m: m["delta"],
-        reverse=True,
-    )[:TOP_N]
-
-    top_decrease = sorted(
-        [m for m in movers if m["pct_change"] < 0], key=lambda m: m["delta"]
-    )[:TOP_N]
-
     message = f"""*Bandwidth Consumption*
 Period: {start_day.strftime("%b %-d")} → {end_day.strftime("%b %-d")}"""
 
-    if top_increase:
+    if top_increase := heapq.nlargest(
+        TOP_N, [m for m in movers if m["pct_change"] > 0], key=lambda m: m["delta"]
+    ):
         message += f"""\n
 *Top increases* (Compared against previous {PREVIOUS_PERIOD_DAYS}-day daily average)
 {"\n".join(f"- `{m['collection_id']}`: {m['pct_change']:+.1f}% " for m in top_increase)}"""
 
-    if top_decrease:
+    if top_decrease := heapq.nsmallest(
+        TOP_N, [m for m in movers if m["pct_change"] < 0], key=lambda m: m["delta"]
+    ):
         message += f"""\n
 *Top decreases*
 {"\n".join(f"- `{m['collection_id']}`: {m['pct_change']:+.1f}% " for m in top_decrease)}"""
