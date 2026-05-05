@@ -1,17 +1,19 @@
-import os
 from datetime import date, timedelta
 
 import requests
+from decouple import config
 from google.cloud import bigquery
 
 
-SLACK_CHANNEL = os.getenv("SLACK_CHANNEL", "remote-settings-alerts")
-SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
+SLACK_CHANNEL = config("SLACK_CHANNEL", default="remote-settings-alerts")
+SLACK_WEBHOOK_URL = config("SLACK_WEBHOOK_URL", default=None)
 
-PREVIOUS_PERIOD_DAYS = 90
-LAST_PERIOD_DAYS = 7
-MIN_AVG_BYTES = 500e9  # 500GB, to filter out noise from small collections.
-TOP_N = 5
+PREVIOUS_PERIOD_DAYS = config("PREVIOUS_PERIOD_DAYS", default=90, cast=int)
+LAST_PERIOD_DAYS = config("LAST_PERIOD_DAYS", default=7, cast=int)
+MIN_AVG_BYTES = config(
+    "MIN_AVG_BYTES", default=500e9, cast=float
+)  # 500GB, to filter out noise from small collections.
+TOP_N = config("TOP_N", default=5, cast=int)
 
 COLLECTIONS_AVERAGE = """
 WITH daily_consumption AS (
