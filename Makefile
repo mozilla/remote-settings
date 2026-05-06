@@ -52,9 +52,9 @@ test: $(INSTALL_STAMP)  ## Run unit tests
     kinto-remote-settings cronjobs git-reader
 
 browser-test:  ## Run browser tests using Docker
-	docker compose --profile=browser-tests build browser-tests -q
-	docker compose run --rm web migrate
-	docker compose run --rm browser-tests
+	docker compose -f docker-compose.yml --profile=browser-tests build browser-tests -q
+	docker compose -f docker-compose.yml run --rm web migrate
+	docker compose -f docker-compose.yml run --rm browser-tests
 
 build:  ## Build containers
 	docker build --file RemoteSettings.Dockerfile --target production --tag remotesettings/server .

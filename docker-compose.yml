@@ -57,8 +57,6 @@ services:
       - GRANIAN_ACCESS_LOG=true
       - KINTO_SLACK_DEBUG_DIR=/app/slack
     volumes:
-      - ./config:/app/config
-      - ./kinto-remote-settings:/app/kinto-remote-settings
       - debug-mail:/app/mail
       - debug-slack:/app/slack
       - attachments:/tmp/attachments
