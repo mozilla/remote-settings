@@ -82,6 +82,11 @@ def build_notification(event):
         event=qualname(event),
         **event.payload,
     )
+    context["settings"] = {
+        k: v
+        for k, v in event.request.registry.settings.items()
+        if k in ("project_name", "url", "project_version")
+    }
     context.setdefault("record_id", "{record_id}")
     context.setdefault("collection_id", "{collection_id}")
 
