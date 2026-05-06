@@ -62,6 +62,12 @@ services:
       - debug-mail:/app/mail
       - debug-slack:/app/slack
       - attachments:/tmp/attachments
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8888/v1/__lbheartbeat__"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
 
   git-reader:
     build:
@@ -81,7 +87,8 @@ services:
     image: remotesettings/browser-tests
     profiles: [browser-tests]
     depends_on:
-      - web
+      web:
+        condition: service_healthy
     environment:
       - SERVER=http://web:8888/v1
       - MAIL_DIR=/var/debug-mail/
@@ -103,5 +110,7 @@ services:
     volumes:
       - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - web
-      - git-reader
+      web:
+        condition: service_healthy
+      git-reader:
+        condition: service_started
