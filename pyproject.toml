@@ -12,7 +12,7 @@ dependencies = [
     "ecdsa==0.19.2",
     "kinto[postgresql,memcached,monitoring]>=26.1.0,<27",
     "kinto-attachment>=8.0.0,<9",
-    "kinto-emailer<4",
+    "kinto-emailer>=4",
     "kinto-slack",
     "requests-hawk<2",
     "prometheus-client>=0.25.0",
