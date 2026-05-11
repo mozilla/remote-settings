@@ -458,16 +458,16 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "backoff", specifier = ">=2.2.1" },
-    { name = "cryptography", specifier = ">=48.0.0" },
+    { name = "cryptography", specifier = ">=46.0.5" },
     { name = "google-cloud-bigquery", specifier = ">=3.41.0" },
-    { name = "google-cloud-storage", specifier = ">=3.10.1" },
+    { name = "google-cloud-storage", specifier = ">=3.0.0" },
     { name = "kinto-http", specifier = ">=11.8.0" },
     { name = "lz4", specifier = ">=4.3.3" },
     { name = "pygit2", specifier = ">=1.19.0" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "python-decouple", specifier = ">=3.8" },
     { name = "requests", specifier = ">=2.32.4" },
-    { name = "sentry-sdk", specifier = ">=2.59.0" },
+    { name = "sentry-sdk", specifier = ">=2.20.0" },
 ]
 
 [[package]]
@@ -616,7 +616,7 @@ requires-dist = [
     { name = "granian", specifier = ">=2.7.4" },
     { name = "lz4", specifier = ">=4.4.5" },
     { name = "prometheus-client", specifier = ">=0.23.1" },
-    { name = "pydantic-settings", specifier = ">=2.14.1" },
+    { name = "pydantic-settings", specifier = ">=2.10.1" },
     { name = "pygit2", specifier = ">=1.18.2" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "uvloop", specifier = ">=0.21.0" },
@@ -1099,16 +1099,16 @@ postgresql = [
 
 [[package]]
 name = "kinto-attachment"
-version = "8.0.0"
+version = "9.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "google-cloud-storage" },
     { name = "greenlet" },
     { name = "kinto", extra = ["monitoring"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b9/73/3617abd2bb3cb8186079ad1d8c3643040c81dfad3dba4913c917bb76dcd5/kinto_attachment-8.0.0.tar.gz", hash = "sha256:6cc21775f8b05951cb7cfc77016fd54955874f3b7a45b17791530b872ef17ca0", size = 202421, upload-time = "2026-04-09T08:36:47.655Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a9/fa/7b6e28e143f7a19408a2e073d504d601907503d1178bc9f3a0305af1e33d/kinto_attachment-9.0.0.tar.gz", hash = "sha256:c09c1d3325a31fcdc5b99cf251837e56dfde9fed4aab504f0a71209c101cda03", size = 129312, upload-time = "2026-05-04T07:16:54.044Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/8a/a64f6c7794798fd156282ee0f2b6a7fb07fea29d116c183a695ef5745e82/kinto_attachment-8.0.0-py3-none-any.whl", hash = "sha256:db7e69e5c8a2cee0319a7489d21013970f2e51ccadbf59f95902e5f2ba647bc7", size = 25406, upload-time = "2026-04-09T08:36:45.75Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/e5/0d700bc5344e4edd4c4c9994f2062f53f0085037030de38963cd598e673c/kinto_attachment-9.0.0-py3-none-any.whl", hash = "sha256:f8941e40eaa9b2fc9493b2da40f77403e6f21b2c4aee0048fdf79320ac6a7a9f", size = 26847, upload-time = "2026-05-04T07:16:52.661Z" },
 ]
 
 [[package]]
@@ -1954,7 +1954,7 @@ requires-dist = [
     { name = "ecdsa", specifier = "==0.19.2" },
     { name = "granian", specifier = ">=2.7.4,<3.0.0" },
     { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.1.0,<27" },
-    { name = "kinto-attachment", specifier = ">=8.0.0,<9" },
+    { name = "kinto-attachment", specifier = ">=9.0.0,<10" },
     { name = "kinto-emailer", specifier = ">=4" },
     { name = "kinto-slack", editable = "kinto-slack" },
     { name = "prometheus-client", specifier = ">=0.25.0" },
