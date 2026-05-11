@@ -98,5 +98,10 @@ FROM production AS local
 ENV GRANIAN_STATIC_PATH_ROUTE=/attachments
 ENV GRANIAN_STATIC_PATH_MOUNT=/tmp/attachments
 
+# Install curl for readiness test in docker compose
+USER root
+RUN /opt/update_and_install_system_packages.sh curl
+USER app
+
 # create directories for volume mounts used in browser tests / local development
 RUN mkdir -p -m 777 /app/mail && mkdir -p -m 777 /app/slack && mkdir -p -m 777 /tmp/attachments
