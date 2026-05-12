@@ -1,5 +1,0 @@
-services:
-  web:
-    volumes:
-      - ./config:/app/config
-      - ./kinto-remote-settings:/app/kinto-remote-settings

@@ -120,6 +120,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_CACHE: /tmp/docker-cache
+      CONFIG_MOUNT: ""
+      SRC_MOUNT: ""
     steps:
       - uses: actions/checkout@v6
 
