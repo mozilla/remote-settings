@@ -1099,16 +1099,15 @@ postgresql = [
 
 [[package]]
 name = "kinto-attachment"
-version = "9.0.0"
+version = "9.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "google-cloud-storage" },
     { name = "greenlet" },
     { name = "kinto", extra = ["monitoring"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a9/fa/7b6e28e143f7a19408a2e073d504d601907503d1178bc9f3a0305af1e33d/kinto_attachment-9.0.0.tar.gz", hash = "sha256:c09c1d3325a31fcdc5b99cf251837e56dfde9fed4aab504f0a71209c101cda03", size = 129312, upload-time = "2026-05-04T07:16:54.044Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4a/e5/0d700bc5344e4edd4c4c9994f2062f53f0085037030de38963cd598e673c/kinto_attachment-9.0.0-py3-none-any.whl", hash = "sha256:f8941e40eaa9b2fc9493b2da40f77403e6f21b2c4aee0048fdf79320ac6a7a9f", size = 26847, upload-time = "2026-05-04T07:16:52.661Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/e3/268cf04864cd6214c17f5774d4be62162bdc2641d15d81f7fd4f06bef6e0/kinto_attachment-9.0.1-py3-none-any.whl", hash = "sha256:6aede70d43a92c5680812f60a453d084016c12bc16c88a9bca58f59dab64a1c8", size = 26853, upload-time = "2026-05-12T16:41:40.175Z" },
 ]
 
 [[package]]
@@ -1954,7 +1953,7 @@ requires-dist = [
     { name = "ecdsa", specifier = "==0.19.2" },
     { name = "granian", specifier = ">=2.7.4,<3.0.0" },
     { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.1.0,<27" },
-    { name = "kinto-attachment", specifier = ">=9" },
+    { name = "kinto-attachment", specifier = ">=9.0.1" },
     { name = "kinto-emailer", specifier = ">=4" },
     { name = "kinto-slack", editable = "kinto-slack" },
     { name = "prometheus-client", specifier = ">=0.25.0" },
