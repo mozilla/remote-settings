@@ -23,11 +23,13 @@ RUN mkdir /app/.ssh && \
 COPY --chown=app:app pyproject.toml uv.lock ./
 COPY --chown=app:app version.json .
 
-RUN uv sync --frozen --no-install-project
+RUN uv sync --frozen --compile-bytecode --no-install-project
 
 COPY --chown=app:app run.sh .
 RUN chmod +x run.sh
 COPY --chown=app:app app.py mimetypes.txt ./
+# Compile app bytecode to speed up startup time.
+RUN python -m compileall -q /app
 
 USER app
 

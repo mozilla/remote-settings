@@ -6,9 +6,6 @@ from enum import Enum
 from typing import Any
 from urllib.parse import urlparse
 
-import cryptography
-import cryptography.x509
-from cryptography.hazmat.backends import default_backend as crypto_default_backend
 from kinto.core.events import ACTIONS
 from kinto.core.storage.exceptions import UnicityError
 from kinto.core.utils import build_request, instance_uri, read_env
@@ -309,6 +306,13 @@ def fetch_cert(url):
     """
     Returns the SSL certificate object for the specified `url`.
     """
+    # Import lazily to reduce startup time for the application
+    # since cryptography is a heavy dependency (200ms import time!)
+    # and `fetch_cert()` is only used in healthcheck.
+    import cryptography
+    import cryptography.x509
+    from cryptography.hazmat.backends import default_backend as crypto_default_backend
+
     parsed_url = urlparse(url)
     host, port = (parsed_url.netloc, parsed_url.port or 443)
     cert_pem = ssl.get_server_certificate((host, port))

@@ -13,7 +13,7 @@ WORKDIR /opt
 COPY ./uv.lock ./pyproject.toml ./
 COPY ./kinto-slack ./kinto-slack
 RUN uv venv $VIRTUAL_ENV
-RUN uv sync --frozen --no-install-project --no-editable \
+RUN uv sync --frozen --compile-bytecode --no-install-project --no-editable \
     --no-group kinto-remote-settings \
     --no-group cronjobs \
     --no-group git-reader \
@@ -21,7 +21,7 @@ RUN uv sync --frozen --no-install-project --no-editable \
     --no-group docs
 
 COPY ./kinto-remote-settings ./kinto-remote-settings
-RUN uv sync --frozen --no-install-project --no-editable \
+RUN uv sync --frozen --compile-bytecode --no-install-project --no-editable \
     --group kinto-remote-settings \
     --no-group cronjobs \
     --no-group git-reader \
@@ -77,6 +77,9 @@ RUN chown 10001:10001 /app && \
 COPY --chown=app:app . .
 
 COPY --from=get-admin /opt/kinto-admin/build $KINTO_ADMIN_ASSETS_PATH
+
+# Compile app bytecode to speed up startup time.
+RUN python -m compileall -q /app
 
 # Generate local key pair to simplify running without Autograph out of the box (see `config/testing.ini`)
 RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.pem /app/ecdsa.public.pem
