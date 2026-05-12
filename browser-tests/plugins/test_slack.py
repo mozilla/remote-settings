@@ -18,7 +18,7 @@ def test_slack_plugin(
                         {
                             "event": "kinto_remote_settings.signer.events.ReviewRequested",
                             "channel": "#reviews",
-                            "template": "{user_id} requested review for {changes_count} changes ({comment}) on {bucket_id}/{collection_id}.",
+                            "template": "{user_id} requested review for {changes_count} changes ({comment}) on {bucket_id}/{collection_id} on {settings[project_name]}.",
                         }
                     ]
                 }
@@ -51,4 +51,5 @@ def test_slack_plugin(
     assert payload["channel"] == "#reviews"
     assert "integration-tests" in payload["text"]
     assert "looks good" in payload["text"]
+    assert "Remote Settings LOCAL" in payload["text"]  # see config/local.ini
     assert re.search(r"\d+ changes", payload["text"])

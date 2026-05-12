@@ -13,7 +13,7 @@ WORKDIR /opt
 COPY ./uv.lock ./pyproject.toml ./
 COPY ./kinto-slack ./kinto-slack
 RUN uv venv $VIRTUAL_ENV
-RUN uv sync --frozen --no-install-project --no-editable \
+RUN uv sync --frozen --compile-bytecode --no-install-project --no-editable \
     --no-group kinto-remote-settings \
     --no-group cronjobs \
     --no-group git-reader \
@@ -21,7 +21,7 @@ RUN uv sync --frozen --no-install-project --no-editable \
     --no-group docs
 
 COPY ./kinto-remote-settings ./kinto-remote-settings
-RUN uv sync --frozen --no-install-project --no-editable \
+RUN uv sync --frozen --compile-bytecode --no-install-project --no-editable \
     --group kinto-remote-settings \
     --no-group cronjobs \
     --no-group git-reader \
@@ -78,6 +78,9 @@ COPY --chown=app:app . .
 
 COPY --from=get-admin /opt/kinto-admin/build $KINTO_ADMIN_ASSETS_PATH
 
+# Compile app bytecode to speed up startup time.
+RUN python -m compileall -q /app
+
 # Generate local key pair to simplify running without Autograph out of the box (see `config/testing.ini`)
 RUN python -m kinto_remote_settings.signer.generate_keypair /app/ecdsa.private.pem /app/ecdsa.public.pem
 
@@ -97,6 +100,11 @@ FROM production AS local
 # Serve attachments at /attachments
 ENV GRANIAN_STATIC_PATH_ROUTE=/attachments
 ENV GRANIAN_STATIC_PATH_MOUNT=/tmp/attachments
+
+# Install curl for readiness test in docker compose
+USER root
+RUN /opt/update_and_install_system_packages.sh curl
+USER app
 
 # create directories for volume mounts used in browser tests / local development
 RUN mkdir -p -m 777 /app/mail && mkdir -p -m 777 /app/slack && mkdir -p -m 777 /tmp/attachments

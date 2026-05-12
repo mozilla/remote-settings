@@ -8,11 +8,11 @@ readme = "README.rst"
 requires-python = ">=3.12,<3.15"
 dependencies = [
     "canonicaljson-rs==0.9.3",
-    "cryptography<48",
+    "cryptography<49",
     "ecdsa==0.19.2",
     "kinto[postgresql,memcached,monitoring]>=26.1.0,<27",
     "kinto-attachment>=9",
-    "kinto-emailer<4",
+    "kinto-emailer>=4",
     "kinto-slack",
     "requests-hawk<2",
     "prometheus-client>=0.25.0",
