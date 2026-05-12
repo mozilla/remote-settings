@@ -57,11 +57,11 @@ services:
       - GRANIAN_ACCESS_LOG=true
       - KINTO_SLACK_DEBUG_DIR=/app/slack
     volumes:
-      - ./config:/app/config
-      - ./kinto-remote-settings:/app/kinto-remote-settings
       - debug-mail:/app/mail
       - debug-slack:/app/slack
       - attachments:/tmp/attachments
+      - ${CONFIG_MOUNT:-./config:/app/config}
+      - ${SRC_MOUNT:-./kinto-remote-settings:/app/kinto-remote-settings}
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8888/v1/__lbheartbeat__"]
       interval: 2s
