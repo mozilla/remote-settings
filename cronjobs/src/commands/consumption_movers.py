@@ -90,14 +90,14 @@ Period: {start_day.strftime("%b %-d")} → {end_day.strftime("%b %-d")}"""
     ):
         message += f"""\n
 *Top increases* (Compared against previous {PREVIOUS_PERIOD_DAYS}-day daily average)
-{"\n".join(f"- `{m['collection_id']}`: {m['pct_change']:+.1f}% " for m in top_increase)}"""
+{"\n".join(f"- `{m['collection_id']}`: +{m['delta'] / 1e12:.1f}TB ({m['pct_change']:+.1f}%) " for m in top_increase)}"""
 
     if top_decrease := heapq.nsmallest(
         TOP_N, [m for m in movers if m["pct_change"] < 0], key=lambda m: m["delta"]
     ):
         message += f"""\n
 *Top decreases*
-{"\n".join(f"- `{m['collection_id']}`: {m['pct_change']:+.1f}% " for m in top_decrease)}"""
+{"\n".join(f"- `{m['collection_id']}`: {m['delta'] / 1e12:.1f}TB ({m['pct_change']:+.1f}%) " for m in top_decrease)}"""
 
     if not SLACK_WEBHOOK_URL:
         print("SLACK_WEBHOOK_URL is not set; message was not sent")
