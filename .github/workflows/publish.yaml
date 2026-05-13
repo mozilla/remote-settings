@@ -24,23 +24,34 @@ env:
 jobs:
   server_container:
     env:
-      DOCKERHUB_IMAGE_NAME: mozilla/remote-settings
       GAR_IMAGE_NAME: remote-settings
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     environment: build
+    outputs:
+      latest_tag: ${{ steps.set_tag.outputs.tag }}
     steps:
+      - name: Prepare platform pair
+        run: |
+          platform=${{ matrix.platform }}
+          echo "PLATFORM_PAIR=${platform//\//-}" >> "$GITHUB_ENV"
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-      - name: Enable multiplatform builds
-        uses: docker/setup-buildx-action@v4
-        with:
-          buildkitd-flags: "--debug" # Enable detailed logging
       - name: Set tag version
-        run: echo "LATEST_TAG=$(git describe --tags --abbrev=4)" >> "$GITHUB_ENV"
+        id: set_tag
+        run: |
+          tag=$(git describe --tags --abbrev=4)
+          echo "LATEST_TAG=$tag" >> "$GITHUB_ENV"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
       - name: Create version.json
         run: |
             # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/main/docs/version_object.md
@@ -51,6 +62,135 @@ jobs:
             "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > ./version.json
             # Show complete version.json for debugging
             cat ./version.json
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          buildkitd-flags: "--debug" # Enable detailed logging
+      - name: Authenticate on GCP
+        id: gcp_auth
+        uses: google-github-actions/auth@v3
+        with:
+          token_format: access_token
+          service_account: artifact-writer@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com
+          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+      - name: Login to GAR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.GAR_LOCATION }}-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.gcp_auth.outputs.access_token }}
+      - name: Build (PR validation)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: RemoteSettings.Dockerfile
+          target: production  # See multi-stage build
+          platforms: ${{ matrix.platform }}
+          push: false
+          cache-from: type=gha,scope=server-${{ env.PLATFORM_PAIR }}
+      - name: Build and push by digest (push)
+        if: ${{ github.event_name == 'push' }}
+        id: build_push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: RemoteSettings.Dockerfile
+          sbom: true
+          target: production  # See multi-stage build
+          platforms: ${{ matrix.platform }}
+          cache-from: type=gha,scope=server-${{ env.PLATFORM_PAIR }}
+          cache-to: type=gha,mode=max,scope=server-${{ env.PLATFORM_PAIR }}
+          outputs: type=image,name=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.GAR_IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
+      - name: Wait for release base image
+        if: ${{ github.event_name == 'release' }}
+        env:
+          BASE_IMG: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/remote-settings:sha-${{ github.sha }}
+        run: |
+          # Wait up to 20min for the base image (built by the push workflow above, on the same SHA).
+          deadline=$((SECONDS + 1200))
+          until docker buildx imagetools inspect "$BASE_IMG" >/dev/null 2>&1; do
+            if [ $SECONDS -ge $deadline ]; then
+              echo "::error::Timed out waiting for base image $BASE_IMG"
+              exit 1
+            fi
+            echo "Base image not yet available, retrying in 30s..."
+            sleep 30
+          done
+          echo "Base image is available."
+      - name: Build and push by digest (release)
+        if: ${{ github.event_name == 'release' }}
+        id: build_release
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Release.Dockerfile
+          sbom: true
+          platforms: ${{ matrix.platform }}
+          cache-from: type=gha,scope=server-release-${{ env.PLATFORM_PAIR }}
+          cache-to: type=gha,mode=max,scope=server-release-${{ env.PLATFORM_PAIR }}
+          outputs: type=image,name=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.GAR_IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
+          build-args: BASE_IMG=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:sha-${{ github.sha }}
+      - name: Export digest
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build_push.outputs.digest || steps.build_release.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+      - name: Upload digest
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+      - name: Notify DEVs of build failure
+        if: ${{ failure() && github.event_name != 'pull_request' }}
+        uses: slackapi/slack-github-action@v3.0.3
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} (${{ matrix.platform }}) failed. Please review logs and correct issues."
+
+  server_container_merge:
+    if: github.event_name != 'pull_request'
+    needs: server_container
+    env:
+      DOCKERHUB_IMAGE_NAME: mozilla/remote-settings
+      GAR_IMAGE_NAME: remote-settings
+      LATEST_TAG: ${{ needs.server_container.outputs.latest_tag }}
+    runs-on: ubuntu-latest
+    environment: build
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Authenticate on GCP
+        id: gcp_auth
+        uses: google-github-actions/auth@v3
+        with:
+          token_format: access_token
+          service_account: artifact-writer@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com
+          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+      - name: Login to GAR
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.GAR_LOCATION }}-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.gcp_auth.outputs.access_token }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Extract metadata for Google Artifact Registry
         id: metagar
         uses: docker/metadata-action@v6
@@ -76,81 +216,23 @@ jobs:
           tags: |
             type=semver,pattern={{raw}},enable=${{ github.event_name == 'release' }}
             type=raw,value=latest,enable=${{ github.event_name == 'push' }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Authenticate on GCP
-        id: gcp_auth
-        uses: google-github-actions/auth@v3
-        with:
-          token_format: access_token
-          service_account: artifact-writer@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com
-          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
-      - name: Login to GAR
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.GAR_LOCATION }}-docker.pkg.dev
-          username: oauth2accesstoken
-          password: ${{ steps.gcp_auth.outputs.access_token }}
-      - name: Login to Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push to GAR
-        if: ${{ github.event_name == 'push' }}
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: RemoteSettings.Dockerfile
-          sbom: true
-          target: production  # See multi-stage build
-          push: true
-          tags: ${{ steps.metagar.outputs.tags }}
-          labels: ${{ steps.metagar.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=gha # Load cache from GitHub Actions
-          cache-to: type=gha,mode=max # Save cache to GitHub Actions
-      - name: Wait for release base image
-        if: ${{ github.event_name == 'release' }}
+      - name: Create manifest list and push to GAR
+        working-directory: /tmp/digests
         env:
-          BASE_IMG: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/remote-settings:sha-${{ github.sha }}
+          METADATA_JSON: ${{ steps.metagar.outputs.json }}
+          GAR_IMAGE: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.GAR_IMAGE_NAME }}
         run: |
-          # Wait up to 20min for the base image (built by the push workflow above, on the same SHA).
-          deadline=$((SECONDS + 1200))
-          until docker buildx imagetools inspect "$BASE_IMG" >/dev/null 2>&1; do
-            if [ $SECONDS -ge $deadline ]; then
-              echo "::error::Timed out waiting for base image $BASE_IMG"
-              exit 1
-            fi
-            echo "Base image not yet available, retrying in 30s..."
-            sleep 30
-          done
-          echo "Base image is available."
-      - name: Build and push release to GAR
-        if: ${{ github.event_name == 'release' }}
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: Release.Dockerfile
-          sbom: true
-          push: true
-          tags: ${{ steps.metagar.outputs.tags }}
-          labels: ${{ steps.metagar.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=gha # Load cache from GitHub Actions
-          cache-to: type=gha,mode=max # Save cache to GitHub Actions
-          build-args: BASE_IMG=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:sha-${{ github.sha }}
+          tag_args=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$METADATA_JSON")
+          digest_refs=$(printf "${GAR_IMAGE}@sha256:%s " *)
+          docker buildx imagetools create $tag_args $digest_refs
       - name: Copy from Google Artifact Registry to Docker Hub
-        if: github.event_name != 'pull_request'
         env:
           TAGS: |
             ${{ steps.metahub.outputs.tags }}
           SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:${{ env.LATEST_TAG }}
         run: |
           for tag in $TAGS; do
-            docker buildx imagetools create --tag "${tag}" "${SRC}" 
+            docker buildx imagetools create --tag "${tag}" "${SRC}"
           done
       - name: Notify DEVs of build failure
         if: failure()
@@ -159,7 +241,7 @@ jobs:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
           payload: |
-            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
+            text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed at manifest merge. Please review logs and correct issues."
 
   cronjobs_container:
     env:
