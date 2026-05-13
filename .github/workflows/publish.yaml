@@ -110,8 +110,8 @@ jobs:
           tags: ${{ steps.metagar.outputs.tags }}
           labels: ${{ steps.metagar.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha # Load cache from GitHub Actions
-          cache-to: type=gha,mode=max # Save cache to GitHub Actions
+          cache-from: type=gha,scope=server
+          cache-to: type=gha,mode=max,scope=server
       - name: Build and push release to GAR
         if: ${{ github.event_name == 'release' }}
         uses: docker/build-push-action@v7
@@ -123,8 +123,8 @@ jobs:
           tags: ${{ steps.metagar.outputs.tags }}
           labels: ${{ steps.metagar.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha # Load cache from GitHub Actions
-          cache-to: type=gha,mode=max # Save cache to GitHub Actions
+          cache-from: type=gha,scope=server-release
+          cache-to: type=gha,mode=max,scope=server-release
           build-args: BASE_IMG=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:sha-${{ github.sha }}
       - name: Copy from Google Artifact Registry to Docker Hub
         if: github.event_name != 'pull_request'
@@ -189,8 +189,8 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha # Load cache from GitHub Actions
-          cache-to: type=gha,mode=max # Save cache to GitHub Actions
+          cache-from: type=gha,scope=cronjobs
+          cache-to: type=gha,mode=max,scope=cronjobs
       - name: Notify DEVs of build failure
         if: failure()
         uses: slackapi/slack-github-action@v3.0.3
@@ -244,8 +244,8 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha # Load cache from GitHub Actions
-          cache-to: type=gha,mode=max # Save cache to GitHub Actions
+          cache-from: type=gha,scope=browser-tests
+          cache-to: type=gha,mode=max,scope=browser-tests
       - name: Notify DEVs of build failure
         if: failure()
         uses: slackapi/slack-github-action@v3.0.3
@@ -311,8 +311,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha # Load cache from GitHub Actions
-          cache-to: type=gha,mode=max # Save cache to GitHub Actions
+          cache-from: type=gha,scope=git-reader
+          cache-to: type=gha,mode=max,scope=git-reader
       - name: Notify DEVs of build failure
         if: failure()
         uses: slackapi/slack-github-action@v3.0.3
