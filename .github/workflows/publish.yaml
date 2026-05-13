@@ -22,7 +22,40 @@ env:
   GCP_PROJECT_ID: moz-fx-remote-settings-prod
 
 jobs:
+  # Let's figure out which container we have to build based on which files were changed.
+  # On pull-requests that don't touch these files, we don't need to rebuild them.
+  # Of course, on push to main or releases, we always build and publish to GAR/Dockerhub.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      cronjobs: ${{ steps.filter.outputs.cronjobs }}
+      browser_tests: ${{ steps.filter.outputs.browser_tests }}
+      git_reader: ${{ steps.filter.outputs.git_reader }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: filter
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          files=$(git diff --name-only "$BASE" "$HEAD")
+          echo "Changed files:"
+          echo "$files"
+          check() {
+            if echo "$files" | grep -qE "$2"; then
+              echo "$1=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "$1=false" >> "$GITHUB_OUTPUT"
+            fi
+          }
+          check cronjobs       '^.github/workflows/|^cronjobs/'
+          check browser_tests  '^.github/workflows/|^browser-tests/'
+          check git_reader     '^.github/workflows/|^git-reader/'
+
   server_container:
+    # Always build the server (since it depends on lots of files uv.lock, dockerfiles, kinto-slack, etc.)
     env:
       DOCKERHUB_IMAGE_NAME: mozilla/remote-settings
       GAR_IMAGE_NAME: remote-settings
@@ -146,6 +179,8 @@ jobs:
             text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
 
   cronjobs_container:
+    needs: changes
+    if: ${{ github.event_name != 'pull_request' || needs.changes.outputs.cronjobs == 'true' }}
     env:
       GAR_IMAGE_NAME: remote-settings-core-cronjobs
       LATEST_TAG: ""  # Set after checkout step
@@ -201,6 +236,8 @@ jobs:
             text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
 
   browser_test_container:
+    needs: changes
+    if: ${{ github.event_name != 'pull_request' || needs.changes.outputs.browser_tests == 'true' }}
     env:
       GAR_IMAGE_NAME: remote-settings-browser-tests
       LATEST_TAG: ""  # Set after checkout step
@@ -256,6 +293,8 @@ jobs:
             text: "⚠️  Build of ${{ env.GAR_IMAGE_NAME }}:${{ env.LATEST_TAG }} failed. Please review logs and correct issues."
 
   git_reader_container:
+    needs: changes
+    if: ${{ github.event_name != 'pull_request' || needs.changes.outputs.git_reader == 'true' }}
     env:
       GAR_IMAGE_NAME: remote-settings-git-reader
       LATEST_TAG: ""  # Set after checkout step
