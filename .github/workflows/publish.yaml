@@ -224,7 +224,7 @@ jobs:
         run: |
           tag_args=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$METADATA_JSON")
           digest_refs=$(printf "${GAR_IMAGE}@sha256:%s " *)
-          docker buildx imagetools create $tag_args $digest_refs
+          docker buildx imagetools create "$tag_args" "$digest_refs"
       - name: Copy from Google Artifact Registry to Docker Hub
         env:
           TAGS: |
