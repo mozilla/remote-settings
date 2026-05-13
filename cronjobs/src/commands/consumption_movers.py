@@ -22,7 +22,7 @@ WITH daily_consumption AS (
         DATE_TRUNC(timestamp, DAY) AS day,
         collection_id,
         SUM(size) AS size
-    FROM `moz-fx-remote-settings-prod.remote_settings_logs_aggregates.prod_logs_aggregates`
+    FROM `moz-fx-remote-settings-prod.prod_logs_aggregates_dataset.prod_logs_aggregates`
     WHERE timestamp >= TIMESTAMP_SUB(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL {interval_days_start} DAY)
       AND timestamp <  TIMESTAMP_SUB(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL {interval_days_end} DAY)
       AND collection_id IS NOT NULL
