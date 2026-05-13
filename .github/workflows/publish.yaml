@@ -117,8 +117,8 @@ jobs:
         env:
           BASE_IMG: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/remote-settings:sha-${{ github.sha }}
         run: |
-          # Wait up to 10min for the base image (built by the push workflow above, on the same SHA).
-          deadline=$((SECONDS + 600))
+          # Wait up to 20min for the base image (built by the push workflow above, on the same SHA).
+          deadline=$((SECONDS + 1200))
           until docker buildx imagetools inspect "$BASE_IMG" >/dev/null 2>&1; do
             if [ $SECONDS -ge $deadline ]; then
               echo "::error::Timed out waiting for base image $BASE_IMG"
