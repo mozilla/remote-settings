@@ -36,6 +36,7 @@ jobs:
         with:
           fetch-depth: 0
       - id: filter
+        if: github.event_name == 'pull_request'
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
