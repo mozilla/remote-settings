@@ -75,8 +75,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha # Load cache from GitHub Actions
-          cache-to: type=gha,mode=max # Save cache to GitHub Actions
+          cache-from: type=gha,scope=git-reader # Load cache from GitHub Actions
+          cache-to: type=gha,mode=max,scope=git-reader # Save cache to GitHub Actions
       - name: Notify DEVs of build failure
         if: failure()
         uses: slackapi/slack-github-action@v3.0.3
