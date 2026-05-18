@@ -101,5 +101,5 @@ jobs:
           context: .
           push: ${{ inputs.publish }}
           tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha,buildkit=true
-          cache-to: type=gha,mode=max,buildkit=true
+          cache-from: type=gha,scope=ingestion-job
+          cache-to: type=gha,mode=max,scope=ingestion-job
