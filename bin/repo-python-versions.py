@@ -26,7 +26,7 @@ def main():
     versions = []
     for path in Path(".github/workflows").glob("*.y*ml"):
         versions += extract_versions_from_ci_workflow(path)
-    for path in Path(".").rglob("Dockerfile"):
+    for path in Path(".").rglob("*Dockerfile"):
         versions += extract_versions_from_dockerfile(path)
 
     # We don't verify `pyproject.toml` files, since they provide a range
