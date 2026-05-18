@@ -1,4 +1,4 @@
-FROM python:3.14.0-slim-bookworm
+FROM python:3.14.5-slim-bookworm
 
 ENV UV_PROJECT_ENVIRONMENT=/opt/.venv \
     PATH="/opt/.venv/bin:$PATH" \
