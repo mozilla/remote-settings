@@ -1,6 +1,12 @@
 name: Run CI checks
 
-on: pull_request
+on:
+  pull_request:
+  # Also run on pushes to main so the GHA cache is seeded under the default branch.
+  # PR runs can only read caches from their own branch or the base/default branch,
+  # so without this the Docker layer cache would be cold on every new PR.
+  push:
+    branches: [main]
 
 jobs:
   run_lint:
