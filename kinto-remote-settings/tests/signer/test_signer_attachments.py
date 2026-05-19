@@ -146,3 +146,66 @@ class SignerAttachmentsTest(BaseWebTest, unittest.TestCase):
         attachment_after = record["attachment"]["hash"]
 
         assert attachment_before != attachment_after
+
+    def test_sign_batch_with_mixed_attachment_and_non_attachment_records(self):
+        # Repro for https://github.com/mozilla/remote-settings/issues/788
+        # When a sign batch contains an attachment-change record AND a
+        # non-attachment-change record, Kinto's event aggregator keeps the
+        # request from the FIRST queued event. If that request lacks the
+        # `_attachment_auto_save` flag, kinto-attachment raises 400 on the
+        # batched event because one of the merged impacted_objects has an
+        # attachment that differs.
+        r = self.app.post_json(
+            self.source_collection + "/records",
+            {"data": {"title": "no-attach"}},
+            headers=self.headers,
+        )
+        rec_no_attach = r.json["data"]
+
+        r = self.app.post_json(
+            self.source_collection + "/records",
+            {"data": {"title": "with-attach"}},
+            headers=self.headers,
+        )
+        rec_with_attach = r.json["data"]
+        self.upload_file(
+            uri=self.source_collection
+            + "/records/"
+            + rec_with_attach["id"]
+            + "/attachment",
+            files=[("attachment", "image.jpg", b"--fake--")],
+            headers=self.headers,
+        )
+
+        # Sign once so both records exist in the destination.
+        self.app.patch_json(
+            self.source_collection,
+            {"data": {"status": "to-sign"}},
+            headers=self.headers,
+        )
+
+        # Modify the data of the no-attachment record.
+        self.app.patch_json(
+            self.source_collection + "/records/" + rec_no_attach["id"],
+            {"data": {"title": "no-attach-updated"}},
+            headers=self.headers,
+        )
+        # Replace the attachment of the other record.
+        self.upload_file(
+            uri=self.source_collection
+            + "/records/"
+            + rec_with_attach["id"]
+            + "/attachment",
+            files=[("attachment", "image.jpg", b"--other-fake--")],
+            headers=self.headers,
+        )
+
+        # Second sign: batched record events must not raise 400.
+        self.app.patch_json(
+            self.source_collection,
+            {"data": {"status": "to-sign"}},
+            headers=self.headers,
+            status=200,
+        )
+        r = self.app.get(self.source_collection, headers=self.headers)
+        assert r.json["data"]["status"] == "signed"
