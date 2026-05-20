@@ -238,18 +238,14 @@ def notify_resource_event(
     # When kinto-signer copies record from one place to another,
     # it simulates a resource event. Since kinto-attachment
     # prevents from updating attachment fields, it throws an error.
-    # The following flag will disable the kinto-attachment check.
-    # See https://github.com/Kinto/kinto-signer/issues/256
-    # and https://bugzilla.mozilla.org/show_bug.cgi?id=1470812
-    has_changed_attachment = (
-        resource_name == "record"
-        and action == ACTIONS.UPDATE
-        and old is not None
-        and "attachment" in old
-        and old["attachment"] != obj.get("attachment")
-    )
-    if has_changed_attachment:
-        fakerequest._attachment_auto_save = True
+    # Set the flag unconditionally: Kinto's event aggregator keeps
+    # only the first queued event's request when merging events with
+    # the same (resource, parent_id, action) key, so the flag must be
+    # set on every fakerequest in the batch (not just the ones with
+    # an attachment change) to be reliably visible on the merged event.
+    # See https://github.com/mozilla/remote-settings/issues/788
+    # and https://github.com/Kinto/kinto-signer/issues/256.
+    fakerequest._attachment_auto_save = True
 
     fakerequest.notify_resource_event(
         parent_id=parent_id,
