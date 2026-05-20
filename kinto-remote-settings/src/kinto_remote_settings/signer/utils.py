@@ -286,19 +286,25 @@ def records_diff(left, right):
 
 def attachments_size_diff(left, right):
     """
-    Return the size of the new attachments in `left` list of records.
+    Return the net size of the attachments in `left` versus `right`.
     """
-    right_by_location = {
-        r["attachment"]["location"]: r["attachment"]["size"]
-        for r in right
-        if "attachment" in r
+    right_by_id = {r["id"]: r for r in right}
+    right_locations = {
+        r["attachment"]["location"] for r in right if r.get("attachment")
     }
     changed = 0
     for r in left:
-        if "attachment" not in r or r["attachment"]["location"] in right_by_location:
-            # Locations are unique. If present in both, no change.
+        if "attachment" not in r:
             continue
-        changed += r["attachment"]["size"]
+        attachment = r["attachment"]
+        if attachment is None:
+            # Attachment removed: subtract previous size if it existed.
+            previous = right_by_id.get(r["id"])
+            if previous and previous.get("attachment"):
+                changed -= previous["attachment"]["size"]
+        elif attachment["location"] not in right_locations:
+            # New file on storage (locations are unique).
+            changed += attachment["size"]
     return changed
 
 

@@ -466,7 +466,7 @@ requires-dist = [
     { name = "pygit2", specifier = ">=1.19.0" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "python-decouple", specifier = ">=3.8" },
-    { name = "requests", specifier = ">=2.34.2" },
+    { name = "requests", specifier = ">=2.32.4" },
     { name = "sentry-sdk", specifier = ">=2.20.0" },
 ]
 
