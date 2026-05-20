@@ -1567,15 +1567,16 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
         r = self.app.get(self.reviewers_group, headers=self.headers).json
         assert r["data"]["last_modified"] == reviewers_timetamp
 
-    def test_groups_are_not_created_if_not_allowed(self):
-        # Allow this other user to create collections.
+    def test_collection_creation_is_rejected_if_user_cannot_create_groups(self):
+        # Allow this other user to create collections only (no group:create).
         body = {"permissions": {"collection:create": [self.other_userid]}}
         self.app.patch_json(self.source_bucket, body, headers=self.headers)
 
-        # Create the collection.
-        self.app.put(self.source_collection, headers=self.other_headers)
+        # Creation must be rejected: editor/reviewer groups cannot be set up.
+        self.app.put(self.source_collection, headers=self.other_headers, status=403)
 
-        # Groups were not created.
+        # And the collection was not created.
+        self.app.get(self.source_collection, headers=self.headers, status=404)
         self.app.get(self.editors_group, headers=self.headers, status=404)
         self.app.get(self.reviewers_group, headers=self.headers, status=404)
 
@@ -1594,6 +1595,7 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
 
         self.app.get(self.editors_group, headers=self.headers)
         self.app.get(self.reviewers_group, headers=self.headers)
+
 
 
 class BatchCreationTest(PostgresWebTest, unittest.TestCase):

@@ -648,7 +648,12 @@ def create_editors_reviewers_groups(event, resources, editors_group, reviewers_g
         required_perms = authz.get_bound_permissions(bucket_uri, "group:create")
         permission = event.request.registry.permission
         if not permission.check_permission(principals, required_perms):
-            return
+            raise_forbidden(
+                message=(
+                    "Cannot create collection without `group:create` on bucket "
+                    f"{bid!r}: editors/reviewers groups cannot be set up."
+                )
+            )
 
         group_perms = {"write": [current_user_id]}
         for group, members in (
