@@ -308,6 +308,24 @@ def test_fetch_cert():
         ([], [], 0),
         # No attachments
         ([{"id": "a"}, {"id": "b"}], [{"id": "c"}], 0),
+        # Deleted attachment
+        (
+            [{"id": "1", "attachment": None}],
+            [{"id": "1", "attachment": {"location": "file1", "size": 100}}],
+            -100,
+        ),
+        # Previously deleted attachment
+        (
+            [{"id": "1", "attachment": {"location": "file1", "size": 100}}],
+            [{"id": "1", "attachment": None}],
+            100,
+        ),
+        # Created and deleted attachment
+        (
+            [{"id": "1", "attachment": None}],
+            [],
+            0,
+        ),
         # No change
         (
             [
@@ -321,37 +339,37 @@ def test_fetch_cert():
         # New file
         (
             [
-                {"attachment": {"location": "file1", "size": 100}},
-                {"attachment": {"location": "file2", "size": 200}},
+                {"id": "1", "attachment": {"location": "file1", "size": 100}},
+                {"id": "2", "attachment": {"location": "file2", "size": 200}},
             ],
             [
-                {"attachment": {"location": "file1", "size": 100}},
+                {"id": "1", "attachment": {"location": "file1", "size": 100}},
             ],
             200,
         ),
         # 2 new attachments
         (
             [
-                {"attachment": {"location": "a", "size": 50}},
-                {"attachment": {"location": "b", "size": 75}},
-                {"attachment": {"location": "c", "size": 25}},
+                {"id": "1", "attachment": {"location": "a", "size": 50}},
+                {"id": "2", "attachment": {"location": "b", "size": 75}},
+                {"id": "3", "attachment": {"location": "c", "size": 25}},
             ],
             [
-                {"attachment": {"location": "a", "size": 50}},
+                {"id": "1", "attachment": {"location": "a", "size": 50}},
             ],
             100,  # b + c
         ),
         (
             [
                 {"id": "1"},
-                {"attachment": {"location": "x", "size": 30}},
+                {"id": "2", "attachment": {"location": "x", "size": 30}},
             ],
             [],
             30,
         ),
         (
             [],
-            [{"attachment": {"location": "a", "size": 1}}],
+            [{"id": "1", "attachment": {"location": "a", "size": 1}}],
             0,
         ),
     ],
