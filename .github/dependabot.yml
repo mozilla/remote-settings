@@ -10,15 +10,14 @@ updates:
     interval: weekly
     day: sunday
     timezone: UCT
+  allow:
+    - dependency-type: "all"
   groups:
     production-dependency-patches:
       dependency-type: "production"
       update-types: ["patch"]
     development-dependencies:
       dependency-type: "development"
-      update-types: ["major", "minor", "patch"]
-    sub-dependencies:
-      dependency-type: "indirect"
       update-types: ["major", "minor", "patch"]
   open-pull-requests-limit: 99
 - package-ecosystem: docker
