@@ -1,7 +1,11 @@
 version: 2
 updates:
 - package-ecosystem: uv
-  directory: "/"
+  directories:
+    - "/"
+    - "/cronjobs"
+    - "/git-reader"
+    - "/browser-tests"
   schedule:
     interval: weekly
     day: sunday
