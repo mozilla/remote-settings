@@ -158,10 +158,10 @@ def test_reset_repo_deletes_extra_local_branches_and_tags(tmp_repo, mock_ls_remo
 
 def test_delete_old_tags(tmp_repo):
     repo = tmp_repo
-    now_ts = int(time.time())
+    now_ts = int(time.time() * 1000)
 
     commit = tmp_repo.revparse_single("main")
-    tags = [f"v1/timestamps/common/{now_ts - i * 86400!s}" for i in range(5, 10)]
+    tags = [f"v1/timestamps/common/{now_ts - i * 86400000}" for i in range(5, 10)]
     for old_tag in tags:
         repo.create_tag(
             old_tag,
