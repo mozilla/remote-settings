@@ -336,8 +336,9 @@ class QuotedTimestamp(colander.SchemaNode):  # ty: ignore[unsupported-base]
 
     schema_type = colander.String
     error_message = "The value should be integer, optionally between double quotes."
+    # Timestamps cannot have more than 13 digits (9999999999999 is year 2286)
     validator = colander.Regex(
-        '^"([0-9]+?)"(?!\n)$|^([0-9]+?)(?!\n)$', msg=error_message
+        '^"([0-9]{1,13}?)"(?!\n)$|^([0-9]{1,13}?)(?!\n)$', msg=error_message
     )
 
     def deserialize(self, cstruct=colander.null):
