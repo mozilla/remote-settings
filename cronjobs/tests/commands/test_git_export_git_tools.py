@@ -161,7 +161,7 @@ def test_delete_old_tags(tmp_repo):
     now_ts = int(time.time() * 1000)
 
     commit = tmp_repo.revparse_single("main")
-    tags = [f"v1/timestamps/common/{now_ts - i * 86400000}" for i in range(5, 10)]
+    tags = [f"v1/timestamps/common/{now_ts - i * 86400000}" for i in range(6, 11)]
     for old_tag in tags:
         repo.create_tag(
             old_tag,
@@ -186,12 +186,55 @@ def test_delete_old_tags(tmp_repo):
 
     deleted = delete_old_tags(repo, max_age_days=5, min_tags_per_collection=2)
 
-    assert len(deleted) == 3
+    assert len(deleted) == 4
+
+    # Keep the 2 most-recent old tags (closest to the threshold boundary).
+    assert f"refs/tags/{recent_tag}" in repo.references
+    assert f"refs/tags/{tags[0]}" in repo.references
+
+
+def test_delete_new_and_old_tags(tmp_repo):
+    repo = tmp_repo
+    now_ts = int(time.time() * 1000)
+
+    commit = tmp_repo.revparse_single("main")
+    old_tags = [f"v1/timestamps/common/{now_ts - i * 86400000}" for i in range(6, 11)]
+    for old_tag in old_tags:
+        repo.create_tag(
+            old_tag,
+            commit.id,
+            pygit2.GIT_OBJECT_COMMIT,
+            pygit2.Signature("Tester", "test@example.com"),
+            "An old tag",
+        )
+
+    new_tags = [f"v1/timestamps/common/{now_ts - i * 86400000}" for i in range(1, 5)]
+    for new_tag in new_tags:
+        repo.create_tag(
+            new_tag,
+            commit.id,
+            pygit2.GIT_OBJECT_COMMIT,
+            pygit2.Signature("Tester", "test@example.com"),
+            "A newer tag",
+        )
+    recent_tag = f"v1/timestamps/common/{now_ts}"
+    repo.create_tag(
+        recent_tag,
+        commit.id,
+        pygit2.GIT_OBJECT_COMMIT,
+        pygit2.Signature("Tester", "test@example.com"),
+        "A recent tag",
+    )
 
     assert f"refs/tags/{recent_tag}" in repo.references
-    # Keep the 2 most-recent old tags (closest to the threshold boundary).
-    for old_tag in tags[:2]:
+    for old_tag in old_tags:
         assert f"refs/tags/{old_tag}" in repo.references
+
+    deleted = delete_old_tags(repo, max_age_days=5, min_tags_per_collection=2)
+
+    assert len(deleted) == 5
+
+    assert f"refs/tags/{recent_tag}" in repo.references
 
 
 @pytest.fixture

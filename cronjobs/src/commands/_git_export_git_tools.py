@@ -294,13 +294,10 @@ def delete_old_tags(
     for collection, tags in group_by_collection.items():
         kept_count = 0
         for ref_name, timestamp in reversed(tags):
-            age_days = (now_ts - timestamp) / (60 * 60 * 24)
-            if age_days < max_age_days:
-                continue
-            if kept_count < min_tags_per_collection:
+            age_days = (now_ts - timestamp) / (60 * 60 * 24 * 1000)
+            if age_days < max_age_days or kept_count < min_tags_per_collection:
                 kept_count += 1
                 continue
-
             print(f"Deleting tag {ref_name} (timestamp: {timestamp})")
             repo.references.delete(ref_name)
             deleted_tags.append(ref_name)
@@ -354,7 +351,7 @@ def truncate_branch(
     for commit in walker:
         if commit.id not in commits_to_refs:
             assert len(chain_commits) > 0, (
-                f"No tagged commit found in branch {branch}, cannot truncate"
+                f"No tagged commit found in branch {branch}, cannot truncate. Commit {commit.id}"
             )
             # Count all untagged commits below the oldest tagged commit.
             past_tagged_region = True
