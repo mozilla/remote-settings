@@ -273,7 +273,7 @@ def delete_old_tags(
         f"Delete tags older than {max_age_days} days, keeping at least {min_tags_per_collection} per collection."
     )
     deleted_tags = []
-    now_ts = int(time.time())
+    now_ts = int(time.time() * 1000)
 
     timestamp_tags = [
         ref_name
