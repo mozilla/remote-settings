@@ -1075,7 +1075,7 @@ wheels = [
 
 [[package]]
 name = "kinto"
-version = "26.1.1"
+version = "26.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bcrypt" },
@@ -1084,6 +1084,7 @@ dependencies = [
     { name = "jsonpatch" },
     { name = "jsonschema" },
     { name = "logging-color-formatter" },
+    { name = "pyjwt", extra = ["crypto"] },
     { name = "pyramid" },
     { name = "pyramid-multiauth" },
     { name = "pyramid-tm" },
@@ -1094,9 +1095,9 @@ dependencies = [
     { name = "transaction" },
     { name = "waitress" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/58/6a/74e49ae9bfd00aab808de4eae679c79cc46c8da56225e7fa6ae543c2f021/kinto-26.1.1.tar.gz", hash = "sha256:bb640868e5ce23f1e9324a53d9470d47c36be355023a9b534b72a87cc5890cbd", size = 1576821, upload-time = "2026-05-21T06:27:14.376Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/22/b8/e6e2107886c546512dd5645a085be98136708a21bf7c8a5e66c770548a1a/kinto-26.2.0.tar.gz", hash = "sha256:2e486d695137b15149de11b3652a3df8ef4193126f0d4fb8d2753eb64b4e92c7", size = 1577364, upload-time = "2026-05-29T09:43:28.17Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ef/98/4f1ac57e5cd6baebf1a4a751c8f55290bef874b63878530b229c10893861/kinto-26.1.1-py3-none-any.whl", hash = "sha256:f31f25467775d8a67db6c73e7fee367045775d1a1af7735661d4bc2210edef3e", size = 244182, upload-time = "2026-05-21T06:27:12.366Z" },
+    { url = "https://files.pythonhosted.org/packages/5f/25/911994b3097833fdaa2d5130c89266de5584101f0bc7298d966ea229cc93/kinto-26.2.0-py3-none-any.whl", hash = "sha256:cbe21153543a7577f7d4bd979a35e1508b887fc946a353f0b9f61662b4687959", size = 244467, upload-time = "2026-05-29T09:43:26.461Z" },
 ]
 
 [package.optional-dependencies]
@@ -1690,6 +1691,11 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/3b/81/58d0ac84e1ef3a3843791d6954d94c0b33d526c75eeb1efbce9d0a4c4077/pyjwt-2.13.0.tar.gz", hash = "sha256:41571c89ca91598c79e8ef18a2d07367d4810fbbd6f637794879baf1b7703423", size = 107515, upload-time = "2026-05-21T19:54:36.618Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a3/5e/ecf12fdb62546d64385c158514e9b2b671f7832108ef2ecd2020ce0af2d1/pyjwt-2.13.0-py3-none-any.whl", hash = "sha256:66adcc2aff09b3f1bbd95fc1e1577df8ac8723c978552fd43304c8a290ac5728", size = 31274, upload-time = "2026-05-21T19:54:35.362Z" },
+]
+
+[package.optional-dependencies]
+crypto = [
+    { name = "cryptography" },
 ]
 
 [[package]]

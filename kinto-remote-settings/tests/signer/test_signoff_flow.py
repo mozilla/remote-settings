@@ -1597,7 +1597,6 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
         self.app.get(self.reviewers_group, headers=self.headers)
 
 
-
 class BatchCreationTest(PostgresWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):
