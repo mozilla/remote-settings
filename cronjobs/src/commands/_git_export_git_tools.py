@@ -294,10 +294,8 @@ def delete_old_tags(
     for collection, tags in group_by_collection.items():
         kept_count = 0
         for ref_name, timestamp in reversed(tags):
-            age_days = (now_ts - timestamp) / (60 * 60 * 24)
-            if age_days < max_age_days:
-                continue
-            if kept_count < min_tags_per_collection:
+            age_days = (now_ts - timestamp) / (60 * 60 * 24 * 1000)
+            if age_days < max_age_days or kept_count < min_tags_per_collection:
                 kept_count += 1
                 continue
 
