@@ -344,7 +344,10 @@ class QuotedTimestamp(colander.SchemaNode):  # ty: ignore[unsupported-base]
         param = super(QuotedTimestamp, self).deserialize(cstruct)
         if param is colander.drop:
             return param
-        return int(param.strip('"'))
+        value = int(param.strip('"'))
+        # Reject values that would overflow PostgreSQL's bigint column.
+        positive_big_integer(self, value)
+        return value
 
 
 class ChangeSetQuerystring(colander.MappingSchema):
