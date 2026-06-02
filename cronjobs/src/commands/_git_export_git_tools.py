@@ -9,6 +9,8 @@ from pygit2 import (
 )
 from pygit2.enums import FetchPrune, SortMode
 
+from . import ts2dt
+
 
 REMOTE_NAME = "origin"
 
@@ -292,6 +294,7 @@ def delete_old_tags(
     # This logic helps us cover the situation described in mozilla/remote-settings#1109
     # (several updates in a short period of time after a long inactivity).
     for collection, tags in group_by_collection.items():
+        count_before = len(deleted_tags)
         kept_count = 0
         for ref_name, timestamp in reversed(tags):
             age_days = (now_ts - timestamp) / (60 * 60 * 24 * 1000)
@@ -299,10 +302,16 @@ def delete_old_tags(
                 kept_count += 1
                 continue
 
-            print(f"Deleting tag {ref_name} (timestamp: {timestamp})")
+            dt = ts2dt(timestamp).isoformat()
+            print(f"Deleting tag {ref_name} (timestamp: {dt})")
             repo.references.delete(ref_name)
             deleted_tags.append(ref_name)
 
+        print(
+            f"{len(deleted_tags) - count_before} tags to delete for {collection!r} collection"
+        )
+
+    print(f"{len(deleted_tags)} tags to delete in total")
     return deleted_tags
 
 
@@ -352,7 +361,7 @@ def truncate_branch(
     for commit in walker:
         if commit.id not in commits_to_refs:
             assert len(chain_commits) > 0, (
-                f"No tagged commit found in branch {branch}, cannot truncate"
+                f"Latest commit {commit.id} of branch {branch} is not tagged. Cannot truncate."
             )
             # Count all untagged commits below the oldest tagged commit.
             past_tagged_region = True

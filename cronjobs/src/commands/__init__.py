@@ -1,4 +1,5 @@
 import concurrent.futures
+import datetime
 import os
 
 import backoff
@@ -6,6 +7,13 @@ import kinto_http
 import requests
 import requests.adapters
 from requests.adapters import TimeoutSauce
+
+
+def ts2dt(ts: int) -> datetime.datetime:
+    """
+    Convert a timestamp in milliseconds to a datetime object in UTC.
+    """
+    return datetime.datetime.fromtimestamp(ts / 1000, datetime.timezone.utc)
 
 
 PARALLEL_REQUESTS = int(os.getenv("PARALLEL_REQUESTS", 4))
