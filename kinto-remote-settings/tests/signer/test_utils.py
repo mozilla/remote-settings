@@ -266,6 +266,7 @@ def test_expand_collections_glob_settings():
     }
 
 
+# spellchecker:off  # noqa: ERA001
 CERT_PEM = """-----BEGIN CERTIFICATE-----
 MIIC8zCCAnmgAwIBAgIIGGahTB7ZjAEwCgYIKoZIzj0EAwMwgZExCzAJBgNVBAYT
 AlVTMRwwGgYDVQQKExNNb3ppbGxhIENvcnBvcmF0aW9uMT0wOwYDVQQLEzRNb3pp
@@ -285,6 +286,7 @@ pnMhAJ0cY4J9RNss/K4qDAsmXZqW+6X4+ypewLu7L3cqqvVhkwIwKWhK1duubw0H
 W1fctdT/ReRcPz/W6vwR/YF9km1eoE/aZmktKmJos08cbythx22O
 -----END CERTIFICATE-----
 """
+# spellchecker:on  # noqa: ERA001
 
 
 def test_fetch_cert():

@@ -321,7 +321,7 @@ class ChangeSetRoute(RouteFactory):
         self.required_permission = "read"
 
     def check_permission(self, principals, bound_perms):
-        # The monitor/changes changeset endpoint is publicly accesible.
+        # The monitor/changes changeset endpoint is publicly accessible.
         if self.permission_object_id == CHANGES_COLLECTION_PATH:
             return True
         # Otherwise rely on the collection permissions.
@@ -535,7 +535,7 @@ broadcasts = Service(name="broadcast", path="/__broadcasts__", description="broa
 )
 def broadcasts_view(request):
     """
-    Implement the old Megaphone broacast endpoint,that the Push service will pull.
+    Implement the old Megaphone broadcast endpoint,that the Push service will pull.
 
     See https://github.com/mozilla-services/megaphone?tab=readme-ov-file#get-v1broadcasts
     """

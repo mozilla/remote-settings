@@ -107,7 +107,7 @@ References
 - [Download of all addons suggestions files](https://searchfox.org/mozilla-central/rev/8ec3cc0472ad4f51b254728d024b696eaba82ba0/browser/components/urlbar/private/AddonSuggestions.sys.mjs#87-101)
 
 ### Metrics To Measure Before/After
-We want to measure CPU usage, total bandwidth used, duration of syncronization on fresh profiles, and battery usage for full synchronization. We should be able to gather most of this by running power and performance profiles on different hardware.
+We want to measure CPU usage, total bandwidth used, duration of synchronization on fresh profiles, and battery usage for full synchronization. We should be able to gather most of this by running power and performance profiles on different hardware.
 
 Hardware to include:
 - Mac Desktop/Laptop
@@ -137,7 +137,7 @@ None at this time
 
 ## Considered Options
 1. Synchronously build bundles on attachment upload/removal (in request / response cycle)
-2. Aynchronously build bundles on attachment upload/removal (via Cloud Storage event)
+2. Asynchronously build bundles on attachment upload/removal (via Cloud Storage event)
 3. Build bundles on RS changes approval
 4. Add new API endpoint to build or serve last bundle
 5. Build bundles on schedule
@@ -230,6 +230,4 @@ The clients would pull the records bundle on first sync, and the attachments bun
 - Not so good, because we would introduce some coupling with kinto-attachment config (unless we mount the same RS server .ini config in the container and read conf from it) 
 - Not so good, because if we don’t couple it with the push timestamp cronjob, there could be a window of time where the bundle for a particular timestamp is not yet available
 - Bad, because this would be a remote-settings specific job and feature, and not part of kinto-attachment
-- Not so bad, because it would live along other cronjobs, and would be close to the one that syncs the timestamp with the push server  
-
-
+- Not so bad, because it would live along other cronjobs, and would be close to the one that syncs the timestamp with the push server

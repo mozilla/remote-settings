@@ -337,7 +337,7 @@ However, **additional collections or changes on records are not supported** (yet
 
 ## For Firefox Enterprise
 
-In the context of *Firefox Enterprise*, the components described in this document becomes a buiilding brick of the Firefox Enterprise Console.
+In the context of *Firefox Enterprise*, the components described in this document becomes a building brick of the Firefox Enterprise Console.
 
 The Remote Settings team would:
 

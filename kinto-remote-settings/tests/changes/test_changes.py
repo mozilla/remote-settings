@@ -97,7 +97,7 @@ class UpdateChangesTest(BaseWebTest, unittest.TestCase):
             resp = self.app.get(self.changes_uri)
         assert len(resp.json["data"]) == 1
 
-    def test_returns_200_with_empty_list_of_changes_if_no_change_occured(self):
+    def test_returns_200_with_empty_list_of_changes_if_no_change_occurred(self):
         resp = self.app.get(self.changes_uri)
         before_timestamp = resp.headers["ETag"]
 
@@ -206,7 +206,7 @@ class CacheExpiresTest(BaseWebTest, unittest.TestCase):
 
     def test_cache_expires_header_is_default_with_concurrency_control(self):
         # The `If-None-Match` header is just a way to obtain a 304 instead of a 200
-        # with an empty list. In the client code [0] it is always used in conjonction
+        # with an empty list. In the client code [0] it is always used in conjunction
         # with _since={last-etag}
         # [0] https://searchfox.org/mozilla-central/rev/93905b66/services/settings/Utils.jsm#70-73
         headers = {"If-None-Match": f'"{HOUR_AGO}"'}
