@@ -127,9 +127,18 @@ class ChangesetViewTest(BaseWebTest, unittest.TestCase):
             status=400,
         )
         self.app.get(
+            self.changeset_uri + '&_since="116137514678616060"',
+            headers=self.headers,
+            status=400,
+        )
+        self.app.get(
             self.changeset_uri + "&_since=*)(!(objectClass=*)",
             headers=self.headers,
             status=400,
+        )
+        self.app.get(
+            self.changeset_uri + '&_since="4102444800000"',  # Dec 31 2099
+            headers=self.headers,
         )
         self.app.get(self.changeset_uri + '&_since="42"', headers=self.headers)
 
