@@ -16,6 +16,7 @@ from pygit2 import (
     RemoteCallbacks,
 )
 
+from . import ts2dt
 from ._git_export_git_tools import (
     clone_or_fetch,
     delete_old_tags,
@@ -181,13 +182,6 @@ def git_export():
         print("Rolling back local changes...")
         reset_repo(repo, callbacks=callbacks)
         raise exc
-
-
-def ts2dt(ts: int) -> datetime.datetime:
-    """
-    Convert a timestamp in milliseconds to a datetime object in UTC.
-    """
-    return datetime.datetime.fromtimestamp(ts / 1000, datetime.timezone.utc)
 
 
 def json_dumpb(obj: Any) -> bytes:
