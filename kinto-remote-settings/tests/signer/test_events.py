@@ -229,7 +229,7 @@ class ResourceEventsTest(BaseWebTest, unittest.TestCase):
         assert len(events[0].impacted_objects) == 2
         updated = events[0].impacted_objects[0]
         assert "old" not in updated
-        assert updated["new"]["title"], ("bonjour", "hel ino")
+        assert updated["new"]["title"] == "hello"
 
     def test_resource_changed_is_triggered_for_destination_update(self):
         record_uri = self.source_collection + "/records/xyz"

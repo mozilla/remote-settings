@@ -803,7 +803,7 @@ def test_repo_syncs_deletes_attachments_if_flag_set(
 
 
 @responses.activate
-def test_repo_is_resetted_to_local_content_on_error(
+def test_repo_is_reset_to_local_content_on_error(
     capsys,
     repo,
     mock_git_fetch,

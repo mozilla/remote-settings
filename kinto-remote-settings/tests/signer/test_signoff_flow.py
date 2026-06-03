@@ -171,7 +171,7 @@ class CollectionStatusTest(SignoffWebTest, FormattedErrorMixin, unittest.TestCas
             {"data": {"status": "to-sign"}},
             headers=self.headers,
         )
-        # Signature occured, the source collection will be signed.
+        # Signature occurred, the source collection will be signed.
         self.app.patch_json(
             self.source_collection, {"data": {"status": "signed"}}, headers=self.headers
         )
@@ -1438,7 +1438,7 @@ class PerBucketTest(SignoffWebTest, unittest.TestCase):
         ]
         assert data["status"] == "signed"
 
-    def test_review_settings_can_be_overriden_for_a_specific_collection(self):
+    def test_review_settings_can_be_overridden_for_a_specific_collection(self):
         # review is not enabled for this particular one, sign directly!
         self.app.put_json(
             self.source_bucket + "/collections/specific",
@@ -1556,16 +1556,16 @@ class GroupCreationTest(PostgresWebTest, unittest.TestCase):
 
     def test_groups_are_not_touched_if_already_exist(self):
         resp = self.app.put(self.editors_group, headers=self.headers)
-        editors_timetamp = resp.json["data"]["last_modified"]
+        editors_timestamp = resp.json["data"]["last_modified"]
         resp = self.app.put(self.reviewers_group, headers=self.headers)
-        reviewers_timetamp = resp.json["data"]["last_modified"]
+        reviewers_timestamp = resp.json["data"]["last_modified"]
 
         self.app.put(self.source_collection, headers=self.headers)
 
         r = self.app.get(self.editors_group, headers=self.headers).json
-        assert r["data"]["last_modified"] == editors_timetamp
+        assert r["data"]["last_modified"] == editors_timestamp
         r = self.app.get(self.reviewers_group, headers=self.headers).json
-        assert r["data"]["last_modified"] == reviewers_timetamp
+        assert r["data"]["last_modified"] == reviewers_timestamp
 
     def test_collection_creation_is_rejected_if_user_cannot_create_groups(self):
         # Allow this other user to create collections only (no group:create).

@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 
 def heartbeat(request):
-    """Test that signer is operationnal.
+    """Test that signer is operational.
 
     :param request: current request object
     :type request: :class:`~pyramid:pyramid.request.Request`

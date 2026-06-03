@@ -164,7 +164,7 @@ Alternatively, if you have access to the `remote-settings-permissions <https://g
 
 .. code-block:: bash
 
-    ./manage.py deletecollection COLECTION_NAME
+    ./manage.py deletecollection COLLECTION_NAME
 
 And open a pull-request with the command output as description (See `this example <https://github.com/mozilla/remote-settings-permissions/pull/748>_`).
 

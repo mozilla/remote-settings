@@ -86,7 +86,7 @@ To choose our solution, we considered the following criteria:
 
 ## Decision Outcome
 
-Chosen option: **Option 10**, consisting in runing a tiny Memcached container.
+Chosen option: **Option 10**, consisting in running a tiny Memcached container.
 
 Although all options have their merits, this approach offers a good balance between complexity and cost. The debouncing logic remains in the application layer, no code changes are required, since Kinto has a built-in support for Memcached, making it a very simple solution easy to reason about. Memcached is lighter than Redis, and since we can afford losing cached data, we don't need to worry about persistence or high availability.
 
@@ -140,7 +140,7 @@ The broadcast endpoint serves a `3XX Redirect` to the GCS file.
 
 - **Complexity**: Mid. We can control the frequency of broadcasts by controlling how often we update the file on GCS. However, it introduces a new moving part (the cronjob), but we already have Telescope checks in place to monitor the broadcasted value.
 - **Cost of implementation**: Low. We already have the code to write files on GCS. We already have scheduled jobs.
-- **Cost of operation**: Low. GCS is cheap to use, and we would only write a file every 5min, which is negligible in terms of cost. It would also remove the current trafic on our origins.
+- **Cost of operation**: Low. GCS is cheap to use, and we would only write a file every 5min, which is negligible in terms of cost. It would also remove the current traffic on our origins.
 - **Scalability**: High. Serving a redirect is cheap, and GCS can handle a large number of requests without any issue.
 
 Concerns:

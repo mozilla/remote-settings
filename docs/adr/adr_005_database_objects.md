@@ -227,4 +227,4 @@ These replicas would not have exactly the data they need as in option 3. But we 
 - **Complexity**: Low.
 - **Cost of implementation**: Low. Small changes in terraform and helm.
 - **Cost of operation**: Low. Costs should not increase and may decrease slightly since we can downscale the main instance.
-- **Future-resilience**: Medium-High. We can independetly scale the reader replicas. Our workload is 99% read and 1% write, so the ability to scale the readers specifically is nice. We could also implement autoscaling in the future (if needed) with some alert listeners that would change cloud state.
+- **Future-resilience**: Medium-High. We can independently scale the reader replicas. Our workload is 99% read and 1% write, so the ability to scale the readers specifically is nice. We could also implement autoscaling in the future (if needed) with some alert listeners that would change cloud state.

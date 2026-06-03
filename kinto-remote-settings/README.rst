@@ -63,7 +63,7 @@ distinguish changes from several Kinto instances.
 By default, it will rely on the global setting ``kinto.http_host``.
 
 
-**_since sanetizing**
+**_since sanitizing**
 
 When reaching the monitor/changes collection, if the provided ``_since`` query parameter
 is too old, we redirect the clients to the full list of changes (ie. without ``_since``).
@@ -290,7 +290,7 @@ makes sure that:
 
 See `Kinto groups API <http://kinto.readthedocs.io/en/stable/api/1.x/groups.html>`_ for more details about how to define groups.
 
-The above settings can be set or overriden by bucket using the ``<bucket_id>_`` prefix or by collection using the ``<bucket_id>_<collection_id>_`` prefix.
+The above settings can be set or overridden by bucket using the ``<bucket_id>_`` prefix or by collection using the ``<bucket_id>_<collection_id>_`` prefix.
 For example:
 
 .. code-block:: ini

@@ -310,7 +310,7 @@ kinto
 **Bug fixes**
 
 - Restore ``group_check_enabled`` field in ``"signer"`` capability for backward
-  compability with previous versions (#1962)
+  compatibility with previous versions (#1962)
 
 **Internal Changes**
 
@@ -513,7 +513,7 @@ kinto
 
 **Documentation**
 
-- Fix "negociation" typo in docs/images/architecture.svg (Kinto/kinto#2813)
+- Fix "negotiation" typo in docs/images/architecture.svg (Kinto/kinto#2813)
 
 **Internal changes**
 
@@ -1165,7 +1165,7 @@ kinto
 
 **Bug fixes**
 
-- Fix apparence of Admin notifications (Kinto/kinto#2191)
+- Fix appearance of Admin notifications (Kinto/kinto#2191)
 
 
 17.1.2 (2019-07-03)
@@ -2057,7 +2057,7 @@ kinto-admin
 
 - Fix signoff workflow info when kinto-signer running on server is >= 3.2 (Kinto/kinto-admin#500)
 - Better detection of authentication failures (Kinto/kinto-admin#330)
-- Fix history table apparence (Kinto/kinto-admin#511)
+- Fix history table appearance (Kinto/kinto-admin#511)
 - Wrap signoff comment (Kinto/kinto-admin#490)
 
 
@@ -2722,7 +2722,7 @@ API is now at version **1.17**. See `API changelog <http://kinto.readthedocs.io/
   specified users only makes sense if those users are "admins", which
   means they're in ``account_write_principals``. (Kinto/kinto#1281)
 - Fix a 500 when accounts without an ID are created (Kinto/kinto#1280).
-- Fix StatsD unparseable metric packets for the unique user counter (Kinto/kinto#1282)
+- Fix StatsD unparsable metric packets for the unique user counter (Kinto/kinto#1282)
 - Fix permissions endpoint when using account plugin (Kinto/kinto#1276)
 - Fix missing ``collection_count`` field in the rebuild-quotas script.
 - Fix bug causing validation to always succeed if no required fields are present.
@@ -3172,7 +3172,7 @@ Protocol is now at version **1.15**. See `API changelog`_.
 - Prevent injections in the PostgreSQL permission backend (Kinto/kinto#1061)
 - Fix crash on ``If-Match: *`` (Kinto/kinto#1064)
 - Handle Integer overflow in querystring parameters. (Kinto/kinto#1076)
-- Flush endpoint now returns an empty JSON object instad of an HTML page (Kinto/kinto#1098)
+- Flush endpoint now returns an empty JSON object instead of an HTML page (Kinto/kinto#1098)
 - Fix nested sorting key breaks pagination token. (Kinto/kinto#1116)
 - Remove ``deleted`` field from ``PUT`` requests over tombstones. (Kinto/kinto#1115)
 - Fix crash when preconditions are used on the permission endpoint (Kinto/kinto#1066)
@@ -3381,7 +3381,7 @@ kinto-fxa
 
 **Bug fixes**
 
-- Make sure that caching of token verification nevers prevents from authenticating
+- Make sure that caching of token verification never prevents from authenticating
   requests (see Mozilla/PyFxA#48)
 
 
@@ -3809,7 +3809,7 @@ Kinto
   has been deployed. Its location can be specified in the ``kinto.version_json_path``
   setting (fixes #830)
 - New built-in plugin ``kinto.plugins.history`` to track history of changes per bucket
-  from the Kinto Admin UI (*must be added explicity in the ``kinto.includes`` setting*)
+  from the Kinto Admin UI (*must be added explicitly in the ``kinto.includes`` setting*)
 - ``kinto migrate`` now accepts a ``--dry-run`` option which details the operations
   to be made without executing them.
 - New built-in plugin ``kinto.plugins.quotas`` to set storage quotas per bucket/collection
@@ -3914,7 +3914,7 @@ Kinto
 **Bug fixes**
 
 - Fix Redis get_accessible_object implementation (kinto/kinto#725)
-- Fix bug where the resource events of a request targetting two groups/collection
+- Fix bug where the resource events of a request targeting two groups/collection
   from different buckets would be grouped together (kinto/kinto#728)
 
 
@@ -3992,7 +3992,7 @@ Kinto
 
 **Bug fixes**
 
-- Fix bug where the resource events of a request targetting two groups/collection
+- Fix bug where the resource events of a request targeting two groups/collection
   from different buckets would be grouped together (#728).
 - Allow filtering and sorting by any attribute on buckets, collections and groups list endpoints
 - Fix crash in memory backend with Python3 when filtering on unknown field
@@ -4093,7 +4093,7 @@ API is now at version **1.7**. See `API changelog <http://kinto.readthedocs.io/e
 - Fix internal storage filtering when an empty list of values is provided.
 - Authenticated users are now allowed to obtain an empty list of buckets on
   ``GET /buckets`` even if no bucket is readable (#454)
-- Fix enabling flush enpoint with ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable (fixes #588)
+- Fix enabling flush endpoint with ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable (fixes #588)
 - Fix reading settings for events listeners from environment variables (fixes #515)
 - Fix principal added to ``write`` permission when a publicly writable object
   is created/edited (fixes #645)

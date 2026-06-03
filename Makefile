@@ -5,6 +5,7 @@ SPHINX_BUILDDIR = docs/_build
 PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
 SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader browser-tests bin
 TY_SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader bin
+TYPOS_INSTALLED := $(shell typos --version 2>/dev/null)
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of the following commands.\n"
@@ -39,6 +40,11 @@ lint: $(INSTALL_STAMP)  ## Analyze code base
 	$(VENV)/bin/ruff check $(SOURCES)
 	$(VENV)/bin/ruff format $(SOURCES)
 	$(VENV)/bin/ty check $(TY_SOURCES)
+ifndef TYPOS_INSTALLED
+	$(warning "'typos' is not available please install typos-cli")
+else
+	typos `git ls-files | grep -v -E '.png|.jpg|.jpeg|.webm'`
+endif
 	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v uv.lock` --baseline .secrets.baseline
 	$(VENV)/bin/python bin/repo-python-versions.py
 

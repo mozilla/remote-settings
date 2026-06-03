@@ -145,7 +145,7 @@ def load_signed_resources_configuration(config):
             )
         )
         # Keep the `to_review_enabled` field in the resource object
-        # only if it was overriden. In other words, this will be exposed in
+        # only if it was overridden. In other words, this will be exposed in
         # the capabilities if the resource's review setting is different from
         # the global server setting.
         if resource_to_review_enabled != global_settings["to_review_enabled"]:

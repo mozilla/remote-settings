@@ -60,7 +60,7 @@ Implementation
 
 Addons blocklist implemented using a bloomfilter (`docs <https://github.com/mozilla/addons-server/blob/ac50305b57a67c0e6ccb1ba121f223b007ccba15/docs/topics/blocklist.rst#bloomfilter-records>`_)
 
-* Bloomfilters are published from a Cron job on the addons-server, implementated using raw Python requests (`source <https://github.com/mozilla/addons-server/blob/d94705157627e0ed4b526fd1c9af5dfe7b7d362b/src/olympia/lib/remote_settings.py#L92-L120>`__)
+* Bloomfilters are published from a Cron job on the addons-server, implemented using raw Python requests (`source <https://github.com/mozilla/addons-server/blob/d94705157627e0ed4b526fd1c9af5dfe7b7d362b/src/olympia/lib/remote_settings.py#L92-L120>`__)
 
 * Incremental updates of bloomfilters are downloaded as binary attachments, full or base + stashes (`source <https://searchfox.org/mozilla-central/rev/8a4aa0c699d9ec281d1f576c9be1c6c1f289e4e7/toolkit/mozapps/extensions/Blocklist.jsm#1423-1456>`__)
 
@@ -80,13 +80,13 @@ Misc
 User Journey
 ------------
 
-Contextual features recommandations is managed via the ``cfr`` collection.
+Contextual features recommendations is managed via the ``cfr`` collection.
 
 
 Localization
 ''''''''''''
 
-* Contextual recommandations are published using translatable placeholders or string IDs
+* Contextual recommendations are published using translatable placeholders or string IDs
 
 ::
 
@@ -111,7 +111,7 @@ Localization
 
 * In parallel, localizations are published in a separate collection
 * Each locale has its own record, with its ID in the following format `` `cfr-v1-${locale}` `` and a Fluent file attached.
-* A specificly instantiated downloader fetches the relevant one and reloads l10n (`source <https://searchfox.org/mozilla-central/rev/8a4aa0c699d9ec281d1f576c9be1c6c1f289e4e7/browser/components/newtab/lib/ASRouter.jsm#302-320>`__)
+* A specifically instantiated downloader fetches the relevant one and reloads l10n (`source <https://searchfox.org/mozilla-central/rev/8a4aa0c699d9ec281d1f576c9be1c6c1f289e4e7/browser/components/newtab/lib/ASRouter.jsm#302-320>`__)
 * This specific record is checked on each load, attachment is downloaded only if updated/missing/corrupted (built-in feature of attachment downloader)
 
 

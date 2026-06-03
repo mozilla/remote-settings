@@ -36,7 +36,7 @@ def pick_resource_and_signer(request, resources, bucket_id, collection_id):
 
     resource = signer = None
 
-    # Review might have been configured explictly for this collection,
+    # Review might have been configured explicitly for this collection,
     if collection_key in resources:
         resource = resources[collection_key]
     elif bucket_key in resources:
@@ -127,7 +127,7 @@ def sign_collection_data(event, resources, **kwargs):
         new_status = new_collection.get("status")
         old_status = old_collection.get("status")
 
-        # Autorize kinto-attachment metadata write access. #190
+        # Authorize kinto-attachment metadata write access. #190
         event.request._attachment_auto_save = True
 
         # Logger JSON fields.
