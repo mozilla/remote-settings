@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 
-from kinto_slack import _validate_slack_settings, get_messages
+from kinto_slack import _validate_slack_settings, get_messages, send_notification
 
 
 COLLECTION_METADATA = {
@@ -147,6 +147,21 @@ class GetMessagesTest(unittest.TestCase):
         (msg,) = get_messages(self.storage, CONTEXT)
         assert msg["channel"] == "#security-alerts"
 
+    def test_channel_is_optional(self):
+        self.storage.get.return_value = {
+            "kinto-slack": {
+                "hooks": [
+                    {
+                        "resource_name": "record",
+                        "action": "create",
+                        "template": "no channel",
+                    }
+                ]
+            }
+        }
+        (msg,) = get_messages(self.storage, CONTEXT)
+        assert msg["channel"] is None
+
     def test_no_hooks_returns_empty(self):
         self.storage.get.return_value = {}
         assert get_messages(self.storage, CONTEXT) == []
@@ -178,12 +193,11 @@ class ValidateSlackSettingsTest(unittest.TestCase):
         )
         _validate_slack_settings(event)  # no exception
 
-    def test_missing_channel_raises(self):
+    def test_missing_channel_does_not_raise(self):
         event = self._make_event([{"template": "msg"}])
         with mock.patch("kinto_slack.raise_invalid") as patched:
             _validate_slack_settings(event)
-        patched.assert_called_once()
-        assert "channel" in patched.call_args.kwargs["description"]
+        patched.assert_not_called()
 
     def test_missing_template_raises(self):
         event = self._make_event([{"channel": "#alerts"}])
@@ -198,3 +212,70 @@ class ValidateSlackSettingsTest(unittest.TestCase):
             {"old": {"kinto-slack": {"hooks": [{"bad": "hook"}]}}}
         ]
         _validate_slack_settings(event)  # no exception
+
+
+class SendNotificationTest(unittest.TestCase):
+    def setUp(self) -> None:
+        patch = mock.patch("kinto_slack.requests.post")
+        self.mocked_post = patch.start()
+        self.addCleanup(patch.stop)
+        return super().setUp()
+
+    def _make_event(self, messages, settings):
+        event = mock.MagicMock()
+        event.request._kinto_slack_messages = messages
+        event.request.registry.settings = settings
+        return event
+
+    def test_no_messages_does_nothing(self):
+        event = self._make_event([], {"slack.webhook_url": "https://default"})
+        send_notification(event)
+        self.mocked_post.assert_not_called()
+
+    def test_uses_channel_specific_webhook_url(self):
+        event = self._make_event(
+            [{"channel": "#fxmonitor-alerts", "text": "hi"}],
+            {
+                "slack.webhook_url": "https://default",
+                "slack.fxmonitor-alerts.webhook_url": "https://channel",
+            },
+        )
+        send_notification(event)
+        self.mocked_post.assert_called_once()
+        assert self.mocked_post.call_args.args[0] == "https://channel"
+
+    def test_falls_back_to_default_webhook_url(self):
+        event = self._make_event(
+            [{"channel": "#unknown", "text": "hi"}],
+            {"slack.webhook_url": "https://default"},
+        )
+        send_notification(event)
+        self.mocked_post.assert_called_once()
+        assert self.mocked_post.call_args.args[0] == "https://default"
+
+    def test_no_channel_uses_default_webhook_url(self):
+        event = self._make_event(
+            [{"channel": None, "text": "hi"}],
+            {"slack.webhook_url": "https://default"},
+        )
+        send_notification(event)
+        self.mocked_post.assert_called_once()
+        assert self.mocked_post.call_args.args[0] == "https://default"
+
+    def test_no_webhook_url_configured_does_not_post(self):
+        event = self._make_event([{"channel": "#alerts", "text": "hi"}], {})
+        send_notification(event)
+        self.mocked_post.assert_not_called()
+
+    def test_reads_channel_webhook_url_from_env(self):
+        event = self._make_event(
+            [{"channel": "#fxmonitor-alerts", "text": "hi"}],
+            {"slack.webhook_url": "https://default"},
+        )
+        with mock.patch.dict(
+            "os.environ",
+            {"KINTO_SLACK_FXMONITOR_ALERTS_WEBHOOK_URL": "https://from-env"},
+        ):
+            send_notification(event)
+        self.mocked_post.assert_called_once()
+        assert self.mocked_post.call_args.args[0] == "https://from-env"
