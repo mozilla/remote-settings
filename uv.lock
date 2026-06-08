@@ -1998,7 +1998,7 @@ requires-dist = [
     { name = "cryptography", specifier = "<49" },
     { name = "ecdsa", specifier = "==0.19.2" },
     { name = "granian", specifier = ">=2.7.5,<3.0.0" },
-    { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.1.1,<27" },
+    { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.2.0,<27" },
     { name = "kinto-attachment", specifier = ">=9.0.1" },
     { name = "kinto-emailer", specifier = ">=4" },
     { name = "kinto-slack", editable = "kinto-slack" },
