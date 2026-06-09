@@ -117,7 +117,7 @@ def execute_backport(
         for r in to_delete:
             dest_batch.delete_record(id=r["id"])
 
-    ops_count = len(dest_batch.results())
+    ops_count = len(dest_batch.results() if dest_batch.results else [])
 
     # If destination has signing, request review or auto-approve changes.
     server_info = dest_client.server_info()

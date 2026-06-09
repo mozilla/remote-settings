@@ -476,8 +476,8 @@ requires-dist = [
     { name = "backoff", specifier = ">=2.2.1" },
     { name = "cryptography", specifier = ">=46.0.5" },
     { name = "google-cloud-bigquery", specifier = ">=3.41.0" },
-    { name = "google-cloud-storage", specifier = ">=3.11.0" },
-    { name = "kinto-http", specifier = ">=11.8.0" },
+    { name = "google-cloud-storage", specifier = ">=3.0.0" },
+    { name = "kinto-http", specifier = ">=11.11.0" },
     { name = "lz4", specifier = ">=4.3.3" },
     { name = "pygit2", specifier = ">=1.19.0" },
     { name = "pyjwt", specifier = ">=2.10.1" },
@@ -1146,16 +1146,16 @@ wheels = [
 
 [[package]]
 name = "kinto-http"
-version = "11.9.0"
+version = "11.11.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "backoff" },
     { name = "requests" },
     { name = "unidecode" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/22/a1/8d353759d1fa8ebd7fbcee7ee441498386dd9abc4a29178650d83b2d22a6/kinto_http-11.9.0.tar.gz", hash = "sha256:2dac1ad51e01ead49e0e950bb12bb11d791235fd3252ba52e9adcaf864243e51", size = 70359, upload-time = "2025-08-27T09:08:32.295Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8e/4e/6cb056576e497e7f0765707c262819132a559c2e51488a90bc845b45c38a/kinto_http-11.11.0.tar.gz", hash = "sha256:f33d5659fff78e82608bc60bd5139993ef537423a5eed4bc90108de8eeafe1a8", size = 181497, upload-time = "2026-06-03T14:55:58.759Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/83/e1/4554e34722957613c2048c217d3ddfacc8a7f97d1bec259692aad8588204/kinto_http-11.9.0-py3-none-any.whl", hash = "sha256:f5175441d6c88d3ff642bfd889c643e75e31c172fdbd636a566fe351ba62601d", size = 27758, upload-time = "2025-08-27T09:08:29.943Z" },
+    { url = "https://files.pythonhosted.org/packages/87/36/d4cf22ef0abea2a084e7644423ea938792f8d7a73ecc7caa01809ec901ca/kinto_http-11.11.0-py3-none-any.whl", hash = "sha256:1604943c8626eed4859c9813a3b35494282cd12c206992ecfa45c21bddde9c68", size = 30567, upload-time = "2026-06-03T14:55:56.911Z" },
 ]
 
 [[package]]
