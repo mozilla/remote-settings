@@ -477,7 +477,7 @@ requires-dist = [
     { name = "cryptography", specifier = ">=46.0.5" },
     { name = "google-cloud-bigquery", specifier = ">=3.41.0" },
     { name = "google-cloud-storage", specifier = ">=3.0.0" },
-    { name = "kinto-http", specifier = ">=11.11.0" },
+    { name = "kinto-http", specifier = ">=11.8.0" },
     { name = "lz4", specifier = ">=4.3.3" },
     { name = "pygit2", specifier = ">=1.19.0" },
     { name = "pyjwt", specifier = ">=2.10.1" },
