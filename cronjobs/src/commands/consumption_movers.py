@@ -6,7 +6,6 @@ from decouple import config
 from google.cloud import bigquery
 
 
-SLACK_CHANNEL = config("SLACK_CHANNEL", default="remote-settings-alerts")
 SLACK_WEBHOOK_URL = config("SLACK_WEBHOOK_URL", default=None)
 
 PREVIOUS_PERIOD_DAYS = config("PREVIOUS_PERIOD_DAYS", default=90, cast=int)
@@ -107,7 +106,6 @@ Period: {start_day.strftime("%b %-d")} → {end_day.strftime("%b %-d")}"""
     resp = requests.post(
         SLACK_WEBHOOK_URL,
         json={
-            "channel": SLACK_CHANNEL,
             "text": message,
         },
     )
