@@ -1,4 +1,5 @@
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -23,11 +24,16 @@ def extract_versions_from_ci_workflow(file_path):
 
 
 def main():
+    result = subprocess.run(["git", "ls-files"], capture_output=True)
+    files = result.stdout.decode("utf8").splitlines()
+
     versions = []
-    for path in Path(".github/workflows").glob("*.y*ml"):
-        versions += extract_versions_from_ci_workflow(path)
-    for path in Path(".").rglob("*Dockerfile"):
-        versions += extract_versions_from_dockerfile(path)
+    for file in files:
+        path = Path(file)
+        if ".github/workflows" in file:
+            versions += extract_versions_from_ci_workflow(path)
+        elif "Dockerfile" in file:
+            versions += extract_versions_from_dockerfile(path)
 
     # We don't verify `pyproject.toml` files, since they provide a range
     # for developers convenience, and won't build if CI or Dockerfiles
