@@ -335,7 +335,7 @@ async def repo_sync_content(
             common_branch_parents,
             common_branch_name,
             common_tag_name,
-            move_tag_if_exists=False,
+            move_tag_if_exists=True,
         )
         changed_branches.add(common_branch_name)
         created_tags.append(common_tag_name)

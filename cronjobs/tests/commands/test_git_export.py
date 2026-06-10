@@ -567,6 +567,48 @@ def test_repo_sync_tags_common_branch(
 
 
 @responses.activate
+def test_repo_moves_common_branch_tag_if_only_bundle_changed(
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
+):
+    git_export.git_export()
+
+    # Latest tag is 1700000000000 on the first common commit.
+    tag_ref = "refs/tags/v1/timestamps/common/1700000000000"
+    branch_ref = "refs/heads/v1/common"
+    before_commit = repo.lookup_reference(branch_ref).target
+    assert repo.lookup_reference(tag_ref).peel(pygit2.GIT_OBJECT_COMMIT).id == (
+        before_commit
+    )
+
+    simulate_pushed(repo, mock_ls_remotes)
+
+    # Now simulate that a new bundle was published, but no new entry on
+    # monitor/changes (its timestamp is unchanged). This is detected during the
+    # daily full sync.
+    responses.add(
+        responses.GET,
+        "http://cdn.example.com/v1/attachments/bundles/startup.json.mozlz4",
+        body=b"b" * 99,
+    )
+    git_export.FORCE = True
+
+    git_export.git_export()
+
+    # Now assert that the latest tag on the common branch
+    # was moved to a different commit (the head of the branch).
+    after_commit = repo.lookup_reference(branch_ref).target
+    assert after_commit != before_commit
+    assert repo.lookup_reference(tag_ref).peel(pygit2.GIT_OBJECT_COMMIT).id == (
+        after_commit
+    )
+
+
+@responses.activate
 def test_repo_sync_stores_collections_records_in_buckets_branches_with_tags(
     repo,
     mock_git_fetch,
