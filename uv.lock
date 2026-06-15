@@ -629,7 +629,7 @@ requires-dist = [
     { name = "asgiref", specifier = ">=3.11.0" },
     { name = "dockerflow", specifier = ">=2026.3.4" },
     { name = "fastapi", specifier = ">=0.120.2" },
-    { name = "granian", specifier = ">=2.7.5" },
+    { name = "granian", specifier = ">=2.7.6" },
     { name = "lz4", specifier = ">=4.4.5" },
     { name = "prometheus-client", specifier = ">=0.23.1" },
     { name = "pydantic-settings", specifier = ">=2.10.1" },
