@@ -108,25 +108,37 @@ def push_mirror(
     # 1) Force update all local branches
     for b in sorted(branches):
         to_push.append(f"+{b}:{b}")
-    # 2) Force update all local tags and delete old tags
+    # 2) Force update all local tags
+    to_delete = []
     for t in sorted(tags):
         deleting = t.startswith("-")
         name = t[1:]
         full = name if name.startswith("refs/tags/") else f"refs/tags/{name}"
         if deleting:
-            to_push.append(f":{full}")
+            to_delete.append(f":{full}")
         else:
             to_push.append(f"+{full}:{full}")
 
-    if not to_push:
+    if not to_push and not to_delete:
         print("Everything up-to-date.")
         return
 
+    # First push the new content, and then delete old tags in a second push.
+    # We do that because if the remote times out or fails with tags deletion,
+    # at least the new content is pushed.
     remote = repo.remotes[REMOTE_NAME]
-    print(f"Pushing to remote {remote.url}:\n - {'\n - '.join(to_push)}")
-    # This is the critical bit: non-fast-forward updates require the '+' force.
-    # The deletions use the ':refs/...'; '+' is ignored for deleted refspecs.
-    remote.push(to_push, callbacks=callbacks)
+    if to_push:
+        print(f"Pushing to remote {remote.url}:\n - {'\n - '.join(to_push)}")
+        # This is the critical bit: non-fast-forward updates require the '+' force.
+        # The deletions use the ':refs/...'; '+' is ignored for deleted refspecs.
+        remote.push(to_push, callbacks=callbacks)
+    else:
+        print("No new commit or tag to push.")
+    if to_delete:
+        print(f"Deleting from remote {remote.url}:\n - {'\n - '.join(to_delete)}")
+        remote.push(to_delete, callbacks=callbacks)
+    else:
+        print("No tag to delete.")
 
 
 def make_lfs_pointer(sha256_hex: str, size: int) -> bytes:
