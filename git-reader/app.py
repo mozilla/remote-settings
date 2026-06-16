@@ -779,7 +779,6 @@ def cert_chain(
     pem: str,
     response: Response,
     settings: Settings = Depends(get_settings),
-    git: GitService = Depends(GitService.dep),
 ):
     if not settings.self_contained:
         raise HTTPException(status_code=404, detail="cert-chains/ not enabled")
@@ -787,6 +786,12 @@ def cert_chain(
         response.headers["cache-control"] = (
             f"max-age={settings.cache_control_static_expires_seconds}"
         )
+        # Load the Git repo here and not via a FastAPI dependency,
+        # to avoid loading when self-contained.
+        repo = get_repo(
+            settings=settings, cache_bust=get_last_modified(settings=settings)
+        )
+        git = GitService.dep(repo=repo, settings=settings)
         return git.get_cert_chain(pem)
     except (FileNotFoundError, IsADirectoryError):
         raise HTTPException(status_code=404, detail=f"{pem} not found")
@@ -801,7 +806,6 @@ def attachments(
     request: Request,
     path: str,
     settings: Settings = Depends(get_settings),
-    git: GitService = Depends(GitService.dep),
 ):
     if not settings.self_contained:
         raise HTTPException(status_code=404, detail="attachments/ not enabled")
@@ -830,6 +834,12 @@ def attachments(
     # The startup bundle contains all collections changesets.
     # Their x5u URLs must be rewritten to point to this server.
     if path == STARTUP_BUNDLE_FILE:
+        # Load the Git repo here and not via a FastAPI dependency,
+        # to avoid loading it for the all 4XX responses cases above.
+        repo = get_repo(
+            settings=settings, cache_bust=get_last_modified(settings=settings)
+        )
+        git = GitService.dep(repo=repo, settings=settings)
         cached = request.state.cache.get("_cached_startup_bundle")
         current_commit: str = git.get_head_info()["id"]
         if cached != current_commit:

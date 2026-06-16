@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 import tempfile
+from unittest import mock
 
 import pygit2
 import pytest
@@ -543,6 +544,19 @@ def test_cert_chain_404(api_client):
     assert resp.status_code == 404
 
 
+def test_cert_chain_without_self_contained_does_not_load_git(app, temp_dir):
+    from app import Settings, app, get_settings
+
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        self_contained=False, git_repo_path=temp_dir
+    )
+    with mock.patch("app.pygit2.Repository") as mocked_git:
+        with TestClient(app=app, base_url="http://test") as client:
+            resp = client.get("/v2/cert-chains/a/b/unknown.pem")
+    assert resp.status_code == 404
+    assert not mocked_git.called
+
+
 def test_startup_rewrites_x5u(api_client, temp_dir):
     with open(
         os.path.join(temp_dir, "attachments", "bundles", "startup.json.mozlz4"), "wb"
@@ -636,6 +650,19 @@ def test_metrics_traces_durations(api_client):
         'remotesettings_repository_read_latency_seconds_bucket{le="0.001",operation="get_file_content"}'
         in metrics_text
     )
+
+
+def test_attachments_without_self_contained_does_not_load_git(app, temp_dir):
+    from app import Settings, app, get_settings
+
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        self_contained=False, git_repo_path=temp_dir
+    )
+    with mock.patch("app.pygit2.Repository") as mocked_git:
+        with TestClient(app=app, base_url="http://test") as client:
+            resp = client.get("/v2/attachments/unknown.file")
+    assert resp.status_code == 404
+    assert not mocked_git.called
 
 
 def test_repo_caching(temp_dir, app, api_client):
