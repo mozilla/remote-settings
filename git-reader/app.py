@@ -678,7 +678,7 @@ def monitor_changes(
 ):
     if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
-            status_code=400,
+            status_code=206,
             detail="_expected must be superior to _since if both are provided",
         )
 
@@ -713,7 +713,7 @@ def collection_changeset(
 ):
     if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
-            status_code=400,
+            status_code=206,
             detail="_expected must be superior to _since if both are provided",
         )
 
