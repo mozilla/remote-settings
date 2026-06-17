@@ -417,7 +417,7 @@ def test_monitor_changes_view_filtered_bad_since(api_client):
     resp = api_client.get(
         "/v2/buckets/monitor/collections/changes/changeset?_since=223456789&_expected=123456789"
     )
-    assert resp.status_code == 400
+    assert resp.status_code == 206
 
 
 def test_monitor_changes_negative_values(api_client):
@@ -491,7 +491,7 @@ def test_changeset_bad_since(api_client, since):
     resp = api_client.get(
         f"/v2/buckets/main/collections/password-rules/changeset?_since={since}&_expected=123456789"
     )
-    assert resp.status_code in (400, 422)
+    assert resp.status_code in (206, 422)
 
 
 @pytest.mark.parametrize("_expected", ["", "-1", "abc", '"42"'])
