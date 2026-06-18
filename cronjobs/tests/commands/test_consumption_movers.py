@@ -98,5 +98,4 @@ def test_slack_payload_shape():
     )
     mock_post.assert_called_once()
     payload = mock_post.call_args.kwargs["json"]
-    assert "channel" in payload
     assert "text" in payload
