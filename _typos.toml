@@ -1,5 +1,0 @@
-# Typos config — extends the built-in dictionary with project-specific corrections
-# See: https://github.com/crate-ci/typos/blob/master/docs/reference.md
-
-[default.extend-words]
-intropsecting = "introspecting"
