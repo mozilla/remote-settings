@@ -1,4 +1,4 @@
-FROM python:3.14.5 AS build
+FROM python:3.14.6 AS build
 
 ENV VIRTUAL_ENV=/opt/.venv \
     PATH="/opt/.venv/bin:$PATH" \
@@ -11,7 +11,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-install-project
 
 
-FROM python:3.14.5-slim
+FROM python:3.14.6-slim
 
 ENV PATH="/opt/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \

@@ -32,7 +32,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-          python-version: "3.14.5"
+          python-version: "3.14.6"
       - name: Install dependencies
         run: make install
       - name: Run linting and formatting checks
@@ -46,7 +46,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-          python-version: "3.14.5"
+          python-version: "3.14.6"
       - name: Check documentation build
         run: make docs
   run_test:
@@ -76,7 +76,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-          python-version: "3.14.5"
+          python-version: "3.14.6"
       - name: Install dependencies
         run: make install
       - name: Run tests
