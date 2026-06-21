@@ -24,17 +24,17 @@ kinto-remote-settings = ["kinto-remote-settings"]
 cronjobs = ["cronjobs"]
 git-reader = ["git-reader"]
 dev = [
-    "pytest==9.0.3",
+    "pytest==9.1.1",
     "pytest-cov<8.0.0",
     "webtest==3.0.7",
-    "coverage==7.14.1",
+    "coverage==7.14.2",
     "detect-secrets>=1.5.0",
-    "ruff>=0.15.16",
+    "ruff>=0.15.18",
     "responses>=0.26.1",
     "httpx>=0.28.1",
     "setuptools<82",
     "pytest-xdist>=3.8.0",
-    "ty>=0.0.44",
+    "ty>=0.0.51",
 ]
 docs = [
     "docutils==0.22.4",
