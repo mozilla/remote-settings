@@ -13,7 +13,7 @@ dependencies = [
     "lz4>=4.3.3",
     "pygit2>=1.19.3",
     "pyjwt>=2.10.1",
-    "cryptography>=46.0.5",
+    "cryptography>=49.0.0",
     "google-cloud-bigquery>=3.42.0",
 ]
 
