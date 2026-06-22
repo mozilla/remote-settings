@@ -1,9 +1,10 @@
 import operator
+from typing import Iterable
 
 import canonicaljson
 
 
-def canonical_json(records, last_modified):
+def canonical_json(records: Iterable[dict], last_modified: int) -> str:
     records = (r for r in records if not r.get("deleted", False))
     records = sorted(records, key=operator.itemgetter("id"))
 

@@ -1,5 +1,15 @@
+from typing import Any
+
+
 class BaseEvent(object):
-    def __init__(self, request, payload, impacted_objects, resource, original_event):
+    def __init__(
+        self,
+        request: Any,
+        payload: dict[str, Any],
+        impacted_objects: list[dict[str, Any]],
+        resource: dict[str, Any],
+        original_event: Any,
+    ) -> None:
         self.request = request
         self.payload = payload
         self.impacted_objects = impacted_objects
@@ -7,12 +17,18 @@ class BaseEvent(object):
         self.original_event = original_event
 
     @property
-    def impacted_records(self):
+    def impacted_records(self) -> list[dict[str, Any]]:
         return self.impacted_objects
 
 
 class ReviewRequested(BaseEvent):
-    def __init__(self, changes_count, changes_size_bytes, comment, **kwargs):
+    def __init__(
+        self,
+        changes_count: int | None,
+        changes_size_bytes: int | None,
+        comment: str,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
         self.comment = comment
         self.changes_count = changes_count
@@ -23,14 +39,16 @@ class ReviewRequested(BaseEvent):
 
 
 class ReviewRejected(BaseEvent):
-    def __init__(self, comment, **kwargs):
+    def __init__(self, comment: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.comment = comment
         self.payload["comment"] = comment
 
 
 class ReviewApproved(BaseEvent):
-    def __init__(self, changes_count, changes_size_bytes, **kwargs):
+    def __init__(
+        self, changes_count: int, changes_size_bytes: int, **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
         self.changes_count = changes_count
         self.changes_size_bytes = changes_size_bytes
@@ -39,7 +57,7 @@ class ReviewApproved(BaseEvent):
 
 
 class ReviewCanceled(BaseEvent):
-    def __init__(self, changes_count, **kwargs):
+    def __init__(self, changes_count: int, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.changes_count = changes_count
         self.payload["changes_count"] = changes_count

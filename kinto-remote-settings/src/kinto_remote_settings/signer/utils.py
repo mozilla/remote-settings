@@ -28,16 +28,16 @@ class STATUS(Enum):
     TO_ROLLBACK = "to-rollback"
     SIGNED = "signed"
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not hasattr(other, "value"):
             return self.value == other
         return super(STATUS, self).__eq__(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
 
-def _get_resource(resource):
+def _get_resource(resource: str) -> dict[str, str | None]:
     # Use the default NameGenerator in Kinto resources to check if the resource
     # URIs seem valid.
     # XXX: if a custom ID generator is specified in settings, this verification would
@@ -64,8 +64,8 @@ def _get_resource(resource):
     return {"bucket": bucket, "collection": collection}
 
 
-def parse_resources(raw_resources):
-    resources = OrderedDict()
+def parse_resources(raw_resources: str) -> "OrderedDict[str, dict[str, Any]]":
+    resources: OrderedDict[str, dict[str, Any]] = OrderedDict()
 
     lines = [line.strip() for line in raw_resources.strip().splitlines()]
     for res in lines:
@@ -155,7 +155,12 @@ def parse_resources(raw_resources):
     return resources
 
 
-def get_first_matching_setting(setting_name, settings, prefixes, default=None):
+def get_first_matching_setting(
+    setting_name: str,
+    settings: dict[str, Any],
+    prefixes: list[str],
+    default: Any = None,
+) -> Any:
     """Helper to look up the `setting_name` key in the provided `settings`, with
     different `prefixes`. The first encountered value is returned, and if none
     is found, `default` is returned.
@@ -181,8 +186,13 @@ def get_first_matching_setting(setting_name, settings, prefixes, default=None):
 
 
 def ensure_resource_exists(
-    request, resource_name, parent_id, obj, permissions, matchdict
-):
+    request: Any,
+    resource_name: str,
+    parent_id: str,
+    obj: dict[str, Any],
+    permissions: dict[str, Any],
+    matchdict: dict[str, Any],
+) -> None:
     storage = request.registry.storage
     permission = request.registry.permission
     try:
@@ -205,14 +215,14 @@ def ensure_resource_exists(
 
 
 def storage_create_raw(
-    storage_backend,
-    permission_backend,
-    resource_name,
-    parent_id,
-    object_uri,
-    object_id,
-    permissions,
-):
+    storage_backend: Any,
+    permission_backend: Any,
+    resource_name: str,
+    parent_id: str,
+    object_uri: str,
+    object_id: str,
+    permissions: dict[str, Any],
+) -> None:
     try:
         storage_backend.create(
             resource_name=resource_name, parent_id=parent_id, obj={"id": object_id}
@@ -226,8 +236,15 @@ def storage_create_raw(
 
 
 def notify_resource_event(
-    request, request_options, matchdict, resource_name, parent_id, obj, action, old=None
-):
+    request: Any,
+    request_options: dict[str, Any],
+    matchdict: dict[str, Any],
+    resource_name: str,
+    parent_id: str,
+    obj: dict[str, Any],
+    action: Any,
+    old: dict[str, Any] | None = None,
+) -> None:
     """Helper that triggers resource events as real requests."""
     fakerequest = build_request(request, request_options)
     fakerequest.matchdict = matchdict
@@ -256,16 +273,18 @@ def notify_resource_event(
     )
 
 
-def records_equal(a, b):
+def records_equal(a: dict[str, Any], b: dict[str, Any]) -> bool:
     ignore_fields = ("last_modified", "schema")
     ac = {k: v for k, v in a.items() if k not in ignore_fields}
     bc = {k: v for k, v in b.items() if k not in ignore_fields}
     return ac == bc
 
 
-def records_diff(left, right):
+def records_diff(
+    left: list[dict[str, Any]], right: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
     left_by_id = {r["id"]: r for r in left}
-    results = []
+    results: list[dict[str, Any]] = []
     for r in right:
         rid = r["id"]
         left_record = left_by_id.pop(rid, None)
@@ -280,7 +299,9 @@ def records_diff(left, right):
     return results
 
 
-def attachments_size_diff(left, right):
+def attachments_size_diff(
+    left: list[dict[str, Any]], right: list[dict[str, Any]]
+) -> int:
     """
     Return the net size of the attachments in `left` versus `right`.
     """
@@ -304,7 +325,7 @@ def attachments_size_diff(left, right):
     return changed
 
 
-def fetch_cert(url):
+def fetch_cert(url: str) -> Any:
     """
     Returns the SSL certificate object for the specified `url`.
     """
@@ -325,7 +346,7 @@ def fetch_cert(url):
 
 
 def expand_collections_glob_settings(
-    storage, settings: dict[str, Any]
+    storage: Any, settings: dict[str, Any]
 ) -> dict[str, Any]:
     r"""
     Expand glob patterns in settings using actual bucket and collection names from storage.
@@ -355,7 +376,7 @@ def expand_collections_glob_settings(
         )
     ]
 
-    expanded_settings = {}
+    expanded_settings: dict[str, Any] = {}
 
     for key, value in settings.items():
         tokens = key.split(".")

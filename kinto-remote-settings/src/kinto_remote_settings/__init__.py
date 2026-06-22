@@ -1,4 +1,7 @@
-def get_version():
+from pyramid.config import Configurator
+
+
+def get_version() -> str:
     """
     Get the version of the application from the version file.
     """
@@ -16,6 +19,6 @@ def get_version():
 __version__ = get_version()
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     config.include("kinto_remote_settings.changes")
     config.include("kinto_remote_settings.signer")

@@ -5,17 +5,19 @@ provide this module, Kinto expects to find it in a package found in
 `site-packages`.
 """
 
+from typing import Any
+
 
 class Listener(object):
-    def __init__(self):
-        self.received = []
+    def __init__(self) -> None:
+        self.received: list[Any] = []
 
-    def __call__(self, event):
+    def __call__(self, event: Any) -> None:
         self.received.append(event)
 
 
 listener = Listener()
 
 
-def load_from_config(config, prefix):
+def load_from_config(config: Any, prefix: str) -> Listener:
     return listener
