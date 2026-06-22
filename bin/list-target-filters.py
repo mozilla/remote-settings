@@ -1,6 +1,7 @@
 import asyncio
 import os
 import re
+from typing import Any
 
 import kinto_http
 
@@ -10,13 +11,13 @@ SERVER_URL = os.getenv("SERVER_URL", "https://firefox.settings.services.mozilla.
 client = kinto_http.AsyncClient(server_url=SERVER_URL)
 
 
-async def fetch_collections(bucket_id):
+async def fetch_collections(bucket_id: str) -> list[tuple[str, str]]:
     """Fetch collections for a given bucket."""
     collections = await client.get_collections(bucket=bucket_id)  # ty: ignore[invalid-await]
     return [(bucket_id, c["id"]) for c in collections]
 
 
-async def fetch_jexl_expressions(bucket_id, collection_id):
+async def fetch_jexl_expressions(bucket_id: str, collection_id: str) -> list[str]:
     """Fetch records for a given bucket and collection."""
     records = await client.get_records(bucket=bucket_id, collection=collection_id)  # ty: ignore[invalid-await]
     return [
@@ -26,7 +27,7 @@ async def fetch_jexl_expressions(bucket_id, collection_id):
     ]
 
 
-async def main():
+async def main() -> None:
     # """Main async function to fetch collections and records in parallel."""
 
     # Fetch all collections in parallel
@@ -60,7 +61,7 @@ async def main():
             (f"{bid}/{cid}", set(target_filters), fields, transforms)
         )
 
-    def grab_all(ll, idx):
+    def grab_all(ll: list[tuple[Any, ...]], idx: int) -> set[Any]:
         return set([elt for row in ll for elt in row[idx]])
 
     print("\n".join(sorted(grab_all(all_collections_expressions, 1))))

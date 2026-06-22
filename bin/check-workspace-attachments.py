@@ -14,6 +14,7 @@ import tempfile
 import kinto_http
 import requests
 from google.cloud import storage
+from google.cloud.storage import Bucket
 
 
 ENV = os.getenv("ENV", "prod").lower()
@@ -35,17 +36,19 @@ STORAGE_BUCKET_NAME = os.getenv(
 POSTPONE_DELETION_MARK_DAYS = int(os.getenv("POSTPONE_DELETION_MARK_DAYS", "365"))
 
 
-async def fetch_collections(client, bid):
+async def fetch_collections(
+    client: kinto_http.AsyncClient, bid: str
+) -> list[tuple[str, str]]:
     """Fetch collections for a given bucket."""
-    collections = await client.get_collections(bucket=bid)
+    collections = await client.get_collections(bucket=bid)  # ty: ignore[invalid-await]
     return [(bid, c["id"]) for c in collections]
 
 
-async def check_urls(urls, max_concurrent=10):
+async def check_urls(urls: list[str], max_concurrent: int = 10) -> list[str]:
     """Test fetching URLs in parallel with a limit on concurrency."""
     semaphore = asyncio.Semaphore(max_concurrent)
 
-    async def fetch(url):
+    async def fetch(url: str) -> bool:
         async with semaphore:
             loop = asyncio.get_event_loop()
             response = await loop.run_in_executor(None, requests.head, url)
@@ -56,7 +59,7 @@ async def check_urls(urls, max_concurrent=10):
     return [url for url, success in zip(urls, results) if not success]
 
 
-def rewrite_from_scratch(bucket, blob_name):
+def rewrite_from_scratch(bucket: Bucket, blob_name: str) -> None:
     """
     Since GCS does not let us remove the `custom_time` field which
     is used in the retention policy rule, we rewrite the object from
@@ -92,8 +95,10 @@ def rewrite_from_scratch(bucket, blob_name):
     print(". Done.")
 
 
-async def list_all_attachments(client, collections):
-    records = await asyncio.gather(
+async def list_all_attachments(
+    client: kinto_http.AsyncClient, collections: list[tuple[str, str]]
+) -> set[str]:
+    records = await asyncio.gather(  # ty: ignore[no-matching-overload]
         *(client.get_records(bucket=bid, collection=cid) for bid, cid in collections)
     )
     return set(
@@ -106,7 +111,7 @@ async def list_all_attachments(client, collections):
     )
 
 
-async def main():
+async def main() -> None:
     client = kinto_http.AsyncClient(server_url=SERVER_URL, auth=AUTH)
 
     # Fetch all changesets of all workspace buckets.
