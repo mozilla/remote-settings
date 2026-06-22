@@ -8,7 +8,7 @@ dependencies = [
     "autograph-utils==1.0.1",
     "canonicaljson-rs==0.9.3",
     "httpie==3.2.4",
-    "kinto-http==11.7.1",
+    "kinto-http==11.11.0",
     "pytest==8.3.4",
     "webtest==3.0.7",
     "playwright==1.52.0",
