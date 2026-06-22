@@ -384,7 +384,7 @@ def extract_branch_info(
     # The repo may exist without the 'common' ref (first run).
     try:
         common_tip = repo.lookup_reference(branch).target
-        common_base_tree = repo.get(common_tip).tree  # ty: ignore[unresolved-attribute]  # pygit2 stub: get() -> Object | None
+        common_base_tree = repo.get(common_tip).tree  # ty: ignore[unresolved-attribute]
         parents = [common_tip]
     except KeyError:  # pragma: no cover
         common_base_tree = None
@@ -406,7 +406,7 @@ def extract_branch_info(
     else:
         print("No previous tags found.")
         latest_timestamp = 0
-    return parents, common_base_tree, latest_timestamp  # ty: ignore[invalid-return-type]  # pygit2 stub: Reference.target -> Oid | str (str only for symbolic refs)
+    return parents, common_base_tree, latest_timestamp  # ty: ignore[invalid-return-type]
 
 
 def process_attachments(
@@ -553,7 +553,7 @@ def initialize_bucket_branches(
         # Bucket branch does not exist yet, create it as an empty branch.
         empty_tree_id = repo.TreeBuilder().write()
         branch_tree = repo.get(empty_tree_id)
-        branch_tree_id = tree_upsert_blobs(repo, branch_content, base_tree=branch_tree)  # ty: ignore[invalid-argument-type]  # pygit2 stub: get() -> Object | None
+        branch_tree_id = tree_upsert_blobs(repo, branch_content, base_tree=branch_tree)  # ty: ignore[invalid-argument-type]
 
         branch_refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
         commit_oid = repo.create_commit(
@@ -578,7 +578,7 @@ def initialize_bucket_branches(
             repo.create_tag(
                 tag_name,
                 commit_oid,
-                pygit2.GIT_OBJECT_COMMIT,  # ty: ignore[invalid-argument-type]  # pygit2 stub types this constant as int
+                pygit2.GIT_OBJECT_COMMIT,  # ty: ignore[invalid-argument-type]
                 author,
                 f"Initial tag for {bid}/{cid}@{timestamp}",
             )
@@ -607,7 +607,7 @@ def update_bucket_branches(
         # Find the bucket branch tip and base tree.
         branch_refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
         branch_tip = repo.lookup_reference(branch_refname).target
-        branch_tree = repo.get(branch_tip).tree  # ty: ignore[unresolved-attribute]  # pygit2 stub: get() -> Object | None
+        branch_tree = repo.get(branch_tip).tree  # ty: ignore[unresolved-attribute]
         parents = [branch_tip]
 
         for changeset in bucket_changesets:
@@ -635,7 +635,7 @@ def update_bucket_branches(
                 committer=committer,
                 message=commit_message,
                 tree_id=files_tree_id,
-                parents=parents,  # ty: ignore[invalid-argument-type]  # pygit2 stub: Reference.target -> Oid | str (str only for symbolic refs)
+                parents=parents,  # ty: ignore[invalid-argument-type]
                 branch_name=branch_refname,
                 tag_name=tag_name,
                 move_tag_if_exists=True,
@@ -646,7 +646,7 @@ def update_bucket_branches(
 
             # Next collection will be put on top of the branch.
             new_tip = repo.lookup_reference(branch_refname).target
-            branch_tree = repo.get(new_tip).tree  # ty: ignore[unresolved-attribute]  # pygit2 stub: get() -> Object | None
+            branch_tree = repo.get(new_tip).tree  # ty: ignore[unresolved-attribute]
             parents = [new_tip]
 
     return changed_branches, created_tags
@@ -682,7 +682,7 @@ def commit_and_tag(
     repo.create_tag(
         tag_name,
         commit_oid,
-        pygit2.GIT_OBJECT_COMMIT,  # ty: ignore[invalid-argument-type]  # pygit2 stub types this constant as int
+        pygit2.GIT_OBJECT_COMMIT,  # ty: ignore[invalid-argument-type]
         author,
         message,
     )

@@ -11,7 +11,7 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import lru_cache
-from typing import Annotated, Awaitable, BinaryIO, Callable, Generator, cast
+from typing import Annotated, Any, Awaitable, BinaryIO, Callable, Generator, cast
 from urllib.parse import urlparse
 
 import lz4.block
@@ -247,7 +247,7 @@ def read_json_mozlz4(content: bytes) -> list[dict]:
     return json.loads(decompressed.decode("utf-8"))
 
 
-def write_json_mozlz4(fd: BinaryIO, changesets: list[dict]):
+def write_json_mozlz4(fd: BinaryIO, changesets: list[dict]) -> None:
     """
     Write changesets to a mozLz4 compressed file.
     """
@@ -256,13 +256,13 @@ def write_json_mozlz4(fd: BinaryIO, changesets: list[dict]):
     fd.write(MOZLZ4_HEADER_MAGIC + compressed)
 
 
-def measure_git_read_time(operation: str):
+def measure_git_read_time(operation: str) -> Callable[[Callable], Callable]:
     """
     Decorator to measure the time spent in Git read operations.
     """
 
-    def decorator(func: Callable):
-        def wrapper(*args, **kwargs):
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             global METRICS
             start_time = time.time()
             try:
@@ -283,7 +283,7 @@ class GitService:
     Wrapper on top of pygit2 to serve content.
     """
 
-    def __init__(self, repo: pygit2.Repository, settings: Settings):
+    def __init__(self, repo: pygit2.Repository, settings: Settings) -> None:
         self.repo = repo
         self.settings = settings
 
@@ -294,7 +294,7 @@ class GitService:
     ) -> "GitService":
         return GitService(repo, settings)
 
-    def check_content(self):
+    def check_content(self) -> None:
         """
         Check that the repository has the expected branches and tags.
         """
@@ -338,7 +338,9 @@ class GitService:
         }
 
     @measure_git_read_time(operation="build_changeset")
-    def get_collection_changeset(self, bid, cid, _since=None):
+    def get_collection_changeset(
+        self, bid: str, cid: str, _since: int | None = None
+    ) -> tuple[int, dict, list[dict]]:
         """
         Get the changeset for a specific collection.
         """
@@ -420,7 +422,12 @@ class GitService:
         )
         return timestamp, metadata, changes
 
-    def get_monitor_changes_changeset(self, _since=None, collection=None, bucket=None):
+    def get_monitor_changes_changeset(
+        self,
+        _since: int | None = None,
+        collection: str | None = None,
+        bucket: str | None = None,
+    ) -> tuple[int, dict, list[dict]]:
         """
         This is a specific case, since it is stored as a single file in the common branch.
         """
@@ -443,7 +450,7 @@ class GitService:
 
         return timestamp, metadata, changes
 
-    def get_server_info(self):
+    def get_server_info(self) -> dict:
         """
         Get the server information from the common branch.
         """
@@ -451,7 +458,7 @@ class GitService:
         content = json.loads(bcontent.decode("utf-8"))
         return content
 
-    def get_broadcasts(self):
+    def get_broadcasts(self) -> dict:
         """
         Get the broadcasts from the common branch.
         """
@@ -526,7 +533,7 @@ class GitService:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> Any:
     """
     Add a very simple in-memory cache to store data during the app lifespan.
     """
@@ -543,7 +550,7 @@ app.add_middleware(RequestIdMiddleware)
 
 
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception):
+async def unhandled_exception_handler(request: Request, exc: Exception) -> Response:
     # This shouldn't be necessary when ran with `uvicorn``, which already does that.
     # Doing it here gives us more control on future requirements about format etc.,
     # and most importantly allows us to test it with `TestClient`.
@@ -605,12 +612,12 @@ def git_repo_health() -> list:
 
 
 @app.get("/")
-def root():
+def root() -> RedirectResponse:
     return RedirectResponse(f"/{API_PREFIX}", status_code=307)
 
 
 @app.get(f"/{API_PREFIX[:-1]}")
-def hello_unsuffixed():
+def hello_unsuffixed() -> RedirectResponse:
     return RedirectResponse(f"/{API_PREFIX}", status_code=307)
 
 
@@ -675,7 +682,7 @@ def monitor_changes(
     collection: str | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
-):
+) -> ChangesetResponse:
     if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
@@ -710,7 +717,7 @@ def collection_changeset(
     _since: Annotated[int, Query(ge=0)] | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
-):
+) -> ChangesetResponse | RedirectResponse:
     if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
@@ -763,7 +770,7 @@ def broadcasts(
     response: Response,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
-):
+) -> dict:
     response.headers["cache-control"] = (
         f"max-age={settings.cache_control_short_expires_seconds}"
     )
@@ -779,7 +786,7 @@ def cert_chain(
     pem: str,
     response: Response,
     settings: Settings = Depends(get_settings),
-):
+) -> str:
     if not settings.self_contained:
         raise HTTPException(status_code=404, detail="cert-chains/ not enabled")
     try:
@@ -806,7 +813,7 @@ def attachments(
     request: Request,
     path: str,
     settings: Settings = Depends(get_settings),
-):
+) -> StreamingResponse | FileResponse:
     if not settings.self_contained:
         raise HTTPException(status_code=404, detail="attachments/ not enabled")
 

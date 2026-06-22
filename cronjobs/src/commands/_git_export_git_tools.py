@@ -191,7 +191,7 @@ def list_lfs_pointers(
     for path, oid in objs:
         blob = repo[oid]
         try:
-            sha256_hex, size = parse_lfs_pointer(blob.data)  # ty: ignore[unresolved-attribute]  # pygit2 stub: __getitem__ -> Object, blob has .data
+            sha256_hex, size = parse_lfs_pointer(blob.data)  # ty: ignore[unresolved-attribute]
         except ValueError as exc:
             print(f"Failed to parse LFS pointer for {path}: {exc}")
         existing_attachments[path] = (sha256_hex, size)
