@@ -2,12 +2,14 @@ import json
 import os
 import re
 
+from ..conftest import RemoteSettingsClient
+
 
 def test_slack_plugin(
-    setup_client,
-    editor_client,
+    setup_client: RemoteSettingsClient | None,
+    editor_client: RemoteSettingsClient,
     slack_dir: str,
-):
+) -> None:
     existing_files = set(os.listdir(slack_dir))
 
     if setup_client:

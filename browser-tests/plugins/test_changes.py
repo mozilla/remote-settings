@@ -2,7 +2,7 @@ from ..conftest import RemoteSettingsClient, signed_resource
 from ..utils import upload_records
 
 
-def find_changes_record(records: list[dict], bucket: str, collection: str):
+def find_changes_record(records: list[dict], bucket: str, collection: str) -> dict:
     return next(
         (
             record
@@ -17,7 +17,7 @@ def test_changes_plugin(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
     source_collection: str,
-):
+) -> None:
     # 1. Inspect the content of monitor/changes to get some reference timestamp
     records = anonymous_client.get_records(bucket="monitor", collection="changes")
     resource = signed_resource(editor_client)

@@ -459,16 +459,16 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "backoff", specifier = ">=2.2.1" },
-    { name = "cryptography", specifier = ">=46.0.5" },
+    { name = "cryptography", specifier = ">=49.0.0" },
     { name = "google-cloud-bigquery", specifier = ">=3.42.0" },
     { name = "google-cloud-storage", specifier = ">=3.12.0" },
-    { name = "kinto-http", specifier = ">=11.8.0" },
+    { name = "kinto-http", specifier = ">=11.11.0" },
     { name = "lz4", specifier = ">=4.3.3" },
     { name = "pygit2", specifier = ">=1.19.3" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "python-decouple", specifier = ">=3.8" },
     { name = "requests", specifier = ">=2.32.4" },
-    { name = "sentry-sdk", specifier = ">=2.61.1" },
+    { name = "sentry-sdk", specifier = ">=2.63.0" },
 ]
 
 [[package]]
@@ -614,7 +614,7 @@ requires-dist = [
     { name = "granian", specifier = ">=2.7.6" },
     { name = "lz4", specifier = ">=4.4.5" },
     { name = "prometheus-client", specifier = ">=0.23.1" },
-    { name = "pydantic-settings", specifier = ">=2.10.1" },
+    { name = "pydantic-settings", specifier = ">=2.14.2" },
     { name = "pygit2", specifier = ">=1.19.3" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "uvloop", specifier = ">=0.21.0" },
