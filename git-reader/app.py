@@ -808,6 +808,7 @@ def cert_chain(
     f"/{API_PREFIX}attachments/{{path:path}}",
     methods=["GET", "HEAD"],
     name="attachments",
+    response_model=None,
 )
 def attachments(
     request: Request,
