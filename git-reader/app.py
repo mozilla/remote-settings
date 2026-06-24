@@ -278,6 +278,28 @@ def measure_git_read_time(operation: str):
     return decorator
 
 
+@lru_cache(maxsize=500)
+def filter_refs(
+    repo: pygit2.Repository,
+    bid: str,
+    cid: str,
+) -> list[str]:
+    """
+    Returns a list of git refs filtered to the requested bucket and collection,
+    sorted in reverse chronological order.
+    """
+    return sorted(
+        [
+            ref.decode()
+            for ref in repo.raw_listall_references()
+            if ref.decode().startswith(
+                f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/"
+            )
+        ],
+        reverse=True,
+    )
+
+
 class GitService:
     """
     Wrapper on top of pygit2 to serve content.
@@ -343,16 +365,7 @@ class GitService:
         Get the changeset for a specific collection.
         """
         # List all tags for this collection and sort them by timestamp desc.
-        refs = sorted(
-            [
-                ref.decode()
-                for ref in self.repo.raw_listall_references()
-                if ref.decode().startswith(
-                    f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/"
-                )
-            ],
-            reverse=True,
-        )
+        refs = filter_refs(self.repo, bid, cid)
         if not refs:
             raise CollectionNotFound(bid, cid)
 
