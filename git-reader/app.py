@@ -153,8 +153,8 @@ class Settings(BaseSettings):
         description="Sets the cache-control response header to max-age={value} for static content, like attachments. Default is 604800 (1 week)",
     )
     filter_refs_cache_size: int = Field(
-      500,
-      description="Number of filter_refs function results to cache. This filters git tags to a specific collection and is expensive to run per request."
+        500,
+        description="Number of filter_refs function results to cache. This filters git tags to a specific collection and is expensive to run per request.",
     )
 
 
