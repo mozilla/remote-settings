@@ -5,7 +5,7 @@ def test_history_plugin(
     setup_client: RemoteSettingsClient,
     editor_client: RemoteSettingsClient,
     editor_auth: Auth,
-):
+) -> None:
     # Reset collection status.
     collection = editor_client.get_collection()
     timestamp_start = collection["data"]["last_modified"]

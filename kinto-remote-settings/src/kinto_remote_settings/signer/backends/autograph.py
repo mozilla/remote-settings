@@ -2,6 +2,7 @@ import base64
 import datetime
 import logging
 import warnings
+from typing import Any
 from urllib.parse import urljoin
 
 import requests
@@ -22,13 +23,13 @@ EXTRA_SIGNATURE_FIELDS = ["mode", "public_key", "type", "signer_id", "ref"]
 class AutographSigner(SignerBase):
     def __init__(
         self, server_url: str, hawk_id: str, hawk_secret: str, keyids: list[str]
-    ):
+    ) -> None:
         self.server_url = server_url
         self.auth = HawkAuth(id=hawk_id, key=hawk_secret)
         # List of keys to use for signing.
         self.key_ids = keyids
 
-    def healthcheck(self, request):
+    def healthcheck(self, request: Any) -> None:
         if not self.server_url.startswith("https"):
             # No certificate to check if not connected via HTTPs.
             return
@@ -69,7 +70,7 @@ class AutographSigner(SignerBase):
             f"({remaining_days - clamped_minimum} days before alert)."
         )
 
-    def sign(self, payload) -> list[dict]:
+    def sign(self, payload: str | bytes) -> list[dict]:
         if isinstance(payload, str):  # pragma: no cover
             payload = payload.encode("utf-8")
 
@@ -119,7 +120,9 @@ class AutographSigner(SignerBase):
         return signatures
 
 
-def load_from_settings(settings, prefix="", *, prefixes=None):
+def load_from_settings(
+    settings: dict, prefix: str = "", *, prefixes: list[str] | None = None
+) -> AutographSigner:
     if prefixes is None:
         prefixes = [prefix]
 

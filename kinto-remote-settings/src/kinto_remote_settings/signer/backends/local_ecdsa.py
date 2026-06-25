@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import warnings
+from typing import Any
 
 import ecdsa
 import ecdsa.util
@@ -16,23 +17,25 @@ SIGN_PREFIX = b"Content-Signature:\x00"
 
 
 class ECDSASigner(SignerBase):
-    def __init__(self, private_key=None, public_key=None):
+    def __init__(
+        self, private_key: str | None = None, public_key: str | None = None
+    ) -> None:
         if private_key is None and public_key is None:
             msg = "Please, specify either a private_key or public_key location."
             raise ValueError(msg)
         self.private_key = private_key
         self.public_key = public_key
 
-    def healthcheck(self, request):
+    def healthcheck(self, request: Any) -> None:
         pass
 
     @classmethod
-    def generate_keypair(cls):
+    def generate_keypair(cls) -> tuple[bytes, bytes]:
         sk = SigningKey.generate(curve=NIST384p)
         vk = sk.get_verifying_key()
         return sk.to_pem(), vk.to_pem()
 
-    def load_private_key(self):
+    def load_private_key(self) -> SigningKey:
         if self.private_key is None:
             msg = "Please, specify the private_key location."
             raise ValueError(msg)
@@ -40,7 +43,7 @@ class ECDSASigner(SignerBase):
         with open(self.private_key, "rb") as key_file:
             return SigningKey.from_pem(key_file.read())
 
-    def load_public_key(self):
+    def load_public_key(self) -> VerifyingKey | None:
         # Check settings validity
         if self.private_key:
             private_key = self.load_private_key()
@@ -50,7 +53,7 @@ class ECDSASigner(SignerBase):
                 return VerifyingKey.from_pem(key_file.read())
         return None
 
-    def sign(self, payload) -> list[dict]:
+    def sign(self, payload: str | bytes) -> list[dict]:
         if isinstance(payload, str):  # pragma: no cover
             payload = payload.encode("utf-8")
 
@@ -63,7 +66,7 @@ class ECDSASigner(SignerBase):
         enc_signature = base64.urlsafe_b64encode(signature).decode("utf-8")
         return [{"signature": enc_signature, "x5u": x5u, "mode": "p384ecdsa"}]
 
-    def verify(self, payload, signature_bundle):
+    def verify(self, payload: str | bytes, signature_bundle: dict) -> None:
         if isinstance(payload, str):  # pragma: no cover
             payload = payload.encode("utf-8")
 
@@ -75,6 +78,7 @@ class ECDSASigner(SignerBase):
         signature_bytes = base64.urlsafe_b64decode(signature)
 
         public_key = self.load_public_key()
+        assert public_key is not None
         try:
             public_key.verify(
                 signature_bytes,
@@ -86,7 +90,9 @@ class ECDSASigner(SignerBase):
             raise BadSignatureError(e)
 
 
-def load_from_settings(settings, prefix="", *, prefixes=None):
+def load_from_settings(
+    settings: dict, prefix: str = "", *, prefixes: list[str] | None = None
+) -> "ECDSASigner":
     if prefixes is None:
         prefixes = [prefix]
 

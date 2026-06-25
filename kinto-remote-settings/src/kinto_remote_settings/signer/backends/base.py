@@ -1,11 +1,14 @@
+from typing import Any
+
+
 class SignerBase(object):
-    def healthcheck(self, request):
+    def healthcheck(self, request: Any) -> None:
         """
         Performs a series of checks for this signing backend.
         """
         raise NotImplementedError
 
-    def sign(self, payload) -> list[dict]:
+    def sign(self, payload: str | bytes) -> list[dict]:
         """
         Signs the specified `payload` and returns the signature metadata.
 

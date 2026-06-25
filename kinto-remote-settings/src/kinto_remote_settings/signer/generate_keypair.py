@@ -3,7 +3,7 @@ import sys
 from .backends.local_ecdsa import ECDSASigner
 
 
-def generate_keypair(private_key_location, public_key_location):
+def generate_keypair(private_key_location: str, public_key_location: str) -> None:
     private_key, public_key = ECDSASigner.generate_keypair()
 
     with open(private_key_location, "wb+") as tmp_file:

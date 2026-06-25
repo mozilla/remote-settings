@@ -10,7 +10,9 @@ import difflib
 import itertools
 import json
 import os
+from collections.abc import Iterator
 from copy import copy
+from typing import Any
 
 import kinto_http
 
@@ -35,7 +37,7 @@ RESET = "\033[0m"
 BOLD = "\033[1m"
 
 
-def print_colored(line):
+def print_colored(line: str) -> None:
     if line.startswith("+") and not line.startswith("+++"):
         print(f"{GREEN}{line}{RESET}")
     elif line.startswith("-") and not line.startswith("---"):
@@ -48,7 +50,7 @@ def print_colored(line):
         print(line)
 
 
-def diff_dicts(old, new):
+def diff_dicts(old: dict[str, Any], new: dict[str, Any]) -> None:
     """Show Git-style diff between two dicts with ANSI color highlighting."""
     old_str = json.dumps(old, indent=2, sort_keys=True).splitlines()
     new_str = json.dumps(new, indent=2, sort_keys=True).splitlines()
@@ -61,21 +63,25 @@ def diff_dicts(old, new):
         print_colored(line)
 
 
-async def fetch_groups(client, bid):
+async def fetch_groups(
+    client: kinto_http.AsyncClient, bid: str
+) -> list[tuple[str, str]]:
     """Fetch groups for a given bucket."""
-    groups = await client.get_groups(bucket=bid)
+    groups = await client.get_groups(bucket=bid)  # ty: ignore[invalid-await]
     return [(bid, g["id"]) for g in groups]
 
 
-async def fetch_history(client, bid, gid):
+async def fetch_history(
+    client: kinto_http.AsyncClient, bid: str, gid: str
+) -> Iterator[Any]:
     print(".", end="", flush=True)
-    entries = await client.get_history(
+    entries = await client.get_history(  # ty: ignore[invalid-await]
         bucket=bid, resource_name="group", group_id=gid, _limit=LIMIT
     )
     return reversed(entries)
 
 
-async def main():
+async def main() -> None:
     client = kinto_http.AsyncClient(server_url=SERVER_URL, auth=AUTH)
 
     # Fetch all groups in parallel

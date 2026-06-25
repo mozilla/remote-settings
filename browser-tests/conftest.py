@@ -84,7 +84,7 @@ def server(request) -> str:
 
 
 @pytest.fixture(scope="session")
-def setup_auth(request) -> Auth:
+def setup_auth(request) -> Auth | None:
     auth = request.config.getoption("--setup-auth")
     if not auth:
         return None
@@ -149,7 +149,7 @@ def request_session(server) -> requests.Session:
     session = requests.Session()
     retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
     session.mount(f"{server.split('://')[0]}://", HTTPAdapter(max_retries=retries))
-    session.request = functools.partial(session.request, timeout=30)
+    session.request = functools.partial(session.request, timeout=30)  # ty: ignore[invalid-assignment]
     return session
 
 
@@ -187,9 +187,10 @@ def make_client(
 
 
 @pytest.fixture(scope="session")
-def setup_client(setup_auth, make_client) -> RemoteSettingsClient:
+def setup_client(setup_auth, make_client) -> RemoteSettingsClient | None:
     if setup_auth:
         return make_client(setup_auth)
+    return None
 
 
 @pytest.fixture(scope="session")

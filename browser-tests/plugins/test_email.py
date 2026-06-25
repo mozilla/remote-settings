@@ -1,13 +1,13 @@
 import os
 
-from ..conftest import Auth
+from ..conftest import RemoteSettingsClient
 
 
 def test_email_plugin(
-    setup_client: Auth,
-    editor_client: Auth,
+    setup_client: RemoteSettingsClient | None,
+    editor_client: RemoteSettingsClient,
     mail_dir: str,
-):
+) -> None:
     mail_dir = os.path.abspath(mail_dir)
     existing_email_files = set(os.listdir(mail_dir))
     print(f"Read emails from {mail_dir} ({len(existing_email_files)} file(s) present)")

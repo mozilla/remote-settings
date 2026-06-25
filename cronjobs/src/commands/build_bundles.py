@@ -11,6 +11,7 @@ import os
 import tempfile
 import zipfile
 from email.utils import parsedate_to_datetime
+from typing import Any
 
 import lz4.block
 import requests
@@ -32,7 +33,7 @@ SKIP_UPLOAD = os.getenv("SKIP_UPLOAD", "0") in "1yY"
 
 
 @retry_timeout
-def get_modified_timestamp(url) -> int:
+def get_modified_timestamp(url: str) -> int:
     """
     Return URL modified date as epoch millisecond.
     """
@@ -48,13 +49,13 @@ def get_modified_timestamp(url) -> int:
 
 
 @retry_timeout
-def fetch_attachment(url):
+def fetch_attachment(url: str) -> bytes:
     print("Fetch %r" % url)
     resp = requests.get(url)
     return resp.content
 
 
-def write_zip(output_path: str, content: list[tuple[str, str | bytes]]):
+def write_zip(output_path: str, content: list[tuple[str, str | bytes]]) -> None:
     """
     Write a Zip at the specified `output_path` location with the specified `content`.
     The content is specified as a list of file names and their binary content.
@@ -68,7 +69,7 @@ def write_zip(output_path: str, content: list[tuple[str, str | bytes]]):
     print("Wrote %r" % output_path)
 
 
-def write_json_mozlz4(output_path: str, changesets):
+def write_json_mozlz4(output_path: str, changesets: list[Any]) -> None:
     """
     Write a UTF-8 text file compressed as LZ4.
     The goal of this is allow clients like Firefox read and uncompress the data off the main
@@ -90,7 +91,7 @@ def write_json_mozlz4(output_path: str, changesets):
 
 def sync_cloud_storage(
     storage_bucket: str, remote_folder: str, to_upload: list[str], to_delete: list[str]
-):
+) -> None:
     """
     Upload the specified `to_upload` filenames, and delete the specified `to_delete` filenames
     from the `remote_folder` of the `storage_bucket`.
@@ -113,7 +114,7 @@ def sync_cloud_storage(
             print(f"Deleted gs://{storage_bucket}/{blob.name}")
 
 
-def build_bundles():
+def build_bundles() -> None:
     """
     Build and upload bundles of changesets and attachments.
 

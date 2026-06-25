@@ -9,7 +9,7 @@ def _rand(size: int = 10) -> str:
     return "".join(random.choices(hexdigits, k=size))
 
 
-def upload_records(client: Client, num: int):
+def upload_records(client: Client, num: int) -> list[dict]:
     records = []
     for _ in range(num):
         data = {"one": _rand(1000)}
@@ -19,7 +19,7 @@ def upload_records(client: Client, num: int):
 
 
 # Playwright it expects a 401 returned on the first request if auth is provided, which does not work in kinto.
-def create_extra_headers(username: str, password: str):
+def create_extra_headers(username: str, password: str) -> dict[str, str]:
     return {
         "Authorization": "Basic "
         + b64encode(f"{username}:{password}".encode("utf-8")).decode("ascii")

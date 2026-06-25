@@ -99,7 +99,7 @@ GIT_USER = _user.strip()
 GIT_EMAIL = _email.rstrip(">")
 
 
-def git_export():
+def git_export() -> None:
     """
     Export Remote Settings data to a Git repository.
     """
@@ -199,7 +199,7 @@ async def fetch_all_changesets(
     """
     sem = asyncio.Semaphore(MAX_PARALLEL_REQUESTS)
 
-    async def fetch(bid, cid):
+    async def fetch(bid: str, cid: str) -> dict[str, Any]:
         async with sem:
             print("Fetching %s/%s" % (bid, cid))
             return await client.get_changeset(
@@ -210,7 +210,7 @@ async def fetch_all_changesets(
 
 
 def fetch_all_cert_chains(
-    client: kinto_http.AsyncClient, changesets
+    client: kinto_http.AsyncClient, changesets: list[dict[str, Any]]
 ) -> list[tuple[str, str]]:
     """
     Fetch all certificate chains for the given changesets, and return URL + PEM content.
@@ -228,7 +228,7 @@ def fetch_all_cert_chains(
 
 
 async def repo_sync_content(
-    repo,
+    repo: pygit2.Repository,
     delete_unreachable_attachments: bool = DELETE_UNREACHABLE_ATTACHMENTS,
 ) -> tuple[list[tuple[str, int, str]], set[str], list[str]]:
     """
@@ -375,7 +375,7 @@ async def repo_sync_content(
 
 
 def extract_branch_info(
-    repo, branch: str
+    repo: pygit2.Repository, branch: str
 ) -> tuple[list[pygit2.Oid], pygit2.Tree | None, int]:
     """
     Extract information about the given branch in the repository.
@@ -384,7 +384,7 @@ def extract_branch_info(
     # The repo may exist without the 'common' ref (first run).
     try:
         common_tip = repo.lookup_reference(branch).target
-        common_base_tree = repo.get(common_tip).tree
+        common_base_tree = repo.get(common_tip).tree  # ty: ignore[unresolved-attribute]
         parents = [common_tip]
     except KeyError:  # pragma: no cover
         common_base_tree = None
@@ -406,7 +406,7 @@ def extract_branch_info(
     else:
         print("No previous tags found.")
         latest_timestamp = 0
-    return parents, common_base_tree, latest_timestamp
+    return parents, common_base_tree, latest_timestamp  # ty: ignore[invalid-return-type]
 
 
 def process_attachments(
@@ -530,7 +530,7 @@ def changeset_to_branch_folder(
 
 
 def initialize_bucket_branches(
-    repo,
+    repo: pygit2.Repository,
     author: pygit2.Signature,
     committer: pygit2.Signature,
     changesets_by_bucket: dict[str, list[dict[str, Any]]],
@@ -553,7 +553,7 @@ def initialize_bucket_branches(
         # Bucket branch does not exist yet, create it as an empty branch.
         empty_tree_id = repo.TreeBuilder().write()
         branch_tree = repo.get(empty_tree_id)
-        branch_tree_id = tree_upsert_blobs(repo, branch_content, base_tree=branch_tree)
+        branch_tree_id = tree_upsert_blobs(repo, branch_content, base_tree=branch_tree)  # ty: ignore[invalid-argument-type]
 
         branch_refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
         commit_oid = repo.create_commit(
@@ -578,7 +578,7 @@ def initialize_bucket_branches(
             repo.create_tag(
                 tag_name,
                 commit_oid,
-                pygit2.GIT_OBJECT_COMMIT,
+                pygit2.GIT_OBJECT_COMMIT,  # ty: ignore[invalid-argument-type]
                 author,
                 f"Initial tag for {bid}/{cid}@{timestamp}",
             )
@@ -589,7 +589,7 @@ def initialize_bucket_branches(
 
 
 def update_bucket_branches(
-    repo,
+    repo: pygit2.Repository,
     author: pygit2.Signature,
     committer: pygit2.Signature,
     changesets_by_bucket: dict[str, list[dict[str, Any]]],
@@ -607,7 +607,7 @@ def update_bucket_branches(
         # Find the bucket branch tip and base tree.
         branch_refname = f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
         branch_tip = repo.lookup_reference(branch_refname).target
-        branch_tree = repo.get(branch_tip).tree
+        branch_tree = repo.get(branch_tip).tree  # ty: ignore[unresolved-attribute]
         parents = [branch_tip]
 
         for changeset in bucket_changesets:
@@ -635,7 +635,7 @@ def update_bucket_branches(
                 committer=committer,
                 message=commit_message,
                 tree_id=files_tree_id,
-                parents=parents,
+                parents=parents,  # ty: ignore[invalid-argument-type]
                 branch_name=branch_refname,
                 tag_name=tag_name,
                 move_tag_if_exists=True,
@@ -646,14 +646,14 @@ def update_bucket_branches(
 
             # Next collection will be put on top of the branch.
             new_tip = repo.lookup_reference(branch_refname).target
-            branch_tree = repo.get(new_tip).tree
+            branch_tree = repo.get(new_tip).tree  # ty: ignore[unresolved-attribute]
             parents = [new_tip]
 
     return changed_branches, created_tags
 
 
 def commit_and_tag(
-    repo,
+    repo: pygit2.Repository,
     author: pygit2.Signature,
     committer: pygit2.Signature,
     message: str,
@@ -661,7 +661,7 @@ def commit_and_tag(
     parents: list[pygit2.Oid],
     branch_name: str,
     tag_name: str,
-    move_tag_if_exists=True,
+    move_tag_if_exists: bool = True,
 ) -> bool:
     """
     Create a commit and tag it.
@@ -682,7 +682,7 @@ def commit_and_tag(
     repo.create_tag(
         tag_name,
         commit_oid,
-        pygit2.GIT_OBJECT_COMMIT,
+        pygit2.GIT_OBJECT_COMMIT,  # ty: ignore[invalid-argument-type]
         author,
         message,
     )

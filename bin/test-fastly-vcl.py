@@ -204,7 +204,7 @@ print("Old time (epoch ms):", OLD_EPOCH_MS)
         ),
     ],
 )
-def test_fastly_vcl_responses(url, expected, message):
+def test_fastly_vcl_responses(url: str, expected: int, message: str) -> None:
     url = f"{SERVER_URL}{url}"
     resp = requests.head(url, headers={"User-Agent": USER_AGENT}, allow_redirects=False)
     assert resp.status_code == expected, (
@@ -216,7 +216,7 @@ def test_fastly_vcl_responses(url, expected, message):
 
 
 @pytest.mark.parametrize("version", ["v1", "v2"])
-def test_relative_urls(version):
+def test_relative_urls(version: str) -> None:
     server_info = requests.get(
         f"{SERVER_URL}/{version}/", headers={"User-Agent": USER_AGENT}
     ).json()

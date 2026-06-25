@@ -1,5 +1,5 @@
 import hashlib
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from kinto.core import utils as core_utils
@@ -18,7 +18,7 @@ def bound_limit(settings: dict, value: Optional[int]) -> int:
     return min(abs(value), max_limit) if value is not None else max_limit
 
 
-def monitored_timestamps(request):
+def monitored_timestamps(request: Any) -> list[tuple[str, str, int]]:
     """
     Return the list of collection timestamps based on the specified
     lists of resources in settings.
@@ -62,10 +62,12 @@ def monitored_timestamps(request):
     return results
 
 
-_CHANGES_ENTRIES_ID_CACHE = {}
+_CHANGES_ENTRIES_ID_CACHE: dict[tuple[str, str, str], str] = {}
 
 
-def change_entry_id(request, http_host, bucket_id, collection_id):
+def change_entry_id(
+    request: Any, http_host: str, bucket_id: str, collection_id: str
+) -> str:
     """Generates a deterministic UUID based on input parameters
     and keeps it in cache.
 

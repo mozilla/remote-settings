@@ -2,6 +2,7 @@ import json
 import os
 import re
 import urllib.parse
+from typing import Any
 
 from decouple import config
 from kinto_http.utils import collection_diff
@@ -9,7 +10,7 @@ from kinto_http.utils import collection_diff
 from . import KintoClient as Client
 
 
-def parse_querystring(qs):
+def parse_querystring(qs: str) -> dict[str, str | list[str]]:
     query_dict = urllib.parse.parse_qs(qs.lstrip("?"))
     # Convert the list values to single values for convenience
     return {
@@ -17,7 +18,7 @@ def parse_querystring(qs):
     }
 
 
-def backport_records():
+def backport_records() -> None:
     """Backport records creations, updates and deletions from one collection to another."""
     SERVER_URL = os.environ["SERVER"]
     source_auth = os.environ["BACKPORT_RECORDS_SOURCE_AUTH"]
@@ -65,16 +66,16 @@ def backport_records():
 
 
 def execute_backport(
-    server_url,
-    source_auth,
-    dest_auth,
-    safe_headers,
-    source_bucket,
-    source_collection,
-    source_filters,
-    dest_bucket,
-    dest_collection,
-):
+    server_url: str,
+    source_auth: str,
+    dest_auth: str,
+    safe_headers: bool,
+    source_bucket: str,
+    source_collection: str,
+    source_filters: dict[str, Any],
+    dest_bucket: str,
+    dest_collection: str,
+) -> None:
     source_client = Client(
         server_url=server_url,
         bucket=source_bucket,

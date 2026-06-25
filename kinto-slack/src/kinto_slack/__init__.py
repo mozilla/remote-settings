@@ -4,6 +4,7 @@ import os
 import re
 import time
 from collections import defaultdict
+from typing import Any
 
 import requests
 from kinto.core.errors import raise_invalid
@@ -14,17 +15,17 @@ from kinto.core.utils import read_env
 logger = logging.getLogger(__name__)
 
 
-def qualname(obj):
+def qualname(obj: Any) -> str:
     return str(obj.__class__).split("'")[1]
 
 
-def _match(pattern, value):
+def _match(pattern: str, value: str) -> bool:
     if pattern.startswith("^"):
         return re.match(pattern, value) is not None
     return pattern == value
 
 
-def _get_slack_hooks(storage, context):
+def _get_slack_hooks(storage: Any, context: dict[str, Any]) -> list[dict[str, Any]]:
     bucket_id = context["bucket_id"]
     collection_id = context["collection_id"]
     bucket_uri = "/buckets/%s" % bucket_id
@@ -47,10 +48,10 @@ def _get_slack_hooks(storage, context):
     return metadata.get("kinto-slack", {}).get("hooks", [])
 
 
-def get_messages(storage, context):
+def get_messages(storage: Any, context: dict[str, Any]) -> list[dict[str, Any]]:
     hooks = _get_slack_hooks(storage, context)
     filters = ("action", "resource_name", "id", "record_id", "collection_id", "event")
-    messages = []
+    messages: list[dict[str, Any]] = []
 
     for hook in hooks:
         conditions_met = all(
@@ -72,7 +73,7 @@ def get_messages(storage, context):
     return messages
 
 
-def build_notification(event):
+def build_notification(event: Any) -> None:
     resource_name = event.payload["resource_name"]
     storage = event.request.registry.storage
     context = dict(
@@ -101,7 +102,7 @@ def build_notification(event):
     setattr(event.request, "_kinto_slack_messages", existing + messages)
 
 
-def send_notification(event):
+def send_notification(event: Any) -> None:
     messages = getattr(event.request, "_kinto_slack_messages", [])
     if not messages:
         return
@@ -148,7 +149,7 @@ def send_notification(event):
                 logger.exception("Could not send Slack notification")
 
 
-def _validate_slack_settings(event):
+def _validate_slack_settings(event: Any) -> None:
     for impacted in event.impacted_objects:
         if event.payload["action"] == "delete":
             continue
@@ -163,7 +164,7 @@ def _validate_slack_settings(event):
                 )
 
 
-def includeme(config):
+def includeme(config: Any) -> None:
     settings = config.get_settings()
 
     tmp_dir = settings.get("slack.debug_dir")
