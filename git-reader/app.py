@@ -126,7 +126,7 @@ logging.config.dictConfig(
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", frozen=True)
-    git_repo_path: str | None = Field(None, description="Path to the Git repository")
+    git_repo_path: str = Field("", description="Path to the Git repository")
     self_contained: bool = Field(
         False,
         description="Whether to serve `attachments/` and `cert-chains/` endpoints.",
@@ -291,7 +291,7 @@ def filter_refs(
     """
     Returns a list of git refs filtered to the requested bucket and collection,
     sorted in reverse chronological order. Because repo is provided as a param,
-    and that ref will chagne as content changes, this cache will not return
+    and that ref will change as content changes, this cache will not return
     stale data.
     """
     return sorted(
