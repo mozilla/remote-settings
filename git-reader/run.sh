@@ -88,7 +88,7 @@ cmd_gitupdate() {
 git_fetch_lfs() {
     local repo_path="$1"
 
-    log("Current commit for $repo_path")
+    log "Current commit for $repo_path"
     git -C $repo_path log -n 1
 
     # Remove Git lock if any. Or fetch will fail with "fatal: Unable to create '.../.git/index.lock': File exists."
