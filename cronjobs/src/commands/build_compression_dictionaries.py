@@ -1,16 +1,17 @@
 """
 This command will iterate through the collections where Compression Dictionary Transport
 is enabled, and create compressed files for the latest attachments.
-It then uploads these `.zst` files to Google Cloud Storage.
+It then uploads these `.dcz` files to Google Cloud Storage.
 """
 
 import os
 import tempfile
 import typing
+from compression.zstd import ZstdCompressor, ZstdDict
 from pathlib import Path
 
-from compression.zstd import ZstdCompressor, ZstdDict
 from google.cloud import storage
+from kinto_http.utils import Iterable
 
 from . import KintoClient, fetch_all_changesets
 
@@ -53,7 +54,7 @@ def records_to_compress(
 
 def scan_existing_attachments(
     bucket: storage.Bucket, collections: list[tuple[str, str, list[str]]]
-) -> typing.Generator[tuple[str, str, list[list[str]]]]:
+) -> typing.Generator[tuple[str, str, list[str]]]:
     for bid, cid, records in collections:
         folder = f"{bid}/{cid}/"
         filenames_by_rid = {}
@@ -82,7 +83,7 @@ def scan_existing_attachments(
 def find_missing_compressed_files(
     client: storage.Client,
     bucket: storage.Bucket,
-    pairs: list[tuple[str, str, str, str]],
+    pairs: Iterable[tuple[str, str, str, str]],
 ) -> list[tuple[str, str, str, str]]:
     missing: list[tuple[str, str, str, str]] = []
     for bid, cid, old, new in pairs:
@@ -101,7 +102,7 @@ def compressed_filename(bid, cid, old, new):
     return f"{DESTINATION_FOLDER}/{bid}/{cid}/compressed/target-{new_stem}/dcz/from-{old_stem}.dcz"
 
 
-def download_file_to(
+def download_blob_to_file(
     client: storage.Client, bucket: storage.Bucket, blobname: str, path: Path
 ):
     print(f"Download {blobname} into {path}")
@@ -116,13 +117,18 @@ def zstd_compress(dict_path: Path, file_path: Path, destination: typing.IO):
         open(dict_path, "rb") as dict_fd,
         open(file_path, "rb") as file_fd,
     ):
-        zdict = ZstdDict(dict_fd.read())
+        zdict = ZstdDict(dict_fd.read(), is_raw=True)
         zcomp = ZstdCompressor(zstd_dict=zdict)
-        zcomp.copy_stream(file_fd, destination)
+        while chunk := file_fd.read(8192):
+            destination.write(zcomp.compress(chunk))
+        destination.write(zcomp.flush())
 
 
 def build_compression_dictionaries():
     """
+    Builds and publishes compressed attachments for the collections
+    where compression dictionaries are enabled.
+
     This command:
     - fetches all collections changesets
     - lists collections where compression-dictionaries are enabled
@@ -178,9 +184,9 @@ def build_compression_dictionaries():
         for bid, cid, old, new in missing_dictionaries:
             # Download actual files from attachments bucket.
             old_tmp_path = tmp_dir / old
-            download_file_to(gcs_client, attachments_bucket, old, old_tmp_path)
+            download_blob_to_file(gcs_client, attachments_bucket, old, old_tmp_path)
             new_tmp_path = tmp_dir / new
-            download_file_to(gcs_client, attachments_bucket, new, new_tmp_path)
+            download_blob_to_file(gcs_client, attachments_bucket, new, new_tmp_path)
 
             dest_name = compressed_filename(bid, cid, old, new)
             with tempfile.TemporaryFile() as compressed_fd:
