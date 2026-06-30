@@ -1,15 +1,16 @@
-from compression.zstd import ZstdDecompressor, ZstdDict
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
 import pytest
 from commands.build_compression_dictionaries import (
+    build_compression_dictionaries,
     compressed_filename,
     find_missing_compressed_files,
     records_to_compress,
     scan_existing_attachments,
     zstd_compress,
 )
+from compression.zstd import ZstdDecompressor, ZstdDict
 from google.cloud import storage
 
 
@@ -33,6 +34,12 @@ def mock_storage_bucket():
         mock_bucket = MagicMock()
         mock_client.return_value.bucket.return_value = mock_bucket
         yield mock_bucket
+
+
+@pytest.fixture
+def mock_kinto_client():
+    with patch("commands.build_compression_dictionaries.KintoClient") as mock_client:
+        yield mock_client
 
 
 @pytest.fixture
@@ -191,3 +198,73 @@ def test_zstd_compress(tmp_path):
     zdict = ZstdDict(dict_content, is_raw=True)
     decompressed = ZstdDecompressor(zstd_dict=zdict).decompress(compressed)
     assert decompressed == file_content
+
+
+def _blob_with_name(name):
+    blob = mock.Mock()
+    blob.name = name
+    return blob
+
+
+def test_build_compression_dictionaries(
+    mock_kinto_client, mock_fetch_all_changesets, mock_storage_bucket, mock_blob
+):
+    # One enabled collection with a record that has two attachment versions.
+    mock_fetch_all_changesets.return_value = [
+        {
+            "metadata": {
+                "bucket": "bid",
+                "id": "cid",
+                "flags": ["compression-dictionaries"],
+            },
+            "changes": [{"id": "rid1", "attachment": {}}],
+        },
+    ]
+    mock_storage_bucket.list_blobs.return_value = [
+        _blob_with_name("bid/cid/20260101--rid1--file.txt"),
+        _blob_with_name("bid/cid/20260601--rid1--file.txt"),
+    ]
+    # The compressed file does not exist yet, so it must be built.
+    mock_blob.return_value.exists.return_value = False
+    # Downloads write some compressible content to the destination file.
+    mock_blob.return_value.download_to_file.side_effect = lambda fd, client: fd.write(
+        b"the quick brown fox\n" * 100
+    )
+
+    build_compression_dictionaries()
+
+    mock_blob.assert_any_call(
+        bucket=mock_storage_bucket,
+        name="cdt/bid/cid/compressed/target-20260601--rid1--file/dcz/from-20260101--rid1--file.dcz",
+    )
+    mock_blob.return_value.upload_from_file.assert_called_once_with(
+        mock.ANY,
+        content_type="application/zstd",
+        client=mock.ANY,
+    )
+
+
+def test_build_compression_dictionaries_up_to_date(
+    mock_kinto_client, mock_fetch_all_changesets, mock_storage_bucket, mock_blob
+):
+    mock_fetch_all_changesets.return_value = [
+        {
+            "metadata": {
+                "bucket": "bid",
+                "id": "cid",
+                "flags": ["compression-dictionaries"],
+            },
+            "changes": [{"id": "rid1", "attachment": {}}],
+        },
+    ]
+    mock_storage_bucket.list_blobs.return_value = [
+        _blob_with_name("bid/cid/20260101--rid1--file.txt"),
+        _blob_with_name("bid/cid/20260601--rid1--file.txt"),
+    ]
+    # Every compressed file already exists: nothing to build or upload.
+    mock_blob.return_value.exists.return_value = True
+
+    build_compression_dictionaries()
+
+    mock_blob.return_value.download_to_file.assert_not_called()
+    mock_blob.return_value.upload_from_file.assert_not_called()

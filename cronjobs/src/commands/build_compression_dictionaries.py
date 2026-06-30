@@ -7,9 +7,9 @@ It then uploads these `.dcz` files to Google Cloud Storage.
 import os
 import tempfile
 import typing
-from compression.zstd import ZstdCompressor, ZstdDict
 from pathlib import Path
 
+from compression.zstd import ZstdCompressor, ZstdDict
 from google.cloud import storage
 from kinto_http.utils import Iterable
 

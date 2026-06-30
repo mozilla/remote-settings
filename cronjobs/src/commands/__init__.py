@@ -98,7 +98,9 @@ def call_parallel(
 
 
 def fetch_all_changesets(
-    client: KintoClient, with_preview_destination: bool = True, with_workspace_buckets: bool = False
+    client: KintoClient,
+    with_preview_destination: bool = True,
+    with_workspace_buckets: bool = False,
 ) -> list[Any]:
     """
     Return the `/changeset` responses for all collections listed
