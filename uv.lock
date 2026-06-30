@@ -460,7 +460,7 @@ dependencies = [
 requires-dist = [
     { name = "backoff", specifier = ">=2.2.1" },
     { name = "cryptography", specifier = ">=49.0.0" },
-    { name = "google-cloud-bigquery", specifier = ">=3.42.0" },
+    { name = "google-cloud-bigquery", specifier = ">=3.42.1" },
     { name = "google-cloud-storage", specifier = ">=3.12.0" },
     { name = "kinto-http", specifier = ">=11.11.0" },
     { name = "lz4", specifier = ">=4.3.3" },
@@ -611,7 +611,7 @@ requires-dist = [
     { name = "asgiref", specifier = ">=3.11.0" },
     { name = "dockerflow", specifier = ">=2026.3.4" },
     { name = "fastapi", specifier = ">=0.138.1" },
-    { name = "granian", specifier = ">=2.7.6" },
+    { name = "granian", specifier = ">=2.7.7" },
     { name = "lz4", specifier = ">=4.4.5" },
     { name = "prometheus-client", specifier = ">=0.23.1" },
     { name = "pydantic-settings", specifier = ">=2.14.2" },
@@ -1062,7 +1062,7 @@ wheels = [
 
 [[package]]
 name = "kinto"
-version = "26.2.0"
+version = "26.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bcrypt" },
@@ -1082,9 +1082,9 @@ dependencies = [
     { name = "transaction" },
     { name = "waitress" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/22/b8/e6e2107886c546512dd5645a085be98136708a21bf7c8a5e66c770548a1a/kinto-26.2.0.tar.gz", hash = "sha256:2e486d695137b15149de11b3652a3df8ef4193126f0d4fb8d2753eb64b4e92c7", size = 1577364, upload-time = "2026-05-29T09:43:28.17Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bc/b6/6826b7c55c64409087c79618ff4bc9c9c185b654f4c4a7e61f7e16322239/kinto-26.3.0.tar.gz", hash = "sha256:71c254f49080110ccc9570bfa1e14431e8d11a827fb46720061e070f4fcdd116", size = 1608480, upload-time = "2026-06-23T08:48:04.178Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5f/25/911994b3097833fdaa2d5130c89266de5584101f0bc7298d966ea229cc93/kinto-26.2.0-py3-none-any.whl", hash = "sha256:cbe21153543a7577f7d4bd979a35e1508b887fc946a353f0b9f61662b4687959", size = 244467, upload-time = "2026-05-29T09:43:26.461Z" },
+    { url = "https://files.pythonhosted.org/packages/25/ed/082263f917d78e7599c8e8b19b7db16ce79530e2f5ebec8ecf5842404839/kinto-26.3.0-py3-none-any.whl", hash = "sha256:38070e3b9d90299fb6862511d861d0e0c2c1bd20f0d79d2dd3eca51974b9835e", size = 250830, upload-time = "2026-06-23T08:48:02.435Z" },
 ]
 
 [package.optional-dependencies]
@@ -1734,14 +1734,14 @@ wheels = [
 
 [[package]]
 name = "pyramid-multiauth"
-version = "1.0.2"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pyramid" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c8/51/30beabe10c2cfab7d43bd2c7c6a183eb917193841ba8d5979ea4e5cc5427/pyramid_multiauth-1.0.2.tar.gz", hash = "sha256:e4c01c59dd865a637173c7d0e3de062895e4a1b3312e442add6182989a13ca83", size = 31079, upload-time = "2024-03-28T15:01:28.356Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b7/44/17b576b4b01237f6bc4161f0c5aeff07a5eae6f0e0205c8d47296e4f1092/pyramid_multiauth-1.1.0.tar.gz", hash = "sha256:aba7d9697b5888c5958d22bdd01e05d254b8707d222027afe95c16078759ea69", size = 34345, upload-time = "2026-06-18T09:34:50.089Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/6b/c25340c5efccdbb7352d88a513b881b986fbb02e3b94fce937e6786d725e/pyramid_multiauth-1.0.2-py3-none-any.whl", hash = "sha256:0cd1f2d9c782458c3992a9183a55f9fcd257a2f1c6e7d62e44552f7cdaff9063", size = 18297, upload-time = "2024-03-28T15:01:26.823Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/e7/4b15c454ec192d8212f88b4e8cef28a444909b9519382de37a7f28af88c7/pyramid_multiauth-1.1.0-py3-none-any.whl", hash = "sha256:341ceed277c1d80aa0e62a4d0ef31dfd0bf33c75b5dd020856d0c4d8d1e3f77e", size = 19843, upload-time = "2026-06-18T09:34:48.718Z" },
 ]
 
 [[package]]
@@ -1998,7 +1998,7 @@ requires-dist = [
     { name = "cryptography", specifier = "<50" },
     { name = "ecdsa", specifier = "==0.19.2" },
     { name = "granian", specifier = ">=2.7.7,<3.0.0" },
-    { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.2.0,<27" },
+    { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.3.0,<27" },
     { name = "kinto-attachment", specifier = ">=9.0.1" },
     { name = "kinto-emailer", specifier = ">=4" },
     { name = "kinto-slack", editable = "kinto-slack" },
