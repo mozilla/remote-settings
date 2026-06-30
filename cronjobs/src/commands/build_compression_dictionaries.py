@@ -186,7 +186,8 @@ def build_compression_dictionaries():
             old_tmp_path = tmp_dir / old
             download_blob_to_file(gcs_client, attachments_bucket, old, old_tmp_path)
             new_tmp_path = tmp_dir / new
-            download_blob_to_file(gcs_client, attachments_bucket, new, new_tmp_path)
+            if not new_tmp_path.exists():
+                download_blob_to_file(gcs_client, attachments_bucket, new, new_tmp_path)
 
             dest_name = compressed_filename(bid, cid, old, new)
             with tempfile.TemporaryFile() as compressed_fd:
