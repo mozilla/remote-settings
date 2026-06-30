@@ -1,3 +1,4 @@
+from compression.zstd import ZstdDecompressor, ZstdDict
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
@@ -10,7 +11,6 @@ from commands.build_compression_dictionaries import (
     scan_existing_attachments,
     zstd_compress,
 )
-from compression.zstd import ZstdDecompressor, ZstdDict
 from google.cloud import storage
 
 

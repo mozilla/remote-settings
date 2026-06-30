@@ -819,7 +819,7 @@ def cert_chain(
         )
         git = GitService.dep(repo=repo, settings=settings)
         return git.get_cert_chain(pem)
-    except (FileNotFoundError, IsADirectoryError):
+    except FileNotFoundError, IsADirectoryError:
         raise HTTPException(status_code=404, detail=f"{pem} not found")
 
 
