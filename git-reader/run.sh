@@ -76,10 +76,17 @@ cmd_gitupdate() {
 
     log "Syncing updates back to previously active directory $active_dir..."
     # Keep attributes, preserve hardlinks where possible; avoid copying .git objects redundantly
-    rsync -a --delete "$inactive_dir/". "$active_dir/"
+    rsync -a --delete "$inactive_dir/.git/lfs/objects/". "$active_dir/.git/lfs/objects/"
 
-    log "Fetching updates in $active_dir too ..."
-    git_fetch_lfs "$active_dir"
+    log "Replicate updates in $active_dir too ..."
+    # Add the sibling remote if it doesn't already exist
+    if git -C "$active_dir" remote get-url sibling >/dev/null 2>&1; then
+        git -C "$active_dir" remote set-url sibling "$inactive_dir"
+    else
+        git -C "$active_dir" remote add sibling "$inactive_dir"
+    fi
+    git -C "$active_dir" fetch --tags --force --verbose sibling
+    git -C "$active_dir" reset --hard sibling/v1/common
 
     log "Fetch completed."
 }
