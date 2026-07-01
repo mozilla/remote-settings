@@ -98,7 +98,9 @@ def call_parallel(
 
 
 def fetch_all_changesets(
-    client: KintoClient, with_workspace_buckets: bool = False
+    client: KintoClient,
+    with_preview_destination: bool = True,
+    with_workspace_buckets: bool = False,
 ) -> list[Any]:
     """
     Return the `/changeset` responses for all collections listed
@@ -108,10 +110,14 @@ def fetch_all_changesets(
     """
     monitor_changeset = client.get_changeset("monitor", "changes", bust_cache=True)
     print("%s collections" % len(monitor_changeset["changes"]))
-    args_list = [
-        (c["bucket"], c["collection"], c["last_modified"])
-        for c in monitor_changeset["changes"]
-    ]
+    args_list = []
+    if with_preview_destination:
+        args_list.extend(
+            [
+                (c["bucket"], c["collection"], c["last_modified"])
+                for c in monitor_changeset["changes"]
+            ]
+        )
 
     if with_workspace_buckets:
         # For each collection exposed in the monitor/changes endpoint,

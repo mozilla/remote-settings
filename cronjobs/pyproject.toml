@@ -2,7 +2,7 @@
 name = "cronjobs"
 version = "0"
 description = "Remote Settings core cronjobs"
-requires-python = ">=3.11,<3.15"
+requires-python = ">=3.14,<3.15"
 dependencies = [
     "backoff>=2.2.1",
     "python-decouple>=3.8",

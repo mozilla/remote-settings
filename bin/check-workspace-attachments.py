@@ -131,7 +131,7 @@ async def main() -> None:
         "security-state-staging": "security-state-preview",
         "staging": "blocklists-preview",
     }
-    # do not bother intropsecting server info here...
+    # do not bother introspecting server info here...
     without_preview_collection = ["addons-bloomfilters"]
     all_preview_collections = [
         (preview_buckets[bid], cid)
