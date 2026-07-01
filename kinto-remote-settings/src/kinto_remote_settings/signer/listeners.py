@@ -317,7 +317,7 @@ def check_collection_status(
         # Ignore changes made by plugin.
         return
 
-    user_principals = event.request.prefixed_principals
+    user_principals = event.request.effective_principals
 
     for impacted in event.impacted_objects:
         old_collection = impacted.get("old", {})
