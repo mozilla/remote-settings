@@ -7,6 +7,7 @@ It then uploads these `.dcz` files to Google Cloud Storage.
 import os
 import tempfile
 import typing
+from collections import namedtuple
 from compression.zstd import ZstdCompressor, ZstdDict
 from pathlib import Path
 
@@ -32,6 +33,9 @@ DESTINATION_FOLDER = os.getenv("DESTINATION_FOLDER", "cdt")
 SKIP_UPLOAD = os.getenv("SKIP_UPLOAD", "0") in "1yY"
 
 PREVIOUS_VERSIONS_COUNT = int(os.getenv("PREVIOUS_VERSIONS_COUNT", "5"))
+
+
+DictPair = namedtuple("DictPair", ["bid", "cid", "old", "new"])
 
 
 def records_to_compress(
@@ -83,23 +87,23 @@ def scan_existing_attachments(
 def find_missing_compressed_files(
     client: storage.Client,
     bucket: storage.Bucket,
-    pairs: Iterable[tuple[str, str, str, str]],
-) -> list[tuple[str, str, str, str]]:
-    missing: list[tuple[str, str, str, str]] = []
-    for bid, cid, old, new in pairs:
-        dict_name = compressed_filename(bid, cid, old, new)
+    pairs: Iterable[DictPair],
+) -> list[DictPair]:
+    missing: list[DictPair] = []
+    for pair in pairs:
+        dict_name = compressed_filename(pair)
         exists = storage.Blob(bucket=bucket, name=dict_name).exists(client=client)
         if not exists:
             print(f"{dict_name} is missing from GCS.")
-            missing.append((bid, cid, old, new))
+            missing.append(pair)
     return missing
 
 
-def compressed_filename(bid, cid, old, new):
-    old_stem = Path(old).stem
-    new_stem = Path(new).stem
+def compressed_filename(pair: DictPair):
+    old_stem = Path(pair.old).stem
+    new_stem = Path(pair.new).stem
     # /cdt/{bid}/{cid}/compressed/target-{new}/dcz/from-{old}.dcz"
-    return f"{DESTINATION_FOLDER}/{bid}/{cid}/compressed/target-{new_stem}/dcz/from-{old_stem}.dcz"
+    return f"{DESTINATION_FOLDER}/{pair.bid}/{pair.cid}/compressed/target-{new_stem}/dcz/from-{old_stem}.dcz"
 
 
 def download_blob_to_file(
@@ -164,7 +168,7 @@ def build_compression_dictionaries():
         latest_filenames = sorted(filenames, reverse=True)
         new = latest_filenames[0]
         for old in latest_filenames[1 : PREVIOUS_VERSIONS_COUNT + 1]:
-            all_pairs.append((bid, cid, old, new))
+            all_pairs.append(DictPair(bid, cid, old, new))
 
     # Query the compression-dictionaries GCS bucket to see which are missing.
     missing_dictionaries = find_missing_compressed_files(
@@ -181,15 +185,18 @@ def build_compression_dictionaries():
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_dir = Path(tmp_dir)
 
-        for bid, cid, old, new in missing_dictionaries:
+        for dictpair in missing_dictionaries:
             # Download actual files from attachments bucket.
-            old_tmp_path = tmp_dir / old
-            download_blob_to_file(gcs_client, attachments_bucket, old, old_tmp_path)
-            new_tmp_path = tmp_dir / new
+            old_tmp_path = tmp_dir / dictpair.old
+            download_blob_to_file(
+                gcs_client, attachments_bucket, dictpair.old, old_tmp_path
+            )
+            new_tmp_path = tmp_dir / dictpair.new
             if not new_tmp_path.exists():
-                download_blob_to_file(gcs_client, attachments_bucket, new, new_tmp_path)
+                download_blob_to_file(
+                    gcs_client, attachments_bucket, dictpair.new, new_tmp_path
+                )
 
-            dest_name = compressed_filename(bid, cid, old, new)
             with tempfile.TemporaryFile() as compressed_fd:
                 # Compress `new` using `old` as the compression dictionary.
                 zstd_compress(
@@ -199,6 +206,7 @@ def build_compression_dictionaries():
                 )
 
                 # Upload result to compression-dictionaries bucket.
+                dest_name = compressed_filename(dictpair)
                 if SKIP_UPLOAD:
                     print(f"[skip] Upload to {dest_name}")
                 else:

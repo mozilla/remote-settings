@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from commands.build_compression_dictionaries import (
+    DictPair,
     build_compression_dictionaries,
     compressed_filename,
     find_missing_compressed_files,
@@ -139,13 +140,13 @@ def test_find_missing_compressed_files(mock_blob):
         fake_client,
         fake_bucket,
         [
-            (
+            DictPair(
                 "bid",
                 "cid",
                 "bid/cid/20260401--rid1--file2.txt",
                 "bid/cid/20260601--rid1--file1.txt",
             ),
-            (
+            DictPair(
                 "bid",
                 "cid",
                 "bid/cid/20260201--rid1--file2.txt",
@@ -168,10 +169,12 @@ def test_compressed_filename():
     # `new` is the file being compressed (target), `old` is the dictionary it
     # is compressed against (from).
     filename = compressed_filename(
-        "bid",
-        "cid",
-        "bid/cid/20260201--rid1--file2.txt",
-        "bid/cid/20260601--rid1--file1.txt",
+        DictPair(
+            "bid",
+            "cid",
+            "bid/cid/20260201--rid1--file2.txt",
+            "bid/cid/20260601--rid1--file1.txt",
+        )
     )
     assert (
         filename
