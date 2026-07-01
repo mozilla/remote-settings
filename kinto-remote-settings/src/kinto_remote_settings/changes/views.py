@@ -138,7 +138,7 @@ class Changes(resource.Resource):
         _handle_old_since_redirect(request)
         # Inject custom model.
         self.model = ChangesModel(request)
-        super().__init__(request, context)
+        super(Changes, self).__init__(request, context)
 
     def plural_get(self) -> Any:
         try:
