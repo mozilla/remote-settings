@@ -96,7 +96,7 @@ def execute_backport(
     is_behind = to_create or to_update or to_delete
     has_pending_changes = is_behind
     if not is_behind:
-        # When this lambda is ran with a signed collection as
+        # When this lambda is run with a signed collection as
         # its destination, the destination collection is in the
         # workspace bucket, and will have a status field among
         # its metadata.
