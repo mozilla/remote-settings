@@ -20,6 +20,7 @@ from . import KintoClient, fetch_all_changesets
 ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
 REALM = os.getenv("REALM", "test")
 SERVER = os.getenv("SERVER")
+AUTH = os.getenv("AUTH")
 STORAGE_BUCKET_NAME_DICTS = os.getenv(
     "STORAGE_BUCKET_NAME_DICTS",
     f"remote-settings-{REALM}-{ENVIRONMENT}-compression-dictionaries",
@@ -143,7 +144,7 @@ def build_compression_dictionaries():
     """
     # Build list of records with attachments for the
     # collections where compression dictionaries are enabled.
-    kinto_client = KintoClient(server_url=SERVER)
+    kinto_client = KintoClient(server_url=SERVER, auth=AUTH)
     workspace_changesets = fetch_all_changesets(
         kinto_client, with_workspace_buckets=True, with_preview_destination=False
     )
