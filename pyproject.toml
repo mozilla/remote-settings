@@ -27,14 +27,14 @@ dev = [
     "pytest==9.1.1",
     "pytest-cov<8.0.0",
     "webtest==3.0.7",
-    "coverage==7.14.3",
+    "coverage==7.15.0",
     "detect-secrets>=1.5.0",
     "ruff>=0.15.20",
-    "responses>=0.26.1",
+    "responses>=0.26.2",
     "httpx>=0.28.1",
     "setuptools<82",
     "pytest-xdist>=3.8.0",
-    "ty>=0.0.55",
+    "ty>=0.0.56",
 ]
 docs = [
     "docutils==0.22.4",
