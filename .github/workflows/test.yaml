@@ -1,8 +1,7 @@
 name: Tests
 
 # Reusable workflow so the exact same test suite gates both CI checks
-# (ci.yaml) and the deployable image build (publish.yaml). Keeping a single
-# definition avoids drift between "what CI runs" and "what gates the deploy".
+# (ci.yaml) and the deployable image build (publish.yaml).
 on:
   workflow_call:
 
