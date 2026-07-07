@@ -1,0 +1,43 @@
+name: Tests
+
+# Reusable workflow so the exact same test suite gates both CI checks
+# (ci.yaml) and the deployable image build (publish.yaml). Keeping a single
+# definition avoids drift between "what CI runs" and "what gates the deploy".
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  run_test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres # pragma: allowlist secret
+          POSTGRES_HOST_AUTH_METHOD: trust
+          LC_COLLATE: en_US.UTF8
+          LC_CTYPE: en_US.UTF8
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          python-version: "3.14.6"
+      - name: Install dependencies
+        run: make install
+      - name: Run tests
+        run: make test

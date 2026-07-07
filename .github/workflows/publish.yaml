@@ -192,7 +192,7 @@ jobs:
           SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:${{ env.LATEST_TAG }}
         run: |
           for tag in $TAGS; do
-            docker buildx imagetools create --tag "${tag}" "${SRC}" 
+            docker buildx imagetools create --tag "${tag}" "${SRC}"
           done
       - name: Notify DEVs of build failure
         if: failure()
