@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timezone
+from typing import Any
 
 from kinto_http import KintoException
 
@@ -10,18 +11,20 @@ class RefreshError(Exception):
     pass
 
 
-def timestamp_to_date(timestamp_milliseconds):
+def timestamp_to_date(timestamp_milliseconds: int | str) -> str:
     timestamp_seconds = int(timestamp_milliseconds) / 1000
     return datetime.fromtimestamp(timestamp_seconds, tz=timezone.utc).strftime(
         "%Y-%m-%d %H:%M:%S UTC"
     )
 
 
-def utcnow():
+def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def get_signed_source(server_info, change):
+def get_signed_source(
+    server_info: dict[str, Any], change: dict[str, Any]
+) -> dict[str, Any] | None:
     # Small helper to identify the source collection from a potential
     # signing destination collection, like those mentioned in the changes endpoint
     # (eg. blocklists/plugins -> staging/plugins).
@@ -39,7 +42,7 @@ def get_signed_source(server_info, change):
             }
 
 
-def refresh_signature():
+def refresh_signature() -> None:
     """Refresh the signatures of each collection."""
 
     server = os.environ["SERVER"]

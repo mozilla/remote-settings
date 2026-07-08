@@ -3,6 +3,7 @@ import glob
 import importlib
 import os
 import sys
+from typing import Any, Callable
 
 import sentry_sdk
 from decouple import config
@@ -38,10 +39,10 @@ ENTRYPOINTS = [
 ]
 
 
-def help_(**kwargs):
+def help_(**kwargs: Any) -> None:
     """Show this help."""
 
-    def white_bold(s):
+    def white_bold(s: str) -> str:
         return f"\033[1m\x1b[37m{s}\033[0;0m"
 
     commands = [
@@ -65,7 +66,7 @@ Available commands:
     )
 
 
-def run(command):
+def run(command: str | Callable[[], Any]) -> Any:
     if isinstance(command, (str,)):
         # Import the command module and returns its main function.
         mod = importlib.import_module(f"commands.{command}")
@@ -83,7 +84,7 @@ def run(command):
     return command()
 
 
-def main(*args):
+def main(*args: str) -> int | None:
     # Run the function specified in CLI arg.
     #
     # $ AUTH=user:pass python aws_lambda.py refresh_signature

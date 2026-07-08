@@ -11,7 +11,7 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import lru_cache
-from typing import Annotated, Awaitable, BinaryIO, Callable, Generator, cast
+from typing import Annotated, Any, Awaitable, BinaryIO, Callable, Generator, cast
 from urllib.parse import urlparse
 
 import lz4.block
@@ -126,7 +126,7 @@ logging.config.dictConfig(
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", frozen=True)
-    git_repo_path: str = Field(..., description="Path to the Git repository")
+    git_repo_path: str = Field("", description="Path to the Git repository")
     self_contained: bool = Field(
         False,
         description="Whether to serve `attachments/` and `cert-chains/` endpoints.",
@@ -151,6 +151,10 @@ class Settings(BaseSettings):
     cache_control_static_expires_seconds: int = Field(
         604800,
         description="Sets the cache-control response header to max-age={value} for static content, like attachments. Default is 604800 (1 week)",
+    )
+    filter_refs_cache_size: int = Field(
+        500,
+        description="Number of filter_refs function results to cache. This filters git tags to a specific collection and is expensive to run per request.",
     )
 
 
@@ -247,7 +251,7 @@ def read_json_mozlz4(content: bytes) -> list[dict]:
     return json.loads(decompressed.decode("utf-8"))
 
 
-def write_json_mozlz4(fd: BinaryIO, changesets: list[dict]):
+def write_json_mozlz4(fd: BinaryIO, changesets: list[dict]) -> None:
     """
     Write changesets to a mozLz4 compressed file.
     """
@@ -256,13 +260,13 @@ def write_json_mozlz4(fd: BinaryIO, changesets: list[dict]):
     fd.write(MOZLZ4_HEADER_MAGIC + compressed)
 
 
-def measure_git_read_time(operation: str):
+def measure_git_read_time(operation: str) -> Callable[[Callable], Callable]:
     """
     Decorator to measure the time spent in Git read operations.
     """
 
-    def decorator(func: Callable):
-        def wrapper(*args, **kwargs):
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             global METRICS
             start_time = time.time()
             try:
@@ -278,12 +282,36 @@ def measure_git_read_time(operation: str):
     return decorator
 
 
+@lru_cache(maxsize=get_settings().filter_refs_cache_size)
+def filter_refs(
+    repo: pygit2.Repository,
+    bid: str,
+    cid: str,
+) -> list[str]:
+    """
+    Returns a list of git refs filtered to the requested bucket and collection,
+    sorted in reverse chronological order. Because repo is provided as a param,
+    and that ref will change as content changes, this cache will not return
+    stale data.
+    """
+    return sorted(
+        [
+            ref.decode()
+            for ref in repo.raw_listall_references()
+            if ref.decode().startswith(
+                f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/"
+            )
+        ],
+        reverse=True,
+    )
+
+
 class GitService:
     """
     Wrapper on top of pygit2 to serve content.
     """
 
-    def __init__(self, repo: pygit2.Repository, settings: Settings):
+    def __init__(self, repo: pygit2.Repository, settings: Settings) -> None:
         self.repo = repo
         self.settings = settings
 
@@ -294,7 +322,7 @@ class GitService:
     ) -> "GitService":
         return GitService(repo, settings)
 
-    def check_content(self):
+    def check_content(self) -> None:
         """
         Check that the repository has the expected branches and tags.
         """
@@ -338,21 +366,14 @@ class GitService:
         }
 
     @measure_git_read_time(operation="build_changeset")
-    def get_collection_changeset(self, bid, cid, _since=None):
+    def get_collection_changeset(
+        self, bid: str, cid: str, _since: int | None = None
+    ) -> tuple[int, dict, list[dict]]:
         """
         Get the changeset for a specific collection.
         """
         # List all tags for this collection and sort them by timestamp desc.
-        refs = sorted(
-            [
-                ref.decode()
-                for ref in self.repo.raw_listall_references()
-                if ref.decode().startswith(
-                    f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/"
-                )
-            ],
-            reverse=True,
-        )
+        refs = filter_refs(self.repo, bid, cid)
         if not refs:
             raise CollectionNotFound(bid, cid)
 
@@ -420,7 +441,12 @@ class GitService:
         )
         return timestamp, metadata, changes
 
-    def get_monitor_changes_changeset(self, _since=None, collection=None, bucket=None):
+    def get_monitor_changes_changeset(
+        self,
+        _since: int | None = None,
+        collection: str | None = None,
+        bucket: str | None = None,
+    ) -> tuple[int, dict, list[dict]]:
         """
         This is a specific case, since it is stored as a single file in the common branch.
         """
@@ -443,7 +469,7 @@ class GitService:
 
         return timestamp, metadata, changes
 
-    def get_server_info(self):
+    def get_server_info(self) -> dict:
         """
         Get the server information from the common branch.
         """
@@ -451,7 +477,7 @@ class GitService:
         content = json.loads(bcontent.decode("utf-8"))
         return content
 
-    def get_broadcasts(self):
+    def get_broadcasts(self) -> dict:
         """
         Get the broadcasts from the common branch.
         """
@@ -526,7 +552,7 @@ class GitService:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> Any:
     """
     Add a very simple in-memory cache to store data during the app lifespan.
     """
@@ -543,7 +569,7 @@ app.add_middleware(RequestIdMiddleware)
 
 
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception):
+async def unhandled_exception_handler(request: Request, exc: Exception) -> Response:
     # This shouldn't be necessary when ran with `uvicorn``, which already does that.
     # Doing it here gives us more control on future requirements about format etc.,
     # and most importantly allows us to test it with `TestClient`.
@@ -605,12 +631,12 @@ def git_repo_health() -> list:
 
 
 @app.get("/")
-def root():
+def root() -> RedirectResponse:
     return RedirectResponse(f"/{API_PREFIX}", status_code=307)
 
 
 @app.get(f"/{API_PREFIX[:-1]}")
-def hello_unsuffixed():
+def hello_unsuffixed() -> RedirectResponse:
     return RedirectResponse(f"/{API_PREFIX}", status_code=307)
 
 
@@ -675,7 +701,7 @@ def monitor_changes(
     collection: str | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
-):
+) -> ChangesetResponse:
     if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
@@ -710,7 +736,7 @@ def collection_changeset(
     _since: Annotated[int, Query(ge=0)] | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
-):
+) -> ChangesetResponse | RedirectResponse:
     if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
@@ -763,7 +789,7 @@ def broadcasts(
     response: Response,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
-):
+) -> dict:
     response.headers["cache-control"] = (
         f"max-age={settings.cache_control_short_expires_seconds}"
     )
@@ -779,16 +805,21 @@ def cert_chain(
     pem: str,
     response: Response,
     settings: Settings = Depends(get_settings),
-    git: GitService = Depends(GitService.dep),
-):
+) -> str:
     if not settings.self_contained:
         raise HTTPException(status_code=404, detail="cert-chains/ not enabled")
     try:
         response.headers["cache-control"] = (
             f"max-age={settings.cache_control_static_expires_seconds}"
         )
+        # Load the Git repo here and not via a FastAPI dependency,
+        # to avoid loading when self-contained.
+        repo = get_repo(
+            settings=settings, cache_bust=get_last_modified(settings=settings)
+        )
+        git = GitService.dep(repo=repo, settings=settings)
         return git.get_cert_chain(pem)
-    except (FileNotFoundError, IsADirectoryError):
+    except FileNotFoundError, IsADirectoryError:
         raise HTTPException(status_code=404, detail=f"{pem} not found")
 
 
@@ -796,13 +827,13 @@ def cert_chain(
     f"/{API_PREFIX}attachments/{{path:path}}",
     methods=["GET", "HEAD"],
     name="attachments",
+    response_model=None,
 )
 def attachments(
     request: Request,
     path: str,
     settings: Settings = Depends(get_settings),
-    git: GitService = Depends(GitService.dep),
-):
+) -> StreamingResponse | FileResponse:
     if not settings.self_contained:
         raise HTTPException(status_code=404, detail="attachments/ not enabled")
 
@@ -830,6 +861,12 @@ def attachments(
     # The startup bundle contains all collections changesets.
     # Their x5u URLs must be rewritten to point to this server.
     if path == STARTUP_BUNDLE_FILE:
+        # Load the Git repo here and not via a FastAPI dependency,
+        # to avoid loading it for the all 4XX responses cases above.
+        repo = get_repo(
+            settings=settings, cache_bust=get_last_modified(settings=settings)
+        )
+        git = GitService.dep(repo=repo, settings=settings)
         cached = request.state.cache.get("_cached_startup_bundle")
         current_commit: str = git.get_head_info()["id"]
         if cached != current_commit:

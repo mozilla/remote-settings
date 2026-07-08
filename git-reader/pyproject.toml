@@ -5,15 +5,15 @@ description = "Remote Settings git reader service"
 requires-python = ">=3.11,<3.15"
 dependencies = [
     "dockerflow>=2026.3.4",
-    "fastapi>=0.120.2",
-    "pydantic-settings>=2.10.1",
+    "fastapi>=0.139.0",
+    "pydantic-settings>=2.14.2",
     "pygit2>=1.19.3",
     "uvloop>=0.21.0",
     "pyjwt>=2.10.1",
     "lz4>=4.4.5",
     "prometheus-client>=0.23.1",
     "asgiref>=3.11.0",
-    "granian>=2.7.6",
+    "granian>=2.7.9",
 ]
 
 [build-system]

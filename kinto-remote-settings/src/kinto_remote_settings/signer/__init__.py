@@ -2,6 +2,7 @@ import copy
 import functools
 import re
 import sys
+from typing import Any
 
 import transaction
 from kinto.core import metrics as core_metrics
@@ -19,7 +20,7 @@ from .events import ReviewApproved, ReviewRejected, ReviewRequested
 
 IS_RUNNING_MIGRATE = "migrate" in sys.argv
 
-DEFAULT_SETTINGS = {
+DEFAULT_SETTINGS: dict[str, Any] = {
     "allow_floats": False,
     "auto_create_resources": False,
     "auto_create_resources_principals": [Authenticated],
@@ -30,7 +31,7 @@ DEFAULT_SETTINGS = {
 }
 
 
-def on_review_approved(event):
+def on_review_approved(event: Any) -> None:
     metrics_service = event.request.registry.metrics
     if metrics_service is not None:
         count = event.changes_count
@@ -44,7 +45,7 @@ def on_review_approved(event):
         )
 
 
-def load_signed_resources_configuration(config):
+def load_signed_resources_configuration(config: Any) -> dict[str, Any]:
     settings = config.get_settings()
 
     # Load settings from KINTO_SIGNER_* environment variables.
@@ -179,7 +180,7 @@ def load_signed_resources_configuration(config):
     return resources
 
 
-def includeme(config):
+def includeme(config: Any) -> None:
     # Register heartbeat to check signer integration.
     config.registry.heartbeats["signer"] = heartbeat
 
@@ -274,7 +275,7 @@ def includeme(config):
         for_resources=("collection",),
     )
 
-    def on_new_request(event):
+    def on_new_request(event: Any) -> None:
         """Send the signer events in the before commit hook.
         This allows database operations done in subscribers to be automatically
         committed or rolledback.
@@ -306,7 +307,7 @@ def includeme(config):
         pass
 
     # Automatically create resources on startup if option is enabled.
-    def auto_create_resources(event, resources):
+    def auto_create_resources(event: Any, resources: dict[str, Any]) -> None:
         storage = event.app.registry.storage
         permission = event.app.registry.permission
         write_principals = aslist(

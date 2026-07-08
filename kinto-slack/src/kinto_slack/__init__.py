@@ -4,6 +4,7 @@ import os
 import re
 import time
 from collections import defaultdict
+from typing import Any
 
 import requests
 from kinto.core.errors import raise_invalid
@@ -14,17 +15,17 @@ from kinto.core.utils import read_env
 logger = logging.getLogger(__name__)
 
 
-def qualname(obj):
+def qualname(obj: Any) -> str:
     return str(obj.__class__).split("'")[1]
 
 
-def _match(pattern, value):
+def _match(pattern: str, value: str) -> bool:
     if pattern.startswith("^"):
         return re.match(pattern, value) is not None
     return pattern == value
 
 
-def _get_slack_hooks(storage, context):
+def _get_slack_hooks(storage: Any, context: dict[str, Any]) -> list[dict[str, Any]]:
     bucket_id = context["bucket_id"]
     collection_id = context["collection_id"]
     bucket_uri = "/buckets/%s" % bucket_id
@@ -47,10 +48,10 @@ def _get_slack_hooks(storage, context):
     return metadata.get("kinto-slack", {}).get("hooks", [])
 
 
-def get_messages(storage, context):
+def get_messages(storage: Any, context: dict[str, Any]) -> list[dict[str, Any]]:
     hooks = _get_slack_hooks(storage, context)
     filters = ("action", "resource_name", "id", "record_id", "collection_id", "event")
-    messages = []
+    messages: list[dict[str, Any]] = []
 
     for hook in hooks:
         conditions_met = all(
@@ -64,7 +65,7 @@ def get_messages(storage, context):
 
         messages.append(
             {
-                "channel": hook["channel"],
+                "channel": hook.get("channel"),
                 "text": hook["template"].format_map(defaultdict(str, context)),
             }
         )
@@ -72,7 +73,7 @@ def get_messages(storage, context):
     return messages
 
 
-def build_notification(event):
+def build_notification(event: Any) -> None:
     resource_name = event.payload["resource_name"]
     storage = event.request.registry.storage
     context = dict(
@@ -101,46 +102,60 @@ def build_notification(event):
     setattr(event.request, "_kinto_slack_messages", existing + messages)
 
 
-def send_notification(event):
+def send_notification(event: Any) -> None:
     messages = getattr(event.request, "_kinto_slack_messages", [])
     if not messages:
         return
 
     settings = event.request.registry.settings
-    webhook_url = settings.get("slack.webhook_url")
+    # Get default webhook URL from .ini
+    default_webhook_url = settings.get("slack.webhook_url")
+    # Try to read it from env.
+    default_webhook_url = read_env("kinto.slack.webhook_url", default_webhook_url)
+    # Used for testing and debugging (similar to kinto-emailer).
     debug_dir = settings.get("slack.debug_dir")
 
-    if not webhook_url and not debug_dir:
-        logger.warning("slack.webhook_url is not configured")
-        return
-
     for msg in messages:
+        channel_webhook_url = None
+        if msg["channel"]:
+            slack_channel = msg["channel"].replace("#", "")
+            # Channel webhook URL from .ini
+            settings_key = f"slack.{slack_channel}.webhook_url"
+            channel_webhook_url = settings.get(settings_key)
+            # Try to read it from env. See `read_env()`.
+            # The env var must be `KINTO_SLACK_{CHANNEL}_WEBHOOK_URL
+            # eg. KINTO_SLACK_FXMONITOR_ALERTS_WEBHOOK_URL
+            channel_webhook_url = read_env(f"kinto.{settings_key}", channel_webhook_url)
+            if not channel_webhook_url and default_webhook_url:
+                logger.warning(
+                    f"{settings_key} not found in config or environment. Fallback to default"
+                )
+        if not channel_webhook_url:
+            channel_webhook_url = default_webhook_url
+            if not channel_webhook_url and not debug_dir:
+                logger.warning("No Slack Webhook URL or debug dir configured.")
+
         if debug_dir:
             os.makedirs(debug_dir, exist_ok=True)
             filename = os.path.join(debug_dir, f"{time.time_ns()}.json")
             with open(filename, "w") as f:
                 json.dump(msg, f)
-        if webhook_url:
+
+        if channel_webhook_url:
             try:
-                resp = requests.post(webhook_url, json=msg, timeout=5)
+                resp = requests.post(channel_webhook_url, json=msg, timeout=5)
                 resp.raise_for_status()
             except Exception:
                 logger.exception("Could not send Slack notification")
 
 
-def _validate_slack_settings(event):
+def _validate_slack_settings(event: Any) -> None:
     for impacted in event.impacted_objects:
         if event.payload["action"] == "delete":
             continue
         obj = impacted.get("new", {})
         hooks = obj.get("kinto-slack", {}).get("hooks", [])
         for hook in hooks:
-            if "channel" not in hook:
-                raise_invalid(
-                    event.request,
-                    name="kinto-slack",
-                    description="Hook is missing 'channel'",
-                )
             if "template" not in hook:
                 raise_invalid(
                     event.request,
@@ -149,11 +164,8 @@ def _validate_slack_settings(event):
                 )
 
 
-def includeme(config):
+def includeme(config: Any) -> None:
     settings = config.get_settings()
-    webhook_url = settings.get("slack.webhook_url")
-    webhook_url = read_env("kinto.slack.webhook_url", webhook_url)
-    config.add_settings({"slack.webhook_url": webhook_url})
 
     tmp_dir = settings.get("slack.debug_dir")
     tmp_dir = read_env("kinto.slack.debug_dir", tmp_dir)

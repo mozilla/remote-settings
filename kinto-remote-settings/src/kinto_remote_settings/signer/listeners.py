@@ -1,5 +1,6 @@
 import copy
 import logging
+from typing import Any
 
 from kinto.core import errors
 from kinto.core.errors import ERRORS
@@ -18,17 +19,22 @@ from .utils import PLUGIN_USERID, STATUS, ensure_resource_exists
 logger = logging.getLogger(__name__)
 
 
-def raise_invalid(**kwargs):
+def raise_invalid(**kwargs: Any) -> None:
     kwargs.update(errno=ERRORS.INVALID_POSTED_DATA)
     raise errors.http_error(httpexceptions.HTTPBadRequest(), **kwargs)
 
 
-def raise_forbidden(**kwargs):
+def raise_forbidden(**kwargs: Any) -> None:
     kwargs.update(errno=ERRORS.FORBIDDEN)
     raise errors.http_error(httpexceptions.HTTPForbidden(), **kwargs)
 
 
-def pick_resource_and_signer(request, resources, bucket_id, collection_id):
+def pick_resource_and_signer(
+    request: Any,
+    resources: dict[str, Any],
+    bucket_id: str,
+    collection_id: str,
+) -> tuple[dict[str, Any] | None, Any]:
     bucket_key = instance_uri(request, "bucket", id=bucket_id)
     collection_key = instance_uri(
         request, "collection", bucket_id=bucket_id, id=collection_id
@@ -58,7 +64,7 @@ def pick_resource_and_signer(request, resources, bucket_id, collection_id):
     return resource, signer
 
 
-def sign_collection_data(event, resources, **kwargs):
+def sign_collection_data(event: Any, resources: dict[str, Any], **kwargs: Any) -> None:
     """
     Listen to resource change events, to check if a new signature is
     requested.
@@ -116,7 +122,7 @@ def sign_collection_data(event, resources, **kwargs):
         payload["collection_id"] = new_collection["id"]
 
         review_event_cls = None
-        review_event_kw = dict(
+        review_event_kw: dict[str, Any] = dict(
             request=event.request,
             payload=payload,
             impacted_objects=[impacted],
@@ -284,7 +290,7 @@ def sign_collection_data(event, resources, **kwargs):
             ).append(review_event)
 
 
-def send_signer_events(event):
+def send_signer_events(event: Any) -> None:
     """Send accumulated review events for this request. This listener is bound to the
     ``AfterResourceChanged`` event so that review events are sent only if the
     transaction was committed.
@@ -297,12 +303,12 @@ def send_signer_events(event):
 
 
 def check_collection_status(
-    event,
-    resources,
-    to_review_enabled,
-    editors_group,
-    reviewers_group,
-):
+    event: Any,
+    resources: dict[str, Any],
+    to_review_enabled: bool,
+    editors_group: str,
+    reviewers_group: str,
+) -> None:
     """Make sure status changes are allowed."""
     payload = event.payload
 
@@ -311,7 +317,7 @@ def check_collection_status(
         # Ignore changes made by plugin.
         return
 
-    user_principals = event.request.effective_principals
+    user_principals = event.request.prefixed_principals
 
     for impacted in event.impacted_objects:
         old_collection = impacted.get("old", {})
@@ -403,13 +409,13 @@ def check_collection_status(
             raise_invalid(message="Invalid status '%s'" % new_status)
 
 
-def signer_resource_match(resource, bid, cid):
+def signer_resource_match(resource: dict[str, Any], bid: str, cid: str) -> bool:
     return resource["bucket"] == bid and (
         resource["collection"] is None or resource["collection"] == cid
     )
 
 
-def signer_impacts_resource(signer, bid, cid):
+def signer_impacts_resource(signer: dict[str, Any], bid: str, cid: str) -> bool:
     matches_destination = signer_resource_match(signer["destination"], bid, cid)
     if matches_destination:
         return True
@@ -422,7 +428,7 @@ def signer_impacts_resource(signer, bid, cid):
     return False
 
 
-def prevent_float_value(event, resources):
+def prevent_float_value(event: Any, resources: dict[str, Any]) -> None:
     """This ResourceChanged event listener will reject records that
     contain float values.
 
@@ -437,7 +443,7 @@ def prevent_float_value(event, resources):
     [0] https://github.com/gibson042/canonicaljson-spec
     """
 
-    def scan(d, path=""):
+    def scan(d: Any, path: str | int = "") -> None:
         if isinstance(d, list):
             d = {i: o for i, o in enumerate(d)}
         for k, v in d.items():
@@ -467,7 +473,7 @@ def prevent_float_value(event, resources):
             raise_invalid(message=str(e))
 
 
-def prevent_collection_delete(event, resources):
+def prevent_collection_delete(event: Any, resources: dict[str, Any]) -> None:
     request = event.request
     bid = event.payload["bucket_id"]
     for impacted in event.impacted_objects:
@@ -568,7 +574,7 @@ def prevent_collection_delete(event, resources):
             pass
 
 
-def check_collection_tracking(event, resources):
+def check_collection_tracking(event: Any, resources: dict[str, Any]) -> None:
     """Make sure tracking fields are not changed manually/removed."""
     if event.request.prefixed_userid == PLUGIN_USERID:
         return
@@ -594,7 +600,7 @@ def check_collection_tracking(event, resources):
                 raise_invalid(message="Cannot change %r" % field)
 
 
-def set_work_in_progress_status(event, resources):
+def set_work_in_progress_status(event: Any, resources: dict[str, Any]) -> None:
     """Put the status in work-in-progress if was signed."""
     resource, signer = pick_resource_and_signer(
         event.request,
@@ -616,7 +622,12 @@ def set_work_in_progress_status(event, resources):
     updater.update_source_status(STATUS.WORK_IN_PROGRESS, event.request)
 
 
-def create_editors_reviewers_groups(event, resources, editors_group, reviewers_group):
+def create_editors_reviewers_groups(
+    event: Any,
+    resources: dict[str, Any],
+    editors_group: str,
+    reviewers_group: str,
+) -> None:
     if event.request.prefixed_userid == PLUGIN_USERID:
         return
 
@@ -684,7 +695,7 @@ def create_editors_reviewers_groups(event, resources, editors_group, reviewers_g
             permission.add_principal_to_ace(collection_uri, "write", group_principal)
 
 
-def cleanup_preview_destination(event, resources):
+def cleanup_preview_destination(event: Any, resources: dict[str, Any]) -> None:
     storage = event.request.registry.storage
     permission = event.request.registry.permission
     settings = event.request.registry.settings

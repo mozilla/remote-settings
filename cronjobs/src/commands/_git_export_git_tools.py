@@ -48,7 +48,9 @@ def clone_or_fetch(
     return repo
 
 
-def reset_repo(repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks | None):
+def reset_repo(
+    repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks | None
+) -> None:
     print("Reset local content to remote content...")
     # If the repo is freshly cloned, the remotes branches do not exist locally. Create them.
     # If the repo was cloned from previous run, reset the local branches to the remote targets.
@@ -100,7 +102,7 @@ def push_mirror(
     branches: Iterable[str],
     tags: Iterable[str],
     callbacks: pygit2.RemoteCallbacks,
-):
+) -> None:
     """
     An equivalent of `git push --force --mirror` for branches + tags only.
     """
@@ -108,25 +110,37 @@ def push_mirror(
     # 1) Force update all local branches
     for b in sorted(branches):
         to_push.append(f"+{b}:{b}")
-    # 2) Force update all local tags and delete old tags
+    # 2) Force update all local tags
+    to_delete = []
     for t in sorted(tags):
         deleting = t.startswith("-")
         name = t[1:]
         full = name if name.startswith("refs/tags/") else f"refs/tags/{name}"
         if deleting:
-            to_push.append(f":{full}")
+            to_delete.append(f":{full}")
         else:
             to_push.append(f"+{full}:{full}")
 
-    if not to_push:
+    if not to_push and not to_delete:
         print("Everything up-to-date.")
         return
 
+    # First push the new content, and then delete old tags in a second push.
+    # We do that because if the remote times out or fails with tags deletion,
+    # at least the new content is pushed.
     remote = repo.remotes[REMOTE_NAME]
-    print(f"Pushing to remote {remote.url}:\n - {'\n - '.join(to_push)}")
-    # This is the critical bit: non-fast-forward updates require the '+' force.
-    # The deletions use the ':refs/...'; '+' is ignored for deleted refspecs.
-    remote.push(to_push, callbacks=callbacks)
+    if to_push:
+        print(f"Pushing to remote {remote.url}:\n - {'\n - '.join(to_push)}")
+        # This is the critical bit: non-fast-forward updates require the '+' force.
+        # The deletions use the ':refs/...'; '+' is ignored for deleted refspecs.
+        remote.push(to_push, callbacks=callbacks)
+    else:
+        print("No new commit or tag to push.")
+    if to_delete:
+        print(f"Deleting from remote {remote.url}:\n - {'\n - '.join(to_delete)}")
+        remote.push(to_delete, callbacks=callbacks)
+    else:
+        print("No tag to delete.")
 
 
 def make_lfs_pointer(sha256_hex: str, size: int) -> bytes:
@@ -157,7 +171,9 @@ def parse_lfs_pointer(data: bytes) -> tuple[str, int]:
     return sha256_hex, size
 
 
-def list_lfs_pointers(repo, tree: pygit2.Tree | None) -> dict[str, tuple[str, int]]:
+def list_lfs_pointers(
+    repo: pygit2.Repository, tree: pygit2.Tree | None
+) -> dict[str, tuple[str, int]]:
     """
     List all LFS pointers in the given tree.
     Return a mapping of attachment path to (sha256, size).
@@ -175,7 +191,7 @@ def list_lfs_pointers(repo, tree: pygit2.Tree | None) -> dict[str, tuple[str, in
     for path, oid in objs:
         blob = repo[oid]
         try:
-            sha256_hex, size = parse_lfs_pointer(blob.data)
+            sha256_hex, size = parse_lfs_pointer(blob.data)  # ty: ignore[unresolved-attribute]
         except ValueError as exc:
             print(f"Failed to parse LFS pointer for {path}: {exc}")
         existing_attachments[path] = (sha256_hex, size)
@@ -183,7 +199,7 @@ def list_lfs_pointers(repo, tree: pygit2.Tree | None) -> dict[str, tuple[str, in
 
 
 def iter_tree(
-    repo: pygit2.Repository, tree: pygit2.Tree, prefix=""
+    repo: pygit2.Repository, tree: pygit2.Tree, prefix: str = ""
 ) -> Generator[tuple[str, pygit2.Oid], None, None]:
     """
     Iterate over the entries in a Git tree, and return their paths and IDs.

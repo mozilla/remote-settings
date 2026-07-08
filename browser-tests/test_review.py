@@ -1,15 +1,17 @@
 import re
 
-from playwright.sync_api import expect
+from playwright.sync_api import Page, expect
+
+from .conftest import Auth, RemoteSettingsClient
 
 
 def test_login_and_submit_review(
-    server,
-    page,
-    editor_auth,
-    source_bucket,
-    source_collection,
-):
+    server: str,
+    page: Page,
+    editor_auth: Auth,
+    source_bucket: str,
+    source_collection: str,
+) -> None:
     # load login page
     page.goto(f"{server}/admin/")
     expect(page).to_have_title(re.compile("Remote Settings"))
@@ -60,14 +62,14 @@ def test_login_and_submit_review(
 
 
 def test_review_requested_changes(
-    server,
-    page,
-    reviewer_auth,
-    source_bucket,
-    source_collection,
-    editor_client,
-    editor_auth,
-):
+    server: str,
+    page: Page,
+    reviewer_auth: Auth,
+    source_bucket: str,
+    source_collection: str,
+    editor_client: RemoteSettingsClient,
+    editor_auth: Auth,
+) -> None:
     # setup changes to review
     editor_client.create_record(data={"title": "val"})
     editor_client.patch_collection(data={"status": "to-review"})
@@ -108,15 +110,15 @@ def test_review_requested_changes(
 
 
 def test_review_existing_record(
-    server,
-    page,
-    reviewer_client,
-    editor_client,
-    editor_auth,
-    source_bucket,
-    source_collection,
-    preview_bucket,
-):
+    server: str,
+    page: Page,
+    reviewer_client: RemoteSettingsClient,
+    editor_client: RemoteSettingsClient,
+    editor_auth: Auth,
+    source_bucket: str,
+    source_collection: str,
+    preview_bucket: str,
+) -> None:
     record_id = "abc"
     # setup changes to review
     editor_client.create_record(data={"id": record_id, "title": "val"})

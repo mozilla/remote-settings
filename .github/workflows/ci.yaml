@@ -15,7 +15,7 @@ jobs:
   run_lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Check workflow files
         run: |
           curl --fail -L "https://github.com/rhysd/actionlint/releases/download/v${{ env.ACTIONLINT_VERSION }}/actionlint_${{ env.ACTIONLINT_VERSION }}_linux_amd64.tar.gz" -o actionlint.tar.gz
@@ -32,7 +32,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-          python-version: "3.14.5"
+          python-version: "3.14.6"
       - name: Install dependencies
         run: make install
       - name: Run linting and formatting checks
@@ -40,53 +40,24 @@ jobs:
   docs_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-          python-version: "3.14.5"
+          python-version: "3.14.6"
       - name: Check documentation build
         run: make docs
   run_test:
     needs: run_lint
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_DB: testdb
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres # pragma: allowlist secret
-          POSTGRES_HOST_AUTH_METHOD: trust
-          LC_COLLATE: en_US.UTF8
-          LC_CTYPE: en_US.UTF8
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - uses: actions/checkout@v6
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-          python-version: "3.14.5"
-      - name: Install dependencies
-        run: make install
-      - name: Run tests
-        run: make test
+    uses: ./.github/workflows/test.yaml
 
   cronjobs-test:
     needs: run_test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -113,7 +84,7 @@ jobs:
       CONFIG_MOUNT: ""
       SRC_MOUNT: ""
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4

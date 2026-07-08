@@ -1,3 +1,4 @@
+from pyramid.config import Configurator
 from pyramid.settings import aslist
 
 from .. import __version__
@@ -16,7 +17,7 @@ BROADCASTER_ID = "remote-settings"
 CHANNEL_ID = "monitor_changes"
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     settings = config.get_settings()
     collections = settings.get("changes.resources", [])
 

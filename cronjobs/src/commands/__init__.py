@@ -1,6 +1,7 @@
 import concurrent.futures
 import datetime
 import os
+from typing import Any, Callable
 
 import backoff
 import kinto_http
@@ -29,7 +30,7 @@ retry_timeout = backoff.on_exception(
 
 
 class CustomTimeout(TimeoutSauce):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         if kwargs["connect"] is None:
             kwargs["connect"] = REQUESTS_TIMEOUT_SECONDS
         if kwargs["read"] is None:
@@ -46,45 +47,49 @@ class KintoClient(kinto_http.Client):
     if the server replies with a 5XX.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs.setdefault("retry", REQUESTS_NB_RETRIES)
         kwargs.setdefault("dry_mode", DRY_MODE)
         super().__init__(*args, **kwargs)
 
     @retry_timeout
-    def server_info(self, *args, **kwargs):
+    def server_info(self, *args: Any, **kwargs: Any) -> Any:
         return super().server_info(*args, **kwargs)
 
     @retry_timeout
-    def get_collection(self, *args, **kwargs):
+    def get_collection(self, *args: Any, **kwargs: Any) -> Any:
         return super().get_collection(*args, **kwargs)
 
     @retry_timeout
-    def get_records(self, *args, **kwargs):
+    def get_records(self, *args: Any, **kwargs: Any) -> Any:
         return super().get_records(*args, **kwargs)
 
     @retry_timeout
-    def get_records_timestamp(self, *args, **kwargs):
+    def get_records_timestamp(self, *args: Any, **kwargs: Any) -> Any:
         return super().get_records_timestamp(*args, **kwargs)
 
     @retry_timeout
-    def get_changeset(self, *args, **kwargs):
+    def get_changeset(self, *args: Any, **kwargs: Any) -> Any:
         return super().get_changeset(*args, **kwargs)
 
     @retry_timeout
-    def approve_changes(self, *args, **kwargs):
+    def approve_changes(self, *args: Any, **kwargs: Any) -> Any:
         return super().approve_changes(*args, **kwargs)
 
     @retry_timeout
-    def request_review(self, *args, **kwargs):
+    def request_review(self, *args: Any, **kwargs: Any) -> Any:
         return super().request_review(*args, **kwargs)
 
     @retry_timeout
-    def purge_history(self, *args, **kwargs):
+    def purge_history(self, *args: Any, **kwargs: Any) -> Any:
         return super().purge_history(*args, **kwargs)
 
 
-def call_parallel(func, args_list, max_workers=PARALLEL_REQUESTS):
+def call_parallel(
+    func: Callable[..., Any],
+    args_list: list[tuple[Any, ...]],
+    max_workers: int = PARALLEL_REQUESTS,
+) -> list[Any]:
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(func, *args) for args in args_list]
@@ -92,7 +97,11 @@ def call_parallel(func, args_list, max_workers=PARALLEL_REQUESTS):
     return results
 
 
-def fetch_all_changesets(client, with_workspace_buckets: bool = False):
+def fetch_all_changesets(
+    client: KintoClient,
+    with_preview_destination: bool = True,
+    with_workspace_buckets: bool = False,
+) -> list[Any]:
     """
     Return the `/changeset` responses for all collections listed
     in the `monitor/changes` endpoint.
@@ -101,10 +110,14 @@ def fetch_all_changesets(client, with_workspace_buckets: bool = False):
     """
     monitor_changeset = client.get_changeset("monitor", "changes", bust_cache=True)
     print("%s collections" % len(monitor_changeset["changes"]))
-    args_list = [
-        (c["bucket"], c["collection"], c["last_modified"])
-        for c in monitor_changeset["changes"]
-    ]
+    args_list = []
+    if with_preview_destination:
+        args_list.extend(
+            [
+                (c["bucket"], c["collection"], c["last_modified"])
+                for c in monitor_changeset["changes"]
+            ]
+        )
 
     if with_workspace_buckets:
         # For each collection exposed in the monitor/changes endpoint,

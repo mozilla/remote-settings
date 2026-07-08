@@ -1,10 +1,11 @@
 import logging
+from typing import Any
 
 
 logger = logging.getLogger(__name__)
 
 
-def heartbeat(request):
+def heartbeat(request: Any) -> bool:
     """Test that signer is operational.
 
     :param request: current request object

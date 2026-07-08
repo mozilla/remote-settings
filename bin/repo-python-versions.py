@@ -7,7 +7,7 @@ from pathlib import Path
 REGEXP_VERSION = r"[0-9]+\.[0-9]+(?:\.[0-9]+)?"
 
 
-def extract_versions_from_dockerfile(file_path):
+def extract_versions_from_dockerfile(file_path: Path) -> list[str]:
     """
     cronjobs/Dockerfile:FROM python:3.13.1 AS build
     """
@@ -15,7 +15,7 @@ def extract_versions_from_dockerfile(file_path):
     return re.findall(f"python:({REGEXP_VERSION})", content)
 
 
-def extract_versions_from_ci_workflow(file_path):
+def extract_versions_from_ci_workflow(file_path: Path) -> list[str]:
     """
     .github/workflows/ci.yaml:          python-version: "3.13"
     """
@@ -23,7 +23,7 @@ def extract_versions_from_ci_workflow(file_path):
     return re.findall(r'python-version:\s*"?(' + REGEXP_VERSION + ')"?', content)
 
 
-def main():
+def main() -> None:
     result = subprocess.run(["git", "ls-files"], capture_output=True)
     files = result.stdout.decode("utf8").splitlines()
 

@@ -31,7 +31,7 @@ SLOW_DOWN_SECONDS = config("SLOW_DOWN_SECONDS", default=3, cast=int)
 GITHUB_MAX_LFS_BATCH_SIZE = config("GITHUB_MAX_LFS_BATCH_SIZE", default=100, cast=int)
 
 
-def fetch_and_hash(url, dest_file=None):
+def fetch_and_hash(url: str, dest_file: str | None = None) -> tuple[str, int]:
     """
     Fetch from the given URL and return the contents' sha256 hash and size.
     """

@@ -5,18 +5,18 @@ description = "Easily manage evergreen settings data in Firefox"
 authors = [{name = "Contactless", email = "postmaster@localhost"}]
 license = {text = "MPL"}
 readme = "README.rst"
-requires-python = ">=3.12,<3.15"
+requires-python = ">=3.14,<3.15"
 dependencies = [
     "canonicaljson-rs==0.9.3",
-    "cryptography<49",
+    "cryptography<50",
     "ecdsa==0.19.2",
-    "kinto[postgresql,memcached,monitoring]>=26.2.0,<27",
+    "kinto[postgresql,memcached,monitoring]>=26.3.2,<27",
     "kinto-attachment>=9.0.1",
     "kinto-emailer>=4",
     "kinto-slack",
     "requests-hawk<2",
     "prometheus-client>=0.25.0",
-    "granian>=2.7.6,<3.0.0",
+    "granian>=2.7.9,<3.0.0",
 ]
 
 [dependency-groups]
@@ -24,17 +24,17 @@ kinto-remote-settings = ["kinto-remote-settings"]
 cronjobs = ["cronjobs"]
 git-reader = ["git-reader"]
 dev = [
-    "pytest==9.0.3",
+    "pytest==9.1.1",
     "pytest-cov<8.0.0",
     "webtest==3.0.7",
-    "coverage==7.14.1",
+    "coverage==7.15.0",
     "detect-secrets>=1.5.0",
-    "ruff>=0.15.16",
-    "responses>=0.26.1",
+    "ruff>=0.15.20",
+    "responses>=0.26.2",
     "httpx>=0.28.1",
     "setuptools<82",
     "pytest-xdist>=3.8.0",
-    "ty>=0.0.44",
+    "ty>=0.0.56",
 ]
 docs = [
     "docutils==0.22.4",

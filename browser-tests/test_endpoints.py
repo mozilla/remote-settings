@@ -1,16 +1,16 @@
 import requests
 from playwright.sync_api import Browser, BrowserContext
 
-from .conftest import Auth
+from .conftest import Auth, RemoteSettingsClient
 from .utils import create_extra_headers
 
 
-def test_heartbeat(server: str, context: BrowserContext):
+def test_heartbeat(server: str, context: BrowserContext) -> None:
     resp = context.request.get(f"{server}/__heartbeat__")
     assert resp.status == 200
 
 
-def test_config(server_config, to_review_enabled):
+def test_config(server_config: dict, to_review_enabled: bool) -> None:
     assert server_config["project_name"]
     assert server_config["project_version"]
     assert server_config["http_api_version"]
@@ -19,15 +19,15 @@ def test_config(server_config, to_review_enabled):
     assert to_review_enabled == ("dev" not in server_config["project_name"].lower())
 
 
-def test_broadcasts(server: str, context: BrowserContext):
+def test_broadcasts(server: str, context: BrowserContext) -> None:
     resp = context.request.get(f"{server}/__broadcasts__")
     assert resp.status == 200
     assert "remote-settings/monitor_changes" in resp.json()["broadcasts"]
 
 
 def test_prometheus_collection(
-    request_session: requests.Session, server: str, editor_client
-):
+    request_session: requests.Session, server: str, editor_client: RemoteSettingsClient
+) -> None:
     editor_client.server_info()  # This will authenticate user.
 
     r = request_session.get(f"{server}/__metrics__")
@@ -47,7 +47,7 @@ def test_permissions_endpoint(
     source_bucket: str,
     source_collection: str,
     browser: Browser,
-):
+) -> None:
     for user in (editor_auth, reviewer_auth):
         context = browser.new_context(
             base_url=server, extra_http_headers=create_extra_headers(user[0], user[1])

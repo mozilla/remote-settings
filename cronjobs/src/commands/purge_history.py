@@ -11,11 +11,11 @@ DEFAULT_USER_IDS = (
 DEFAULT_BUCKETS = "staging, security-state-staging, main-workspace"
 
 
-def utcnow():
+def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def purge_history():
+def purge_history() -> None:
     """Purge old history entries on a regular basis."""
     server_url = config("SERVER", default="http://localhost:8888/v1")
     auth = config("AUTH", default="admin:s3cr3t")

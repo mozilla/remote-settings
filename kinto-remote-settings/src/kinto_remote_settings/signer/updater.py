@@ -1,6 +1,7 @@
 import datetime
 import logging
 from enum import Enum
+from typing import Any
 
 from kinto.core.events import ACTIONS
 from kinto.core.storage.exceptions import RecordNotFoundError
@@ -43,7 +44,7 @@ class TRACKING_FIELDS(Enum):
     LAST_SIGNATURE_DATE = "last_signature_date"
 
 
-def _ensure_resource(resource):
+def _ensure_resource(resource: dict[str, Any]) -> dict[str, Any]:
     if not set(resource.keys()).issuperset({"bucket", "collection"}):
         msg = "Resources should contain both bucket and collection"
         raise ValueError(msg)
@@ -73,9 +74,16 @@ class LocalUpdater(object):
         records from the source and add new items to the destination.
     """
 
-    def __init__(self, source, destination, signer, storage, permission):
-        self._source = None
-        self._destination = None
+    def __init__(
+        self,
+        source: dict[str, Any],
+        destination: dict[str, Any],
+        signer: Any,
+        storage: Any,
+        permission: Any,
+    ) -> None:
+        self._source: dict[str, Any] | None = None
+        self._destination: dict[str, Any] | None = None
 
         self.source = source
         self.destination = destination
@@ -84,11 +92,11 @@ class LocalUpdater(object):
         self.permission = permission
 
     @property
-    def source(self):
-        return self._source
+    def source(self) -> dict[str, Any]:
+        return self._source  # ty: ignore[invalid-return-type]
 
     @source.setter
-    def source(self, source):
+    def source(self, source: dict[str, Any]) -> None:
         self._source = _ensure_resource(source)
         self.source_bucket_uri = "/buckets/%s" % source["bucket"]
         self.source_collection_uri = "/buckets/%s/collections/%s" % (
@@ -97,11 +105,11 @@ class LocalUpdater(object):
         )
 
     @property
-    def destination(self):
-        return self._destination
+    def destination(self) -> dict[str, Any]:
+        return self._destination  # ty: ignore[invalid-return-type]
 
     @destination.setter
-    def destination(self, destination):
+    def destination(self, destination: dict[str, Any]) -> None:
         self._destination = _ensure_resource(destination)
         self.destination_bucket_uri = "/buckets/%s" % (self.destination["bucket"])
         self.destination_collection_uri = "/buckets/%s/collections/%s" % (
@@ -111,11 +119,11 @@ class LocalUpdater(object):
 
     def sign_and_update_destination(
         self,
-        request,
-        source_attributes,
-        next_source_status=STATUS.SIGNED,
-        previous_source_status=None,
-        push_records=True,
+        request: Any,
+        source_attributes: dict[str, Any],
+        next_source_status: STATUS | None = STATUS.SIGNED,
+        previous_source_status: STATUS | None = None,
+        push_records: bool = True,
     ) -> tuple[int, int]:
         """Sign the specified collection.
 
@@ -151,7 +159,9 @@ class LocalUpdater(object):
 
         return changes_count, changes_size_bytes
 
-    def refresh_signature(self, request, next_source_status=None):
+    def refresh_signature(
+        self, request: Any, next_source_status: STATUS | None = None
+    ) -> None:
         """Refresh the signature without moving records."""
         source_attributes = self.storage.get(
             parent_id="/buckets/%s" % self.source["bucket"],
@@ -176,8 +186,11 @@ class LocalUpdater(object):
             self._update_source_attributes(request, **attrs)
 
     def rollback_changes(
-        self, request, refresh_last_edit=True, refresh_signature=False
-    ):
+        self,
+        request: Any,
+        refresh_last_edit: bool = True,
+        refresh_signature: bool = False,
+    ) -> int:
         """Restore the contents of *destination* to *source* (delete extras,
         recreate deleted, and restore changes) (eg. destination -> preview,
         or preview -> source).
@@ -249,7 +262,7 @@ class LocalUpdater(object):
                     matchdict=matchdict,
                     resource_name="record",
                     parent_id=self.source_collection_uri,
-                    obj=impacted,
+                    obj=impacted,  # ty: ignore[invalid-argument-type]  # impacted is always set when action is not None
                     action=action,
                     old=record_before,
                 )
@@ -268,7 +281,7 @@ class LocalUpdater(object):
 
         return changed_count
 
-    def create_destination(self, request):
+    def create_destination(self, request: Any) -> None:
         """Create the destination bucket/collection if they don't already exist."""
         # With the current implementation, the destination is not writable by
         # anyone and readable by everyone.
@@ -298,7 +311,9 @@ class LocalUpdater(object):
             matchdict={"bucket_id": bucket_name, "id": collection_name},
         )
 
-    def _get_records(self, resource, empty_none=True):
+    def _get_records(
+        self, resource: dict[str, Any], empty_none: bool = True
+    ) -> tuple[list[dict[str, Any]], Any]:
         bid = resource["bucket"]
         cid = resource["collection"]
         parent_id = f"/buckets/{bid}/collections/{cid}"
@@ -315,13 +330,15 @@ class LocalUpdater(object):
 
         return records, collection_timestamp
 
-    def get_source_records(self, **kwargs):
+    def get_source_records(self, **kwargs: Any) -> tuple[list[dict[str, Any]], Any]:
         return self._get_records(self.source, **kwargs)
 
-    def get_destination_records(self, **kwargs):
+    def get_destination_records(
+        self, **kwargs: Any
+    ) -> tuple[list[dict[str, Any]], Any]:
         return self._get_records(self.destination, **kwargs)
 
-    def push_records_to_destination(self, request) -> tuple[int, int]:
+    def push_records_to_destination(self, request: Any) -> tuple[int, int]:
         dest_records, _dest_timestamp = self.get_destination_records()
         source_records, _source_timestamp = self.get_source_records()
         new_records = records_diff(source_records, dest_records)
@@ -396,8 +413,11 @@ class LocalUpdater(object):
         return changes_count, changes_size_bytes
 
     def set_destination_signatures(
-        self, signatures: list[dict], source_attributes, request
-    ):
+        self,
+        signatures: list[dict],
+        source_attributes: dict[str, Any],
+        request: Any,
+    ) -> None:
         # Push the new signature to the destination collection.
         parent_id = "/buckets/%s" % self.destination["bucket"]
         collection_id = "collection"
@@ -438,7 +458,7 @@ class LocalUpdater(object):
             old=collection_record,
         )
 
-    def update_source_review_request_by(self, request):
+    def update_source_review_request_by(self, request: Any) -> None:
         current_date = datetime.datetime.now(datetime.timezone.utc).isoformat()
         attrs = {
             TRACKING_FIELDS.LAST_REVIEW_REQUEST_BY.value: request.prefixed_userid,
@@ -446,7 +466,9 @@ class LocalUpdater(object):
         }
         return self._update_source_attributes(request, **attrs)
 
-    def update_source_status(self, status, request, old_status=None):
+    def update_source_status(
+        self, status: STATUS, request: Any, old_status: STATUS | None = None
+    ) -> None:
         current_userid = request.prefixed_userid
         current_date = datetime.datetime.now(datetime.timezone.utc).isoformat()
         attrs = {"status": status.value}
@@ -468,7 +490,7 @@ class LocalUpdater(object):
             attrs[TRACKING_FIELDS.LAST_SIGNATURE_DATE.value] = current_date
         return self._update_source_attributes(request, **attrs)
 
-    def _update_source_attributes(self, request, **kwargs):
+    def _update_source_attributes(self, request: Any, **kwargs: Any) -> None:
         parent_id = "/buckets/%s" % self.source["bucket"]
         resource_name = "collection"
 

@@ -2,6 +2,7 @@ import asyncio
 import operator
 import random
 import threading
+from collections.abc import Iterable
 
 import aiohttp
 import canonicaljson
@@ -15,11 +16,11 @@ from ..utils import _rand, upload_records
 
 
 class FakeRootHash:
-    def __eq__(self, val):
+    def __eq__(self, val: object) -> bool:
         return True
 
 
-def canonical_json(records, last_modified):
+def canonical_json(records: Iterable[dict], last_modified: int) -> str:
     # This code is import from `kinto_remote_settings.signer.serializer`.
     # Duplicating it here prevents us from installing the plugin and the
     # whole Kinto / Pyramid chain of dependance.
@@ -28,11 +29,11 @@ def canonical_json(records, last_modified):
     records = (r for r in records if not r.get("deleted", False))
     records = sorted(records, key=operator.itemgetter("id"))
     payload = {"data": records, "last_modified": "%s" % last_modified}
-    dump = canonicaljson.dumps(payload)
+    dump = canonicaljson.dumps(payload)  # ty: ignore[unresolved-attribute]
     return dump
 
 
-def verify_signature(records, timestamp, signature):
+def verify_signature(records: list[dict], timestamp: int, signature: dict) -> None:
     thread = threading.Thread(
         target=verify_signature_sync, args=(records, timestamp, signature)
     )
@@ -40,7 +41,7 @@ def verify_signature(records, timestamp, signature):
     thread.join()
 
 
-def verify_signature_sync(records, timestamp, signature):
+def verify_signature_sync(records: list[dict], timestamp: int, signature: dict) -> None:
     """Runs the async verification function in a separate thread."""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -48,7 +49,9 @@ def verify_signature_sync(records, timestamp, signature):
     loop.close()
 
 
-async def _verify_signature(records, timestamp, signature):
+async def _verify_signature(
+    records: list[dict], timestamp: int, signature: dict
+) -> None:
     x5u = signature["x5u"]
     serialized = canonical_json(records, timestamp).encode("utf-8")
 
@@ -57,7 +60,7 @@ async def _verify_signature(records, timestamp, signature):
         await verifier.verify(serialized, signature["signature"], x5u)
 
 
-def test_signer_plugin_capabilities(anonymous_client: RemoteSettingsClient):
+def test_signer_plugin_capabilities(anonymous_client: RemoteSettingsClient) -> None:
     capability = (anonymous_client.server_info())["capabilities"]["signer"]
     assert capability["group_check_enabled"]
 
@@ -66,7 +69,7 @@ def test_signer_plugin_full_workflow(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
-):
+) -> None:
     if not to_review_enabled:
         pytest.skip("to-review disabled")
 
@@ -178,7 +181,7 @@ def test_workflow_without_review(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
-):
+) -> None:
     if to_review_enabled:
         pytest.skip("to-review enabled")
 
@@ -207,7 +210,7 @@ def test_workflow_without_review(
 
 def test_signer_plugin_rollback(
     editor_client: RemoteSettingsClient,
-):
+) -> None:
     editor_client.patch_collection(data={"status": "to-rollback"})
     before_records = editor_client.get_records()
 
@@ -224,7 +227,7 @@ def test_signer_plugin_refresh(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
-):
+) -> None:
     resource = signed_resource(editor_client)
     preview_bucket = resource["preview"]["bucket"]
     dest_bucket = resource["destination"]["bucket"]
@@ -256,7 +259,7 @@ def test_cannot_skip_to_review(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
-):
+) -> None:
     if not to_review_enabled:
         pytest.skip("to-review disabled")
 
@@ -271,7 +274,7 @@ def test_same_editor_cannot_review(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
-):
+) -> None:
     if not to_review_enabled:
         pytest.skip("to-review disabled")
 
@@ -302,7 +305,7 @@ def test_rereview_after_cancel(
     editor_client: RemoteSettingsClient,
     reviewer_client: RemoteSettingsClient,
     to_review_enabled: bool,
-):
+) -> None:
     if not to_review_enabled:
         pytest.skip("to-review disabled")
 

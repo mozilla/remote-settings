@@ -9,7 +9,7 @@ def test_attachment_plugin_new_record(
     editor_client: RemoteSettingsClient,
     editor_auth: Auth,
     server: str,
-):
+) -> None:
     context = browser.new_context(
         base_url=server,
         extra_http_headers=create_extra_headers(editor_auth[0], editor_auth[1]),
@@ -40,7 +40,7 @@ def test_attachment_plugin_existing_record(
     browser: Browser,
     editor_auth: Auth,
     server: str,
-):
+) -> None:
     editor_client.create_record(
         id="logo",
         data={"type": "logo"},

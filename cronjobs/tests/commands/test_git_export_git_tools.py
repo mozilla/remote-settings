@@ -8,6 +8,7 @@ from commands._git_export_git_tools import (
     delete_old_tags,
     iter_tree,
     parse_lfs_pointer,
+    push_mirror,
     reset_repo,
     tree_upsert_blobs,
     truncate_branch,
@@ -45,6 +46,12 @@ def mock_ls_remotes():
     with mock.patch("pygit2.Remote.ls_remotes") as mock_ls:
         mock_ls.return_value = []
         yield mock_ls
+
+
+@pytest.fixture
+def mock_remote_push():
+    with mock.patch("pygit2.Remote.push") as mock_push:
+        yield mock_push
 
 
 def test_valid_lfs_pointer():
@@ -98,6 +105,69 @@ def test_reset_repo_creates_local_branches(tmp_repo, mock_ls_remotes):
     local_ref = repo.lookup_reference("refs/heads/v1/buckets/main")
     remote_ref = repo.lookup_reference("refs/remotes/origin/v1/buckets/main")
     assert local_ref.target == remote_ref.target
+
+
+@pytest.mark.parametrize(
+    ("branches", "tags", "expected"),
+    [
+        (
+            [
+                "v1/common",
+            ],
+            [
+                "-refs/tags/timestamp/123",
+                "+refs/tags/timestamp/456",
+            ],
+            [
+                [
+                    "+v1/common:v1/common",
+                    "+refs/tags/timestamp/456:refs/tags/timestamp/456",
+                ],
+                [":refs/tags/timestamp/123"],
+            ],
+        ),
+        (
+            [],
+            [
+                # Test that tags are normalized.
+                "+timestamp/789",
+            ],
+            [
+                [
+                    "+refs/tags/timestamp/789:refs/tags/timestamp/789",
+                ]
+                # And no call for delete.
+            ],
+        ),
+        (
+            [],
+            [
+                "-refs/tags/timestamp/123",
+            ],
+            [
+                [
+                    ":refs/tags/timestamp/123",
+                ]
+                # Only 1 call for delete.
+            ],
+        ),
+    ],
+)
+def test_push_mirror_pushes_branches_and_tags_then_deletes(
+    tmp_repo, mock_remote_push, branches, tags, expected
+):
+    repo = tmp_repo
+
+    push_mirror(
+        repo,
+        branches,
+        tags,
+        callbacks=None,
+    )
+
+    assert mock_remote_push.call_count == len(expected)
+    for expect in expected:
+        mock_remote_push.assert_any_call(expect, callbacks=None)
 
 
 def test_reset_repo_resets_local_branches_to_remote(tmp_repo, mock_ls_remotes):

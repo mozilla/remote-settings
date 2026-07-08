@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta, timezone
+from typing import Any
 from urllib.parse import urlencode
 
 import colander
@@ -38,7 +39,7 @@ timestamp_range = colander.Range(min=0, max=JANUARY_1ST_2100)
 logger = logging.getLogger(__name__)
 
 
-def utcnow():
+def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
 
@@ -48,13 +49,13 @@ class ChangesModel(object):
     deleted_field = "deleted"
     permissions_field = "__permissions__"
 
-    def __init__(self, request):
+    def __init__(self, request: Any):
         self.request = request
         self.storage = request.registry.storage
 
-        self.__entries = None
+        self.__entries: list[dict[str, Any]] | None = None
 
-    def timestamp(self):
+    def timestamp(self) -> int:
         if not self._entries():
             return core_utils.msec_time()
         max_value = max([e["last_modified"] for e in self._entries()])
@@ -62,13 +63,13 @@ class ChangesModel(object):
 
     def get_objects(
         self,
-        filters=None,
-        sorting=None,
-        pagination_rules=None,
-        limit=None,
-        include_deleted=False,
-        parent_id=None,
-    ):
+        filters: list[Filter] | None = None,
+        sorting: list[Sort] | None = None,
+        pagination_rules: list[Any] | None = None,
+        limit: int | None = None,
+        include_deleted: bool = False,
+        parent_id: str | None = None,
+    ) -> list[dict[str, Any]]:
         objs, _ = extract_object_set(
             objects=self._entries(),
             filters=filters,
@@ -78,7 +79,7 @@ class ChangesModel(object):
         )
         return objs
 
-    def _entries(self):
+    def _entries(self) -> list[dict[str, Any]]:
         http_host = self.request.registry.settings.get("http_host") or ""
 
         if self.__entries is None:
@@ -107,7 +108,7 @@ class ChangesSchema(resource.ResourceSchema):
 
 @implementer(IAuthorizationPolicy)
 class AnonymousRoute(RouteFactory):
-    def check_permission(self, principals, bound_perms):
+    def check_permission(self, principals: Any, bound_perms: Any) -> bool:
         # Bypass permissions check on /buckets/monitor.
         return True
 
@@ -130,16 +131,16 @@ class Changes(resource.Resource):
 
     schema = ChangesSchema
 
-    def __init__(self, request, context=None):
+    def __init__(self, request: Any, context: Any = None):
         # Reject requests with stale expected value
         _handle_stale_expected(request)
         # Bypass call to storage if _since is too old.
         _handle_old_since_redirect(request)
         # Inject custom model.
         self.model = ChangesModel(request)
-        super(Changes, self).__init__(request, context)
+        super().__init__(request, context)
 
-    def plural_get(self):
+    def plural_get(self) -> Any:
         try:
             result = super().plural_get()
         except httpexceptions.HTTPNotModified:
@@ -153,7 +154,7 @@ class Changes(resource.Resource):
         return result
 
 
-def _handle_cache_expires(request, bid, cid):
+def _handle_cache_expires(request: Any, bid: str, cid: str) -> None:
     # If the client sends cache busting query parameters, then we can cache more
     # aggressively.
     settings = request.registry.settings
@@ -192,7 +193,7 @@ def _handle_cache_expires(request, bid, cid):
         request.response.cache_expires(seconds=int(global_expires))
 
 
-def _handle_stale_expected(request):
+def _handle_stale_expected(request: Any) -> None:
     try:
         # `request.validated` is not populated yet (resource was not instantiated yet,
         # we want to bypass storage).
@@ -217,7 +218,7 @@ def _handle_stale_expected(request):
         raise response
 
 
-def _handle_old_since_redirect(request):
+def _handle_old_since_redirect(request: Any) -> None:
     """
     In order to limit the number of possible combinations
     of `_since` and `_expected` querystring parameters,
@@ -277,7 +278,7 @@ def _handle_old_since_redirect(request):
     raise response
 
 
-def _handle_quoted_expected_redirect(request):
+def _handle_quoted_expected_redirect(request: Any) -> None:
     """
     Redirect requests with quoted _expected values to unquoted ones,
     to maximize caching.
@@ -311,7 +312,7 @@ class ChangeSetRoute(RouteFactory):
     The permission to read records is implicit when metadata are readable.
     """
 
-    def __init__(self, request):
+    def __init__(self, request: Any):
         super().__init__(request)
         bid = request.matchdict["bucket_id"]
         cid = request.matchdict["collection_id"]
@@ -320,7 +321,7 @@ class ChangeSetRoute(RouteFactory):
         self.permission_object_id = collection_uri
         self.required_permission = "read"
 
-    def check_permission(self, principals, bound_perms):
+    def check_permission(self, principals: Any, bound_perms: Any) -> bool:
         # The monitor/changes changeset endpoint is publicly accessible.
         if self.permission_object_id == CHANGES_COLLECTION_PATH:
             return True
@@ -342,7 +343,7 @@ class QuotedTimestamp(colander.SchemaNode):  # ty: ignore[unsupported-base]
         '^"([0-9]+?)"(?!\n)$|^([0-9]+?)(?!\n)$', msg=error_message
     )
 
-    def deserialize(self, cstruct=colander.null):
+    def deserialize(self, cstruct: Any = colander.null) -> Any:
         param = super(QuotedTimestamp, self).deserialize(cstruct)
         if param is colander.drop:
             return param
@@ -370,7 +371,7 @@ class ChangeSetSchema(colander.MappingSchema):
 @changeset.get(
     schema=ChangeSetSchema(), permission="read", validators=(colander_validator,)
 )
-def get_changeset(request):
+def get_changeset(request: Any) -> dict[str, Any]:
     bid = request.matchdict["bucket_id"]
     cid = request.matchdict["collection_id"]
 
@@ -533,7 +534,7 @@ broadcasts = Service(name="broadcast", path="/__broadcasts__", description="broa
     operation_id="broadcast_view",
     response_schemas=broadcasts_response_schemas,
 )
-def broadcasts_view(request):
+def broadcasts_view(request: Any) -> dict[str, Any]:
     """
     Implement the old Megaphone broadcast endpoint,that the Push service will pull.
 
@@ -546,7 +547,7 @@ def broadcasts_view(request):
         )  # 5 min by default.
     )
 
-    def get_rs_timestamp():
+    def get_rs_timestamp() -> int:
         # We want to filter out preview entries, because we don't want to notify all clients
         # when a review is requested.
         # Note: This will also filter out the `nimbus-preview` collection which isn't directly
