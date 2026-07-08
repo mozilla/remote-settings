@@ -23,7 +23,7 @@
 #       publish: $\{{ github.event_name != 'pull_request' }}
 #  ```
 #
-name: Build and Publish Docker Container
+name: Build and Publish Ingestion Docker Container
 
 on:
   workflow_call:

@@ -55,8 +55,16 @@ jobs:
           check browser_tests  '^.github/workflows/|^browser-tests/'
           check git_reader     '^.github/workflows/|^git-reader/'
 
+  # Make sure we don't deploy images with failing tests.
+  # On pull-requests, tests are already ran in CI.
+  tests:
+    if: github.event_name != 'pull_request'
+    uses: ./.github/workflows/test.yaml
+
   server_container:
     # Always build the server (since it depends on lots of files uv.lock, dockerfiles, kinto-slack, etc.)
+    needs: tests
+    if: ${{ !cancelled() && needs.tests.result != 'failure' }}
     env:
       DOCKERHUB_IMAGE_NAME: mozilla/remote-settings
       GAR_IMAGE_NAME: remote-settings
@@ -184,7 +192,7 @@ jobs:
           SRC: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/remote-settings:${{ env.LATEST_TAG }}
         run: |
           for tag in $TAGS; do
-            docker buildx imagetools create --tag "${tag}" "${SRC}" 
+            docker buildx imagetools create --tag "${tag}" "${SRC}"
           done
       - name: Notify DEVs of build failure
         if: failure()
