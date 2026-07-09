@@ -4,6 +4,7 @@ is enabled, and create compressed files for the latest attachments.
 It then uploads these `.dcz` files to Google Cloud Storage.
 """
 
+import hashlib
 import os
 import tempfile
 import typing
@@ -34,6 +35,12 @@ DESTINATION_FOLDER = os.getenv("DESTINATION_FOLDER", "cdt")
 SKIP_UPLOAD = os.getenv("SKIP_UPLOAD", "0") in "1yY"
 
 PREVIOUS_VERSIONS_COUNT = int(os.getenv("PREVIOUS_VERSIONS_COUNT", "5"))
+
+# RFC 9842: a "Dictionary-Compressed Zstandard" (`dcz`) stream starts with a
+# 40-byte header (an 8-byte magic number followed by the 32-byte SHA-256 of the
+# dictionary) and is followed by the Zstandard stream. The magic number is a
+# Zstandard skippable frame header, so standard decoders can skip it.
+DCZ_MAGIC = b"\x5e\x2a\x4d\x18\x20\x00\x00\x00"
 
 
 DictPair = namedtuple("DictPair", ["bid", "cid", "old", "new"])
@@ -122,7 +129,13 @@ def zstd_compress(dict_path: Path, file_path: Path, destination: typing.IO):
         open(dict_path, "rb") as dict_fd,
         open(file_path, "rb") as file_fd,
     ):
-        zdict = ZstdDict(dict_fd.read(), is_raw=True)
+        dict_content = dict_fd.read()
+
+        # Prefix the `dcz` header: magic number + SHA-256 of the dictionary.
+        destination.write(DCZ_MAGIC)
+        destination.write(hashlib.sha256(dict_content).digest())
+
+        zdict = ZstdDict(dict_content, is_raw=True)
         zcomp = ZstdCompressor(zstd_dict=zdict)
         while chunk := file_fd.read(8192):
             destination.write(zcomp.compress(chunk))
