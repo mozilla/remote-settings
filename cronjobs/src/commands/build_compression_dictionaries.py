@@ -36,30 +36,31 @@ SKIP_UPLOAD = os.getenv("SKIP_UPLOAD", "0") in "1yY"
 PREVIOUS_VERSIONS_COUNT = int(os.getenv("PREVIOUS_VERSIONS_COUNT", "5"))
 
 
-DictPair = namedtuple("DictPair", ["bid", "cid", "old", "new"])
+DictPair = namedtuple("DictPair", ["bid", "cid", "old", "new", "mimetype"])
 
 
 def records_to_compress(
     changesets: list[dict[str, typing.Any]],
-) -> list[tuple[str, str, list[str]]]:
-    to_compress: list[tuple[str, str, list[str]]] = []
+) -> list[tuple[str, str, dict[str, str]]]:
+    to_compress: list[tuple[str, str, dict[str, str]]] = []
     for changeset in changesets:
         if "compression-dictionaries" not in changeset["metadata"].get("flags", []):
             continue
         bid = changeset["metadata"]["bucket"]
         cid = changeset["metadata"]["id"]
-        rids = []
+        # Map each record id to the mime type of its (latest) attachment.
+        mimetypes_by_rid = {}
         for r in changeset["changes"]:
             if "attachment" in r:
-                rids.append(r["id"])
-        if rids:
-            to_compress.append((bid, cid, rids))
+                mimetypes_by_rid[r["id"]] = r["attachment"].get("mimetype")
+        if mimetypes_by_rid:
+            to_compress.append((bid, cid, mimetypes_by_rid))
     return to_compress
 
 
 def scan_existing_attachments(
-    bucket: storage.Bucket, collections: list[tuple[str, str, list[str]]]
-) -> typing.Generator[tuple[str, str, list[str]]]:
+    bucket: storage.Bucket, collections: list[tuple[str, str, dict[str, str]]]
+) -> typing.Generator[tuple[str, str, list[str], str]]:
     for bid, cid, records in collections:
         folder = f"{bid}/{cid}/"
         filenames_by_rid = {}
@@ -81,8 +82,8 @@ def scan_existing_attachments(
                 continue
             filenames_by_rid.setdefault(rid, []).append(filename)
 
-        for filenames in filenames_by_rid.values():
-            yield bid, cid, filenames
+        for rid, filenames in filenames_by_rid.items():
+            yield bid, cid, filenames, records[rid]
 
 
 def find_missing_compressed_files(
@@ -161,7 +162,7 @@ def build_compression_dictionaries():
 
     # Iterate each attachment and its previous versions.
     all_pairs = []
-    for bid, cid, filenames in all_files:
+    for bid, cid, filenames, mimetype in all_files:
         if len(filenames) < 2:
             # No history for this record. We need at least 2 files.
             continue
@@ -169,7 +170,7 @@ def build_compression_dictionaries():
         latest_filenames = sorted(filenames, reverse=True)
         new = latest_filenames[0]
         for old in latest_filenames[1 : PREVIOUS_VERSIONS_COUNT + 1]:
-            all_pairs.append(DictPair(bid, cid, old, new))
+            all_pairs.append(DictPair(bid, cid, old, new, mimetype))
 
     # Query the compression-dictionaries GCS bucket to see which are missing.
     missing_dictionaries = find_missing_compressed_files(
@@ -215,6 +216,6 @@ def build_compression_dictionaries():
                     compressed_fd.seek(0)
                     storage.Blob(bucket=dicts_bucket, name=dest_name).upload_from_file(
                         compressed_fd,
-                        content_type="application/zstd",
+                        content_type=dictpair.mimetype,
                         client=gcs_client,
                     )
