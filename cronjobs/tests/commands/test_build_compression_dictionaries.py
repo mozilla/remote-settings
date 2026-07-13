@@ -260,6 +260,13 @@ def test_build_compression_dictionaries(
         client=mock.ANY,
     )
 
+    # Assert that a manifest.json file was published.
+    mock_blob.return_value.upload_from_string.assert_called_once_with(
+        """{"20260601--rid1--file.txt": ["20260101--rid1--file.txt"]}""",
+        content_type="application/json",
+        client=mock.ANY,
+    )
+
 
 def test_build_compression_dictionaries_up_to_date(
     mock_kinto_client, mock_fetch_all_changesets, mock_storage_bucket, mock_blob
@@ -285,3 +292,4 @@ def test_build_compression_dictionaries_up_to_date(
 
     mock_blob.return_value.download_to_file.assert_not_called()
     mock_blob.return_value.upload_from_file.assert_not_called()
+    mock_blob.return_value.upload_from_string.assert_not_called()
