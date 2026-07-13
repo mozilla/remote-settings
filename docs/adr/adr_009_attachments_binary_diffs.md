@@ -351,7 +351,7 @@ The deltas are applied in the order of `last_modified` ascending.
      last_modified: 1776407787891,
      type: "delta",
      format: "udiff-patch",
-     result_sha256: "e3b0c44298fc1c149afbf4c89",
+     result_sha256: "e3b0c44.....f4c89",
      attachment: {
        location: "bid/cid/efgh.diff",
        sha256: "abc...",
