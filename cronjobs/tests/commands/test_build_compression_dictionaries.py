@@ -1,9 +1,11 @@
+import hashlib
 from compression.zstd import ZstdDecompressor, ZstdDict
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
 import pytest
 from commands.build_compression_dictionaries import (
+    DCZ_MAGIC,
     DictPair,
     build_compression_dictionaries,
     compressed_filename,
@@ -81,12 +83,12 @@ def test_records_to_compress():
                 "id": "cid",
                 "flags": ["compression-dictionaries"],
             },
-            "changes": [{"id": "rid", "attachment": {}}],
+            "changes": [{"id": "rid", "attachment": {"mimetype": "plain/text"}}],
         },
     ]
     to_compress = records_to_compress(changesets)
 
-    assert to_compress == [("bid", "cid", ["rid"])]
+    assert to_compress == [("bid", "cid", {"rid": "plain/text"})]
 
 
 def test_scan_existing_attachments():
@@ -106,7 +108,7 @@ def test_scan_existing_attachments():
     attachments = scan_existing_attachments(
         fake_bucket,
         [
-            ("bid", "cid", ["rid1", "rid2"]),
+            ("bid", "cid", {"rid1": "text/plain", "rid2": "plain/text"}),
         ],
     )
 
@@ -119,11 +121,13 @@ def test_scan_existing_attachments():
                 "bid/cid/20260401--rid1--file2.txt",
                 "bid/cid/20260201--rid1--file3.txt",
             ],
+            "text/plain",
         ),
         (
             "bid",
             "cid",
             ["bid/cid/20260201--rid2--file1.txt", "bid/cid/20260201--rid2--file2.txt"],
+            "plain/text",
         ),
     ]
 
@@ -145,22 +149,25 @@ def test_find_missing_compressed_files(mock_blob):
                 "cid",
                 "bid/cid/20260401--rid1--file2.txt",
                 "bid/cid/20260601--rid1--file1.txt",
+                "plain/text",
             ),
             DictPair(
                 "bid",
                 "cid",
                 "bid/cid/20260201--rid1--file2.txt",
                 "bid/cid/20260601--rid1--file1.txt",
+                "plain/text",
             ),
         ],
     )
 
     assert missing == [
-        (
+        DictPair(
             "bid",
             "cid",
             "bid/cid/20260201--rid1--file2.txt",
             "bid/cid/20260601--rid1--file1.txt",
+            "plain/text",
         )
     ]
 
@@ -174,11 +181,12 @@ def test_compressed_filename():
             "cid",
             "bid/cid/20260201--rid1--file2.txt",
             "bid/cid/20260601--rid1--file1.txt",
+            "plain/text",
         )
     )
     assert (
         filename
-        == "cdt/bid/cid/compressed/target-20260601--rid1--file1/dcz/from-20260201--rid1--file2.dcz"
+        == "cdt/bid/cid/compressed/target-20260601--rid1--file1.txt/dcz/from-20260201--rid1--file2.txt.dcz"
     )
 
 
@@ -198,8 +206,13 @@ def test_zstd_compress(tmp_path):
     compressed = destination_path.read_bytes()
     assert 0 < len(compressed) < len(file_content)
 
+    # The output is a valid `dcz` stream: 8-byte magic, then the SHA-256 of the
+    # dictionary, then the Zstandard stream.
+    assert compressed[:8] == DCZ_MAGIC
+    assert compressed[8:40] == hashlib.sha256(dict_content).digest()
+
     zdict = ZstdDict(dict_content, is_raw=True)
-    decompressed = ZstdDecompressor(zstd_dict=zdict).decompress(compressed)
+    decompressed = ZstdDecompressor(zstd_dict=zdict).decompress(compressed[40:])
     assert decompressed == file_content
 
 
@@ -220,7 +233,7 @@ def test_build_compression_dictionaries(
                 "id": "cid",
                 "flags": ["compression-dictionaries"],
             },
-            "changes": [{"id": "rid1", "attachment": {}}],
+            "changes": [{"id": "rid1", "attachment": {"mimetype": "plain/text"}}],
         },
     ]
     mock_storage_bucket.list_blobs.return_value = [
@@ -238,11 +251,12 @@ def test_build_compression_dictionaries(
 
     mock_blob.assert_any_call(
         bucket=mock_storage_bucket,
-        name="cdt/bid/cid/compressed/target-20260601--rid1--file/dcz/from-20260101--rid1--file.dcz",
+        name="cdt/bid/cid/compressed/target-20260601--rid1--file.txt/dcz/from-20260101--rid1--file.txt.dcz",
     )
+    # The compressed file is stored with the original attachment's mime type.
     mock_blob.return_value.upload_from_file.assert_called_once_with(
         mock.ANY,
-        content_type="application/zstd",
+        content_type="plain/text",
         client=mock.ANY,
     )
 
