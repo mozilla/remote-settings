@@ -4,6 +4,7 @@ is enabled, and create compressed files for the latest attachments.
 It then uploads these `.dcz` files to Google Cloud Storage.
 """
 
+import json
 import os
 import tempfile
 import typing
@@ -218,3 +219,24 @@ def build_compression_dictionaries():
                         content_type="application/zstd",
                         client=gcs_client,
                     )
+
+    # Publish a `manifest.json` for each impacted collection.
+    # It shows the list of all pairs, giving the list of possible
+    # sources for each target.
+    impacted_cids = {(p.bid, p.cid) for p in missing_dictionaries}
+    all_pairs_of_impacted_cids = [
+        p for p in all_pairs if (p.bid, p.cid) in impacted_cids
+    ]
+    pairs_by_cid_by_target = {}
+    for d in all_pairs_of_impacted_cids:
+        # Strip `bid/cid` out of `bid/cid/yyyymmdd--rid--filename.ext`
+        pairs_by_cid_by_target.setdefault((d.bid, d.cid), {}).setdefault(
+            d.new.split("/")[2], []
+        ).append(d.old.split("/")[2])
+    for (bid, cid), pairs_by_target in pairs_by_cid_by_target.items():
+        manifest_path = f"{DESTINATION_FOLDER}/{bid}/{cid}/manifest.json"
+        storage.Blob(bucket=dicts_bucket, name=manifest_path).upload_from_string(
+            json.dumps(pairs_by_target),
+            content_type="application/json",
+            client=gcs_client,
+        )
