@@ -101,10 +101,10 @@ def find_missing_compressed_files(
 
 
 def compressed_filename(pair: DictPair):
-    old_stem = Path(pair.old).stem
-    new_stem = Path(pair.new).stem
+    old_filename = Path(pair.old).name
+    new_filename = Path(pair.new).name
     # /cdt/{bid}/{cid}/compressed/target-{new}/dcz/from-{old}.dcz"
-    return f"{DESTINATION_FOLDER}/{pair.bid}/{pair.cid}/compressed/target-{new_stem}/dcz/from-{old_stem}.dcz"
+    return f"{DESTINATION_FOLDER}/{pair.bid}/{pair.cid}/compressed/target-{new_filename}/dcz/from-{old_filename}.dcz"
 
 
 def download_blob_to_file(

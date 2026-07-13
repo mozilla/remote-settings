@@ -178,7 +178,7 @@ def test_compressed_filename():
     )
     assert (
         filename
-        == "cdt/bid/cid/compressed/target-20260601--rid1--file1/dcz/from-20260201--rid1--file2.dcz"
+        == "cdt/bid/cid/compressed/target-20260601--rid1--file1.txt/dcz/from-20260201--rid1--file2.txt.dcz"
     )
 
 
@@ -238,7 +238,7 @@ def test_build_compression_dictionaries(
 
     mock_blob.assert_any_call(
         bucket=mock_storage_bucket,
-        name="cdt/bid/cid/compressed/target-20260601--rid1--file/dcz/from-20260101--rid1--file.dcz",
+        name="cdt/bid/cid/compressed/target-20260601--rid1--file.txt/dcz/from-20260101--rid1--file.txt.dcz",
     )
     mock_blob.return_value.upload_from_file.assert_called_once_with(
         mock.ANY,
