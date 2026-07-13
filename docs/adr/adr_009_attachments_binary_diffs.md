@@ -22,7 +22,7 @@ As [its source repository shows](https://github.com/easylist/easylist), the list
 
 This document explores the different approaches that could be leveraged in order to deliver this list efficiently to our millions of users.
 
-### Asumptions
+### Assumptions
 
 This approach specifically targets the optimization of synchronization by minimizing bandwidth overhead for delta updates. It is not intended to enhance change previews, QA workflows, or associated tooling.
 
