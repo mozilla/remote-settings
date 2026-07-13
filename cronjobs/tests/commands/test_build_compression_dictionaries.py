@@ -1,9 +1,11 @@
+import hashlib
 from compression.zstd import ZstdDecompressor, ZstdDict
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
 import pytest
 from commands.build_compression_dictionaries import (
+    DCZ_MAGIC,
     DictPair,
     build_compression_dictionaries,
     compressed_filename,
@@ -204,8 +206,13 @@ def test_zstd_compress(tmp_path):
     compressed = destination_path.read_bytes()
     assert 0 < len(compressed) < len(file_content)
 
+    # The output is a valid `dcz` stream: 8-byte magic, then the SHA-256 of the
+    # dictionary, then the Zstandard stream.
+    assert compressed[:8] == DCZ_MAGIC
+    assert compressed[8:40] == hashlib.sha256(dict_content).digest()
+
     zdict = ZstdDict(dict_content, is_raw=True)
-    decompressed = ZstdDecompressor(zstd_dict=zdict).decompress(compressed)
+    decompressed = ZstdDecompressor(zstd_dict=zdict).decompress(compressed[40:])
     assert decompressed == file_content
 
 
