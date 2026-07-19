@@ -331,7 +331,7 @@ dependencies = [
 requires-dist = [
     { name = "backoff", specifier = ">=2.2.1" },
     { name = "cryptography", specifier = ">=49.0.0" },
-    { name = "google-cloud-bigquery", specifier = ">=3.42.1" },
+    { name = "google-cloud-bigquery", specifier = ">=3.42.2" },
     { name = "google-cloud-storage", specifier = ">=3.12.1" },
     { name = "kinto-http", specifier = ">=11.11.0" },
     { name = "lz4", specifier = ">=4.3.3" },
@@ -339,7 +339,7 @@ requires-dist = [
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "python-decouple", specifier = ">=3.8" },
     { name = "requests", specifier = ">=2.32.4" },
-    { name = "sentry-sdk", specifier = ">=2.64.0" },
+    { name = "sentry-sdk", specifier = ">=2.66.0" },
 ]
 
 [[package]]
@@ -533,7 +533,7 @@ pyopenssl = [
 
 [[package]]
 name = "google-cloud-bigquery"
-version = "3.42.1"
+version = "3.42.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "google-api-core", extra = ["grpc"] },
@@ -544,9 +544,9 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/15/a2/be1cffbb1a9894ecf394ab0096b113ae9e4f73686595d906a9f3082b07c2/google_cloud_bigquery-3.42.1.tar.gz", hash = "sha256:3c6878f424fc2b21f0bb414ca7262abd008465575a7b7c44c552105278a18914", size = 515411, upload-time = "2026-06-22T23:21:05.884Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a0/7a/6109aa1803b0c8c93c7064e0e555cff1b12e1692b7b7bc63cdc1619e3722/google_cloud_bigquery-3.42.2.tar.gz", hash = "sha256:08d4b264e5ee4790f719724c76b538f204b7190999328a2f1a6a95eaab74ca39", size = 517250, upload-time = "2026-07-08T17:03:40.675Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7a/1e/8b098aeb69ef87de5195d076ce6d82002c3ebf1920373d386ca7b6e63cfa/google_cloud_bigquery-3.42.1-py3-none-any.whl", hash = "sha256:159143c1b7248858f35549c09efea5d031c2883145623419ea7c505a50c0899a", size = 263814, upload-time = "2026-06-22T23:18:42.313Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/ee/3f3ff62d4ce39e6868ef9b98bea0af46f0c9c270092ef64d2bb5897c6e11/google_cloud_bigquery-3.42.2-py3-none-any.whl", hash = "sha256:41658c19e8ed5b83307011b4e55aca3b1f72052545a22788f1d637984615173f", size = 264272, upload-time = "2026-07-08T17:03:09.511Z" },
 ]
 
 [[package]]
@@ -1752,15 +1752,15 @@ wheels = [
 
 [[package]]
 name = "sentry-sdk"
-version = "2.64.0"
+version = "2.66.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/60/31/b7341f156a5f6f36f0b4845d6f1c28a2ae4799171dba7007f3a1e9b234b4/sentry_sdk-2.64.0.tar.gz", hash = "sha256:68be2c29e14ae310f8a39e1a79916b6d85c6cb41dcce789d14ff05fe293e4c55", size = 921020, upload-time = "2026-06-30T08:13:47.682Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/48/ff/670abe04c5072719b5060ed93851d0d69525d60f8f2c5810f8becd58f9c1/sentry_sdk-2.66.0.tar.gz", hash = "sha256:9727d35aa83c56cd53294676fe65b96296a334c9ce107fa2142bd70f47acb265", size = 935745, upload-time = "2026-07-16T12:42:04.663Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/36/a8/3fb9a4319efa3b26f5be0e90e6d8918df43fa7c7e977d26390f589501d82/sentry_sdk-2.64.0-py3-none-any.whl", hash = "sha256:715ea91ca860a819e8d8a50a7bde3a80d0df3b4ed7b6660a20fb9a2d084188f1", size = 498901, upload-time = "2026-06-30T08:13:45.566Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/bb/49b10783f29067da2eec179320617e94faf63196609de47aeab3c26c3325/sentry_sdk-2.66.0-py3-none-any.whl", hash = "sha256:096136c214c602be2b323524d30755dc5b30ec5a218a206207f33b12c05c6f11", size = 504769, upload-time = "2026-07-16T12:42:02.919Z" },
 ]
 
 [package.optional-dependencies]
