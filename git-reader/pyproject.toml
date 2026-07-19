@@ -12,7 +12,7 @@ dependencies = [
     "pyjwt>=2.10.1",
     "lz4>=4.4.5",
     "prometheus-client>=0.23.1",
-    "asgiref>=3.11.0",
+    "asgiref>=3.12.1",
     "granian>=2.7.9",
 ]
 
