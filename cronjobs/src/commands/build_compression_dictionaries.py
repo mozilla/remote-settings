@@ -144,6 +144,15 @@ def zstd_compress(dict_path: Path, file_path: Path, destination: typing.IO):
         destination.write(zcomp.flush())
 
 
+def file_sha256(path: Path) -> str:
+    """
+    Return the SHA-256 digest for the specified `path`.
+    """
+    with open(path, "rb") as f:
+        content = f.read()
+    return hashlib.sha256(content).hexdigest()
+
+
 def build_compression_dictionaries():
     """
     Builds and publishes compressed attachments for the collections
@@ -207,6 +216,7 @@ def build_compression_dictionaries():
             download_blob_to_file(
                 gcs_client, attachments_bucket, dictpair.old, old_tmp_path
             )
+            old_sha256 = file_sha256(old_tmp_path)
             new_tmp_path = tmp_dir / dictpair.new
             if not new_tmp_path.exists():
                 download_blob_to_file(
@@ -228,7 +238,11 @@ def build_compression_dictionaries():
                 else:
                     print(f"Upload {dest_name}...")
                     compressed_fd.seek(0)
-                    storage.Blob(bucket=dicts_bucket, name=dest_name).upload_from_file(
+                    blob = storage.Blob(bucket=dicts_bucket, name=dest_name)
+                    blob.metadata = {
+                        "source_sha256": old_sha256,
+                    }
+                    blob.upload_from_file(
                         compressed_fd,
                         content_type=dictpair.mimetype,
                         client=gcs_client,
