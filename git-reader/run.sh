@@ -1,8 +1,20 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-log() { printf '[%s] %s\n' "$(date +'%F %T')" "$*"; }
+LOG_PREFIX=""
+log() { printf '[%s]%s %s\n' "$(date +'%F %T')" "${LOG_PREFIX:+ [$LOG_PREFIX]}" "$*"; }
 die() { log "ERROR: $*"; exit 1; }
+
+fmt_duration() { printf '%dm%02ds' $(($1 / 60)) $(($1 % 60)); }
+
+log_sizes() {
+    local repo_path="$1" total_size git_size lfs_size
+    total_size=$(du -sh "$repo_path" 2>/dev/null | cut -f1) || true
+    git_size=$(du -sh "$repo_path/.git/objects" 2>/dev/null | cut -f1) || true
+    lfs_size=$(du -sh "$repo_path/.git/lfs" 2>/dev/null | cut -f1) || true
+    log "Size of $repo_path: ${total_size} (git objects=${git_size:-n/a}, LFS=${lfs_size:-n/a})"
+    du -sh "$repo_path}/attachments/*/*" | sort -hr | head -n 10
+}
 
 ORIGIN_NAME="origin"
 
@@ -14,18 +26,24 @@ cmd_web() {
 cmd_gitupdate() {
     local repo_path="$1"
     local active_dir inactive_dir result
+    local start_total start_update start_replicate
+    start_total=$(date +%s)
     log "Repository path is $repo_path"
 
     # Check if latest symlink exists.
     if [ ! -L "$repo_path/latest" ]; then
+        LOG_PREFIX="init"
         log "Latest symlink not found, initializing repository structure..."
         # If A doesn't exist, clone into A.
         if [ ! -d "$repo_path/A" ]; then
             log "Cloning repository ${GIT_REPO_URL} into $repo_path/A..."
             git clone "${GIT_REPO_URL}" "$repo_path/A"
+            log "Clone took $(fmt_duration $(($(date +%s) - start_total)))."
             # Fresh clone don't contain attachments, fetch them from LFS.
             if [ "${SELF_CONTAINED:-false}" = "true" ]; then
+                start_update=$(date +%s)
                 git_fetch_lfs "$repo_path/A"
+                log "First LFS pull took $(fmt_duration $(($(date +%s) - start_update)))."
             else
                 log "Skipping LFS objects fetch."
             fi
@@ -52,6 +70,7 @@ cmd_gitupdate() {
         return 0
     fi
 
+    LOG_PREFIX="update"
     # Determine whether A or B is the latest.
     if [ -d "$repo_path/A" ] && [ -d "$repo_path/B" ]; then
         if [ "$repo_path/latest" -ef "$repo_path/A" ] ; then
@@ -65,6 +84,7 @@ cmd_gitupdate() {
 
     log "Active directory is $active_dir"
     log "Updating inactive directory $inactive_dir..."
+    start_update=$(date +%s)
     if git_fetch_lfs "$inactive_dir"; then
         log "Repository updated"
     else
@@ -76,13 +96,18 @@ cmd_gitupdate() {
             exit $result
         fi
     fi
+    log "Update took $(fmt_duration $(($(date +%s) - start_update)))."
+    log_sizes "$inactive_dir"
 
     log "Switching latest symlink to $inactive_dir..."
     ln -sfn "$inactive_dir" "$repo_path/latest"
 
+    LOG_PREFIX="replicate"
+    start_replicate=$(date +%s)
     log "Syncing updates back to previously active directory $active_dir..."
     # Keep attributes, preserve hardlinks where possible; avoid copying .git objects redundantly
     rsync -a --delete "$inactive_dir/.git/lfs/objects/". "$active_dir/.git/lfs/objects/"
+    log "Replicate of LFS objects took $(fmt_duration $(($(date +%s) - start_replicate)))."
 
     log "Replicate updates in $active_dir too ..."
     # Add the sibling remote if it doesn't already exist
@@ -93,8 +118,11 @@ cmd_gitupdate() {
     fi
     git -C "$active_dir" fetch --tags --force --verbose sibling
     git -C "$active_dir" reset --hard sibling/v1/common
+    log "Replicate of Git objects took $(fmt_duration $(($(date +%s) - start_replicate)))."
+    log_sizes "$active_dir"
 
-    log "Fetch completed."
+    LOG_PREFIX=""
+    log "Fetch completed in $(fmt_duration $(($(date +%s) - start_total)))."
 }
 
 
