@@ -13,6 +13,7 @@ log_sizes() {
     git_size=$(du -sh "$repo_path/.git/objects" 2>/dev/null | cut -f1) || true
     lfs_size=$(du -sh "$repo_path/.git/lfs" 2>/dev/null | cut -f1) || true
     log "Size of $repo_path: ${total_size} (git objects=${git_size:-n/a}, LFS=${lfs_size:-n/a})"
+    du -sh "$repo_path}/attachments/*/*" | sort -hr | head -n 10
 }
 
 ORIGIN_NAME="origin"
