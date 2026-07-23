@@ -14,6 +14,11 @@ log_sizes() {
     lfs_size=$(du -sh "$repo_path/.git/lfs" 2>/dev/null | cut -f1) || true
     log "Size of $repo_path: ${total_size} (git objects=${git_size:-n/a}, LFS=${lfs_size:-n/a})"
 
+    local file_count lfs_count
+    file_count=$(git -C "$repo_path" ls-files | wc -l)
+    lfs_count=$(git -C "$repo_path" lfs ls-files | wc -l)
+    log "Number of files: ${file_count} (LFS=${lfs_count})"
+
     log "Number of tags per collection (top 10):"
     git -C "$repo_path" tag | sed 's|/[0-9]*$||' | sort | uniq -c | sort -rn | head -n 10
     echo "..."
