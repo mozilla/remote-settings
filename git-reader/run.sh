@@ -44,6 +44,12 @@ cmd_gitupdate() {
         # Set latest to A.
         log "Setting latest symlink to A..."
         ln -sfn "$repo_path/A" "$repo_path/latest"
+
+        # A was just cloned at origin HEAD and B is an exact copy, so there is
+        # nothing to update yet. Return and let the next run pick up changes.
+        LOG_PREFIX=""
+        log "Initialization complete in $(fmt_duration $(($(date +%s) - start_total)))."
+        return 0
     fi
 
     # Determine whether A or B is the latest.
