@@ -13,7 +13,14 @@ log_sizes() {
     git_size=$(du -sh "$repo_path/.git/objects" 2>/dev/null | cut -f1) || true
     lfs_size=$(du -sh "$repo_path/.git/lfs" 2>/dev/null | cut -f1) || true
     log "Size of $repo_path: ${total_size} (git objects=${git_size:-n/a}, LFS=${lfs_size:-n/a})"
-    du -sh "$repo_path}/attachments/*/*" | sort -hr | head -n 10
+
+    log "Number of tags per collection (top 10):"
+    git -C "$repo_path" tag | sed 's|/[0-9]*$||' | sort | uniq -c | sort -rn | head -n 10
+    echo "..."
+
+    log "Size of attachments folders (top 10):"
+    du -sh "$repo_path"/attachments/*/* 2>/dev/null | sort -hr | head -n 10
+    echo "..."
 }
 
 ORIGIN_NAME="origin"
@@ -62,6 +69,8 @@ cmd_gitupdate() {
         # Set latest to A.
         log "Setting latest symlink to A..."
         ln -sfn "$repo_path/A" "$repo_path/latest"
+
+        log_sizes "$repo_path/latest"
 
         # A was just cloned at origin HEAD and B is an exact copy, so there is
         # nothing to update yet. Return and let the next run pick up changes.
