@@ -30,6 +30,17 @@ cmd_gitupdate() {
     start_total=$(date +%s)
     log "Repository path is $repo_path"
 
+    # Apply LFS tuning from environment variables. If a variable is not set,
+    # leave the corresponding Git config untouched.
+    if [ -n "${LFS_CONCURRENT_TRANSFERS:-}" ]; then
+        log "Setting lfs.concurrenttransfers to ${LFS_CONCURRENT_TRANSFERS}."
+        git config --global lfs.concurrenttransfers "${LFS_CONCURRENT_TRANSFERS}"
+    fi
+    if [ -n "${LFS_FETCH_EXCLUDE:-}" ]; then
+        log "Setting lfs.fetchexclude to ${LFS_FETCH_EXCLUDE}."
+        git config --global lfs.fetchexclude "${LFS_FETCH_EXCLUDE}"
+    fi
+
     # Check if latest symlink exists.
     if [ ! -L "$repo_path/latest" ]; then
         LOG_PREFIX="init"
