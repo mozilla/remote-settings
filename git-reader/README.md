@@ -133,4 +133,4 @@ For example, every 5 minutes in a cronjob:
 ## Git Source Settings
 
 - ``LFS_CONCURRENT_TRANSFERS`` (default: 8): increase number of parallel requests for LFS downloads.
-- ``LFS_FETCH_EXCLUDE`` (default: none): exclude certains collections from LFS (eg. `"attachments/main-workspace/translation-dictionaries/*,attachments/main-workspace/quicksuggest-amp/*"`)
+- ``LFS_FETCH_EXCLUDE`` (default: none): exclude certain collections from LFS (eg. `"attachments/main-workspace/translation-dictionaries/*,attachments/main-workspace/quicksuggest-amp/*"`)
