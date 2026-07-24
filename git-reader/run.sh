@@ -19,7 +19,7 @@ log_sizes() {
 ORIGIN_NAME="origin"
 
 cmd_web() {
-    granian --interface asgi --host $GRANIAN_HOST --port $GRANIAN_PORT --factory app:app_factory
+    granian --interface asgi --host "$GRANIAN_HOST" --port "$GRANIAN_PORT" --factory app:app_factory
 }
 
 
@@ -151,7 +151,7 @@ git_fetch_lfs() {
     local repo_path="$1"
 
     log "Current commit for $repo_path"
-    git -C $repo_path log -n 1
+    git -C "$repo_path" log -n 1
 
     # Remove Git lock if any. Or fetch will fail with "fatal: Unable to create '.../.git/index.lock': File exists."
     lock_file="$repo_path/.git/index.lock"

@@ -9,7 +9,7 @@ usage() {
 [ $# -lt 1 ] && usage
 case $1 in
   migrate)
-    kinto migrate --ini $KINTO_INI
+    kinto migrate --ini "$KINTO_INI"
     ;;
   start)
     shift

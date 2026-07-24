@@ -6,6 +6,7 @@ PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
 SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader browser-tests bin
 TY_SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader bin
 TYPOS_INSTALLED := $(shell typos --version 2>/dev/null)
+SHELLCHECK_INSTALLED := $(shell shellcheck --version 2>/dev/null)
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of the following commands.\n"
@@ -47,6 +48,11 @@ else
 endif
 	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v uv.lock` --baseline .secrets.baseline
 	$(VENV)/bin/python bin/repo-python-versions.py
+ifndef SHELLCHECK_INSTALLED
+	$(warning "'shellcheck' is not available please install shellcheck")
+else
+	shellcheck `git ls-files | grep '\.sh'`
+endif
 
 test: $(INSTALL_STAMP)  ## Run unit tests
 	PYTHONPATH=. $(VENV)/bin/pytest \
