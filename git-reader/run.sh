@@ -32,6 +32,7 @@ cmd_gitupdate() {
 
     # Apply LFS tuning from environment variables. If a variable is not set,
     # leave the corresponding Git config untouched.
+    # We set them globally because they affect cloning.
     if [ -n "${LFS_CONCURRENT_TRANSFERS:-}" ]; then
         log "Setting lfs.concurrenttransfers to ${LFS_CONCURRENT_TRANSFERS}."
         git config --global lfs.concurrenttransfers "${LFS_CONCURRENT_TRANSFERS}"
@@ -39,6 +40,16 @@ cmd_gitupdate() {
     if [ -n "${LFS_FETCH_EXCLUDE:-}" ]; then
         log "Setting lfs.fetchexclude to ${LFS_FETCH_EXCLUDE}."
         git config --global lfs.fetchexclude "${LFS_FETCH_EXCLUDE}"
+    fi
+    if [ -n "${LFS_KEEP_DAYS:-}" ]; then
+        # Control how much LFS history `git lfs prune` keeps on disk. Set to `0` for HEAD only.
+        log "Keeping ${LFS_KEEP_DAYS} extra day(s) of LFS history (HEAD is always kept)."
+        # recent refs: any branch/tags whose last commit is within these days.
+        git config --global lfs.fetchrecentrefsdays "${LFS_KEEP_DAYS}"
+        # recent commits: walks these ref tips to look for commits within these days.
+        git config --global lfs.fetchrecentcommitsdays "${LFS_KEEP_DAYS}"
+        # Extra safety margin added on top of above two. Set to 0 for above settings to be exact.
+        git config --global lfs.pruneoffsetdays 0
     fi
 
     # Check if latest symlink exists.
@@ -136,7 +147,6 @@ cmd_gitupdate() {
     log "Fetch completed in $(fmt_duration $(($(date +%s) - start_total)))."
 }
 
-
 git_fetch_lfs() {
     local repo_path="$1"
 
@@ -160,7 +170,7 @@ git_fetch_lfs() {
     log "Local HEAD: $local_head"
     log "Remote HEAD: $origin_head"
     if [ "$local_head" = "$origin_head" ]; then
-        log "No LFS updates..."
+        log "No update found."
         return 0
     fi
 
