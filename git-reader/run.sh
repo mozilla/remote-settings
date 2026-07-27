@@ -16,15 +16,20 @@ log_sizes() {
 
     local file_count lfs_count
     file_count=$(git -C "$repo_path" ls-files | wc -l)
-    lfs_count=$(git -C "$repo_path" lfs ls-files | wc -l)
-    log "Number of files: ${file_count} (LFS=${lfs_count})"
+    lfs_total_count=$(git -C "$repo_path" lfs ls-files | wc -l)
+    lfs_pulled_count=$(git -C "$repo_path" lfs ls-files | grep ' \* ' | wc -l)
+    log "Number of files: ${file_count} (LFS: ${lfs_pulled_count}/${lfs_total_count} pulled)"
 
-    log "Number of tags per collection (top 10):"
-    git -C "$repo_path" tag | sed 's|/[0-9]*$||' | sort | uniq -c | sort -rn | head -n 10
+    log "Number of attachments per collection (top 15):"
+    git -C "$repo_path" lfs ls-files -n | sed 's|/[^/]*$||' | sort | uniq -c | sort -rn | head -n 15
     echo "..."
 
-    log "Size of attachments folders (top 10):"
-    du -sh "$repo_path"/attachments/*/* 2>/dev/null | sort -hr | head -n 10
+    log "Number of tags per collection (top 15):"
+    git -C "$repo_path" tag | sed 's|/[0-9]*$||' | sort | uniq -c | sort -rn | head -n 15
+    echo "..."
+
+    log "Size of attachments folders (top 15):"
+    du -sh "$repo_path"/attachments/*/* 2>/dev/null | sort -hr | head -n 15
     echo "..."
 }
 
