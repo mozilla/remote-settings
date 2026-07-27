@@ -15,7 +15,7 @@ dependencies = [
     "kinto-emailer>=4",
     "kinto-slack",
     "requests-hawk<2",
-    "prometheus-client>=0.25.0",
+    "prometheus-client>=0.26.0",
     "granian>=2.7.9,<3.0.0",
 ]
 
