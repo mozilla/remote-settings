@@ -802,7 +802,7 @@ def test_attachment_bundles_is_skipped_if_no_attachment_in_changeset(
 
 
 @responses.activate
-def test_repo_syncs_deletes_attachments_if_flag_set(
+def test_repo_prunes_inactive_attachments_on_full_sync(
     repo,
     mock_git_fetch,
     mock_ls_remotes,
@@ -810,38 +810,74 @@ def test_repo_syncs_deletes_attachments_if_flag_set(
     mock_github_lfs,
     mock_git_push,
 ):
-    responses.add(
-        responses.HEAD,
-        "http://cdn.example.com/v1/attachments/bundles/startup.json.mozlz4",
-        status=200,
-    )
-    responses.add(
-        responses.GET,
-        "http://cdn.example.com/v1/attachments/bid2/random-name.bin",
-        body=b"a" * 42,
-    )
     git_export.git_export()
     # First check that attachment exists in repo.
     blob = read_file(repo, "v1/common", "attachments/bid2/random-name.bin")
     assert "lfs" in blob.decode()
 
-    # Now simulate that attachment is unreachable.
-    responses.add(
-        responses.HEAD,
-        "http://cdn.example.com/v1/attachments/bid2/random-name.bin",
-        status=404,
-    )
+    # Now the record no longer references that attachment.
     responses.replace(
         responses.GET,
-        "http://testserver:9999/v1/buckets/monitor/collections/changes/changeset",
-        json={"timestamp": 1800000000000, "changes": []},
+        "http://testserver:9999/v1/buckets/bid2/collections/cid2/changeset",
+        json={
+            "timestamp": 1600000000000,
+            "metadata": {
+                "bucket": "bid2",
+                "id": "cid2",
+                "signature": {
+                    "x5u": "https://autograph.example.com/keys/123",
+                },
+                "last_modified": 16666666666000,
+            },
+            "changes": [],
+        },
     )
-    # Re-run.
-    asyncio.run(git_export.repo_sync_content(repo, delete_unreachable_attachments=True))
+
+    # A full sync re-fetches every collection, so inactive attachments are pruned.
+    git_export.FORCE = True
+    asyncio.run(git_export.repo_sync_content(repo))
 
     # Attachment should be deleted from repo.
     with pytest.raises(KeyError):
         read_file(repo, "v1/common", "attachments/bid2/random-name.bin")
+
+
+@responses.activate
+def test_repo_keeps_inactive_attachments_on_incremental_sync(
+    repo,
+    mock_git_fetch,
+    mock_ls_remotes,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
+):
+    git_export.git_export()
+    simulate_pushed(repo, mock_ls_remotes)
+    blob = read_file(repo, "v1/common", "attachments/bid2/random-name.bin")
+    assert "lfs" in blob.decode()
+
+    # Only cid1 changed, so we don't fetch cid2 and cannot know whether its
+    # attachment is still active. It must be kept.
+    responses.replace(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/monitor/collections/changes/changeset",
+        json={
+            "timestamp": 1800000000000,
+            "changes": [
+                {
+                    "last_modified": 1800000000000,
+                    "bucket": "bid1",
+                    "collection": "cid1",
+                },
+            ],
+        },
+    )
+
+    asyncio.run(git_export.repo_sync_content(repo))
+
+    # Attachment of the collection that didn't change is still there.
+    blob = read_file(repo, "v1/common", "attachments/bid2/random-name.bin")
+    assert "lfs" in blob.decode()
 
 
 @responses.activate

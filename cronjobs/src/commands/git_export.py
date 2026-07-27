@@ -31,7 +31,6 @@ from ._git_export_lfs import (
     fetch_and_hash,
     github_lfs_batch_upload_many,
     github_lfs_validate_credentials,
-    list_unreachable_paths,
 )
 
 
@@ -74,20 +73,13 @@ MIN_TAGS_PER_COLLECTION_COUNT = config(
 # garbage collect old LFS objects that are no longer referenced by any tag.
 TAGS_DELETION_THRESHOLD = config("TAGS_DELETION_THRESHOLD", default=50, cast=int)
 
-# By default, we delete unreachable attachments only once every 2days between 12:00 and 12:15 UTC
-# This avoids running this potentially expensive operation on every cronjob run.
-# And to avoid duplicating the cronjob definition twice just to set this env var.
 _now = datetime.datetime.now(datetime.timezone.utc)
-_IS_EVEN_DAY = _now.day % 2 == 0
-_SHOULD_DELETE_UNREACHABLE = _IS_EVEN_DAY and _now.hour == 12 and 0 < _now.minute < 15
-
-DELETE_UNREACHABLE_ATTACHMENTS = config(
-    "DELETE_UNREACHABLE_ATTACHMENTS", default=_SHOULD_DELETE_UNREACHABLE, cast=bool
-)
 
 # By default, we only synchronize if there are data changes.
 # But once a day, we run a full sync in order to synchronize collections whose data
 # didn't change but whose metadata did (e.g., signature refreshed, new certs, etc.).
+# On this full sync, we rebuild the attachment LFS pointers and drop the ones no longer
+# referenced by current records (see ``process_attachments``).
 _SHOULD_FORCE = _now.hour == 0 and 0 < _now.minute < 15
 FORCE = config("FORCE", default=_SHOULD_FORCE, cast=bool)
 
@@ -229,7 +221,6 @@ def fetch_all_cert_chains(
 
 async def repo_sync_content(
     repo: pygit2.Repository,
-    delete_unreachable_attachments: bool = DELETE_UNREACHABLE_ATTACHMENTS,
 ) -> tuple[list[tuple[str, int, str]], set[str], list[str]]:
     """
     Sync content from the remote server to the local git repository.
@@ -307,7 +298,7 @@ async def repo_sync_content(
         changesets=all_changesets,
         existing_attachments=existing_attachments,
         attachments_base_url=attachments_base_url,
-        delete_unreachable=delete_unreachable_attachments,
+        delete_orphan_attachments=FORCE,
     )
     common_content += attachments_branch_common_content or []
 
@@ -413,27 +404,20 @@ def process_attachments(
     attachments_base_url: str,
     changesets: list[dict[str, Any]],
     existing_attachments: dict[str, tuple[str, int]],
-    delete_unreachable: bool,
+    delete_orphan_attachments: bool,
 ) -> tuple[list[tuple[str, int, str]], list[tuple[str, bytes | None]]]:
     """
     Process attachments from the given changesets.
     Return the list of changed attachments to be uploaded to LFS,
     and the list of blobs to be added to the 'common' branch.
+
+    When `delete_orphan_attachments` is True (full sync), we drop the pointers
+    that are no longer referenced by any record of the specified `changesets`.
     """
-    delete_unreachable_attachments = delete_unreachable
     changed_attachments: list[tuple[str, int, str]] = []
     common_content: list[tuple[str, bytes | None]] = []
-
-    # Delete unreachable attachments. Since this operation creates a lot of
-    # hits, we do it only if the flag is enabled (less frequent than normal cronjob run).
-    if delete_unreachable_attachments:
-        attachments_paths = existing_attachments.keys()
-        obsolete_attachments = list_unreachable_paths(
-            attachments_base_url, list(attachments_paths)
-        )
-        for path in obsolete_attachments:
-            print(f"Attachment {path} is unreachable, deleting from tree")
-            common_content.append((f"attachments/{path}", None))  # Delete from tree
+    # Paths (relative to `attachments/`) referenced by active records and bundles.
+    referenced_paths: set[str] = set()
 
     # Store all the attachments as LFS pointers.
     # Mark the attachments/ folder as fully managed via LFS.
@@ -449,6 +433,7 @@ def process_attachments(
 
             attachment = record["attachment"]
             location = attachment["location"].lstrip("/")
+            referenced_paths.add(location)
             git_path = f"attachments/{location}"
             pointer_blob = make_lfs_pointer(attachment["hash"], attachment["size"])
             common_content.append((git_path, pointer_blob))
@@ -487,6 +472,7 @@ def process_attachments(
     for location in bundles_locations:
         url = f"{attachments_base_url}/{location}"
         path = f"attachments/{location}"
+        referenced_paths.add(location)
         hash, size = fetch_and_hash(url)
         blob = make_lfs_pointer(hash, size)
         common_content.append((path, blob))
@@ -499,6 +485,15 @@ def process_attachments(
                 f"Bundle {path} {'is new' if existing_hash is None else 'has changed'}"
             )
             changed_attachments.append((hash, size, url))
+
+    # On a full sync, drop the pointers of attachments that are no longer
+    # referenced by any active record.
+    if delete_orphan_attachments:
+        for path in existing_attachments:
+            if path not in referenced_paths:
+                print(f"Attachment {path} is no longer referenced, deleting from tree")
+                common_content.append((f"attachments/{path}", None))
+
     return changed_attachments, common_content
 
 
