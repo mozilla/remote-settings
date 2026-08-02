@@ -34,7 +34,7 @@ dev = [
     "httpx>=0.28.1",
     "setuptools<82",
     "pytest-xdist>=3.8.0",
-    "ty>=0.0.63",
+    "ty>=0.0.65",
 ]
 docs = [
     "docutils==0.22.4",
