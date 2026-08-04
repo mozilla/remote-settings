@@ -197,6 +197,7 @@ git_fetch_lfs() {
     git -C "$repo_path" reset --hard "$ORIGIN_NAME/v1/common"
     log "Cleaning up repository..."
     git -C "$repo_path" remote prune "$ORIGIN_NAME"
+    git -C "$repo_path" clean -f -d
     git -C "$repo_path" gc --prune=now
     git -C "$repo_path" repack -Ad
 
