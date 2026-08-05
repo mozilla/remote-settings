@@ -389,7 +389,9 @@ def expand_collections_glob_settings(
 
         # Match and expand glob patterns
         for bid, cid in collections:
-            if re.match(bucket_pattern, bid) and re.match(collection_pattern, cid):
+            if re.fullmatch(bucket_pattern, bid) and re.fullmatch(
+                collection_pattern, cid
+            ):
                 expanded_settings[f"{prefix}.{bid}.{cid}.{setting}"] = value
 
     return expanded_settings
