@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import os
 from collections import Counter
 
@@ -30,14 +29,10 @@ async def main() -> None:
     marked_for_deletion = set()
     month_counts: Counter[str] = Counter()
 
-    weird = set()
-    utcnow = datetime.datetime.now(datetime.UTC)
     for blob in bucket.list_blobs():
         if blob.custom_time is not None:
             marked_for_deletion.add(blob.name)
             month_counts[month_key(blob.custom_time)] += 1
-            if blob.custom_time > utcnow:
-                weird.add(blob.name)
 
     if not month_counts:
         print("No attachments are marked for deletion in GCS.")
@@ -48,8 +43,6 @@ async def main() -> None:
 
     total = sum(month_counts.values())
     print(f"\nTotal marked for deletion: {total}")
-
-    print(weird)
 
 
 if __name__ == "__main__":
