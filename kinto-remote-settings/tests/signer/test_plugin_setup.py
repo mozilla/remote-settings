@@ -808,9 +808,17 @@ class ExpandedSettingsTest(BaseWebTest, PatchAutographMixin, unittest.TestCase):
         self.app.put_json(
             "/buckets/main-workspace/collections/magic-word", headers=self.headers
         )
+        self.app.put_json(
+            "/buckets/main-workspace/collections/evil-magic-word", headers=self.headers
+        )
+        self.app.put_json(
+            "/buckets/main-workspace/collections/magic-word-evil", headers=self.headers
+        )
 
         server_info = self.app.get("/").json
         resources = server_info["capabilities"]["signer"]["resources"]
         source_collections = {entry["source"]["collection"] for entry in resources}
         assert "magic-word" in source_collections
         assert "magic-(\\w+)" not in source_collections
+        assert "evil-magic-word" not in source_collections
+        assert "magic-word-evil" not in source_collections
