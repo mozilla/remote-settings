@@ -202,6 +202,7 @@ git_fetch_lfs() {
     git -C "$repo_path" repack -Ad
 
     if [ "${SELF_CONTAINED:-false}" = "true" ]; then
+        git -C "$repo_path" lfs version
         log "Fetching LFS objects..."
         git -C "$repo_path" lfs pull
         log "Pruning LFS objects..."
