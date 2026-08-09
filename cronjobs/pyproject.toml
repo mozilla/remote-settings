@@ -14,7 +14,7 @@ dependencies = [
     "pygit2>=1.19.3",
     "pyjwt>=2.10.1",
     "cryptography>=50.0.0",
-    "google-cloud-bigquery>=3.42.2",
+    "google-cloud-bigquery>=3.43.0",
 ]
 
 [build-system]
