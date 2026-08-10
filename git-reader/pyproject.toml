@@ -13,7 +13,7 @@ dependencies = [
     "lz4>=4.4.5",
     "prometheus-client>=0.26.0",
     "asgiref>=3.12.1",
-    "granian>=2.7.9",
+    "granian>=2.8.1",
 ]
 
 [build-system]
