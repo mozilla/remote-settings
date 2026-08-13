@@ -430,7 +430,8 @@ class GitService:
             # Deleted records are shown as tombstones.
             # Note: we set an arbitrary `last_modified` value as a
             # mitigation solution to A-S clients expecting it
-            # although it is not needed and not part of specifications.
+            # although it is not needed and not part of specifications
+            # (v1/ API had the field but was never officially mentioned).
             for rid in old_records_by_id.keys():
                 filtered[rid] = {"id": rid, "deleted": True, "last_modified": 0}
             records_by_id = filtered
