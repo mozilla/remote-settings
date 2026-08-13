@@ -200,9 +200,9 @@ class CollectionNotFound(Exception):
     pass
 
 
-class UnknownTimestamp(Exception):
-    """Raised when timestamp requested with `_since` is does
-    not have any matching tag.
+class OldTimestampError(Exception):
+    """Raised when timestamp requested with `_since` is older
+    than any known timestamp.
     """
 
     pass
@@ -402,12 +402,31 @@ class GitService:
 
         # 2. If _since is provided, compare and hide unchanged records.
         if _since is not None:
-            since_ref = f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/{_since}"
-            try:
-                old_refobj = self.repo.lookup_reference(since_ref)
-            except KeyError:
-                # No such tag, this timestamp is unknown.
-                raise UnknownTimestamp(_since)
+            # Lookup the nearest older tag.
+            # If there is no tag for this exact timestamp (eg. it was deleted when
+            # old tags were pruned), we fall back to the most recent tag that is
+            # older than it.
+            # The returned changeset will contain unchanged records, which is
+            # harmless for clients since they are applied by id, but at least
+            # tombstones are not missed.
+            timestamps = [int(ref.split("/")[-1]) for ref in refs]
+            older_timestamps = [ts for ts in timestamps if ts <= _since]
+            if not older_timestamps:
+                # No tag older than this timestamp.
+                raise OldTimestampError(_since)
+            base_timestamp = max(older_timestamps)
+            if base_timestamp != _since:
+                logger.info(
+                    "No tag for %s/%s@%s, comparing with %s instead",
+                    bid,
+                    cid,
+                    _since,
+                    base_timestamp,
+                )
+            since_ref = (
+                f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/{base_timestamp}"
+            )
+            old_refobj = self.repo.lookup_reference(since_ref)
 
             old_tag = self.repo[old_refobj.target]
             old_commit = old_tag.peel(pygit2.Commit)
@@ -752,7 +771,7 @@ def collection_changeset(
         )
     except CollectionNotFound:
         raise HTTPException(status_code=404, detail=f"{bid}/{cid} not found")
-    except UnknownTimestamp:
+    except OldTimestampError:
         logger.info(
             "Unknown _since timestamp: %s for %s/%s, falling back to full changeset",
             _since,
