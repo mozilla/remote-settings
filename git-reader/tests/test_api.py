@@ -516,7 +516,7 @@ def test_changeset_unknown_since(api_client):
     )
 
 
-def test_changeset_since_unknown_fallsback_to_older_tag(api_client):
+def test_changeset_since_unknown_fallbacks_to_older_tag(api_client):
     # No tag for 120000000, the 113456789 one is used instead.
     resp = api_client.get(
         "/v2/buckets/main/collections/password-rules/changeset?_expected=0&_since=120000000"
