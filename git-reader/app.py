@@ -428,9 +428,11 @@ class GitService:
                 elif old_record != record:
                     filtered[rid] = record
             # Deleted records are shown as tombstones.
-            # Note: we don't have `last_modified` but clients don't need it.
+            # Note: we set an arbitrary `last_modified` value as a
+            # mitigation solution to A-S clients expecting it
+            # although it is not needed and not part of specifications.
             for rid in old_records_by_id.keys():
-                filtered[rid] = {"id": rid, "deleted": True}
+                filtered[rid] = {"id": rid, "deleted": True, "last_modified": 0}
             records_by_id = filtered
 
         # Sort records by last_modified desc.

@@ -526,7 +526,7 @@ def test_changeset_since(api_client):
     assert data["timestamp"] == 123456789
     assert data["changes"] == [
         {"id": "abc", "last_modified": 123456789, "foo": "bar"},
-        {"id": "def", "deleted": True},
+        {"id": "def", "deleted": True, "last_modified": 0},
     ]
 
 
