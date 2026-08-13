@@ -516,6 +516,32 @@ def test_changeset_unknown_since(api_client):
     )
 
 
+def test_changeset_since_unknown_fallsback_to_older_tag(api_client):
+    # No tag for 120000000, the 113456789 one is used instead.
+    resp = api_client.get(
+        "/v2/buckets/main/collections/password-rules/changeset?_expected=0&_since=120000000"
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert data["timestamp"] == 123456789
+    assert data["changes"] == [
+        {"id": "abc", "last_modified": 123456789, "foo": "bar"},
+        {"id": "def", "deleted": True, "last_modified": 0},
+    ]
+
+
+def test_changeset_since_newer_than_latest_returns_empty_list(api_client):
+    resp = api_client.get(
+        "/v2/buckets/main/collections/password-rules/changeset?_expected=0&_since=999999999"
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert data["timestamp"] == 123456789
+    assert data["changes"] == []
+
+
 def test_changeset_since(api_client):
     resp = api_client.get(
         "/v2/buckets/main/collections/password-rules/changeset?_expected=0&_since=113456789"
