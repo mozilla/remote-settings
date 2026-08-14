@@ -100,7 +100,7 @@ Downside: it is less elegant than deriving everything from the versioned trees, 
 #### Plan
 
 1. Approve ADR
-1. Implement `git-reader` that fallsback nicely if no `tombstones/` folder
+1. Implement `git-reader` that falls back nicely if no `tombstones/` folder
 1. Implement ledger in `git-export` job
 1. Use a script to build `tombstones/*.txt` files from `v1/` API
 1. Stop `git-export` cronjob
