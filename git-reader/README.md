@@ -136,4 +136,5 @@ With ``SELF_CONTAINED=true``, the attachments files are served by the applicatio
 
 - ``LFS_CONCURRENT_TRANSFERS`` (default: 8): increase number of parallel requests for LFS downloads.
 - ``LFS_FETCH_EXCLUDE`` (default: none): exclude certain collections from LFS (eg. `"attachments/main-workspace/translation-dictionaries/*,attachments/main-workspace/quicksuggest-amp/*"`)
-- ``LFS_KEEP_DAYS`` (default: unset, see [LFS defaults](https://github.com/git-lfs/git-lfs/blob/main/docs/man/git-lfs-config.adoc)): a disk-space knob for the LFS cache that controls how many days of LFS history is retained beyond the current checkout. Objects referenced by ``HEAD`` are always kept. In Remote Settings terms, this means that clients trying to pull attachments of records that have been obsolete for more than `LFS_KEEP_DAYS` days will be served an error response. This can be mitigated using a caching layer on the reverse proxy, which would continue to serve obsolete attachments as long as they remained cached.
+
+Since the clone is shallow, only the LFS objects referenced by the branches tips are kept: clients trying to pull attachments of records that were obsoleted by the last publication will be served an error response. This can be mitigated using a caching layer on the reverse proxy, which would continue to serve obsolete attachments as long as they remained cached.
