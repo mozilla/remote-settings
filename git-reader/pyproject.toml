@@ -6,7 +6,7 @@ requires-python = ">=3.11,<3.15"
 dependencies = [
     "dockerflow>=2026.3.4",
     "fastapi>=0.141.1",
-    "pydantic-settings>=2.14.2",
+    "pydantic-settings>=2.15.0",
     "pygit2>=1.19.3",
     "uvloop>=0.21.0",
     "pyjwt>=2.10.1",
