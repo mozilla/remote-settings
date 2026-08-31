@@ -12,6 +12,6 @@ dependencies = [
     "pytest==9.1.1",
     "webtest==3.0.7",
     "playwright==1.62.0",
-    "pytest-playwright==0.8.0",
+    "pytest-playwright==0.9.0",
     "pytest-timeout==2.4.0",
 ]
