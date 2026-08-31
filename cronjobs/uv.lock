@@ -348,16 +348,16 @@ wheels = [
 
 [[package]]
 name = "grpcio-status"
-version = "1.82.0"
+version = "1.83.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "googleapis-common-protos" },
     { name = "grpcio" },
     { name = "protobuf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/07/c3/42148fdb28747b6c12df1351dece3fd574262fa14b180eca9821428626df/grpcio_status-1.82.0.tar.gz", hash = "sha256:ea0cbc12c52a902cb33ba56fb3233dcfad53ffead08f4a659b1752d473a6a0ac", size = 13902, upload-time = "2026-07-06T04:26:47.864Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/52/fd/848dd7e009de85f8ca59999d1cc618ff8ebf7ea5636d083a47455d212d24/grpcio_status-1.83.0.tar.gz", hash = "sha256:837219c6de9afdccb6f6f72b34bc71e151a2011ef04040e3faaca746a57e54ae", size = 13965, upload-time = "2026-07-23T15:24:26.98Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ad/f3/fe7e1f57f170ed6cae20eecc0dea62e9de862e68adede80a6cd54a9b4dfa/grpcio_status-1.82.0-py3-none-any.whl", hash = "sha256:d41e45164ae2c265b268aebd9d86defa292a1ba91d86a548bad1f059c4645676", size = 14634, upload-time = "2026-07-06T04:26:38.672Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/00/73204406228cf989bea6b0fd9fe4702fab49a8a152a0c6f90856dadb6ac7/grpcio_status-1.83.0-py3-none-any.whl", hash = "sha256:f6a838a7c5fb84ae98833ec0ef81ed438c26e11e54b2ddb8e92ad328c861de69", size = 14636, upload-time = "2026-07-23T15:23:49.044Z" },
 ]
 
 [[package]]
