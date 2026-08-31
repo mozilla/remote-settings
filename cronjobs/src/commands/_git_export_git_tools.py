@@ -87,7 +87,7 @@ def reset_repo(
     origin = repo.remotes[REMOTE_NAME]
     remote_tags = {
         obj["name"]
-        for obj in origin.ls_remotes(callbacks=callbacks)
+        for obj in origin.ls_remotes(callbacks=callbacks)  # ty: ignore[unresolved-attribute]
         if obj["name"].startswith("refs/tags/") and not obj["local"]
     }
     for ref in repo.references:
