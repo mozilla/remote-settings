@@ -42,8 +42,8 @@ def tmp_repo(tmp_path):
 
 
 @pytest.fixture
-def mock_ls_remotes():
-    with mock.patch("pygit2.Remote.ls_remotes") as mock_ls:
+def mock_list_heads():
+    with mock.patch("pygit2.Remote.list_heads") as mock_ls:
         mock_ls.return_value = []
         yield mock_ls
 
@@ -89,7 +89,7 @@ def test_iter_tree_single_file(tmp_repo):
     ]
 
 
-def test_reset_repo_creates_local_branches(tmp_repo, mock_ls_remotes):
+def test_reset_repo_creates_local_branches(tmp_repo, mock_list_heads):
     repo = tmp_repo
     commit = repo.revparse_single("main")
     # remote branch can be created via reference only.
@@ -170,7 +170,7 @@ def test_push_mirror_pushes_branches_and_tags_then_deletes(
         mock_remote_push.assert_any_call(expect, callbacks=None)
 
 
-def test_reset_repo_resets_local_branches_to_remote(tmp_repo, mock_ls_remotes):
+def test_reset_repo_resets_local_branches_to_remote(tmp_repo, mock_list_heads):
     repo = tmp_repo
     commit = repo.revparse_single("main")
     author = committer = pygit2.Signature("Test", "test@example.com")
@@ -201,7 +201,7 @@ def test_reset_repo_resets_local_branches_to_remote(tmp_repo, mock_ls_remotes):
     assert local_ref.target == remote_ref.target
 
 
-def test_reset_repo_deletes_extra_local_branches_and_tags(tmp_repo, mock_ls_remotes):
+def test_reset_repo_deletes_extra_local_branches_and_tags(tmp_repo, mock_list_heads):
     repo = tmp_repo
     some_target = repo.references["refs/heads/main"].target
     repo.create_reference("refs/remotes/origin/v1/buckets/main", some_target)

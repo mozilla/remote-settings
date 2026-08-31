@@ -86,9 +86,9 @@ def reset_repo(
     # Delete local tags that are not on remote
     origin = repo.remotes[REMOTE_NAME]
     remote_tags = {
-        obj["name"]
-        for obj in origin.ls_remotes(callbacks=callbacks)  # ty: ignore[unresolved-attribute]
-        if obj["name"].startswith("refs/tags/") and not obj["local"]
+        obj.name
+        for obj in origin.list_heads(callbacks=callbacks)
+        if obj.name and obj.name.startswith("refs/tags/") and not obj.local
     }
     for ref in repo.references:
         if not ref.startswith("refs/tags/") or ref in remote_tags:

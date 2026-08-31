@@ -2,6 +2,7 @@ import asyncio
 import importlib
 import os
 import shutil
+from types import SimpleNamespace
 from unittest import mock
 
 import pygit2
@@ -61,8 +62,8 @@ def mock_github_lfs():
 
 
 @pytest.fixture
-def mock_ls_remotes():
-    with mock.patch("pygit2.Remote.ls_remotes") as mock_ls:
+def mock_list_heads():
+    with mock.patch("pygit2.Remote.list_heads") as mock_ls:
         mock_ls.return_value = []
         yield mock_ls
 
@@ -249,7 +250,7 @@ def create_branch_with_empty_commit(repo, branch_name, set_as_repo_head=False):
         repo.set_head(branch_name)
 
 
-def simulate_pushed(repo, mock_ls_remotes):
+def simulate_pushed(repo, mock_list_heads):
     # Simulate that these branches and tags were pushed in previous `git_export` call.
     for branch in repo.branches.local:
         commit = repo.lookup_reference(f"refs/heads/{branch}").peel()
@@ -260,11 +261,11 @@ def simulate_pushed(repo, mock_ls_remotes):
             repo.references.delete(refname)
             repo.references.create(refname, commit.id)
     ref_names = [
-        {"name": tag, "local": False}
+        SimpleNamespace(name=tag, local=False)
         for tag in repo.listall_references()
         if tag.startswith("refs/tags/")
     ]
-    mock_ls_remotes.return_value = ref_names
+    mock_list_heads.return_value = ref_names
 
 
 @pytest.fixture
@@ -288,7 +289,7 @@ def test_remote_is_clone_if_dir_missing(
     mock_truncate_branch,
     mock_github_lfs,
     mock_git_push,
-    mock_ls_remotes,
+    mock_list_heads,
 ):
     def _fake_clone(url, path, *args, **kwargs):
         return init_fake_repo(path)
@@ -310,7 +311,7 @@ def test_repo_sync_content_starts_from_scratch_if_no_previous_run(
     capsys,
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -354,7 +355,7 @@ def test_repo_sync_does_nothing_if_up_to_date(
     capsys,
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_truncate_branch,
     mock_github_lfs,
@@ -365,7 +366,7 @@ def test_repo_sync_does_nothing_if_up_to_date(
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
     git_export.git_export()
-    simulate_pushed(repo, mock_ls_remotes)
+    simulate_pushed(repo, mock_list_heads)
     capsys.readouterr()  # Clear previous output
 
     git_export.git_export()
@@ -382,7 +383,7 @@ def test_repo_sync_can_be_forced_even_if_up_to_date(
     capsys,
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_truncate_branch,
     mock_github_lfs,
@@ -393,7 +394,7 @@ def test_repo_sync_can_be_forced_even_if_up_to_date(
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
     git_export.git_export()
-    simulate_pushed(repo, mock_ls_remotes)
+    simulate_pushed(repo, mock_list_heads)
     capsys.readouterr()  # Clear previous output
 
     git_export.FORCE = True
@@ -410,7 +411,7 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
     capsys,
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -426,8 +427,10 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
         pygit2.Signature("Test User", "test@example.com"),
         "Test tag at 1600000000000",
     )
-    mock_ls_remotes.return_value = [
-        {"name": "refs/tags/v1/timestamps/common/1600000000000", "local": False}
+    mock_list_heads.return_value = [
+        SimpleNamespace(
+            name="refs/tags/v1/timestamps/common/1600000000000", local=False
+        )
     ]
 
     git_export.git_export()
@@ -458,7 +461,7 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
     capsys,
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -474,8 +477,10 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
         pygit2.Signature("Test User", "test@example.com"),
         "Test tag at 1600000000000",
     )
-    mock_ls_remotes.return_value = [
-        {"name": "refs/tags/v1/timestamps/common/1600000000000", "local": False}
+    mock_list_heads.return_value = [
+        SimpleNamespace(
+            name="refs/tags/v1/timestamps/common/1600000000000", local=False
+        )
     ]
 
     git_export.FORCE = True
@@ -491,7 +496,7 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
 def test_repo_sync_stores_server_info(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -506,7 +511,7 @@ def test_repo_sync_stores_server_info(
 def test_repo_sync_stores_monitor_changes(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -521,7 +526,7 @@ def test_repo_sync_stores_monitor_changes(
 def test_repo_sync_stores_broadcasts(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -536,7 +541,7 @@ def test_repo_sync_stores_broadcasts(
 def test_repo_sync_stores_cert_chains(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -551,7 +556,7 @@ def test_repo_sync_stores_cert_chains(
 def test_repo_sync_tags_common_branch(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -570,7 +575,7 @@ def test_repo_sync_tags_common_branch(
 def test_repo_moves_common_branch_tag_if_only_bundle_changed(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -585,7 +590,7 @@ def test_repo_moves_common_branch_tag_if_only_bundle_changed(
         before_commit
     )
 
-    simulate_pushed(repo, mock_ls_remotes)
+    simulate_pushed(repo, mock_list_heads)
 
     # Now simulate that a new bundle was published, but no new entry on
     # monitor/changes (its timestamp is unchanged). This is detected during the
@@ -612,7 +617,7 @@ def test_repo_moves_common_branch_tag_if_only_bundle_changed(
 def test_repo_sync_stores_collections_records_in_buckets_branches_with_tags(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -640,13 +645,13 @@ def test_repo_sync_stores_collections_records_in_buckets_branches_with_tags(
 def test_repo_sync_deletes_records_from_past_runs(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
 ):
     git_export.git_export()
-    simulate_pushed(repo, mock_ls_remotes)
+    simulate_pushed(repo, mock_list_heads)
 
     # File exists before next run (not raising).
     read_file(
@@ -699,7 +704,7 @@ def test_repo_sync_deletes_records_from_past_runs(
 def test_repo_sync_stores_attachments_as_lfs_pointers(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -725,7 +730,7 @@ def test_repo_sync_stores_attachments_as_lfs_pointers(
 def test_repo_syncs_attachment_bundles(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -774,7 +779,7 @@ def test_repo_syncs_attachment_bundles(
 def test_attachment_bundles_is_skipped_if_no_attachment_in_changeset(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -805,7 +810,7 @@ def test_attachment_bundles_is_skipped_if_no_attachment_in_changeset(
 def test_repo_prunes_inactive_attachments_on_full_sync(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -846,13 +851,13 @@ def test_repo_prunes_inactive_attachments_on_full_sync(
 def test_repo_keeps_inactive_attachments_on_incremental_sync(
     repo,
     mock_git_fetch,
-    mock_ls_remotes,
+    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
 ):
     git_export.git_export()
-    simulate_pushed(repo, mock_ls_remotes)
+    simulate_pushed(repo, mock_list_heads)
     blob = read_file(repo, "v1/common", "attachments/bid2/random-name.bin")
     assert "lfs" in blob.decode()
 
@@ -888,14 +893,14 @@ def test_repo_is_reset_to_local_content_on_error(
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
-    mock_ls_remotes,
+    mock_list_heads,
 ):
     create_branch_with_empty_commit(repo, "v1/common", set_as_repo_head=True)
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
     git_export.git_export()
-    simulate_pushed(repo, mock_ls_remotes)
+    simulate_pushed(repo, mock_list_heads)
 
     responses.replace(
         responses.GET,
