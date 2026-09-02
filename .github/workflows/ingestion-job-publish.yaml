@@ -41,7 +41,6 @@ env:
   BUILDX_NO_DEFAULT_ATTESTATIONS: 1 # Reduce warnings from Docker Buildx
   GAR_LOCATION: us
   GCP_PROJECT_ID: moz-fx-remote-settings-${{ inputs.realm }}
-  GAR_REPOSITORY: ingestion-cronjob-${{ github.event.repository.name }}
   GAR_IMAGE_NAME: ${{ github.event.repository.name }}
 
 jobs:
@@ -53,6 +52,14 @@ jobs:
         with:
           fetch-depth: 0  # Fetch everything (tags)
           fetch-tags: true
+
+      - name: Set GAR repository from Github repository
+        run: |
+            # Match how the repository is created in our Terraform code
+            # https://github.com/mozilla-it/webservices-infra/blob/main/remote-settings/tf/modules/remote_settings_infra/ingestion_jobs.tf
+            # Trim to 63 characters here too.
+            result=$(echo "ingestion-cronjob-${{ github.event.repository.name }}" | cut -c 1-63)
+            echo "GAR_REPOSITORY=${result}" >> "$GITHUB_ENV"
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
