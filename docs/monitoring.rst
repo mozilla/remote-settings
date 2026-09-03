@@ -40,7 +40,7 @@ Random notes
 ''''''''''''
 
 * Counters are cumulative, so you need to use ``rate()`` or ``increase()`` to get the increase over time.
-* The ``$__range`` variable resolves to the whole time range you are showing, basically end time of your graph minus start time. 
+* The ``$__range`` variable resolves to the whole time range you are showing, basically end time of your graph minus start time.
 * For the increase since the previous data point in the graph, i.e. the interval between datapoints, use ``$__interval``.
 * The ``group by(...)`` function always returns a vector with all values set to 1. For counts, you most likely want ``sum by(...)``
 * ``increase()`` will sometimes miss individual events. Use subqueries as a workaround. ``some_metric[$__interval]`` evaluates to all datapoints for ``some_metric`` within the previous X seconds (eg. 120s). The function then computes the increase between the first and the last datapoint in the vector it sees, while accounting for possible counter resets. The function then extrapolates this to the whole 120 seconds interval by multiplying with ``120s / (timestamp of last datapoint in vector - timestamp of first datapoint in vector)``. The ``increase()`` function will thus miss the increases between two consecutive intervals, and it will "make up" for this by extrapolation. On average, this will be correct, but only on average.
@@ -68,7 +68,7 @@ Logs are also exposed to `yardstick <https://yardstick.mozilla.org/d/aeogevsa6rx
 
 .. code-block::
 
-		SELECT timestamp, JSON_VALUE(json_payload, '$.Type') Type, 
+		SELECT timestamp, JSON_VALUE(json_payload, '$.Type') Type,
 		  JSON_VALUE(json_payload, '$.Fields.path') Path,
 		  JSON_VALUE(json_payload, '$.Fields.msg') Msg
 		FROM `moz-fx-remote-settings-prod.gke_remote_settings_prod_log_linked._AllLogs` l
@@ -208,5 +208,5 @@ Telescope Check Queries
 
 These queries can be used as models when troubleshooting with Redash:
 
-- `Events per period of 10min <https://github.com/mozilla-services/telescope/blob/641587b5a37c7f1ae8fa911dbd516bcb4bf102c7/checks/remotesettings/uptake_error_rate.py#L27-L63>`_
-- `Percentiles on sync duration and age of pulled data <https://github.com/mozilla-services/telescope/blob/641587b5a37c7f1ae8fa911dbd516bcb4bf102c7/checks/remotesettings/uptake_max_age.py#L16-L62>`_
+- `Events per period of 10min <https://github.com/mozilla-services/telescope/blob/0e17b067af9ec807f3af12d06a76089c1034476c/checks/remotesettings/uptake_error_rate.py#L27-L47>`_
+- `Percentiles on sync duration and age of pulled data <https://github.com/mozilla-services/telescope/blob/0e17b067af9ec807f3af12d06a76089c1034476c/checks/remotesettings/uptake_max_age.py#L17-L61>`_
