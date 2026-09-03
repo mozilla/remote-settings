@@ -1,6 +1,6 @@
 # git-reader: Missing Tombstones for Old `_since` Timestamps
 
-* Status: proposed
+* Status: accepted
 * Deciders: acottner, smarnach, mleplatre
 * Date: Aug 14, 2026
 
