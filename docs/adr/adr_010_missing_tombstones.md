@@ -10,7 +10,7 @@ In the `/v2` git-based implementation, each collection publication is a tag on t
 
 Tags are files on disk and slow down git operations, so the export job deletes the ones older than 30 days (`TAGS_MAX_AGE_DAYS`). Clients coming with a `_since` timestamp that has no matching tag are redirected to the full changeset ([#1474](https://github.com/mozilla/remote-settings/pull/1474)).
 
-A full changeset contains only the live records and has no tombstone. Therefore, if records were deleted in the meantime, these clients never learn about the deletions, and **clients that do not verify signatures silently keep obsolete records in their local data**.
+A full changeset contains only the live records and has no [tombstone](https://remote-settings.readthedocs.io/en/latest/client-specifications.html#local-state). Therefore, if records were deleted in the meantime, these clients never learn about the deletions, and **clients that do not verify signatures silently keep obsolete records in their local data**.
 
 Clients verifying signatures catch up on retry: the signature covers the live record set, so the extraneous records make verification fail, and the client wipes its local data and pulls again. 
 The Application-Service Rust client do have the signature verification feature, but it is not enabled on iOS or Android builds ([Bug 2063304](https://bugzilla.mozilla.org/show_bug.cgi?id=2063304)).
