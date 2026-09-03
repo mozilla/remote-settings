@@ -188,7 +188,7 @@ Alternatively, if you have access to the `remote-settings-permissions <https://g
 
     ./manage.py deletecollection COLLECTION_NAME
 
-And open a pull-request with the command output as description (See `this example <https://github.com/mozilla/remote-settings-permissions/pull/748>_`).
+And open a pull-request with the command output as description (See `this example <https://github.com/mozilla/remote-settings-permissions/pull/748>`_).
 
 .. note::
 
