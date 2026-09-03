@@ -42,6 +42,14 @@ Chosen option: **Option E - Tombstones ledger**, because it is the only option t
 
 Change the client specifications from SHOULD to MUST, and enable verification on the Android and iOS megazords ([bug 2063304](https://bugzilla.mozilla.org/show_bug.cgi?id=2063304)).
 
+This work would consist in:
+
+* replacing the root-hash check with full certificate verification ([bug 1940903](https://bugzilla.mozilla.org/show_bug.cgi?id=1940903))
+* introducing a pref or a feature-gate to enable progressive rollout
+* linking these public certificates in Android and iOS (in tree, or using CA store, etc.)
+* enabling the Rust compile-time feature in Android and iOS
+* elaborating an incremental migration plan with proceed/revert criteria
+
 - **Exhaustiveness**: N/A. Does not prevent the missing tombstones, but makes clients recover from them.
 - **Fixes existing clients**: No, but this is the norm for client bugs.
 - **Cost of implementation**: Mid. Requires client work on several platforms, especially regarding usage of root certificates instead of root hashes ([bug 1940903](https://bugzilla.mozilla.org/show_bug.cgi?id=1940903))
