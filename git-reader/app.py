@@ -152,10 +152,6 @@ class Settings(BaseSettings):
         604800,
         description="Sets the cache-control response header to max-age={value} for static content, like attachments. Default is 604800 (1 week)",
     )
-    filter_refs_cache_size: int = Field(
-        500,
-        description="Number of filter_refs function results to cache. This filters git tags to a specific collection and is expensive to run per request.",
-    )
 
 
 @lru_cache(maxsize=1)
@@ -195,14 +191,6 @@ def get_repo(
 class CollectionNotFound(Exception):
     """
     Raised when a requested collection or bucket is not found.
-    """
-
-    pass
-
-
-class OldTimestampError(Exception):
-    """Raised when timestamp requested with `_since` is older
-    than any known timestamp.
     """
 
     pass
@@ -282,30 +270,6 @@ def measure_git_read_time(operation: str) -> Callable[[Callable], Callable]:
     return decorator
 
 
-@lru_cache(maxsize=get_settings().filter_refs_cache_size)
-def filter_refs(
-    repo: pygit2.Repository,
-    bid: str,
-    cid: str,
-) -> list[str]:
-    """
-    Returns a list of git refs filtered to the requested bucket and collection,
-    sorted in reverse chronological order. Because repo is provided as a param,
-    and that ref will change as content changes, this cache will not return
-    stale data.
-    """
-    return sorted(
-        [
-            ref.decode()
-            for ref in repo.raw_listall_references()
-            if ref.decode().startswith(
-                f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/"
-            )
-        ],
-        reverse=True,
-    )
-
-
 class GitService:
     """
     Wrapper on top of pygit2 to serve content.
@@ -324,23 +288,12 @@ class GitService:
 
     def check_content(self) -> None:
         """
-        Check that the repository has the expected branches and tags.
+        Check that the repository has the expected branches.
         """
         branches = {branch_name for branch_name in self.repo.branches.local}
         if f"{GIT_REF_PREFIX}common" not in branches:
             raise RuntimeError(
                 f"Missing '{GIT_REF_PREFIX}common' branch in repository. Found: {branches}"
-            )
-
-        # Check that the repository has timestamps/* tags.
-        timestamp_tags = {
-            ref
-            for ref in self.repo.references
-            if ref.startswith(f"refs/tags/{GIT_REF_PREFIX}timestamps/")
-        }
-        if not timestamp_tags:
-            raise RuntimeError(
-                f"Missing '{GIT_REF_PREFIX}timestamps/*' tags in repository. Found: {timestamp_tags}"
             )
 
         # Check that LFS files are present if self-contained.

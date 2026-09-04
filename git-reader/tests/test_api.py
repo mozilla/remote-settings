@@ -14,7 +14,6 @@ from app import (
     write_json_mozlz4,
 )
 from fastapi.testclient import TestClient
-from pygit2.enums import ObjectType
 
 
 def upsert_blobs(repo, items, base_tree=None):
@@ -173,20 +172,6 @@ def fake_repo(temp_dir):
     oid = repo.create_commit(
         "refs/heads/v1/buckets/main", author, author, "Message", tree_oid, []
     )
-    repo.create_tag(
-        "v1/timestamps/main/password-rules/113456789",
-        oid,
-        ObjectType.COMMIT,
-        author,
-        "Message",
-    )
-    repo.create_tag(
-        "v1/timestamps/main/password-rules-preview/113456789",
-        oid,
-        ObjectType.COMMIT,
-        author,
-        "Message",
-    )
 
     # Create a new version of this collection.
     base_tree = repo[oid].tree
@@ -207,13 +192,6 @@ def fake_repo(temp_dir):
 
     oid = repo.create_commit(
         "refs/heads/v1/buckets/main", author, author, "Message", tree_oid, [oid]
-    )
-    repo.create_tag(
-        "v1/timestamps/main/password-rules/123456789",
-        oid,
-        ObjectType.COMMIT,
-        author,
-        "Message",
     )
 
     # Create some attachments.
@@ -284,20 +262,19 @@ def test_version(api_client):
     assert data["version"] == "v0.0.0"
 
 
-def test_heartbeat_failing(api_client, temp_dir, monkeypatch):
+@pytest.fixture
+def repo_copy(temp_dir, monkeypatch):
+    # Copy the fake repo to a temp dir, in order to delete stuff in it.
     with tempfile.TemporaryDirectory() as td:
-        # Copy the fake repo to a temp dir and delete stuff.
         shutil.copytree(temp_dir, td, dirs_exist_ok=True)
-
-        repo = pygit2.init_repository(td)
-
-        for tag in repo.references:
-            if tag.startswith("refs/tags/v1/timestamps/"):
-                repo.references.delete(tag)
-
         monkeypatch.setenv("GIT_REPO_PATH", td)
+        yield pygit2.init_repository(td)
 
-        resp = api_client.get("/v2/__heartbeat__")
+
+def test_heartbeat_failing(api_client, repo_copy):
+    repo_copy.references.delete("refs/heads/v1/common")
+
+    resp = api_client.get("/v2/__heartbeat__")
 
     assert resp.status_code == 500
     assert resp.json()["checks"]["git_repo_health"] == "error"
