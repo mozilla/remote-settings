@@ -14,7 +14,6 @@ from app import (
     write_json_mozlz4,
 )
 from fastapi.testclient import TestClient
-from pygit2.enums import ObjectType
 
 
 def upsert_blobs(repo, items, base_tree=None):
@@ -173,20 +172,6 @@ def fake_repo(temp_dir):
     oid = repo.create_commit(
         "refs/heads/v1/buckets/main", author, author, "Message", tree_oid, []
     )
-    repo.create_tag(
-        "v1/timestamps/main/password-rules/113456789",
-        oid,
-        ObjectType.COMMIT,
-        author,
-        "Message",
-    )
-    repo.create_tag(
-        "v1/timestamps/main/password-rules-preview/113456789",
-        oid,
-        ObjectType.COMMIT,
-        author,
-        "Message",
-    )
 
     # Create a new version of this collection.
     base_tree = repo[oid].tree
@@ -201,19 +186,36 @@ def fake_repo(temp_dir):
                 "password-rules/def.json",
                 None,
             ),
+            # Ledger of deleted records, one file per month.
+            # Note that "abc" was deleted and created again since, and that
+            # "ghi" was deleted twice within the same month.
+            (
+                "password-rules/tombstones/197001.txt",
+                "ghi@100000000\ndef@110000000\nabc@110000000\nghi@115000000\n",
+            ),
+            (
+                "password-rules/tombstones/197002.txt",
+                "def@130000000\n",
+            ),
+            # A collection without any record.
+            (
+                "empty/metadata.json",
+                {
+                    "id": "empty",
+                    "bucket": "main",
+                    "last_modified": 140000000,
+                    "signature": {"x5u": "https://autograph/a/b/cert.pem"},
+                    "signatures": [
+                        {"x5u": "https://autograph/a/b/cert.pem"},
+                    ],
+                },
+            ),
         ],
         base_tree=base_tree,
     )
 
     oid = repo.create_commit(
         "refs/heads/v1/buckets/main", author, author, "Message", tree_oid, [oid]
-    )
-    repo.create_tag(
-        "v1/timestamps/main/password-rules/123456789",
-        oid,
-        ObjectType.COMMIT,
-        author,
-        "Message",
     )
 
     # Create some attachments.
@@ -284,20 +286,19 @@ def test_version(api_client):
     assert data["version"] == "v0.0.0"
 
 
-def test_heartbeat_failing(api_client, temp_dir, monkeypatch):
+@pytest.fixture
+def repo_copy(temp_dir, monkeypatch):
+    # Copy the fake repo to a temp dir, in order to delete stuff in it.
     with tempfile.TemporaryDirectory() as td:
-        # Copy the fake repo to a temp dir and delete stuff.
         shutil.copytree(temp_dir, td, dirs_exist_ok=True)
-
-        repo = pygit2.init_repository(td)
-
-        for tag in repo.references:
-            if tag.startswith("refs/tags/v1/timestamps/"):
-                repo.references.delete(tag)
-
         monkeypatch.setenv("GIT_REPO_PATH", td)
+        yield pygit2.init_repository(td)
 
-        resp = api_client.get("/v2/__heartbeat__")
+
+def test_heartbeat_failing(api_client, repo_copy):
+    repo_copy.references.delete("refs/heads/v1/common")
+
+    resp = api_client.get("/v2/__heartbeat__")
 
     assert resp.status_code == 500
     assert resp.json()["checks"]["git_repo_health"] == "error"
@@ -461,7 +462,8 @@ def test_changeset(api_client):
     assert resp.status_code == 200
     data = resp.json()
 
-    assert data["timestamp"] == 123456789
+    # Timestamp is the one of the most recent deletion (see ledger files).
+    assert data["timestamp"] == 130000000
     assert (
         data["metadata"]["signature"]["x5u"]
         == "http://test/v2/cert-chains/a/b/cert.pem"
@@ -473,6 +475,13 @@ def test_changeset(api_client):
 def test_changeset_unknown_collection(api_client):
     resp = api_client.get(
         "/v2/buckets/main/collections/wallpapers/changeset?_expected=0"
+    )
+    assert resp.status_code == 404
+
+
+def test_changeset_unknown_bucket(api_client):
+    resp = api_client.get(
+        "/v2/buckets/unknown/collections/password-rules/changeset?_expected=0"
     )
     assert resp.status_code == 404
 
@@ -504,30 +513,35 @@ def test_changeset_bad_expected(api_client, _expected):
     assert resp.status_code in (400, 422)
 
 
-def test_changeset_unknown_since(api_client):
+def test_changeset_since_older_than_all_tombstones(api_client):
     resp = api_client.get(
-        "/v2/buckets/main/collections/password-rules/changeset?_expected=0&_since=42",
-        follow_redirects=False,
+        "/v2/buckets/main/collections/password-rules/changeset?_expected=0&_since=42"
     )
-    assert resp.status_code == 307
-    assert (
-        resp.headers["Location"]
-        == "http://test/v2/buckets/main/collections/password-rules/changeset?_expected=0"
-    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # All the ledger files are read. "abc" was deleted but exists again, and is
+    # hence served as a change instead of a tombstone. Only the most recent
+    # deletion of "ghi" is served.
+    assert data["changes"] == [
+        {"id": "def", "deleted": True, "last_modified": 130000000},
+        {"id": "abc", "last_modified": 123456789, "foo": "bar"},
+        {"id": "ghi", "deleted": True, "last_modified": 115000000},
+    ]
 
 
-def test_changeset_since_unknown_fallbacks_to_older_tag(api_client):
-    # No tag for 120000000, the 113456789 one is used instead.
+def test_changeset_since_unknown_timestamp(api_client):
+    # 120000000 was never published, any value is accepted.
     resp = api_client.get(
         "/v2/buckets/main/collections/password-rules/changeset?_expected=0&_since=120000000"
     )
     assert resp.status_code == 200
     data = resp.json()
 
-    assert data["timestamp"] == 123456789
+    assert data["timestamp"] == 130000000
     assert data["changes"] == [
+        {"id": "def", "deleted": True, "last_modified": 130000000},
         {"id": "abc", "last_modified": 123456789, "foo": "bar"},
-        {"id": "def", "deleted": True, "last_modified": 0},
     ]
 
 
@@ -538,7 +552,7 @@ def test_changeset_since_newer_than_latest_returns_empty_list(api_client):
     assert resp.status_code == 200
     data = resp.json()
 
-    assert data["timestamp"] == 123456789
+    assert data["timestamp"] == 130000000
     assert data["changes"] == []
 
 
@@ -549,11 +563,24 @@ def test_changeset_since(api_client):
     assert resp.status_code == 200
     data = resp.json()
 
-    assert data["timestamp"] == 123456789
+    assert data["timestamp"] == 130000000
+    # The whole ledger file is read, even once an entry older than `_since`
+    # was found in it: "ghi" was deleted again afterwards.
     assert data["changes"] == [
+        {"id": "def", "deleted": True, "last_modified": 130000000},
         {"id": "abc", "last_modified": 123456789, "foo": "bar"},
-        {"id": "def", "deleted": True, "last_modified": 0},
+        {"id": "ghi", "deleted": True, "last_modified": 115000000},
     ]
+
+
+def test_changeset_empty_collection(api_client):
+    resp = api_client.get("/v2/buckets/main/collections/empty/changeset?_expected=0")
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Collection timestamp is used when it does not have any record.
+    assert data["timestamp"] == 140000000
+    assert data["changes"] == []
 
 
 def test_cert_chain(api_client):
