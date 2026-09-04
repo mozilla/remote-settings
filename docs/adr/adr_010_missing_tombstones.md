@@ -90,16 +90,16 @@ Since the ledger would be up-to-date at the tip of each branch, this solution th
 
 Downside: it is less elegant than deriving everything from the versioned trees, and it only records *which* records existed. But since we would now only do shallow clones and wouldn't need tags anymore, we can stop truncating bucket branches, and a human would thus be able to check out the past content of a collection.
 
-- **Exhaustiveness**: Full. Every deletion is recorded explicitly, including for records created and deleted between two publications.
-- **Fixes existing clients**: Yes. Past deletions can be backfilled from the `/v1` API, so coverage is complete once backfilled.
+- **Exhaustiveness**: Full. Entries come from the writer tombstones, and thus cover the records created and deleted between two publications.
+- **Fixes existing clients**: Yes. Past deletions are backfilled from the writer `/v1` API, so coverage is complete once backfilled.
 - **Cost of implementation**: Mid. Export job, git-reader, and a one-shot backfill.
-- **Cost of operation**: Low. Ledger entries are ids and timestamps; the number of tags no longer grows; git-reader can use shallow clones since only the branch tips are needed.
+- **Cost of operation**: Low on the repository: ledger entries are ids and timestamps, the number of tags no longer grows, and git-reader can use shallow clones since only the branch tips are needed. Mid on the CDN: since any `_since` is now served instead of being redirected to the full changeset, _since from old timestamp increase cache cardinality, and lead to scans on the ledger back to its own date.
 
 #### Implementation
 
-**Storage.** One file per month, `{cid}/tombstones/{YYYYMM}.txt`, with one `{rid}@{timestamp}` per line. Monthly files rather than a single `tombstones.json` so that old files are immutable. Each publication rewrites at most one small blob, and readers only open the files they need.
+**Storage.** One file per month, `{cid}/tombstones/{YYYYMM}.txt`, with one `{rid}@{timestamp}` per line. Monthly files rather than a single `tombstones.json` so that old files are immutable. A publication only rewrites the small blobs of the months it touches, and readers only open the files they need.
 
-**Export job.** The deleted ids are already derived when building the branch content (`changeset_to_branch_folder()` diffs the changeset against the branch tree). They are appended to the current month's file in the same commit as the record removal, so the ledger can never be out of step with the tree it describes.
+**Export job.** The deletions are read from the writer `/v1` API with `?_since={last exported timestamp}`, which gives both the ids and their real deletion timestamps. Entries are written in the same commit as the record removal, so the ledger can never be out of step. A single run can span several months (eg. after a downtime, or at start/end of the month), and each tombstone entry goes to the file of its own month.
 
 **git-reader.** For `?_since={T}`: keep the tip records whose `last_modified > T`, then read the ledger files by name descending and stop after the first file that contains an entry `<= T`. A record that is live and in the ledger (deleted, then created again) is served as a change, not as a tombstone, and only the most recent deletion of an id is kept. Any `T` is valid, including a value that was never published, so `_since` never triggers a redirect.
 
@@ -108,12 +108,12 @@ Downside: it is less elegant than deriving everything from the versioned trees, 
 #### Plan
 
 1. Approve ADR
-1. Implement `git-reader` that falls back nicely if no `tombstones/` folder
-1. Implement ledger in `git-export` job
-1. Use a script to build `tombstones/*.txt` files from `v1/` API
+1. Implement ledger in `git-export` job. The current git-reader ignores the new folder, so this can ship on its own.
+1. Use a one-shot script to build `tombstones/*.txt` files for all existing collections
 1. Stop `git-export` cronjob
 1. Commit backfill of tombstones files manually
-1. Run `git-export` again
+1. Enable `git-export` again, and check that it appends to the backfilled files
+1. Implement and deploy `git-reader` reading the ledger
 
 
 ## Links
