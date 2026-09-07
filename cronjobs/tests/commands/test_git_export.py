@@ -9,6 +9,7 @@ import pygit2
 import pytest
 import responses
 from commands import git_export
+from commands._git_export_git_tools import tree_upsert_blobs
 
 
 @pytest.fixture(autouse=True)
@@ -222,6 +223,20 @@ def read_file(repo, ref_or_branch_name, filepath):
         obj = repo[entry.id]
         node = obj
     return obj.data
+
+
+def build_tree(repo, items):
+    """Build a tree from a list of (path, content) tuples."""
+    return repo[tree_upsert_blobs(repo, items, base_tree=None)]
+
+
+def changeset(cid, records):
+    """Minimal changeset for the specified collection."""
+    return {
+        "metadata": {"id": cid, "bucket": "main"},
+        "timestamp": 100,
+        "changes": records,
+    }
 
 
 def init_fake_repo(path):
@@ -686,8 +701,10 @@ def test_repo_sync_deletes_records_from_past_runs(
                 },
                 "last_modified": 1888888888000,
             },
-            # Record was deleted (we don't use `_since`, so no tombstone)
-            "changes": [],
+            # Record was deleted: with `_since`, the changeset has its tombstone.
+            "changes": [
+                {"id": "rid2-1", "deleted": True, "last_modified": 1800000000000}
+            ],
         },
     )
 
@@ -698,6 +715,61 @@ def test_repo_sync_deletes_records_from_past_runs(
         read_file(
             repo, "refs/tags/v1/timestamps/bid2/cid2/1800000000000", "cid2/rid2-1.json"
         )
+
+
+@responses.activate
+def test_repo_sync_appends_tombstones_to_the_ledger(
+    repo,
+    mock_git_fetch,
+    mock_list_heads,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
+):
+    git_export.git_export()
+    simulate_pushed(repo, mock_list_heads)
+
+    # No record was deleted yet, the collection has no ledger.
+    with pytest.raises(KeyError):
+        read_file(repo, "v1/buckets/bid2", "cid2/tombstones/202701.txt")
+
+    # Now simulate that cid2 deleted its record.
+    responses.replace(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/monitor/collections/changes/changeset",
+        json={
+            "timestamp": 1800000000000,
+            "changes": [
+                {
+                    "last_modified": 1800000000000,
+                    "bucket": "bid2",
+                    "collection": "cid2",
+                }
+            ],
+        },
+    )
+    responses.add(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/bid2/collections/cid2/changeset",
+        json={
+            "timestamp": 1800000000000,
+            "metadata": {
+                "bucket": "bid2",
+                "id": "cid2",
+                "signature": {"x5u": "https://autograph.example.com/keys/123"},
+                "last_modified": 1888888888000,
+            },
+            "changes": [
+                {"id": "rid2-1", "deleted": True, "last_modified": 1800000000000}
+            ],
+        },
+    )
+
+    git_export.git_export()
+
+    # 1800000000000 is 2027-01: the tombstone goes to the file of its own month.
+    ledger = read_file(repo, "v1/buckets/bid2", "cid2/tombstones/202701.txt")
+    assert ledger.decode() == "1800000000000\trid2-1\n"
 
 
 @responses.activate
@@ -959,3 +1031,123 @@ def test_repo_is_reset_to_local_content_on_error(
     )
     assert "Delete local tag refs/tags/v1/timestamps/bid1/cid0/1800000000000" in stdout
     assert "Delete local tag refs/tags/v1/timestamps/common/1800000000000" in stdout
+
+
+def test_tombstones_are_split_by_month_and_stored_in_ascending_order(repo):
+    files = git_export.tombstones_to_ledger_files(
+        None,
+        "cid",
+        # 1733000000000 is 2024-11, 1736000000000 is 2025-01.
+        [("ccc", 1737000000002), ("bbb", 1736000000000), ("aaa", 1733000000000)],
+    )
+
+    assert dict(files) == {
+        "cid/tombstones/202411.txt": b"1733000000000\taaa\n",
+        "cid/tombstones/202501.txt": b"1736000000000\tbbb\n1737000000002\tccc\n",
+    }
+
+
+def test_already_known_tombstones_are_deduped(repo):
+    tree = build_tree(
+        repo,
+        [("cid/tombstones/202501.txt", b"1736000000000\taaa\n1737000000001\tbbb\n")],
+    )
+
+    files = git_export.tombstones_to_ledger_files(
+        tree, "cid", [("aaa", 1736000000000), ("ccc", 1737000000002)]
+    )
+
+    # "aaa" is not repeated.
+    assert dict(files) == {
+        "cid/tombstones/202501.txt": (
+            b"1736000000000\taaa\n1737000000001\tbbb\n1737000000002\tccc\n"
+        )
+    }
+
+
+def test_ledger_file_is_not_rewritten_when_nothing_is_new(repo):
+    # A full sync repeats every tombstone of the collection.
+    tree = build_tree(repo, [("cid/tombstones/202501.txt", b"1736000000000\taaa\n")])
+
+    files = git_export.tombstones_to_ledger_files(tree, "cid", [("aaa", 1736000000000)])
+
+    assert files == []
+
+
+def test_changeset_to_branch_folder_removes_deleted_records(repo):
+    tree = build_tree(
+        repo,
+        [
+            ("cid/metadata.json", b"{}"),
+            ("cid/aaa.json", b"{}"),
+            ("cid/bbb.json", b"{}"),
+        ],
+    )
+
+    content = dict(
+        git_export.changeset_to_branch_folder(
+            tree,
+            changeset(
+                "cid",
+                [
+                    {"id": "aaa", "last_modified": 1737000000000},
+                    {"id": "bbb", "deleted": True, "last_modified": 1737000000001},
+                ],
+            ),
+        )
+    )
+
+    assert content["cid/bbb.json"] is None
+    assert content["cid/aaa.json"] is not None
+    # The deletion is recorded in the same set of files as the record removal.
+    assert content["cid/tombstones/202501.txt"] == b"1737000000001\tbbb\n"
+
+
+def test_changeset_to_branch_folder_appends_to_existing_ledger(repo):
+    tree = build_tree(
+        repo,
+        [
+            ("cid/metadata.json", b"{}"),
+            ("cid/bbb.json", b"{}"),
+            ("cid/tombstones/202501.txt", b"1736000000000\told\n"),
+        ],
+    )
+
+    content = dict(
+        git_export.changeset_to_branch_folder(
+            tree,
+            changeset(
+                "cid",
+                [{"id": "bbb", "deleted": True, "last_modified": 1737000000000}],
+            ),
+        )
+    )
+
+    assert content["cid/bbb.json"] is None
+    assert content["cid/tombstones/202501.txt"] == (
+        b"1736000000000\told\n1737000000000\tbbb\n"
+    )
+
+
+def test_changeset_to_branch_folder_ignores_already_known_tombstones(repo):
+    # A full sync (`_since=0`) repeats every tombstone of the collection.
+    tree = build_tree(
+        repo,
+        [
+            ("cid/metadata.json", b"{}"),
+            ("cid/tombstones/202501.txt", b"1736000000000\tbbb\n"),
+        ],
+    )
+
+    content = dict(
+        git_export.changeset_to_branch_folder(
+            tree,
+            changeset(
+                "cid",
+                [{"id": "bbb", "deleted": True, "last_modified": 1736000000000}],
+            ),
+        )
+    )
+
+    # Nothing appended, the ledger file is not even rewritten.
+    assert "cid/tombstones/202501.txt" not in content

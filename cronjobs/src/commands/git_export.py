@@ -5,7 +5,7 @@ import os
 import traceback
 import urllib
 import urllib.parse
-from typing import Any, Iterable
+from typing import Any, Iterable, cast
 
 import kinto_http
 import pygit2
@@ -86,6 +86,7 @@ FORCE = config("FORCE", default=_SHOULD_FORCE, cast=bool)
 # Constants
 GIT_REF_PREFIX = "v1/"
 COMMON_BRANCH = "common"
+LEDGER_TIMESTAMP_SEPARATOR = "\t"
 _user, _email = GIT_AUTHOR.split("<")
 GIT_USER = _user.strip()
 GIT_EMAIL = _email.rstrip(">")
@@ -184,18 +185,30 @@ def json_dumpb(obj: Any) -> bytes:
 
 
 async def fetch_all_changesets(
-    client: kinto_http.AsyncClient, collections: Iterable[tuple[str, str]]
+    client: kinto_http.AsyncClient,
+    collections: Iterable[tuple[str, str]],
+    since: int,
 ) -> list[dict[str, Any]]:
     """
     Fetch the changesets of the specified collections using parallel requests.
+
+    With a `_since` value, the changesets also contain the tombstones of the
+    records deleted since then.
+
+    .. note::
+
+        /changeset endpoints don't support pagination, so they are more than
+        10K objects (records + tombstones) to fetch between two git-export runs,
+       then some data will be lost. Server configuration could be changed to
+       return 100K objects :)
     """
     sem = asyncio.Semaphore(MAX_PARALLEL_REQUESTS)
 
     async def fetch(bid: str, cid: str) -> dict[str, Any]:
         async with sem:
-            print("Fetching %s/%s" % (bid, cid))
+            print("Fetching %s/%s since %s" % (bid, cid, since))
             return await client.get_changeset(
-                bucket=bid, collection=cid, bust_cache=True
+                bucket=bid, collection=cid, _since=since, bust_cache=True
             )
 
     return await asyncio.gather(*[fetch(bid, cid) for bid, cid in collections])
@@ -266,8 +279,14 @@ async def repo_sync_content(
         if FORCE or entry["last_modified"] > latest_timestamp
     ]
     print(f"{len(new_changesets)} collections changed since last sync.")
+    # On a full sync we want the whole content of every collection, to refresh the
+    # attachments pointers and detect the orphan ones. Otherwise, we fetch
+    # only the changes and tombstones published since the last run.
+    fetch_since = 0 if FORCE else latest_timestamp
     all_changesets = await fetch_all_changesets(
-        client, [(entry["bucket"], entry["collection"]) for entry in new_changesets]
+        client,
+        [(entry["bucket"], entry["collection"]) for entry in new_changesets],
+        since=fetch_since,
     )
 
     # Store the broadcast version in `common` branch.
@@ -497,29 +516,75 @@ def process_attachments(
     return changed_attachments, common_content
 
 
+def tombstones_to_ledger_files(
+    branch_tree: pygit2.Tree | None,
+    cid: str,
+    tombstones: list[tuple[str, int]],
+) -> list[tuple[str, bytes | None]]:
+    """
+    Merge the tombstones into the ledger files of the collection, one per month.
+
+    Each entry goes to the file of its own month, since git-reader relies on
+    file names to locate the most recent deletion without reading them all.
+    """
+    by_month: dict[str, set[tuple[int, str]]] = {}
+    for rid, timestamp in tombstones:
+        month = ts2dt(timestamp).strftime("%Y%m")
+        by_month.setdefault(month, set()).add((timestamp, rid))
+
+    ledger_files: list[tuple[str, bytes | None]] = []
+    for month, entries in by_month.items():
+        path = f"{cid}/tombstones/{month}.txt"
+        known: set[tuple[int, str]] = set()
+        if branch_tree is not None:
+            try:
+                blob = cast(pygit2.Blob, branch_tree[path])
+            except KeyError:
+                pass  # First deletion of this month.
+            else:
+                for line in blob.data.decode("utf-8").splitlines():
+                    timestamp, rid = line.rsplit(LEDGER_TIMESTAMP_SEPARATOR, 1)
+                    known.add((int(timestamp), rid))
+
+        merged = known | entries
+        if merged == known:
+            # Nothing new: a full sync repeats every tombstone of the collection.
+            continue
+
+        ledger_files.append(
+            (
+                path,
+                "".join(
+                    f"{timestamp}{LEDGER_TIMESTAMP_SEPARATOR}{rid}\n"
+                    for timestamp, rid in sorted(merged)
+                ).encode("utf-8"),
+            )
+        )
+
+    return ledger_files
+
+
 def changeset_to_branch_folder(
     branch_tree: pygit2.Tree | None, changeset: dict[str, Any]
 ) -> list[tuple[str, bytes | None]]:
     """
     Convert a changeset to a list of files to be stored in the corresponding branch folder.
     """
-    # Create one blob per record.
     cid = changeset["metadata"]["id"]
     branch_content: list[tuple[str, bytes | None]] = [
         (f"{cid}/metadata.json", json_dumpb(changeset["metadata"]))
     ]
-    records = sorted(changeset["changes"], key=lambda r: r["id"])
-    for record in records:
-        branch_content.append((f"{cid}/{record['id']}.json", json_dumpb(record)))
 
-    # Delete any records that were removed in this changeset.
-    # (branch_tree is None on first run, and `cid` folder may not exist yet)
-    if branch_tree is not None and cid in branch_tree:
-        for entry in branch_tree[cid]:  # ty: ignore[not-iterable]
-            assert entry.name is not None
-            basename = entry.name.rsplit(".json", 1)[0]
-            if basename != "metadata" and basename not in {r["id"] for r in records}:
-                branch_content.append((f"{cid}/{entry.name}", None))
+    # Create one blob per record, and remove the ones that were deleted.
+    tombstones = []
+    for record in sorted(changeset["changes"], key=lambda r: r["id"]):
+        if record.get("deleted"):
+            branch_content.append((f"{cid}/{record['id']}.json", None))
+            tombstones.append((record["id"], record["last_modified"]))
+        else:
+            branch_content.append((f"{cid}/{record['id']}.json", json_dumpb(record)))
+
+    branch_content += tombstones_to_ledger_files(branch_tree, cid, tombstones)
 
     return branch_content
 
