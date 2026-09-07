@@ -481,7 +481,7 @@ class GitService:
         bcontent = cast(pygit2.Blob, self.repo[entry.id]).data
         tombstones = []
         for line in bcontent.decode("utf-8").splitlines():
-            rid, ts = line.rsplit(LEDGER_TIMESTAMP_SEPARATOR, 1)
+            ts, rid = line.rsplit(LEDGER_TIMESTAMP_SEPARATOR, 1)
             tombstones.append((rid, int(ts)))
         return tombstones
 
