@@ -73,7 +73,7 @@ def write_ledgers(
         entries.sort(key=lambda entry: (entry[1], entry[0]))
         ledger = folder / f"{month}.txt"
         ledger.write_text(
-            "".join(f"{rid}{TIMESTAMP_SEPARATOR}{ts}\n" for rid, ts in entries)
+            "".join(f"{ts}{TIMESTAMP_SEPARATOR}{rid}\n" for rid, ts in entries)
         )
 
 
