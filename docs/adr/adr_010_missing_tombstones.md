@@ -97,9 +97,9 @@ Downside: it is less elegant than deriving everything from the versioned trees, 
 
 #### Implementation
 
-**Storage.** One file per month, `{cid}/tombstones/{YYYYMM}.txt`, with one `{rid}@{timestamp}` per line. Monthly files rather than a single `tombstones.json` so that old files are immutable. A publication only rewrites the small blobs of the months it touches, and readers only open the files they need.
+**Storage.** One file per month, `{cid}/tombstones/{YYYYMM}.txt`, with one `{timestamp}\t{rid}` per line, sorted by timestamp ascending. Monthly files rather than a single `tombstones.json` so that old files are immutable. A publication only rewrites the small blobs of the months it touches, and readers only open the files they need.
 
-**Export job.** The deletions are read from the writer `/v1` API with `?_since={last exported timestamp}`, which gives both the ids and their real deletion timestamps. Entries are written in the same commit as the record removal, so the ledger can never be out of step. A single run can span several months (eg. after a downtime, or at start/end of the month), and each tombstone entry goes to the file of its own month.
+**Export job.** The deletions are fetched from the server with `?_since={last exported timestamp}`, which gives both the ids and their real deletion timestamps. Entries are written in the same commit as the record removal, so the ledger can never be out of step. A single run can span several months (eg. after a downtime, or at start/end of the month), and each tombstone entry goes to the file of its own month.
 
 **git-reader.** For `?_since={T}`: keep the tip records whose `last_modified > T`, then read the ledger files by name descending and stop after the first file that contains an entry `<= T`. A record that is live and in the ledger (deleted, then created again) is served as a change, not as a tombstone, and only the most recent deletion of an id is kept. Any `T` is valid, including a value that was never published, so `_since` never triggers a redirect.
 
