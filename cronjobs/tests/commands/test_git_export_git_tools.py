@@ -302,6 +302,34 @@ def test_delete_new_and_old_tags(tmp_repo):
         assert f"refs/tags/{t}" not in repo.references
 
 
+def test_delete_old_tags_keeps_oldest_of_collection(tmp_repo):
+    repo = tmp_repo
+    now_ts = int(time.time() * 1000)
+
+    commit = tmp_repo.revparse_single("main")
+    tags = [
+        f"v1/timestamps/main/password-rules/{now_ts - i * 86400000}"
+        for i in range(1, 11)
+    ]
+    for tag in tags:
+        repo.create_tag(
+            tag,
+            commit.id,
+            pygit2.GIT_OBJECT_COMMIT,
+            pygit2.Signature("Tester", "test@example.com"),
+            "A tag",
+        )
+
+    deleted = delete_old_tags(repo, max_age_days=5, min_tags_per_collection=2)
+
+    assert len(tags) == 10
+    assert len(deleted) == 5
+    # Unlike on the `common` branch, the oldest tag of a collection is never deleted.
+    assert f"refs/tags/{tags[-1]}" in repo.references
+    for t in tags[4:-1]:
+        assert f"refs/tags/{t}" not in repo.references
+
+
 @pytest.fixture
 def repo_with_tagged_commits(tmp_repo):
     repo = tmp_repo

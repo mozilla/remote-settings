@@ -283,7 +283,8 @@ def delete_old_tags(
     repo: pygit2.Repository, max_age_days: int, min_tags_per_collection: int = 2
 ) -> list[str]:
     """
-    Delete old tags from the repository, keeping the most recent `min_tags_per_collection` tags for each collection.
+    Delete old tags from the repository, keeping the most recent `min_tags_per_collection` tags for each collection,
+    as well as the oldest tag of each collection (except on the `common` branch).
 
     Return the list of deleted tag names.
     """
@@ -304,6 +305,17 @@ def delete_old_tags(
         timestamp = int(timestamp)
         group_by_collection.setdefault(collection, []).append((ref_name, timestamp))
 
+    # The oldest tag of each collection is kept forever so that clients that come back with
+    # a timestamp older than our retention period still obtain the tombstones of the records
+    # deleted since then (see `get_collection_changeset()` in `git-reader/app.py`).
+    # The `v1/common` branch is excluded, because it has to remain truncatable in order
+    # to prune the LFS objects that it references (see `truncate_branch()` usage).
+    pinned_tags = {
+        tags[0][0]
+        for collection, tags in group_by_collection.items()
+        if not collection.endswith("/timestamps/common")
+    }
+
     # For each collection, we find all the tags that are older than
     # threshold. We keep the most recent `min_tags_per_collection` old tags
     # to make sure clients can catch up with synchronization.
@@ -314,7 +326,11 @@ def delete_old_tags(
         kept_count = 0
         for ref_name, timestamp in reversed(tags):
             age_days = (now_ts - timestamp) / (60 * 60 * 24 * 1000)
-            if age_days < max_age_days or kept_count < min_tags_per_collection:
+            if (
+                age_days < max_age_days
+                or kept_count < min_tags_per_collection
+                or ref_name in pinned_tags
+            ):
                 kept_count += 1
                 continue
 
