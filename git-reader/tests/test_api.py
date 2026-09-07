@@ -191,11 +191,11 @@ def fake_repo(temp_dir):
             # "ghi" was deleted twice within the same month.
             (
                 "password-rules/tombstones/197001.txt",
-                "ghi@100000000\ndef@110000000\nabc@110000000\nghi@115000000\n",
+                "ghi\t100000000\ndef\t110000000\nabc\t110000000\nghi\t115000000\n",
             ),
             (
                 "password-rules/tombstones/197002.txt",
-                "def@130000000\n",
+                "def\t130000000\n",
             ),
             # A collection without any record.
             (

@@ -45,6 +45,7 @@ REMOTE_NAME = "origin"
 LFS_POINTER_FILE_SIZE_BYTES = 140
 STARTUP_BUNDLE_FILE = "bundles/startup.json.mozlz4"
 GIT_REF_PREFIX = "v1/"  # See cronjobs/src/commands/git_export.py
+LEDGER_TIMESTAMP_SEPARATOR = "\t"
 METRICS_PREFIX = "remotesettings"
 METRICS = {
     "request_duration_seconds": prometheus_client.Histogram(
@@ -462,8 +463,8 @@ class GitService:
         """
         Return the files of deleted records, most recent first.
 
-        Deletions are stored in `{cid}/tombstones/{YYYYMM}.txt` files, with one
-        `{rid}@{timestamp}` per line.
+        Tombstones are stored in `{cid}/tombstones/{YYYYMM}.txt` files, with one
+        `{rid}\t{timestamp}` per line.
         """
         try:
             folder = cast(pygit2.Tree, tree[f"{cid}/tombstones"])
@@ -474,14 +475,15 @@ class GitService:
 
     def _parse_ledger_file(self, entry: pygit2.Object) -> list[tuple[str, int]]:
         """
-        Parse a ledger file as a list of (record id, deletion timestamp).
+        Parse a ledger file as a list of (record id, deletion timestamp),
+        in the order they were appended, from the oldest to the most recent.
         """
         bcontent = cast(pygit2.Blob, self.repo[entry.id]).data
-        deletions = []
-        for line in bcontent.decode("utf-8").split():
-            rid, ts = line.rsplit("@", 1)
-            deletions.append((rid, int(ts)))
-        return deletions
+        tombstones = []
+        for line in bcontent.decode("utf-8").splitlines():
+            rid, ts = line.rsplit(LEDGER_TIMESTAMP_SEPARATOR, 1)
+            tombstones.append((rid, int(ts)))
+        return tombstones
 
     def _newest_deletion(self, tree: pygit2.Tree, cid: str) -> int:
         """
@@ -490,9 +492,10 @@ class GitService:
         # Files are read from the most recent one. Empty ones are skipped, in
         # order to never report a timestamp older than an actual deletion.
         for entry in self._tombstones_ledger_files(tree, cid):
-            newest = max((ts for _, ts in self._parse_ledger_file(entry)), default=0)
-            if newest:
-                return newest
+            tombstones = self._parse_ledger_file(entry)
+            if tombstones:
+                # Entries are sorted by timestamp, the last one is the most recent.
+                return tombstones[-1][1]
         return 0
 
     def _read_tombstones(
@@ -501,31 +504,24 @@ class GitService:
         """
         Return the tombstones of the records deleted since the specified timestamp.
 
-        Since ledger files are named by month, we read them from the most recent
-        one until `_since` is reached.
+        Since ledger files are named by month, and their entries are sorted by
+        timestamp, we read everything backwards and stop as soon as `_since` is
+        reached: all the remaining entries and files are older.
         """
         tombstones: dict[str, dict] = {}
         for entry in self._tombstones_ledger_files(tree, cid):
-            reached_since = False
-            for rid, deleted_at in self._parse_ledger_file(entry):
+            for rid, deleted_at in reversed(self._parse_ledger_file(entry)):
                 if deleted_at <= _since:
-                    reached_since = True
-                    continue
+                    return list(tombstones.values())
                 if rid in live_ids:
                     # Records that were deleted and created again are served as changes.
                     continue
                 # A record can be deleted several times (deleted, created again,
-                # deleted again): only the most recent deletion is relevant.
-                known = tombstones.get(rid)
-                if known is None or known["last_modified"] < deleted_at:
-                    tombstones[rid] = {
-                        "id": rid,
-                        "deleted": True,
-                        "last_modified": deleted_at,
-                    }
-            if reached_since:
-                # This file has deletions older than `_since`, and so have the next ones.
-                break
+                # deleted again). Since we read from the most recent, the first
+                # tombstone we find for a record is the only relevant one.
+                tombstones.setdefault(
+                    rid, {"id": rid, "deleted": True, "last_modified": deleted_at}
+                )
 
         return list(tombstones.values())
 
