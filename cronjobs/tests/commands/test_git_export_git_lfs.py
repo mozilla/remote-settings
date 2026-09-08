@@ -430,7 +430,7 @@ def test_batch_upload_already_present_and_no_verify(capsys):
 
 
 @responses.activate
-def test_batch_upload_handles_error_objects(capsys):
+def test_batch_upload_raises_on_error_objects(capsys):
     o = ("d" * 64, 5, "https://cdn.example.com/d")
     batch_objects = [
         {
@@ -446,18 +446,74 @@ def test_batch_upload_handles_error_objects(capsys):
         content_type="application/vnd.git-lfs+json",
     )
 
-    github_lfs_batch_upload_many(
-        [o],
-        repo_owner="foo",
-        repo_name="bar",
-        auth_header="Bearer TOKEN",
-    )
+    # The object was refused by the server: the caller must not push a pointer
+    # for it, so the whole run has to fail.
+    with pytest.raises(RuntimeError, match="1 object\\(s\\) could not be uploaded"):
+        github_lfs_batch_upload_many(
+            [o],
+            repo_owner="foo",
+            repo_name="bar",
+            auth_header="Bearer TOKEN",
+        )
 
     assert len(responses.calls) == 1  # only batch
     out = capsys.readouterr().out
     assert "upload error for" in out
     assert "422" in out
     assert "unprocessable" in out
+
+
+@responses.activate
+def test_batch_upload_raises_when_server_omits_object(capsys):
+    o = ("e" * 64, 5, "https://cdn.example.com/e")
+    responses.add(
+        responses.POST,
+        "https://github.com/foo/bar.git/info/lfs/objects/batch",
+        status=200,
+        # Server answers without the object we asked for.
+        json={"objects": []},
+        content_type="application/vnd.git-lfs+json",
+    )
+
+    with pytest.raises(RuntimeError, match="1 object\\(s\\) could not be uploaded"):
+        github_lfs_batch_upload_many(
+            [o],
+            repo_owner="foo",
+            repo_name="bar",
+            auth_header="Bearer TOKEN",
+        )
+
+    out = capsys.readouterr().out
+    assert f"server omitted oid {o[0]}" in out
+
+
+@responses.activate
+def test_batch_upload_reports_every_failed_object():
+    objects = [(c * 64, 5, f"https://cdn.example.com/{c}") for c in "fgh"]
+    responses.add(
+        responses.POST,
+        "https://github.com/foo/bar.git/info/lfs/objects/batch",
+        status=200,
+        json={
+            "objects": [
+                {"oid": oid, "error": {"code": 422, "message": "nope"}}
+                for oid, _size, _url in objects
+            ]
+        },
+        content_type="application/vnd.git-lfs+json",
+    )
+
+    # One bad object must not mask the others.
+    with pytest.raises(RuntimeError) as exc_info:
+        github_lfs_batch_upload_many(
+            objects,
+            repo_owner="foo",
+            repo_name="bar",
+            auth_header="Bearer TOKEN",
+        )
+
+    for oid, _size, _url in objects:
+        assert oid in str(exc_info.value)
 
 
 @responses.activate

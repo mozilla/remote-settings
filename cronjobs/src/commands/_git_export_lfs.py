@@ -341,6 +341,11 @@ def github_lfs_batch_upload_many(
     chunks = list(itertools.batched(objects, GITHUB_MAX_LFS_BATCH_SIZE))
     total_chunks = len(chunks)
 
+    # Objects that the server refused or did not report. Collected across all
+    # chunks so that a single bad object does not hide the others, and raised at
+    # the end: callers must not push pointers for objects missing from storage.
+    failures: list[str] = []
+
     # Single session for batch/verify calls (NOT reused for presigned PUTs/POSTs)
     for idx, chunk in enumerate(chunks, start=1):
         print(f"LFS: uploading chunk {idx}/{total_chunks} ({len(chunk)} objects)")
@@ -364,14 +369,16 @@ def github_lfs_batch_upload_many(
         to_verify: list[tuple[tuple[str, int], tuple[str, str, dict[str, str]]]] = []
         for oid, size, url in chunk:
             api_obj = api_objs_by_oid.get(oid)
-            if not api_obj:  # pragma: no cover
-                print(
-                    f"LFS: warning: server omitted oid {oid} in batch response; skipping"
-                )
+            if not api_obj:
+                print(f"LFS: server omitted oid {oid} in batch response")
+                failures.append(f"{oid} ({url}): omitted from batch response")
                 continue
             if err := api_obj.get("error"):
                 print(
                     f"LFS: upload error for {oid}: {err.get('code')} {err.get('message')}"
+                )
+                failures.append(
+                    f"{oid} ({url}): {err.get('code')} {err.get('message')}"
                 )
                 continue
             act = api_obj.get("actions") or {}
@@ -416,3 +423,13 @@ def github_lfs_batch_upload_many(
             f"LFS: {len(to_upload)} uploaded and {len(to_verify)} verified in chunk {idx}/{total_chunks}"
         )
         time.sleep(SLOW_DOWN_SECONDS)  # avoid hitting rate limits
+
+    if failures:
+        # Raising here aborts the run before the caller pushes the commits that
+        # reference these objects. Committing pointers for objects that are not
+        # in LFS storage is unrecoverable: the next run reads the pointer back
+        # from the tree, considers the attachment unchanged, and never retries.
+        raise RuntimeError(
+            f"LFS: {len(failures)} object(s) could not be uploaded:\n - "
+            + "\n - ".join(failures)
+        )
