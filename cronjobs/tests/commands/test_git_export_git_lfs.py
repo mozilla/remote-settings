@@ -10,6 +10,7 @@ import responses
 from commands._git_export_lfs import (
     _download_from_cdn_and_upload_to_lfs_volume,
     _github_lfs_verify_upload,
+    _new_retrying_session,
     github_lfs_batch_request,
 )
 from commands.git_export import (
@@ -178,6 +179,47 @@ def test_app_id_token_flow_failing(mock_jwt, temp_key):
             github_app_id=12345,
             github_app_private_key_path=temp_key,
         )
+
+
+def test_retrying_session_retries_transient_failures():
+    session = _new_retrying_session()
+    retries = session.get_adapter("https://example.com").max_retries
+
+    assert retries.total == commands._git_export_lfs.HTTP_RETRY_MAX_COUNT
+    # Transient statuses that must not abort a whole export run.
+    for status in (500, 502, 503, 504, 429):
+        assert status in retries.status_forcelist
+    # Uploads and verifications are POST/PUT.
+    assert {"POST", "PUT"} <= set(retries.allowed_methods)
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        # Every network call of the export goes through a retrying session:
+        # a single transient error must not discard the run's whole work.
+        lambda: commands._git_export_lfs.fetch_and_hash("https://cdn.example.com/x"),
+        lambda: _download_from_cdn_and_upload_to_lfs_volume(
+            ("a" * 64, 1, "https://cdn.example.com/x"),
+            ("https://lfs.example.com/up", "PUT", {}),
+        ),
+        lambda: _github_lfs_verify_upload(
+            ("a" * 64, 1), ("https://lfs.example.com/verify", "POST", {})
+        ),
+    ],
+)
+def test_transfers_use_a_retrying_session(call):
+    with mock.patch.object(
+        commands._git_export_lfs, "_new_retrying_session"
+    ) as mock_session:
+        # Bail out right after the session is built.
+        mock_session.return_value.get.side_effect = RuntimeError("stop")
+        mock_session.return_value.request.side_effect = RuntimeError("stop")
+
+        with pytest.raises(RuntimeError, match="stop"):
+            call()
+
+    assert mock_session.called
 
 
 @responses.activate

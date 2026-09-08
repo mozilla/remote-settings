@@ -41,8 +41,9 @@ def fetch_and_hash(url: str, dest_file: str | None = None) -> tuple[str, int]:
     print("Fetch attachment %r" % url)
     h = hashlib.sha256()
     total = 0
+    session = _new_retrying_session()
     with open(dest_file, "wb") as f:
-        with requests.get(url, stream=True, timeout=HTTP_TIMEOUT_SECONDS) as r:
+        with session.get(url, stream=True, timeout=HTTP_TIMEOUT_SECONDS) as r:
             r.raise_for_status()
             for chunk in r.iter_content(1024 * 64):
                 if not chunk:
@@ -55,7 +56,14 @@ def fetch_and_hash(url: str, dest_file: str | None = None) -> tuple[str, int]:
 
 def _new_retrying_session() -> requests.Session:
     """
-    Session tuned for GitHub LFS 'batch' and 'verify' calls.
+    Session that retries transient failures.
+
+    Used for every HTTP call of the export: a single 502 from the CDN or from a
+    presigned endpoint, among thousands of attachments, would otherwise abort
+    the whole run and discard all of its work.
+
+    A new session per call keeps this usable from the upload thread pool, since
+    `requests.Session` is not thread-safe.
     """
     session = requests.Session()
     retries = Retry(
@@ -139,8 +147,9 @@ def _download_from_cdn_and_upload_to_lfs_volume(
         print(
             f"LFS: uploading {src_url} -> {upload_method} {upload_href} ({size} bytes)"
         )
+        session = _new_retrying_session()
         with open(tmp_path, "rb") as f:
-            resp = requests.request(
+            resp = session.request(
                 upload_method.upper(),
                 upload_href,
                 data=f,
@@ -164,7 +173,8 @@ def _github_lfs_verify_upload(
     oid, size = source
     verify_href, method, headers = dest
     payload = {"oid": oid, "size": size}
-    r = requests.request(
+    session = _new_retrying_session()
+    r = session.request(
         method, verify_href, json=payload, headers=headers, timeout=timeout
     )
     if r.status_code not in (200, 201, 204):
