@@ -5,7 +5,7 @@ import os
 import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 import jwt
 import requests
@@ -335,6 +335,29 @@ def github_lfs_validate_credentials(
     return authz
 
 
+def _run_in_parallel(
+    func: Callable[..., None],
+    args_list: Iterable[tuple[Any, ...]],
+    max_workers: int,
+) -> None:
+    """
+    Call `func(*args)` for each entry in parallel, propagating the first error.
+
+    Tasks that have not started yet are cancelled, so a failing chunk stops
+    quickly instead of transferring everything it had already queued.
+    """
+    args_list = list(args_list)
+    if not args_list:
+        return
+    pool = ThreadPoolExecutor(max_workers=max_workers)
+    try:
+        futures = [pool.submit(func, *args) for args in args_list]
+        for f in as_completed(futures):
+            f.result()  # propagate exceptions
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)
+
+
 def github_lfs_batch_upload_many(
     objects: Iterable[tuple[str, int, str]],  # (sha256_hex, size, source_url),
     repo_owner: str,
@@ -410,29 +433,19 @@ def github_lfs_batch_upload_many(
             else:
                 print(f"LFS: no verify action for {oid}, skipping verify.")
 
-        # Parallel uploads
-        if to_upload:
-            with ThreadPoolExecutor(max_workers=max_parallel_requests) as pool:
-                futures = [
-                    pool.submit(_download_from_cdn_and_upload_to_lfs_volume, src, dest)
-                    for (src, dest) in to_upload
-                ]
-                for f in as_completed(futures):
-                    f.result()  # propagate exceptions
-
-        # Parallel verifications
-        with ThreadPoolExecutor(max_workers=max_parallel_requests) as pool:
-            futures = [
-                pool.submit(_github_lfs_verify_upload, src, dest)
-                for (src, dest) in to_verify
-            ]
-            for f in as_completed(futures):
-                f.result()  # propagate exceptions
+        # Parallel uploads, then parallel verifications.
+        _run_in_parallel(
+            _download_from_cdn_and_upload_to_lfs_volume,
+            to_upload,
+            max_parallel_requests,
+        )
+        _run_in_parallel(_github_lfs_verify_upload, to_verify, max_parallel_requests)
 
         print(
             f"LFS: {len(to_upload)} uploaded and {len(to_verify)} verified in chunk {idx}/{total_chunks}"
         )
-        time.sleep(SLOW_DOWN_SECONDS)  # avoid hitting rate limits
+        if idx < total_chunks:
+            time.sleep(SLOW_DOWN_SECONDS)  # avoid hitting rate limits
 
     if failures:
         # Raising here aborts the run before the caller pushes the commits that

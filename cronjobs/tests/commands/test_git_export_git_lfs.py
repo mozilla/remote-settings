@@ -11,6 +11,7 @@ from commands._git_export_lfs import (
     _download_from_cdn_and_upload_to_lfs_volume,
     _github_lfs_verify_upload,
     _new_retrying_session,
+    _run_in_parallel,
     github_lfs_batch_request,
 )
 from commands.git_export import (
@@ -179,6 +180,49 @@ def test_app_id_token_flow_failing(mock_jwt, temp_key):
             github_app_id=12345,
             github_app_private_key_path=temp_key,
         )
+
+
+def test_run_in_parallel_cancels_pending_tasks_on_error():
+    executed = []
+
+    def task(index):
+        if index == 0:
+            raise ValueError("boom")
+        executed.append(index)
+
+    # Single worker, so the tasks queued behind the failing one can be cancelled.
+    with pytest.raises(ValueError, match="boom"):
+        _run_in_parallel(task, [(i,) for i in range(6)], max_workers=1)
+
+    assert len(executed) < 5
+
+
+def test_run_in_parallel_without_any_task():
+    _run_in_parallel(mock.Mock(side_effect=AssertionError), [], max_workers=2)
+
+
+@responses.activate
+def test_batch_upload_does_not_slow_down_after_last_chunk():
+    objects = [(c * 64, 5, f"https://cdn.example.com/{c}") for c in "ab"]
+    responses.add(
+        responses.POST,
+        "https://github.com/foo/bar.git/info/lfs/objects/batch",
+        status=200,
+        json={"objects": [{"oid": oid, "actions": {}} for oid, _s, _u in objects]},
+        content_type="application/vnd.git-lfs+json",
+    )
+
+    with mock.patch.object(commands._git_export_lfs, "GITHUB_MAX_LFS_BATCH_SIZE", 1):
+        with mock.patch.object(commands._git_export_lfs.time, "sleep") as mock_sleep:
+            github_lfs_batch_upload_many(
+                objects,
+                repo_owner="foo",
+                repo_name="bar",
+                auth_header="Bearer TOKEN",
+            )
+
+    # Two chunks, one pause between them, none after the last.
+    assert mock_sleep.call_count == 1
 
 
 def test_retrying_session_retries_transient_failures():
