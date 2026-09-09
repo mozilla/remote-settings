@@ -1,11 +1,12 @@
 import base64
+import datetime
 import hashlib
 import itertools
 import os
 import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 import jwt
 import requests
@@ -29,6 +30,9 @@ SLOW_DOWN_SECONDS = config("SLOW_DOWN_SECONDS", default=3, cast=int)
 
 
 GITHUB_MAX_LFS_BATCH_SIZE = config("GITHUB_MAX_LFS_BATCH_SIZE", default=100, cast=int)
+GITHUB_TOKEN_RENEW_MARGIN_SECONDS = config(
+    "GITHUB_TOKEN_RENEW_MARGIN_SECONDS", default=300, cast=int
+)
 
 
 def fetch_and_hash(url: str, dest_file: str | None = None) -> tuple[str, int]:
@@ -234,6 +238,52 @@ def _mint_installation_access_token(
     return token, expires_at
 
 
+class GithubInstallationAuthHeader:
+    """
+    Callable returning a valid LFS `Authorization` header for a GitHub App,
+    that will mint a new installation access token when called.
+
+    Access tokens are only valid for one hour, and LFS can be slow.
+    Since we don't retry requests on `401` responses, we must renew it
+    before it expires.
+    """
+
+    def __init__(
+        self, app_id: str, private_key_path: str, repo_owner: str, repo_name: str
+    ) -> None:
+        self._app_id = app_id
+        self._private_key_path = private_key_path
+        self._repo_owner = repo_owner
+        self._repo_name = repo_name
+        self._header: str | None = None
+        self._expires_at = 0.0
+        self.token: str | None = None
+
+    def __call__(self) -> str:
+        will_expire_soon = (
+            time.time() >= self._expires_at - GITHUB_TOKEN_RENEW_MARGIN_SECONDS
+        )
+        if self._header is None or will_expire_soon:
+            # private key -> JWT -> installation ID -> installation token
+            # See https://docs.github.com/en/rest/reference/apps#authentication
+            jwt_token = _create_app_jwt(self._app_id, self._private_key_path)
+            installation_id = _resolve_installation_id(
+                jwt_token, self._repo_owner, self._repo_name
+            )
+            self.token, expires_at = _mint_installation_access_token(
+                jwt_token, installation_id
+            )
+            self._expires_at = datetime.datetime.fromisoformat(expires_at).timestamp()
+            # For LFS, use Basic with username 'x-access-token' and the
+            # installation token as the password.
+            self._header = _base64_auth_header("x-access-token", self.token)
+            print(
+                f"Issued installation access token (installation_id={installation_id}) expiring at {expires_at}"
+            )
+
+        return self._header
+
+
 def _verify_personal_token(username: str, token: str) -> dict[str, Any]:
     """
     Verifies that the personal access token is valid by fetching the user info.
@@ -278,43 +328,48 @@ def github_lfs_validate_credentials(
     github_app_id: str | int | None = None,
     github_app_private_key_path: str | None = None,
     timeout: float | tuple[float, float] = HTTP_TIMEOUT_BATCH_SECONDS,
-) -> str:
+) -> Callable[[], str]:
     """
     Test GitHub LFS credentials by making a dummy batch request.
+
+    Return a callable that yields the `Authorization` header to use. For a
+    GitHub App it renews the short-lived installation access token on demand.
     """
+    auth_header_provider: Callable[[], str]
+
     if github_username and github_token:
         if not github_token.startswith("github_pat_"):
             print(
                 "Warning: It looks like the provided GitHub token is not a PAT (personal access token)."
             )
         authz = _base64_auth_header(github_username, github_token)
+        # Personal access token does not expire, lambda returns a constant.
+        auth_header_provider = lambda: authz  # noqa: E731
         user_data = _verify_personal_token(github_username, github_token)
         print(
             f"Authenticated as GitHub user: {user_data.get('login')} (id={user_data.get('id')})"
         )
 
     elif github_app_id and github_app_private_key_path:
-        # For LFS, use Basic with username 'x-access-token' and the installation token as the password.
-        # private key -> JWT -> installation ID -> installation token -> Basic auth with token
-        # See https://docs.github.com/en/rest/reference/apps#authentication
-        jwt_token = _create_app_jwt(str(github_app_id), github_app_private_key_path)
-        installation_id = _resolve_installation_id(jwt_token, repo_owner, repo_name)
-        installation_token, expires_at = _mint_installation_access_token(
-            jwt_token, installation_id
+        installation = GithubInstallationAuthHeader(
+            str(github_app_id), github_app_private_key_path, repo_owner, repo_name
         )
-        print(
-            f"Issued installation access token (installation_id={installation_id}) expiring at {expires_at}"
-        )
+        installation()  # Mint a first token.
         repo_info = _verify_installation_token(
-            installation_token, repo_owner, repo_name
+            str(installation.token), repo_owner, repo_name
         )
         print(
             f"Installation token can access repo: {repo_info.get('full_name')} (id={repo_info.get('id')})"
         )
-        authz = _base64_auth_header("x-access-token", installation_token)
+        auth_header_provider = installation
+    else:
+        raise ValueError(
+            "No GitHub credentials configured: set GITHUB_USERNAME and GITHUB_TOKEN, "
+            "or GITHUB_APP_ID and GITHUB_APP_PRIVATE_KEY_PATH."
+        )
 
     github_lfs_batch_request(
-        auth_header=authz,
+        auth_header=auth_header_provider(),
         objects=[{"oid": "a" * 64, "size": 42}],  # dummy object
         operation="upload",
         repo_owner=repo_owner,
@@ -322,14 +377,14 @@ def github_lfs_validate_credentials(
         timeout=timeout,
     )
 
-    return authz
+    return auth_header_provider
 
 
 def github_lfs_batch_upload_many(
     objects: Iterable[tuple[str, int, str]],  # (sha256_hex, size, source_url),
     repo_owner: str,
     repo_name: str,
-    auth_header: str,
+    auth_header_provider: Callable[[], str],
     max_parallel_requests: int = MAX_PARALLEL_REQUESTS,
 ) -> None:
     """
@@ -337,6 +392,8 @@ def github_lfs_batch_upload_many(
     PUTs missing objects to the presigned destinations, and POSTs verify if provided.
 
     objects: iterable of (oid_hex:str, size:int, src_url:str)
+    auth_header: header value, or a callable returning it. Pass a callable when
+      the credentials expire, so that each batch gets a fresh header.
     """
     chunks = list(itertools.batched(objects, GITHUB_MAX_LFS_BATCH_SIZE))
     total_chunks = len(chunks)
@@ -346,7 +403,7 @@ def github_lfs_batch_upload_many(
         print(f"LFS: uploading chunk {idx}/{total_chunks} ({len(chunk)} objects)")
 
         batch_resp = github_lfs_batch_request(
-            auth_header=auth_header,
+            auth_header=auth_header_provider(),
             objects=[{"oid": oid, "size": size} for (oid, size, _url) in chunk],
             operation="upload",
             repo_owner=repo_owner,

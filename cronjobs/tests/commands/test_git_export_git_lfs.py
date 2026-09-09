@@ -1,3 +1,4 @@
+import datetime
 import json
 from unittest import mock
 
@@ -8,6 +9,7 @@ import pytest
 import requests
 import responses
 from commands._git_export_lfs import (
+    GithubInstallationAuthHeader,
     _download_from_cdn_and_upload_to_lfs_volume,
     _github_lfs_verify_upload,
     github_lfs_batch_request,
@@ -178,6 +180,114 @@ def test_app_id_token_flow_failing(mock_jwt, temp_key):
             github_app_id=12345,
             github_app_private_key_path=temp_key,
         )
+
+
+@responses.activate
+def test_installation_token_is_reused_until_it_expires(mock_jwt, temp_key):
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/leplatrem/remote-settings-data/installation",
+        json={"id": 42},
+        status=200,
+    )
+    expires_at = (
+        datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=1)
+    ).isoformat()
+    responses.add(
+        responses.POST,
+        "https://api.github.com/app/installations/42/access_tokens",
+        json={"token": "TOKEN", "expires_at": expires_at},
+        status=201,
+    )
+
+    provider = GithubInstallationAuthHeader(
+        "12345", temp_key, "leplatrem", "remote-settings-data"
+    )
+
+    assert provider() == provider()
+    mint_calls = [
+        c for c in responses.calls if c.request.url.endswith("/access_tokens")
+    ]
+    assert len(mint_calls) == 1
+
+
+@responses.activate
+def test_installation_token_is_renewed_before_expiry(mock_jwt, temp_key):
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/leplatrem/remote-settings-data/installation",
+        json={"id": 42},
+        status=200,
+    )
+    # Already within the renewal margin: every call has to mint a new token.
+    expires_at = (
+        datetime.datetime.now(datetime.UTC) + datetime.timedelta(seconds=30)
+    ).isoformat()
+    responses.add(
+        responses.POST,
+        "https://api.github.com/app/installations/42/access_tokens",
+        json={"token": "TOKEN", "expires_at": expires_at},
+        status=201,
+    )
+
+    provider = GithubInstallationAuthHeader(
+        "12345", temp_key, "leplatrem", "remote-settings-data"
+    )
+    provider()
+    provider()
+
+    mint_calls = [
+        c for c in responses.calls if c.request.url.endswith("/access_tokens")
+    ]
+    assert len(mint_calls) == 2
+
+
+@responses.activate
+def test_batch_upload_renews_credentials_between_chunks(mock_jwt, temp_key):
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/foo/bar/installation",
+        json={"id": 42},
+        status=200,
+    )
+    # Already within the renewal margin: every call has to mint a new token.
+    expires_at = (
+        datetime.datetime.now(datetime.UTC) + datetime.timedelta(seconds=30)
+    ).isoformat()
+    responses.add(
+        responses.POST,
+        "https://api.github.com/app/installations/42/access_tokens",
+        json={"token": "TOKEN", "expires_at": expires_at},
+        status=201,
+    )
+    provider = GithubInstallationAuthHeader("12345", temp_key, "foo", "bar")
+    objects = [(c * 64, 5, f"https://cdn.example.com/{c}") for c in "ab"]
+
+    # One batch response per chunk, with objects already present on the server.
+    for oid, size, _url in objects:
+        responses.add(
+            responses.POST,
+            "https://github.com/foo/bar.git/info/lfs/objects/batch",
+            status=200,
+            json={"objects": [{"oid": oid, "size": size, "actions": {}}]},
+            content_type="application/vnd.git-lfs+json",
+        )
+
+    with mock.patch.object(commands._git_export_lfs, "GITHUB_MAX_LFS_BATCH_SIZE", 1):
+        github_lfs_batch_upload_many(
+            objects,
+            repo_owner="foo",
+            repo_name="bar",
+            auth_header_provider=provider,
+        )
+
+    # Two chunks, so two batch calls, each with a freshly minted token.
+    batch_calls = [c for c in responses.calls if c.request.url.endswith("/batch")]
+    mint_calls = [
+        c for c in responses.calls if c.request.url.endswith("/access_tokens")
+    ]
+    assert len(batch_calls) == 2
+    assert len(mint_calls) == 2
 
 
 @responses.activate
@@ -419,7 +529,7 @@ def test_batch_upload_already_present_and_no_verify(capsys):
         [obj],
         repo_owner="foo",
         repo_name="bar",
-        auth_header="Bearer TOKEN",
+        auth_header_provider=lambda: "Bearer TOKEN",
     )
 
     # only the batch call
@@ -450,7 +560,7 @@ def test_batch_upload_handles_error_objects(capsys):
         [o],
         repo_owner="foo",
         repo_name="bar",
-        auth_header="Bearer TOKEN",
+        auth_header_provider=lambda: "Bearer TOKEN",
     )
 
     assert len(responses.calls) == 1  # only batch
@@ -529,7 +639,7 @@ def test_batch_upload_and_verify():
         [o1, o2],
         repo_owner="foo",
         repo_name="bar",
-        auth_header="Bearer TOKEN",
+        auth_header_provider=lambda: "Bearer TOKEN",
     )
 
     calls = responses.calls

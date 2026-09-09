@@ -787,7 +787,7 @@ def test_repo_sync_stores_attachments_as_lfs_pointers(
     assert "lfs" in rid2.decode()
 
     (_, kwargs) = mock_github_lfs.call_args_list[0]
-    assert kwargs["auth_header"] == "Bearer TOKEN"
+    assert kwargs["auth_header_provider"] == "Bearer TOKEN"
     assert kwargs["repo_owner"] == git_export.REPO_OWNER
     assert kwargs["repo_name"] == git_export.REPO_NAME
     objs = [(size, url) for hash, size, url in kwargs["objects"]]
