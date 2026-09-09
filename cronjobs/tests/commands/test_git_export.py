@@ -1103,6 +1103,31 @@ def test_changeset_to_branch_folder_removes_deleted_records(repo):
     assert content["cid/tombstones/202501.txt"] == b"1737000000001\tbbb\n"
 
 
+@pytest.mark.parametrize("with_tree", [True, False])
+def test_changeset_to_branch_folder_ignores_missing_record_files(repo, with_tree):
+    # A full sync (`_since=0`) repeats tombstones of records that were never
+    # published in the branch, or already removed by a previous run.
+    tree = (
+        build_tree(repo, [("cid/metadata.json", b"{}")])  # No `cid/bbb.json`.
+        if with_tree
+        else None  # First run, the branch does not exist yet.
+    )
+
+    content = dict(
+        git_export.changeset_to_branch_folder(
+            tree,
+            changeset(
+                "cid",
+                [{"id": "bbb", "deleted": True, "last_modified": 1737000000000}],
+            ),
+        )
+    )
+
+    assert "cid/bbb.json" not in content
+    # The deletion is still recorded in the ledger.
+    assert content["cid/tombstones/202501.txt"] == b"1737000000000\tbbb\n"
+
+
 def test_changeset_to_branch_folder_appends_to_existing_ledger(repo):
     tree = build_tree(
         repo,

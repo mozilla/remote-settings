@@ -579,7 +579,12 @@ def changeset_to_branch_folder(
     tombstones = []
     for record in sorted(changeset["changes"], key=lambda r: r["id"]):
         if record.get("deleted"):
-            branch_content.append((f"{cid}/{record['id']}.json", None))
+            record_file = f"{cid}/{record['id']}.json"
+            # The file is missing from the branch if the record was already
+            # deleted in a previous run, or never published (eg. created and
+            # deleted between two runs). Full syncs repeat every tombstone.
+            if branch_tree is not None and record_file in branch_tree:
+                branch_content.append((record_file, None))
             tombstones.append((record["id"], record["last_modified"]))
         else:
             branch_content.append((f"{cid}/{record['id']}.json", json_dumpb(record)))
