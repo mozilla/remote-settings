@@ -153,6 +153,10 @@ class Settings(BaseSettings):
         604800,
         description="Sets the cache-control response header to max-age={value} for static content, like attachments. Default is 604800 (1 week)",
     )
+    storage_max_fetch_size: int = Field(
+        10000,
+        description="Maximum number of objects returned in changeset responses. Name matches Kinto's `storage_max_fetch_size`. Default is 10000",
+    )
 
 
 @lru_cache(maxsize=1)
@@ -372,8 +376,13 @@ class GitService:
                 for record in records_by_id.values()
                 if record.get("last_modified", 0) > _since
             ]
+            max_tombstones_count = self.settings.storage_max_fetch_size - len(changes)
             changes += self._read_tombstones(
-                tree, cid, _since, live_ids=set(records_by_id)
+                tree,
+                cid,
+                _since,
+                live_ids=set(records_by_id),
+                max_tombstones_count=max_tombstones_count,
             )
         else:
             changes = list(records_by_id.values())
@@ -499,7 +508,12 @@ class GitService:
         return 0
 
     def _read_tombstones(
-        self, tree: pygit2.Tree, cid: str, _since: int, live_ids: set[str]
+        self,
+        tree: pygit2.Tree,
+        cid: str,
+        _since: int,
+        live_ids: set[str],
+        max_tombstones_count: int,
     ) -> list[dict]:
         """
         Return the tombstones of the records deleted since the specified timestamp.
@@ -507,10 +521,15 @@ class GitService:
         Since ledger files are named by month, and their entries are sorted by
         timestamp, we read everything backwards and stop as soon as `_since` is
         reached: all the remaining entries and files are older.
+
+        At most `max_tombstones_count` tombstones are returned. Since the most
+        recent ones are read first, the oldest are dropped.
         """
         tombstones: dict[str, dict] = {}
         for entry in self._tombstones_ledger_files(tree, cid):
             for rid, deleted_at in reversed(self._parse_ledger_file(entry)):
+                if len(tombstones) >= max_tombstones_count:
+                    return list(tombstones.values())
                 if deleted_at <= _since:
                     return list(tombstones.values())
                 if rid in live_ids:

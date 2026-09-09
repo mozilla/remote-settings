@@ -573,6 +573,28 @@ def test_changeset_since(api_client):
     ]
 
 
+def test_changeset_since_truncates_tombstones(app, temp_dir, api_client):
+    from app import Settings, get_settings
+
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        self_contained=True, git_repo_path=temp_dir, storage_max_fetch_size=2
+    )
+
+    resp = api_client.get(
+        "/v2/buckets/main/collections/password-rules/changeset?_expected=0&_since=42"
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Without the limit, "ghi" would also be served as a tombstone (see
+    # test_changeset_since_older_than_all_tombstones). The single live change
+    # takes one slot, leaving room for the most recent tombstone only.
+    assert data["changes"] == [
+        {"id": "def", "deleted": True, "last_modified": 130000000},
+        {"id": "abc", "last_modified": 123456789, "foo": "bar"},
+    ]
+
+
 def test_changeset_empty_collection(api_client):
     resp = api_client.get("/v2/buckets/main/collections/empty/changeset?_expected=0")
     assert resp.status_code == 200
