@@ -473,7 +473,7 @@ class GitService:
         Return the files of deleted records, most recent first.
 
         Tombstones are stored in `{cid}/tombstones/{YYYYMM}.txt` files, with one
-        `{rid}\t{timestamp}` per line.
+        `{timestamp}\t{rid}` per line.
         """
         try:
             folder = cast(pygit2.Tree, tree[f"{cid}/tombstones"])
@@ -482,16 +482,16 @@ class GitService:
             return []
         return sorted(folder, key=lambda entry: entry.name or "", reverse=True)
 
-    def _parse_ledger_file(self, entry: pygit2.Object) -> list[tuple[str, int]]:
+    def _parse_ledger_file(self, entry: pygit2.Object) -> list[tuple[int, str]]:
         """
-        Parse a ledger file as a list of (record id, deletion timestamp),
+        Parse a ledger file as a list of (deletion timestamp, record id),
         in the order they were appended, from the oldest to the most recent.
         """
         bcontent = cast(pygit2.Blob, self.repo[entry.id]).data
         tombstones = []
         for line in bcontent.decode("utf-8").splitlines():
-            ts, rid = line.rsplit(LEDGER_TIMESTAMP_SEPARATOR, 1)
-            tombstones.append((rid, int(ts)))
+            deleted_at, rid = line.rsplit(LEDGER_TIMESTAMP_SEPARATOR, 1)
+            tombstones.append((int(deleted_at), rid))
         return tombstones
 
     def _newest_deletion(self, tree: pygit2.Tree, cid: str) -> int:
@@ -504,7 +504,8 @@ class GitService:
             tombstones = self._parse_ledger_file(entry)
             if tombstones:
                 # Entries are sorted by timestamp, the last one is the most recent.
-                return tombstones[-1][1]
+                deleted_at, _ = tombstones[-1]
+                return deleted_at
         return 0
 
     def _read_tombstones(
@@ -527,7 +528,7 @@ class GitService:
         """
         tombstones: dict[str, dict] = {}
         for entry in self._tombstones_ledger_files(tree, cid):
-            for rid, deleted_at in reversed(self._parse_ledger_file(entry)):
+            for deleted_at, rid in reversed(self._parse_ledger_file(entry)):
                 if len(tombstones) >= max_tombstones_count:
                     return list(tombstones.values())
                 if deleted_at <= _since:
