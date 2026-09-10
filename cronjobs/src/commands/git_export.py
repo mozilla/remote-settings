@@ -19,7 +19,6 @@ from pygit2 import (
 from . import ts2dt
 from ._git_export_git_tools import (
     clone_or_fetch,
-    delete_old_tags,
     list_lfs_pointers,
     make_lfs_pointer,
     push_mirror,
@@ -35,43 +34,41 @@ from ._git_export_lfs import (
 
 
 # Mandatory environment variables (default values)
-SERVER_URL = config("SERVER", default="http://localhost:8888/v1")
-GIT_AUTHOR = config("GIT_AUTHOR", default="User <user@example.com>")
-REPO_OWNER = config("REPO_OWNER", default="mozilla")
-REPO_NAME = config("REPO_NAME", default="remote-settings-data")
-SSH_PRIVKEY_PATH = os.path.expanduser(
+SERVER_URL: str = config("SERVER", default="http://localhost:8888/v1")
+GIT_AUTHOR: str = config("GIT_AUTHOR", default="User <user@example.com>")
+REPO_OWNER: str = config("REPO_OWNER", default="mozilla")
+REPO_NAME: str = config("REPO_NAME", default="remote-settings-data")
+SSH_PRIVKEY_PATH: str = os.path.expanduser(
     config("SSH_PRIVKEY_PATH", default="~/.ssh/id_ed25519")
 )
-SSH_KEY_PASSPHRASE = config("SSH_KEY_PASSPHRASE", default="")
+SSH_KEY_PASSPHRASE: str = config("SSH_KEY_PASSPHRASE", default="")
 
 # LFS GitHub authentication
 # Option A: Personal Access Token (PAT)
-GITHUB_USERNAME = config("GITHUB_USERNAME", default=None)
-GITHUB_TOKEN = config("GITHUB_TOKEN", default=None)
+GITHUB_USERNAME: str | None = config("GITHUB_USERNAME", default=None)
+GITHUB_TOKEN: str | None = config("GITHUB_TOKEN", default=None)
 # Option B: GitHub App authentication
-GITHUB_APP_ID = config("GITHUB_APP_ID", default=None)
-GITHUB_APP_PRIVATE_KEY_PATH = config("GITHUB_APP_PRIVATE_KEY_PATH", default=None)
+GITHUB_APP_ID: str | None = config("GITHUB_APP_ID", default=None)
+GITHUB_APP_PRIVATE_KEY_PATH: str | None = config(
+    "GITHUB_APP_PRIVATE_KEY_PATH", default=None
+)
 
 # Internal parameters
-WORK_DIR = config("WORK_DIR", default="/tmp/git-export.git")
-MAX_PARALLEL_REQUESTS = config("MAX_PARALLEL_REQUESTS", default=10, cast=int)
-LOG_LEVEL = config("LOG_LEVEL", default="INFO").upper()
-GIT_SSH_USERNAME = config("GIT_SSH_USERNAME", default="git")
-GIT_REMOTE_URL = config(
+WORK_DIR: str = config("WORK_DIR", default="/tmp/git-export.git")
+MAX_PARALLEL_REQUESTS: int = config("MAX_PARALLEL_REQUESTS", default=10, cast=int)
+LOG_LEVEL: str = config("LOG_LEVEL", default="INFO").upper()
+GIT_SSH_USERNAME: str = config("GIT_SSH_USERNAME", default="git")
+GIT_REMOTE_URL: str = config(
     "GIT_REMOTE_URL",
     default=f"{GIT_SSH_USERNAME}@github.com:{REPO_OWNER}/{REPO_NAME}.git",
 )
-SSH_PUBKEY_PATH = os.path.expanduser(
+SSH_PUBKEY_PATH: str = os.path.expanduser(
     config("SSH_PUBKEY_PATH", default=f"{SSH_PRIVKEY_PATH}.pub")
 )
-TAGS_MAX_AGE_DAYS = config("TAGS_MAX_AGE_DAYS", default=30, cast=int)
-MIN_TAGS_PER_COLLECTION_COUNT = config(
-    "MIN_TAGS_PER_COLLECTION_COUNT", default=3, cast=int
-)
-# We truncate and force push the common branch only every 50 publications (a few days).
-# This is to avoid excessive rewriting of history. Truncating is only needed to
-# garbage collect old LFS objects that are no longer referenced by any tag.
-TAGS_DELETION_THRESHOLD = config("TAGS_DELETION_THRESHOLD", default=50, cast=int)
+# The `common` branch carries the LFS pointers of the attachments. Truncating its
+# history will remove objects that are no longer referenced by any commit from
+# LFS storage.
+COMMON_BRANCH_KEEP_DAYS: int = config("COMMON_BRANCH_KEEP_DAYS", default=90, cast=int)
 
 _now = datetime.datetime.now(datetime.timezone.utc)
 
@@ -125,35 +122,21 @@ def git_export() -> None:
 
     repo = clone_or_fetch(GIT_REMOTE_URL, WORK_DIR, callbacks=callbacks)
     if not repo.raw_listall_references():
-        print("No branches or tags found in the repository.")
+        print("No branches found in the repository.")
     else:
         if not repo.head_is_unborn:
             print("Head is now at", repo.head.target)
 
     try:
-        changed_attachments, changed_branches, created_tags = asyncio.run(
-            repo_sync_content(repo)
-        )
+        changed_attachments, changed_branches = asyncio.run(repo_sync_content(repo))
 
-        # Tags are files on disk, and having too many tags slows down git operations.
-        # Delete old ones to keep the repository size reasonable.
-        deleted_tags = delete_old_tags(
-            repo,
-            max_age_days=TAGS_MAX_AGE_DAYS,
-            min_tags_per_collection=MIN_TAGS_PER_COLLECTION_COUNT,
-        )
-        print(f"{len(deleted_tags)} old tags to delete.")
-
-        # LFS are removed from remote storage as soon as they are no longer referenced
-        # by any commit.
-        # Now that we deleted old tags, we will rewrite the 'common' branch to remove
-        # commits that are no longer referenced by any tag.
-        if len(deleted_tags) > 0:
-            truncate_branch(
-                repo,
-                f"{GIT_REF_PREFIX}{COMMON_BRANCH}",
-                tags_deletion_threshold=TAGS_DELETION_THRESHOLD,
-            )
+        # LFS objects are removed from remote storage as soon as they are no longer
+        # referenced by any commit.
+        common_branch_name = f"{GIT_REF_PREFIX}{COMMON_BRANCH}"
+        if truncate_branch(repo, common_branch_name, keep_days=COMMON_BRANCH_KEEP_DAYS):
+            # History was rewritten, the branch has to be force pushed (+ prefix)
+            changed_branches.remove(f"refs/heads/{common_branch_name}")
+            changed_branches.add(f"+refs/heads/{common_branch_name}")
 
         print(f"{len(changed_attachments)} attachments to upload.")
         github_lfs_batch_upload_many(
@@ -163,17 +146,14 @@ def git_export() -> None:
             auth_header=auth_header,
         )
 
-        changed_tags = [f"+{tag}" for tag in created_tags] + [
-            f"-{tag}" for tag in deleted_tags
-        ]
-        push_mirror(repo, changed_branches, changed_tags, callbacks=callbacks)
+        push_mirror(repo, changed_branches, callbacks=callbacks)
 
         print("Done.")
     except Exception as exc:
         print("Error occurred:", exc)
         traceback.print_exc()
         print("Rolling back local changes...")
-        reset_repo(repo, callbacks=callbacks)
+        reset_repo(repo)
         raise exc
 
 
@@ -234,14 +214,14 @@ def fetch_all_cert_chains(
 
 async def repo_sync_content(
     repo: pygit2.Repository,
-) -> tuple[list[tuple[str, int, str]], set[str], list[str]]:
+) -> tuple[list[tuple[str, int, str]], set[str]]:
     """
     Sync content from the remote server to the local git repository.
-    Return the list of changed attachments to be uploaded to LFS, the list of changed branches, and the list of changed tags.
+    Return the list of changed attachments to be uploaded to LFS, and the list of
+    changed branches.
     """
     changed_attachments: list[tuple[str, int, str]] = []
     changed_branches: set[str] = set()
-    created_tags: list[str] = []
     author = committer = pygit2.Signature(GIT_USER, GIT_EMAIL)
 
     common_branch_name = f"refs/heads/{GIT_REF_PREFIX}{COMMON_BRANCH}"
@@ -258,7 +238,7 @@ async def repo_sync_content(
     )
     if not FORCE and monitor_changeset["timestamp"] == latest_timestamp:
         print("No new changes since last run.")
-        return changed_attachments, changed_branches, created_tags
+        return changed_attachments, changed_branches
 
     server_info = await client.server_info()  # ty: ignore[invalid-await]
 
@@ -331,24 +311,16 @@ async def repo_sync_content(
     else:
         ts = monitor_changeset["timestamp"]
         dt = ts2dt(ts).isoformat()
-        message = f"common@{ts} ({dt})"
-        common_tag_name = (
-            f"{GIT_REF_PREFIX}timestamps/common/{monitor_changeset['timestamp']}"
-        )
-
-        commit_and_tag(
-            repo,
+        commit_oid = repo.create_commit(
+            common_branch_name,
             author,
             committer,
-            message,
+            f"common@{ts} ({dt})",
             monitor_tree_id,
             common_branch_parents,
-            common_branch_name,
-            common_tag_name,
-            move_tag_if_exists=True,
         )
+        print(f"Created commit {common_branch_name}: {commit_oid}")
         changed_branches.add(common_branch_name)
-        created_tags.append(common_tag_name)
 
     # Process from oldest changeset to newest so that commits of the bucket branch
     # are sorted chronologically.
@@ -363,25 +335,26 @@ async def repo_sync_content(
 
     if common_base_tree is None:
         # First run, initialize all bucket branches.
-        changeset_changed_branches, changeset_created_tags = initialize_bucket_branches(
-            repo,
-            author=author,
-            committer=committer,
-            changesets_by_bucket=changesets_by_bucket,
+        changed_branches.update(
+            initialize_bucket_branches(
+                repo,
+                author=author,
+                committer=committer,
+                changesets_by_bucket=changesets_by_bucket,
+            )
         )
     else:
-        # Now process each collection changeset, creating/updating branches and tags accordingly.
-        changeset_changed_branches, changeset_created_tags = update_bucket_branches(
-            repo,
-            author=author,
-            committer=committer,
-            changesets_by_bucket=changesets_by_bucket,
+        # Now process each collection changeset, creating/updating branches accordingly.
+        changed_branches.update(
+            update_bucket_branches(
+                repo,
+                author=author,
+                committer=committer,
+                changesets_by_bucket=changesets_by_bucket,
+            )
         )
 
-    changed_branches.update(changeset_changed_branches)
-    created_tags += changeset_created_tags
-
-    return changed_attachments, changed_branches, created_tags
+    return changed_attachments, changed_branches
 
 
 def extract_branch_info(
@@ -389,7 +362,8 @@ def extract_branch_info(
 ) -> tuple[list[pygit2.Oid], pygit2.Tree | None, int]:
     """
     Extract information about the given branch in the repository.
-    Return the list of parent commits, the base tree, and the latest timestamp found in tags
+    Return the list of parent commits, the base tree, and the timestamp of the
+    monitor changeset that the previous run exported.
     """
     # The repo may exist without the 'common' ref (first run).
     try:
@@ -397,25 +371,22 @@ def extract_branch_info(
         common_base_tree = repo.get(common_tip).tree  # ty: ignore[unresolved-attribute]
         parents = [common_tip]
     except KeyError:  # pragma: no cover
-        common_base_tree = None
-        parents = []
+        print("No previous run found.")
+        return [], None, 0
 
-    # Previous run timestamp, find latest tag starting with `timestamps/common/*`
-    refs = [ref.decode() for ref in repo.raw_listall_references()]
-    timestamps = [
-        int(t.split("/")[-1])
-        for t in refs
-        if t.startswith(f"refs/tags/{GIT_REF_PREFIX}timestamps/common/")
-    ]
-    if timestamps:
-        latest_timestamp = max(timestamps)
-        print(
-            f"Found latest tag: {latest_timestamp}.",
-            "Ignoring (forced)" if FORCE else "",
-        )
-    else:
-        print("No previous tags found.")
-        latest_timestamp = 0
+    # The previous run stored the monitor changeset it exported: its timestamp is
+    # where this run picks up.
+    try:
+        blob = cast(pygit2.Blob, common_base_tree["monitor-changes.json"])
+    except KeyError:  # pragma: no cover
+        print("No monitor changeset from previous run.")
+        return parents, common_base_tree, 0  # ty: ignore[invalid-return-type]
+
+    latest_timestamp = json.loads(blob.data.decode("utf-8"))["timestamp"]
+    print(
+        f"Previous run exported {latest_timestamp}.",
+        "Ignoring (forced)" if FORCE else "",
+    )
     return parents, common_base_tree, latest_timestamp  # ty: ignore[invalid-return-type]
 
 
@@ -599,14 +570,13 @@ def initialize_bucket_branches(
     author: pygit2.Signature,
     committer: pygit2.Signature,
     changesets_by_bucket: dict[str, list[dict[str, Any]]],
-) -> tuple[set[str], list[str]]:
+) -> set[str]:
     """
-    Initialize the bucket branches and tags from the given changesets.
-    Return the set of created branches and the list of created tags.
+    Initialize the bucket branches from the given changesets.
+    Return the set of created branches.
     """
     created_changes: set[str] = set()
-    created_tags: list[str] = []
-    # On first run, we process all changesets to create the initial branches and tags.
+    # On first run, we process all changesets to create the initial branches.
     # Each branch will all records of all collections of the related bucket.
     for bid, bucket_changesets in changesets_by_bucket.items():
         branch_content: list[tuple[str, bytes | None]] = []
@@ -632,25 +602,7 @@ def initialize_bucket_branches(
         print(f"Created bucket branch {branch_refname} at {commit_oid}")
         created_changes.add(branch_refname)
 
-        # We add all tags on this initial commit.
-        for changeset in bucket_changesets:
-            cid = changeset["metadata"]["id"]
-            timestamp = changeset["timestamp"]
-            tag_name = f"{GIT_REF_PREFIX}timestamps/{bid}/{cid}/{timestamp}"
-            tag_refname = f"refs/tags/{tag_name}"
-            if repo.references.get(tag_refname) is not None:
-                repo.references.delete(tag_refname)
-            repo.create_tag(
-                tag_name,
-                commit_oid,
-                pygit2.GIT_OBJECT_COMMIT,  # ty: ignore[invalid-argument-type]
-                author,
-                f"Initial tag for {bid}/{cid}@{timestamp}",
-            )
-            print(f"Created tag {tag_name} at {commit_oid}")
-            created_tags.append(tag_name)
-
-    return created_changes, created_tags
+    return created_changes
 
 
 def update_bucket_branches(
@@ -658,13 +610,12 @@ def update_bucket_branches(
     author: pygit2.Signature,
     committer: pygit2.Signature,
     changesets_by_bucket: dict[str, list[dict[str, Any]]],
-) -> tuple[set[str], list[str]]:
+) -> set[str]:
     """
-    Process the given changesets and create/update branches and tags accordingly.
-    Return the set of changed branches and created tags.
+    Process the given changesets and create/update branches accordingly.
+    Return the set of changed branches.
     """
     changed_branches: set[str] = set()
-    created_tags: list[str] = []
 
     # In the next runs, we only add commits on top of the existing branches with the
     # changed data.
@@ -690,66 +641,20 @@ def update_bucket_branches(
                 print(f"No changes for {bid}/{cid} branch, skipping.")
                 continue
 
-            # Commit and tag.
-            # If the tag already exists (that happens when records don't change but metadata does),
-            # we move it to the new commit.
-            tag_name = f"{GIT_REF_PREFIX}timestamps/{bid}/{cid}/{timestamp}"
-            tag_moved = commit_and_tag(
-                repo,
-                author=author,
-                committer=committer,
-                message=commit_message,
-                tree_id=files_tree_id,
-                parents=parents,  # ty: ignore[invalid-argument-type]
-                branch_name=branch_refname,
-                tag_name=tag_name,
-                move_tag_if_exists=True,
+            commit_oid = repo.create_commit(
+                branch_refname,
+                author,
+                committer,
+                commit_message,
+                files_tree_id,
+                parents,
             )
+            print(f"Created commit {branch_refname}: {commit_oid}")
             changed_branches.add(branch_refname)
-            if tag_moved:
-                created_tags.append(tag_name)
 
             # Next collection will be put on top of the branch.
             new_tip = repo.lookup_reference(branch_refname).target
             branch_tree = repo.get(new_tip).tree  # ty: ignore[unresolved-attribute]
             parents = [new_tip]
 
-    return changed_branches, created_tags
-
-
-def commit_and_tag(
-    repo: pygit2.Repository,
-    author: pygit2.Signature,
-    committer: pygit2.Signature,
-    message: str,
-    tree_id: pygit2.Oid,
-    parents: list[pygit2.Oid],
-    branch_name: str,
-    tag_name: str,
-    move_tag_if_exists: bool = True,
-) -> bool:
-    """
-    Create a commit and tag it.
-    """
-    commit_oid = repo.create_commit(
-        branch_name, author, committer, message, tree_id, parents
-    )
-    print(f"Created commit {branch_name}: {commit_oid}")
-
-    tag_exists = repo.references.get(f"refs/tags/{tag_name}") is not None
-    if tag_exists and not move_tag_if_exists:
-        print(f"Tag {tag_name} already exists, skipping.")
-        return False
-
-    if tag_exists:
-        repo.references.delete(f"refs/tags/{tag_name}")
-
-    repo.create_tag(
-        tag_name,
-        commit_oid,
-        pygit2.GIT_OBJECT_COMMIT,  # ty: ignore[invalid-argument-type]
-        author,
-        message,
-    )
-    print(f"{'Created' if not tag_exists else 'Moved'} tag {tag_name}")
-    return True
+    return changed_branches

@@ -5,7 +5,6 @@ import pygit2
 import pytest
 from commands import git_export
 from commands._git_export_git_tools import (
-    delete_old_tags,
     iter_tree,
     parse_lfs_pointer,
     push_mirror,
@@ -39,13 +38,6 @@ def tmp_repo(tmp_path):
     )
     repo.remotes.create("origin", git_export.GIT_REMOTE_URL)
     return repo
-
-
-@pytest.fixture
-def mock_list_heads():
-    with mock.patch("pygit2.Remote.list_heads") as mock_ls:
-        mock_ls.return_value = []
-        yield mock_ls
 
 
 @pytest.fixture
@@ -89,7 +81,7 @@ def test_iter_tree_single_file(tmp_repo):
     ]
 
 
-def test_reset_repo_creates_local_branches(tmp_repo, mock_list_heads):
+def test_reset_repo_creates_local_branches(tmp_repo):
     repo = tmp_repo
     commit = repo.revparse_single("main")
     # remote branch can be created via reference only.
@@ -100,7 +92,7 @@ def test_reset_repo_creates_local_branches(tmp_repo, mock_list_heads):
     )
     assert "v1/buckets/main" not in repo.branches.local
 
-    reset_repo(repo, callbacks=None)
+    reset_repo(repo)
 
     local_ref = repo.lookup_reference("refs/heads/v1/buckets/main")
     remote_ref = repo.lookup_reference("refs/remotes/origin/v1/buckets/main")
@@ -108,69 +100,31 @@ def test_reset_repo_creates_local_branches(tmp_repo, mock_list_heads):
 
 
 @pytest.mark.parametrize(
-    ("branches", "tags", "expected"),
+    ("branches", "expected"),
     [
+        (["+v1/common"], ["+v1/common:v1/common"]),
+        (["v1/common"], ["v1/common:v1/common"]),
         (
-            [
-                "v1/common",
-            ],
-            [
-                "-refs/tags/timestamp/123",
-                "+refs/tags/timestamp/456",
-            ],
-            [
-                [
-                    "+v1/common:v1/common",
-                    "+refs/tags/timestamp/456:refs/tags/timestamp/456",
-                ],
-                [":refs/tags/timestamp/123"],
-            ],
-        ),
-        (
-            [],
-            [
-                # Test that tags are normalized.
-                "+timestamp/789",
-            ],
-            [
-                [
-                    "+refs/tags/timestamp/789:refs/tags/timestamp/789",
-                ]
-                # And no call for delete.
-            ],
-        ),
-        (
-            [],
-            [
-                "-refs/tags/timestamp/123",
-            ],
-            [
-                [
-                    ":refs/tags/timestamp/123",
-                ]
-                # Only 1 call for delete.
-            ],
+            ["v1/buckets/main", "v1/common"],
+            ["v1/buckets/main:v1/buckets/main", "v1/common:v1/common"],
         ),
     ],
 )
-def test_push_mirror_pushes_branches_and_tags_then_deletes(
-    tmp_repo, mock_remote_push, branches, tags, expected
+def test_push_mirror_force_pushes_branches(
+    tmp_repo, mock_remote_push, branches, expected
 ):
-    repo = tmp_repo
+    push_mirror(tmp_repo, branches, callbacks=None)
 
-    push_mirror(
-        repo,
-        branches,
-        tags,
-        callbacks=None,
-    )
-
-    assert mock_remote_push.call_count == len(expected)
-    for expect in expected:
-        mock_remote_push.assert_any_call(expect, callbacks=None)
+    mock_remote_push.assert_called_once_with(expected, callbacks=None)
 
 
-def test_reset_repo_resets_local_branches_to_remote(tmp_repo, mock_list_heads):
+def test_push_mirror_does_nothing_without_branches(tmp_repo, mock_remote_push):
+    push_mirror(tmp_repo, [], callbacks=None)
+
+    mock_remote_push.assert_not_called()
+
+
+def test_reset_repo_resets_local_branches_to_remote(tmp_repo):
     repo = tmp_repo
     commit = repo.revparse_single("main")
     author = committer = pygit2.Signature("Test", "test@example.com")
@@ -193,7 +147,7 @@ def test_reset_repo_resets_local_branches_to_remote(tmp_repo, mock_list_heads):
     remote_ref = repo.lookup_reference("refs/remotes/origin/v1/buckets/main")
     assert local_ref.target != remote_ref.target
 
-    reset_repo(repo, callbacks=None)
+    reset_repo(repo)
 
     # Now they match.
     local_ref = repo.lookup_reference("refs/heads/v1/buckets/main")
@@ -201,7 +155,7 @@ def test_reset_repo_resets_local_branches_to_remote(tmp_repo, mock_list_heads):
     assert local_ref.target == remote_ref.target
 
 
-def test_reset_repo_deletes_extra_local_branches_and_tags(tmp_repo, mock_list_heads):
+def test_reset_repo_deletes_extra_local_branches(tmp_repo):
     repo = tmp_repo
     some_target = repo.references["refs/heads/main"].target
     repo.create_reference("refs/remotes/origin/v1/buckets/main", some_target)
@@ -220,166 +174,91 @@ def test_reset_repo_deletes_extra_local_branches_and_tags(tmp_repo, mock_list_he
     # Create an extra branch.
     repo.create_reference("refs/heads/v1/buckets/unknown", commit_id)
 
-    reset_repo(repo, callbacks=None)
+    reset_repo(repo)
 
     assert "v1/buckets/main" in repo.branches.local
     assert "v1/buckets/unknown" not in repo.branches.local
 
 
-def test_delete_old_tags(tmp_repo):
-    repo = tmp_repo
-    now_ts = int(time.time() * 1000)
-
-    commit = tmp_repo.revparse_single("main")
-    tags = [f"v1/timestamps/common/{now_ts - i * 86400000}" for i in range(6, 11)]
-    for old_tag in tags:
-        repo.create_tag(
-            old_tag,
-            commit.id,
-            pygit2.GIT_OBJECT_COMMIT,
-            pygit2.Signature("Tester", "test@example.com"),
-            "An old tag",
-        )
-
-    recent_tag = f"v1/timestamps/common/{now_ts}"
-    repo.create_tag(
-        recent_tag,
-        commit.id,
-        pygit2.GIT_OBJECT_COMMIT,
-        pygit2.Signature("Tester", "test@example.com"),
-        "A recent tag",
-    )
-
-    assert f"refs/tags/{recent_tag}" in repo.references
-    for old_tag in tags:
-        assert f"refs/tags/{old_tag}" in repo.references
-
-    deleted = delete_old_tags(repo, max_age_days=5, min_tags_per_collection=2)
-
-    assert len(deleted) == 4
-
-    # Keep the 2 most-recent old tags (closest to the threshold boundary).
-    assert f"refs/tags/{recent_tag}" in repo.references
-    assert f"refs/tags/{tags[0]}" in repo.references
-
-
-def test_delete_new_and_old_tags(tmp_repo):
-    repo = tmp_repo
-    now_ts = int(time.time() * 1000)
-
-    commit = tmp_repo.revparse_single("main")
-    tags = [f"v1/timestamps/common/{now_ts - i * 86400000}" for i in range(1, 10)]
-    for tag in tags:
-        repo.create_tag(
-            tag,
-            commit.id,
-            pygit2.GIT_OBJECT_COMMIT,
-            pygit2.Signature("Tester", "test@example.com"),
-            "An old tag",
-        )
-
-    recent_tag = f"v1/timestamps/common/{now_ts}"
-    repo.create_tag(
-        recent_tag,
-        commit.id,
-        pygit2.GIT_OBJECT_COMMIT,
-        pygit2.Signature("Tester", "test@example.com"),
-        "A recent tag",
-    )
-
-    assert f"refs/tags/{recent_tag}" in repo.references
-    for tag in tags:
-        assert f"refs/tags/{tag}" in repo.references
-
-    deleted = delete_old_tags(repo, max_age_days=5, min_tags_per_collection=2)
-
-    # Keep all recent tags, but delete all tags beyond max_age_days
-    assert len(deleted) == 5
-    assert f"refs/tags/{recent_tag}" in repo.references
-    for t in tags[0:4]:
-        assert f"refs/tags/{t}" in repo.references
-    for t in tags[4:]:
-        assert f"refs/tags/{t}" not in repo.references
+DAY_SECONDS = 24 * 60 * 60
 
 
 @pytest.fixture
-def repo_with_tagged_commits(tmp_repo):
+def repo_with_dated_commits(tmp_repo):
+    """A branch of 4 commits, aged 30, 20, 10 and 0 days."""
     repo = tmp_repo
-    author = pygit2.Signature("Test", "test@example.com")
-    committer = author
+    now = int(time.time())
 
     commit_oid = repo.revparse_single("main").id
-    repo.create_tag(
-        "v1/timestamps/tagged-commit-0",
-        commit_oid,
-        pygit2.GIT_OBJECT_COMMIT,
-        author,
-        "Fixture's commit",
-    )
-
-    for i in range(3):
+    for i, age_days in enumerate((30, 20, 10, 0)):
+        when = now - age_days * DAY_SECONDS
+        author = committer = pygit2.Signature("Test", "test@example.com", when, 0)
         tree_oid = tree_upsert_blobs(
             repo,
-            items=[("file.txt", b"content")],
+            items=[("file.txt", f"content-{i}".encode())],
             base_tree=repo.revparse_single("main").tree,
         )
         commit_oid = repo.create_commit(
             "refs/heads/main",
             author,
             committer,
-            f"commit-{i + 1}",
+            f"commit-{age_days}-days-old",
             tree_oid,
             [commit_oid],
-        )
-        repo.create_tag(
-            f"v1/timestamps/tagged-commit-{i + 1}",
-            commit_oid,
-            pygit2.GIT_OBJECT_COMMIT,
-            author,
-            f"tag-{i + 1}",
         )
     return repo
 
 
-def test_truncate_branch_all_tagged_does_nothing(repo_with_tagged_commits):
-    repo = repo_with_tagged_commits
+def test_truncate_branch_keeps_recent_commits(repo_with_dated_commits):
+    repo = repo_with_dated_commits
+    before = len(list(repo.walk(repo.references["refs/heads/main"].target)))
 
-    all_main_commits = list(repo.walk(repo.references["refs/heads/main"].target))
-    before_len = len(all_main_commits)
+    assert truncate_branch(repo, "main", keep_days=90) is False
 
-    truncate_branch(repo, "main", tags_deletion_threshold=1)
-
-    all_main_commits_after = list(repo.walk(repo.references["refs/heads/main"].target))
-    assert len(all_main_commits_after) == before_len
+    after = len(list(repo.walk(repo.references["refs/heads/main"].target)))
+    assert after == before
 
 
-def test_truncate_branch_if_more_untagged_than_threshold(repo_with_tagged_commits):
-    repo = repo_with_tagged_commits
+def test_truncate_branch_drops_commits_older_than_keep_days(repo_with_dated_commits):
+    repo = repo_with_dated_commits
+    before_sha1s = [c.id for c in repo.walk(repo.references["refs/heads/main"].target)]
 
-    repo.references.delete("refs/tags/v1/timestamps/tagged-commit-0")
-    repo.references.delete("refs/tags/v1/timestamps/tagged-commit-1")
+    assert truncate_branch(repo, "main", keep_days=25) is True
 
-    all_main_commits = list(repo.walk(repo.references["refs/heads/main"].target))
-    before_len = len(all_main_commits)
+    commits = list(repo.walk(repo.references["refs/heads/main"].target))
+    assert [c.message for c in commits] == [
+        "commit-0-days-old",
+        "commit-10-days-old",
+        "commit-20-days-old",
+    ]
+    # History was rewritten, the kept commits have new ids.
+    assert [c.id for c in commits] != before_sha1s[:3]
+    # The tree content is preserved.
+    assert (commits[0].tree / "file.txt").data == b"content-3"
 
-    truncate_branch(repo, "main", tags_deletion_threshold=3)
 
-    all_main_commits_after = list(repo.walk(repo.references["refs/heads/main"].target))
-    assert len(all_main_commits_after) == before_len
+def test_truncate_branch_tolerates_commits_within_the_margin(repo_with_dated_commits):
+    repo = repo_with_dated_commits
+    before_sha1s = [c.id for c in repo.walk(repo.references["refs/heads/main"].target)]
+
+    # The oldest commit is 30 days old, ie. older than 28 days, but still within
+    # the 10% margin (30.8 days).
+    assert truncate_branch(repo, "main", keep_days=28) is False
+
+    commits = list(repo.walk(repo.references["refs/heads/main"].target))
+    assert [c.id for c in commits] == before_sha1s
 
 
-def test_truncate_branch_to_keep_only_latest_tagged_commits(repo_with_tagged_commits):
-    repo = repo_with_tagged_commits
+def test_truncate_branch_always_keeps_the_tip(repo_with_dated_commits):
+    repo = repo_with_dated_commits
 
-    repo.references.delete("refs/tags/v1/timestamps/tagged-commit-0")
-    repo.references.delete("refs/tags/v1/timestamps/tagged-commit-1")
-    all_main_commits = list(repo.walk(repo.references["refs/heads/main"].target))
-    before_sha1s = [c.id for c in all_main_commits]
+    assert truncate_branch(repo, "main", keep_days=0) is True
 
-    truncate_branch(repo, "main", tags_deletion_threshold=1)
+    commits = list(repo.walk(repo.references["refs/heads/main"].target))
+    assert [c.message for c in commits] == ["commit-0-days-old"]
 
-    all_main_commits_after = list(repo.walk(repo.references["refs/heads/main"].target))
-    commits_msgs = [c.message for c in all_main_commits_after]
-    assert commits_msgs == ["commit-3", "commit-2"]
-    after_sha1s = [c.id for c in all_main_commits_after]
-    assert before_sha1s[-2:] != after_sha1s
+
+def test_truncate_branch_does_nothing_if_keep_days_is_negative(repo_with_dated_commits):
+    repo = repo_with_dated_commits
+
+    assert truncate_branch(repo, "main", keep_days=-1) is False
