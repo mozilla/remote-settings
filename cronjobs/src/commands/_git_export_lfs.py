@@ -22,6 +22,7 @@ HTTP_TIMEOUT_WRITE_SECONDS = config("HTTP_TIMEOUT_WRITE_SECONDS", default=600, c
 HTTP_RETRY_DELAY_SECONDS = config("HTTP_RETRY_DELAY_SECONDS", default=1, cast=float)
 HTTP_RETRY_MAX_COUNT = config("HTTP_RETRY_MAX_COUNT", default=10, cast=int)
 MAX_PARALLEL_REQUESTS = config("MAX_PARALLEL_REQUESTS", default=10, cast=int)
+MAX_PARALLEL_UPLOADS = config("MAX_PARALLEL_UPLOADS", default=6, cast=int)
 HTTP_TIMEOUT_SECONDS = (HTTP_TIMEOUT_CONNECT_SECONDS, HTTP_TIMEOUT_READ_SECONDS)
 HTTP_TIMEOUT_BATCH_SECONDS = (HTTP_TIMEOUT_CONNECT_SECONDS, HTTP_TIMEOUT_READ_SECONDS)
 HTTP_TIMEOUT_UPLOAD_SECONDS = (HTTP_TIMEOUT_CONNECT_SECONDS, HTTP_TIMEOUT_WRITE_SECONDS)
@@ -75,7 +76,7 @@ def _new_retrying_session() -> requests.Session:
         allowed_methods={"HEAD", "GET", "PUT", "POST", "DELETE", "OPTIONS", "TRACE"},
         raise_on_status=False,
     )
-    adapter = HTTPAdapter(max_retries=retries, pool_maxsize=MAX_PARALLEL_REQUESTS)
+    adapter = HTTPAdapter(max_retries=retries, pool_maxsize=MAX_PARALLEL_UPLOADS)
     session.mount("https://", adapter)
     return session
 
@@ -363,13 +364,15 @@ def github_lfs_batch_upload_many(
     repo_owner: str,
     repo_name: str,
     auth_header: str,
-    max_parallel_requests: int = MAX_PARALLEL_REQUESTS,
+    max_parallel_uploads: int = MAX_PARALLEL_UPLOADS,
 ) -> None:
     """
     Performs LFS batch 'upload' for up to GITHUB_MAX_LFS_BATCH_SIZE objects per batch,
     PUTs missing objects to the presigned destinations, and POSTs verify if provided.
 
     objects: iterable of (oid_hex:str, size:int, src_url:str)
+    max_parallel_uploads: how many objects are transferred concurrently. Lower it
+      when the LFS storage answers `503 Slow Down`.
     """
     chunks = list(itertools.batched(objects, GITHUB_MAX_LFS_BATCH_SIZE))
     total_chunks = len(chunks)
@@ -437,9 +440,9 @@ def github_lfs_batch_upload_many(
         _run_in_parallel(
             _download_from_cdn_and_upload_to_lfs_volume,
             to_upload,
-            max_parallel_requests,
+            max_parallel_uploads,
         )
-        _run_in_parallel(_github_lfs_verify_upload, to_verify, max_parallel_requests)
+        _run_in_parallel(_github_lfs_verify_upload, to_verify, max_parallel_uploads)
 
         print(
             f"LFS: {len(to_upload)} uploaded and {len(to_verify)} verified in chunk {idx}/{total_chunks}"
