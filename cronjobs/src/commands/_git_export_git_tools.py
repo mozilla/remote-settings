@@ -270,7 +270,12 @@ def tree_upsert_blobs(
                     except KeyError:
                         pass
                 child_oid = merge(val, existing_subtree)
-                builder.insert(name, child_oid, GIT_FILEMODE_TREE)
+                if len(cast(pygit2.Tree, repo[child_oid])) == 0:
+                    # Drop the folder entry instead of recording an empty tree.
+                    if base is not None and name in base:
+                        builder.remove(name)
+                else:
+                    builder.insert(name, child_oid, GIT_FILEMODE_TREE)
             else:
                 # Leaf file blob.
                 builder.insert(name, val, GIT_FILEMODE_BLOB)
