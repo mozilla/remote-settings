@@ -11,6 +11,8 @@ from pygit2.enums import FetchPrune, SortMode
 
 
 REMOTE_NAME = "origin"
+# Extra age tolerated before truncating, as a ratio of `keep_days`.
+TRUNCATE_MARGIN_RATIO = 0.1
 
 
 def clone_or_fetch(
@@ -252,6 +254,9 @@ def truncate_branch(repo: pygit2.Repository, branch: str, keep_days: int) -> boo
     o--o--o
 
     The most recent commit is always kept, even if it is older than `keep_days`.
+
+    Since rewriting is expensive, it only happens once the oldest commit exceeds
+    `keep_days` by `TRUNCATE_MARGIN_RATIO` (eg. 11 days when keeping 10 days).
     """
     branch_ref = repo.references.get("refs/heads/" + branch)
     if branch_ref is None:  # pragma: no cover
@@ -263,21 +268,33 @@ def truncate_branch(repo: pygit2.Repository, branch: str, keep_days: int) -> boo
     tip_oid = branch_ref.target
 
     # `commit_time` is in seconds since epoch.
-    cutoff = int(time.time()) - keep_days * 24 * 60 * 60
+    now = int(time.time())
+    cutoff = now - keep_days * 24 * 60 * 60
+    margin_days = keep_days * (1 + TRUNCATE_MARGIN_RATIO)
+    margin_cutoff = now - int(margin_days * 24 * 60 * 60)
 
     # Walk commits from the tip towards roots: newest -> oldest.
     kept: list[pygit2.Commit] = []
     dropped = 0
     truncating = False
+    beyond_margin = False
     for commit in repo.walk(tip_oid, SortMode.TOPOLOGICAL | SortMode.TIME):
         if truncating or (kept and commit.commit_time < cutoff):
             truncating = True
             dropped += 1
+            beyond_margin = beyond_margin or commit.commit_time < margin_cutoff
         else:
             kept.append(commit)
 
     if not dropped:
         print(f"Branch {branch} has no commit older than {keep_days} days.")
+        return False
+
+    if not beyond_margin:
+        print(
+            f"Branch {branch} has {dropped} commit(s) older than {keep_days} days, "
+            f"but none older than {margin_days:.0f} days."
+        )
         return False
 
     # Recreate the chain of commits to "rebuild" the branch, from oldest to newest.

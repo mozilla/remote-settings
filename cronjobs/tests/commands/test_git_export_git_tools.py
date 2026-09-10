@@ -237,6 +237,18 @@ def test_truncate_branch_drops_commits_older_than_keep_days(repo_with_dated_comm
     assert (commits[0].tree / "file.txt").data == b"content-3"
 
 
+def test_truncate_branch_tolerates_commits_within_the_margin(repo_with_dated_commits):
+    repo = repo_with_dated_commits
+    before_sha1s = [c.id for c in repo.walk(repo.references["refs/heads/main"].target)]
+
+    # The oldest commit is 30 days old, ie. older than 28 days, but still within
+    # the 10% margin (30.8 days).
+    assert truncate_branch(repo, "main", keep_days=28) is False
+
+    commits = list(repo.walk(repo.references["refs/heads/main"].target))
+    assert [c.id for c in commits] == before_sha1s
+
+
 def test_truncate_branch_always_keeps_the_tip(repo_with_dated_commits):
     repo = repo_with_dated_commits
 
