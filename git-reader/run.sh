@@ -14,7 +14,7 @@ log_sizes() {
     lfs_size=$(du -sh "$repo_path/.git/lfs" 2>/dev/null | cut -f1) || true
     log "Size of $repo_path: ${total_size} (git objects=${git_size:-n/a}, LFS=${lfs_size:-n/a})"
 
-    local file_count lfs_count
+    local file_count
     file_count=$(git -C "$repo_path" ls-files | wc -l)
     lfs_total_count=$(git -C "$repo_path" lfs ls-files | wc -l)
     lfs_pulled_count=$(git -C "$repo_path" lfs ls-files | grep ' \* ' | wc -l)
@@ -22,10 +22,6 @@ log_sizes() {
 
     log "Number of attachments per collection (top 15):"
     git -C "$repo_path" lfs ls-files -n | sed 's|/[^/]*$||' | sort | uniq -c | sort -rn | head -n 15
-    echo "..."
-
-    log "Number of tags per collection (top 15):"
-    git -C "$repo_path" tag | sed 's|/[0-9]*$||' | sort | uniq -c | sort -rn | head -n 15
     echo "..."
 
     log "Size of attachments folders (top 15):"
@@ -58,16 +54,9 @@ cmd_gitupdate() {
         log "Setting lfs.fetchexclude to ${LFS_FETCH_EXCLUDE}."
         git config --global lfs.fetchexclude "${LFS_FETCH_EXCLUDE}"
     fi
-    if [ -n "${LFS_KEEP_DAYS:-}" ]; then
-        # Control how much LFS history `git lfs prune` keeps on disk. Set to `0` for HEAD only.
-        log "Keeping ${LFS_KEEP_DAYS} extra day(s) of LFS history (HEAD is always kept)."
-        # recent refs: any branch/tags whose last commit is within these days.
-        git config --global lfs.fetchrecentrefsdays "${LFS_KEEP_DAYS}"
-        # recent commits: walks these ref tips to look for commits within these days.
-        git config --global lfs.fetchrecentcommitsdays "${LFS_KEEP_DAYS}"
-        # Extra safety margin added on top of above two. Set to 0 for above settings to be exact.
-        git config --global lfs.pruneoffsetdays 0
-    fi
+    # Note: there is nothing to tune about how much LFS history is kept on disk.
+    # Since the clone is shallow, `git lfs prune` has no past commit to walk, and
+    # only the objects of the branches tips are kept.
 
     # Check if latest symlink exists.
     if [ ! -L "$repo_path/latest" ]; then
@@ -76,7 +65,8 @@ cmd_gitupdate() {
         # If A doesn't exist, clone into A.
         if [ ! -d "$repo_path/A" ]; then
             log "Cloning repository ${GIT_REPO_URL} into $repo_path/A..."
-            git clone "${GIT_REPO_URL}" "$repo_path/A"
+            # Only the tip of *each* branch is served, history is not needed.
+            git clone --depth 1 --no-single-branch --no-tags "${GIT_REPO_URL}" "$repo_path/A"
             log "Clone took $(fmt_duration $(($(date +%s) - start_total)))."
             # Fresh clone don't contain attachments, fetch them from LFS.
             if [ "${SELF_CONTAINED:-false}" = "true" ]; then
@@ -157,13 +147,26 @@ cmd_gitupdate() {
     else
         git -C "$active_dir" remote add sibling "$inactive_dir"
     fi
-    git -C "$active_dir" fetch --tags --force --verbose sibling
+    git -C "$active_dir" fetch --depth 1 --no-tags --force --verbose sibling
     git -C "$active_dir" reset --hard sibling/v1/common
+    # This directory is not served anymore, drop the commits it replaced.
+    git_prune_history "$active_dir"
     log "Replicate of Git objects took $(fmt_duration $(($(date +%s) - start_replicate)))."
     log_sizes "$active_dir"
 
     LOG_PREFIX=""
     log "Fetch completed in $(fmt_duration $(($(date +%s) - start_total)))."
+}
+
+git_prune_history() {
+    # Delete the commits that were replaced, to maintain the local clone shallow.
+    local repo_path="$1"
+    git -C "$repo_path" reflog expire --expire=now --all
+    # Repack (-a: pack everything, -d: remove redundant, -f: no delta).
+    # Unlike `-A`, `-a` does not turn the unreachable objects into loose ones,
+    # and `prune` without `--expire` deletes the remaining ones immediately.
+    git -C "$repo_path" repack -adf
+    git -C "$repo_path" prune
 }
 
 git_fetch_lfs() {
@@ -180,8 +183,8 @@ git_fetch_lfs() {
     fi
 
     git -C "$repo_path" checkout v1/common
-    # Fetch everything, remote references always win.
-    git -C "$repo_path" fetch --tags --force --verbose $ORIGIN_NAME
+    # Fetch the tip of each branch, remote references always win.
+    git -C "$repo_path" fetch --depth 1 --no-tags --force --verbose $ORIGIN_NAME
 
     # Check if there were any updates
     local_head=$(git -C "$repo_path" rev-parse HEAD)
@@ -198,8 +201,7 @@ git_fetch_lfs() {
     log "Cleaning up repository..."
     git -C "$repo_path" remote prune "$ORIGIN_NAME"
     git -C "$repo_path" clean -f -d
-    git -C "$repo_path" gc --prune=now
-    git -C "$repo_path" repack -Ad
+    git_prune_history "$repo_path"
 
     if [ "${SELF_CONTAINED:-false}" = "true" ]; then
         git -C "$repo_path" lfs version
