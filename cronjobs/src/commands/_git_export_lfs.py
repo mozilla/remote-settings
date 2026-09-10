@@ -5,7 +5,7 @@ import os
 import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 import jwt
 import requests
@@ -22,6 +22,7 @@ HTTP_TIMEOUT_WRITE_SECONDS = config("HTTP_TIMEOUT_WRITE_SECONDS", default=600, c
 HTTP_RETRY_DELAY_SECONDS = config("HTTP_RETRY_DELAY_SECONDS", default=1, cast=float)
 HTTP_RETRY_MAX_COUNT = config("HTTP_RETRY_MAX_COUNT", default=10, cast=int)
 MAX_PARALLEL_REQUESTS = config("MAX_PARALLEL_REQUESTS", default=10, cast=int)
+MAX_PARALLEL_UPLOADS = config("MAX_PARALLEL_UPLOADS", default=6, cast=int)
 HTTP_TIMEOUT_SECONDS = (HTTP_TIMEOUT_CONNECT_SECONDS, HTTP_TIMEOUT_READ_SECONDS)
 HTTP_TIMEOUT_BATCH_SECONDS = (HTTP_TIMEOUT_CONNECT_SECONDS, HTTP_TIMEOUT_READ_SECONDS)
 HTTP_TIMEOUT_UPLOAD_SECONDS = (HTTP_TIMEOUT_CONNECT_SECONDS, HTTP_TIMEOUT_WRITE_SECONDS)
@@ -41,8 +42,9 @@ def fetch_and_hash(url: str, dest_file: str | None = None) -> tuple[str, int]:
     print("Fetch attachment %r" % url)
     h = hashlib.sha256()
     total = 0
+    session = _new_retrying_session()
     with open(dest_file, "wb") as f:
-        with requests.get(url, stream=True, timeout=HTTP_TIMEOUT_SECONDS) as r:
+        with session.get(url, stream=True, timeout=HTTP_TIMEOUT_SECONDS) as r:
             r.raise_for_status()
             for chunk in r.iter_content(1024 * 64):
                 if not chunk:
@@ -55,7 +57,14 @@ def fetch_and_hash(url: str, dest_file: str | None = None) -> tuple[str, int]:
 
 def _new_retrying_session() -> requests.Session:
     """
-    Session tuned for GitHub LFS 'batch' and 'verify' calls.
+    Session that retries transient failures.
+
+    Used for every HTTP call of the export: a single 502 from the CDN or from a
+    presigned endpoint, among thousands of attachments, would otherwise abort
+    the whole run and discard all of its work.
+
+    A new session per call keeps this usable from the upload thread pool, since
+    `requests.Session` is not thread-safe.
     """
     session = requests.Session()
     retries = Retry(
@@ -67,7 +76,7 @@ def _new_retrying_session() -> requests.Session:
         allowed_methods={"HEAD", "GET", "PUT", "POST", "DELETE", "OPTIONS", "TRACE"},
         raise_on_status=False,
     )
-    adapter = HTTPAdapter(max_retries=retries, pool_maxsize=MAX_PARALLEL_REQUESTS)
+    adapter = HTTPAdapter(max_retries=retries, pool_maxsize=MAX_PARALLEL_UPLOADS)
     session.mount("https://", adapter)
     return session
 
@@ -139,8 +148,9 @@ def _download_from_cdn_and_upload_to_lfs_volume(
         print(
             f"LFS: uploading {src_url} -> {upload_method} {upload_href} ({size} bytes)"
         )
+        session = _new_retrying_session()
         with open(tmp_path, "rb") as f:
-            resp = requests.request(
+            resp = session.request(
                 upload_method.upper(),
                 upload_href,
                 data=f,
@@ -164,7 +174,8 @@ def _github_lfs_verify_upload(
     oid, size = source
     verify_href, method, headers = dest
     payload = {"oid": oid, "size": size}
-    r = requests.request(
+    session = _new_retrying_session()
+    r = session.request(
         method, verify_href, json=payload, headers=headers, timeout=timeout
     )
     if r.status_code not in (200, 201, 204):
@@ -325,21 +336,51 @@ def github_lfs_validate_credentials(
     return authz
 
 
+def _run_in_parallel(
+    func: Callable[..., None],
+    args_list: Iterable[tuple[Any, ...]],
+    max_workers: int,
+) -> None:
+    """
+    Call `func(*args)` for each entry in parallel, propagating the first error.
+
+    Tasks that have not started yet are cancelled, so a failing chunk stops
+    quickly instead of transferring everything it had already queued.
+    """
+    args_list = list(args_list)
+    if not args_list:
+        return
+    pool = ThreadPoolExecutor(max_workers=max_workers)
+    try:
+        futures = [pool.submit(func, *args) for args in args_list]
+        for f in as_completed(futures):
+            f.result()  # propagate exceptions
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)
+
+
 def github_lfs_batch_upload_many(
     objects: Iterable[tuple[str, int, str]],  # (sha256_hex, size, source_url),
     repo_owner: str,
     repo_name: str,
     auth_header: str,
-    max_parallel_requests: int = MAX_PARALLEL_REQUESTS,
+    max_parallel_uploads: int = MAX_PARALLEL_UPLOADS,
 ) -> None:
     """
     Performs LFS batch 'upload' for up to GITHUB_MAX_LFS_BATCH_SIZE objects per batch,
     PUTs missing objects to the presigned destinations, and POSTs verify if provided.
 
     objects: iterable of (oid_hex:str, size:int, src_url:str)
+    max_parallel_uploads: how many objects are transferred concurrently. Lower it
+      when the LFS storage answers `503 Slow Down`.
     """
     chunks = list(itertools.batched(objects, GITHUB_MAX_LFS_BATCH_SIZE))
     total_chunks = len(chunks)
+
+    # Objects that the server refused or did not report. Collected across all
+    # chunks so that a single bad object does not hide the others, and raised at
+    # the end: callers must not push pointers for objects missing from storage.
+    failures: list[str] = []
 
     # Single session for batch/verify calls (NOT reused for presigned PUTs/POSTs)
     for idx, chunk in enumerate(chunks, start=1):
@@ -364,14 +405,16 @@ def github_lfs_batch_upload_many(
         to_verify: list[tuple[tuple[str, int], tuple[str, str, dict[str, str]]]] = []
         for oid, size, url in chunk:
             api_obj = api_objs_by_oid.get(oid)
-            if not api_obj:  # pragma: no cover
-                print(
-                    f"LFS: warning: server omitted oid {oid} in batch response; skipping"
-                )
+            if not api_obj:
+                print(f"LFS: server omitted oid {oid} in batch response")
+                failures.append(f"{oid} ({url}): omitted from batch response")
                 continue
             if err := api_obj.get("error"):
                 print(
                     f"LFS: upload error for {oid}: {err.get('code')} {err.get('message')}"
+                )
+                failures.append(
+                    f"{oid} ({url}): {err.get('code')} {err.get('message')}"
                 )
                 continue
             act = api_obj.get("actions") or {}
@@ -393,26 +436,26 @@ def github_lfs_batch_upload_many(
             else:
                 print(f"LFS: no verify action for {oid}, skipping verify.")
 
-        # Parallel uploads
-        if to_upload:
-            with ThreadPoolExecutor(max_workers=max_parallel_requests) as pool:
-                futures = [
-                    pool.submit(_download_from_cdn_and_upload_to_lfs_volume, src, dest)
-                    for (src, dest) in to_upload
-                ]
-                for f in as_completed(futures):
-                    f.result()  # propagate exceptions
-
-        # Parallel verifications
-        with ThreadPoolExecutor(max_workers=max_parallel_requests) as pool:
-            futures = [
-                pool.submit(_github_lfs_verify_upload, src, dest)
-                for (src, dest) in to_verify
-            ]
-            for f in as_completed(futures):
-                f.result()  # propagate exceptions
+        # Parallel uploads, then parallel verifications.
+        _run_in_parallel(
+            _download_from_cdn_and_upload_to_lfs_volume,
+            to_upload,
+            max_parallel_uploads,
+        )
+        _run_in_parallel(_github_lfs_verify_upload, to_verify, max_parallel_uploads)
 
         print(
             f"LFS: {len(to_upload)} uploaded and {len(to_verify)} verified in chunk {idx}/{total_chunks}"
         )
-        time.sleep(SLOW_DOWN_SECONDS)  # avoid hitting rate limits
+        if idx < total_chunks:
+            time.sleep(SLOW_DOWN_SECONDS)  # avoid hitting rate limits
+
+    if failures:
+        # Raising here aborts the run before the caller pushes the commits that
+        # reference these objects. Committing pointers for objects that are not
+        # in LFS storage is unrecoverable: the next run reads the pointer back
+        # from the tree, considers the attachment unchanged, and never retries.
+        raise RuntimeError(
+            f"LFS: {len(failures)} object(s) could not be uploaded:\n - "
+            + "\n - ".join(failures)
+        )
