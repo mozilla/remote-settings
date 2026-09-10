@@ -88,7 +88,8 @@ def push_mirror(
     callbacks: pygit2.RemoteCallbacks,
 ) -> None:
     """
-    An equivalent of `git push --force --mirror` for branches only.
+    An equivalent of `git push --mirror` for branches only.
+    Only branches with `+` prefix will be pushed forced.
     """
     if not branches:
         print("Everything up-to-date.")
