@@ -137,4 +137,6 @@ With ``SELF_CONTAINED=true``, the attachments files are served by the applicatio
 - ``LFS_CONCURRENT_TRANSFERS`` (default: 8): increase number of parallel requests for LFS downloads.
 - ``LFS_FETCH_EXCLUDE`` (default: none): exclude certain collections from LFS (eg. `"attachments/main-workspace/translation-dictionaries/*,attachments/main-workspace/quicksuggest-amp/*"`)
 
-Since the clone is shallow, only the LFS objects referenced by the branches tips are kept: clients trying to pull attachments of records that were obsoleted by the last publication will be served an error response. This can be mitigated using a caching layer on the reverse proxy, which would continue to serve obsolete attachments as long as they remained cached.
+Since the clone is shallow, only the LFS objects referenced by the branches tips are kept: clients trying to pull attachments of records that were obsoleted by the last publication will be served an error response (``404`` when the file is gone from the tree).
+
+This can be mitigated using a caching layer on the reverse proxy, which would continue to serve obsolete attachments as long as they remained cached. Using NGinx, this implies setting up a `proxy_cache`` on ``/v2/attachments`` with the [`proxy_cache_use_stale`](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_use_stale) and a `PersistentVolumeClaim` on Kubernetes.
