@@ -9,8 +9,6 @@ from pygit2 import (
 )
 from pygit2.enums import FetchPrune, SortMode
 
-from . import ts2dt
-
 
 REMOTE_NAME = "origin"
 
@@ -33,7 +31,7 @@ def clone_or_fetch(
                 f"Remote URL {remote.url} of work dir {repo_path} does not match {repo_url}"
             )
         if not repo.raw_listall_references():
-            print("No branches or tags found in the repository.")
+            print("No branches found in the repository.")
         else:
             if not repo.head_is_unborn:
                 print("Head was at", repo.head.target)
@@ -44,13 +42,11 @@ def clone_or_fetch(
         print(f"Clone {repo_url} into {repo_path}...")
         pygit2.clone_repository(repo_url, repo_path, callbacks=callbacks)
         repo = pygit2.Repository(repo_path)
-    reset_repo(repo, callbacks=callbacks)
+    reset_repo(repo)
     return repo
 
 
-def reset_repo(
-    repo: pygit2.Repository, callbacks: pygit2.RemoteCallbacks | None
-) -> None:
+def reset_repo(repo: pygit2.Repository) -> None:
     print("Reset local content to remote content...")
     # If the repo is freshly cloned, the remotes branches do not exist locally. Create them.
     # If the repo was cloned from previous run, reset the local branches to the remote targets.
@@ -83,64 +79,23 @@ def reset_repo(
             print(f"Delete local branch {branch_name}")
             ref.delete()
 
-    # Delete local tags that are not on remote
-    origin = repo.remotes[REMOTE_NAME]
-    remote_tags = {
-        obj.name
-        for obj in origin.list_heads(callbacks=callbacks)
-        if obj.name and obj.name.startswith("refs/tags/") and not obj.local
-    }
-    for ref in repo.references:
-        if not ref.startswith("refs/tags/") or ref in remote_tags:
-            continue
-        print(f"Delete local tag {ref}")
-        repo.references.delete(ref)
-
 
 def push_mirror(
     repo: pygit2.Repository,
     branches: Iterable[str],
-    tags: Iterable[str],
     callbacks: pygit2.RemoteCallbacks,
 ) -> None:
     """
-    An equivalent of `git push --force --mirror` for branches + tags only.
+    An equivalent of `git push --force --mirror` for branches only.
     """
-    to_push = []
-    # 1) Force update all local branches
-    for b in sorted(branches):
-        to_push.append(f"+{b}:{b}")
-    # 2) Force update all local tags
-    to_delete = []
-    for t in sorted(tags):
-        deleting = t.startswith("-")
-        name = t[1:]
-        full = name if name.startswith("refs/tags/") else f"refs/tags/{name}"
-        if deleting:
-            to_delete.append(f":{full}")
-        else:
-            to_push.append(f"+{full}:{full}")
-
-    if not to_push and not to_delete:
+    if not branches:
         print("Everything up-to-date.")
         return
 
-    # First push the new content, and then delete old tags in a second push.
-    # We do that because if the remote times out or fails with tags deletion,
-    # at least the new content is pushed.
+    to_push = [f"{b}:{b.replace('+', '')}" for b in sorted(branches)]
     remote = repo.remotes[REMOTE_NAME]
-    if to_push:
-        print(f"Pushing to remote {remote.url}:\n - {'\n - '.join(to_push)}")
-        # This is the critical bit: non-fast-forward updates require the '+' force.
-        # The deletions use the ':refs/...'; '+' is ignored for deleted refspecs.
-        remote.push(to_push, callbacks=callbacks)
-    else:
-        print("No new commit or tag to push.")
-    if to_delete:
-        print(f"Deleting from remote {remote.url}:\n - {'\n - '.join(to_delete)}")
-        remote.push(to_delete, callbacks=callbacks)
-    else:
-        print("No tag to delete.")
+    print(f"Pushing to remote {remote.url}:\n - {'\n - '.join(to_push)}")
+    remote.push(to_push, callbacks=callbacks)
 
 
 def make_lfs_pointer(sha256_hex: str, size: int) -> bytes:
@@ -279,135 +234,58 @@ def tree_upsert_blobs(
     return merge(updates_trie, base_tree)
 
 
-def delete_old_tags(
-    repo: pygit2.Repository, max_age_days: int, min_tags_per_collection: int = 2
-) -> list[str]:
+def truncate_branch(repo: pygit2.Repository, branch: str, keep_days: int) -> bool:
     """
-    Delete old tags from the repository, keeping the most recent `min_tags_per_collection` tags for each collection.
+    Rewrite the specified branch to drop the commits older than `keep_days`.
 
-    Return the list of deleted tag names.
-    """
-    print(
-        f"Delete tags older than {max_age_days} days, keeping at least {min_tags_per_collection} per collection."
-    )
-    deleted_tags = []
-    now_ts = int(time.time() * 1000)
-
-    timestamp_tags = [
-        ref_name
-        for ref_name in repo.references
-        if ref_name.startswith("refs/tags/") and "/timestamps/" in ref_name
-    ]
-    group_by_collection: dict[str, list[tuple[str, int]]] = {}
-    for ref_name in sorted(timestamp_tags):
-        collection, timestamp = ref_name.rsplit("/", 1)
-        timestamp = int(timestamp)
-        group_by_collection.setdefault(collection, []).append((ref_name, timestamp))
-
-    # For each collection, we find all the tags that are older than
-    # threshold. We keep the most recent `min_tags_per_collection` old tags
-    # to make sure clients can catch up with synchronization.
-    # This logic helps us cover the situation described in mozilla/remote-settings#1109
-    # (several updates in a short period of time after a long inactivity).
-    for collection, tags in group_by_collection.items():
-        count_before = len(deleted_tags)
-        kept_count = 0
-        for ref_name, timestamp in reversed(tags):
-            age_days = (now_ts - timestamp) / (60 * 60 * 24 * 1000)
-            if age_days < max_age_days or kept_count < min_tags_per_collection:
-                kept_count += 1
-                continue
-
-            dt = ts2dt(timestamp).isoformat()
-            print(f"Deleting tag {ref_name} (timestamp: {dt})")
-            repo.references.delete(ref_name)
-            deleted_tags.append(ref_name)
-
-        print(
-            f"{len(deleted_tags) - count_before} tags to delete for {collection!r} collection"
-        )
-
-    print(f"{len(deleted_tags)} tags to delete in total")
-    return deleted_tags
-
-
-def truncate_branch(
-    repo: pygit2.Repository, branch: str, tags_deletion_threshold: int
-) -> None:
-    """
-    Rewrite the specified branch to start from the oldest tagged commit.
-
-    This removes all commits prior to the oldest tagged commit in the branch,
-    and force-updates the branch to point to the new tip.
-    This function is destructive and rewrites history.
+    This removes the oldest commits of the branch, and force-updates it to point
+    to the rewritten tip. This function is destructive and rewrites history.
+    Return whether the branch was rewritten.
 
     A branch like:
 
-    o--o--o--o--o--o(tag)--o(tag)--o(tag)
+    o--o--o--o--o--o--o
+    <- older -><- kept ->
 
     would be forced to become
 
-    o(tag)--o(tag)--o(tag)
+    o--o--o
+
+    The most recent commit is always kept, even if it is older than `keep_days`.
     """
-    branch_ref_name = "refs/heads/" + branch
-    branch_ref = repo.references[branch_ref_name]
+    branch_ref = repo.references.get("refs/heads/" + branch)
+    if branch_ref is None:  # pragma: no cover
+        raise ValueError(f"Branch {branch} does not exist.")
+
+    if keep_days < 0:
+        return False
+
     tip_oid = branch_ref.target
 
-    # Precompute set of commits with tags
-    commits_to_refs = {}
-    for ref_name in repo.references:
-        if not ref_name.startswith("refs/tags/") or "/timestamps/" not in ref_name:
-            continue
-        tag_ref = repo.references[ref_name]
-        target_oid = tag_ref.target
-        tag_obj = repo[target_oid]
-        obj = tag_obj.peel(pygit2.Commit)
-        assert isinstance(obj, pygit2.Commit), (
-            f"Tag {ref_name} does not point to a commit"
-        )
-        commits_to_refs[obj.id] = ref_name
+    # `commit_time` is in seconds since epoch.
+    cutoff = int(time.time()) - keep_days * 24 * 60 * 60
 
-    assert commits_to_refs, "No timestamps tags found in the repository."
+    # Walk commits from the tip towards roots: newest -> oldest.
+    kept: list[pygit2.Commit] = []
+    dropped = 0
+    truncating = False
+    for commit in repo.walk(tip_oid, SortMode.TOPOLOGICAL | SortMode.TIME):
+        if truncating or (kept and commit.commit_time < cutoff):
+            truncating = True
+            dropped += 1
+        else:
+            kept.append(commit)
 
-    # Walk commits from the tip towards roots: newest -> oldest
-    chain_commits: list[pygit2.Commit] = []
-    walker = repo.walk(tip_oid, SortMode.TOPOLOGICAL | SortMode.TIME)
-    to_delete_count = 0
-    past_tagged_region = False
-    for commit in walker:
-        if commit.id not in commits_to_refs:
-            assert len(chain_commits) > 0, (
-                f"Latest commit {commit.id} of branch {branch} is not tagged. Cannot truncate."
-            )
-            # Count all untagged commits below the oldest tagged commit.
-            past_tagged_region = True
-            to_delete_count += 1
-        elif not past_tagged_region:
-            chain_commits.append(commit)
+    if not dropped:
+        print(f"Branch {branch} has no commit older than {keep_days} days.")
+        return False
 
-    assert chain_commits, f"No tagged commit found in branch {branch}"
-
-    # Reverse to have oldest -> newest
-    chain_commits.reverse()
-    if len(chain_commits[0].parents) == 0:
-        print(
-            f"Branch {branch} already starts from a tagged commit ({str(chain_commits[0].id)[:7]}), nothing to do."
-        )
-        return
-
-    if to_delete_count < tags_deletion_threshold:
-        print(
-            f"Wait until more tags are deleted before truncating branch ({to_delete_count}/{tags_deletion_threshold})"
-        )
-        return
-
-    # Recreate the chain of commits to "rebuild" the branch.
-    print(
-        f"Rebuilding branch (from {len(chain_commits) + to_delete_count} commits to {len(chain_commits)})"
-    )
-    parents_list = []  # for the first in chain, parent list will be []
+    # Recreate the chain of commits to "rebuild" the branch, from oldest to newest.
+    kept.reverse()
+    print(f"Rebuilding {branch} (from {len(kept) + dropped} commits to {len(kept)})")
+    parents_list: list[pygit2.Oid] = []
     new_root = None
-    for commit in chain_commits:
+    for commit in kept:
         new_oid = repo.create_commit(
             None,  # no ref update
             commit.author,
@@ -418,14 +296,16 @@ def truncate_branch(
         )
         if new_root is None:
             new_root = new_oid
-        # Next commit will parent this one
+        # Next commit will parent this one.
         parents_list = [new_oid]
-        # Move the tags that pointed to the old commit into the new commit
-        tag_ref = commits_to_refs[commit.id]
-        repo.references.create(tag_ref, new_oid, force=True)
 
-    # Now force-move the branch to the new tip
+    # Now force-move the branch to the new tip.
     new_tip_oid = parents_list[0]
-    msg = f"Truncate {branch} at oldest tagged commit (root from {str(chain_commits[0].id)[:7]} to {str(new_root)[:7]}, tip from {str(tip_oid)[:7]} to {str(new_tip_oid)[:7]})"
+    msg = (
+        f"Truncate {branch} to the last {keep_days} days "
+        f"(root from {str(kept[0].id)[:7]} to {str(new_root)[:7]}, "
+        f"tip from {str(tip_oid)[:7]} to {str(new_tip_oid)[:7]})"
+    )
     branch_ref.set_target(new_tip_oid, msg)
     print(msg)
+    return True
