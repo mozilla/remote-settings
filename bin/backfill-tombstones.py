@@ -11,7 +11,6 @@ import asyncio
 import logging
 import os
 import pathlib
-import shutil
 import subprocess
 import sys
 from collections import defaultdict
@@ -55,26 +54,46 @@ async def fetch_tombstones(
 
 def write_ledgers(
     repo: pathlib.Path, cid: str, tombstones: list[tuple[str, int]]
-) -> None:
-    # The `git-export` cronjob is stopped while this runs, and `/v1` knows every
-    # deletion, so the existing ledgers are simply replaced.
+) -> int:
+    """
+    Merge the tombstones into the existing ledger files, and return the number
+    of entries that were added.
+    The entries are merged to keep the script "append only", and also because
+    the server does not know about past tombstones when records are recreated
+    with the same ID.
+    """
     folder = repo / cid / "tombstones"
-    shutil.rmtree(folder, ignore_errors=True)
-    folder.mkdir(parents=True)
+    folder.mkdir(parents=True, exist_ok=True)
 
-    by_month = defaultdict(list)
+    by_month: dict[str, set[tuple[int, str]]] = defaultdict(set)
     for rid, timestamp in tombstones:
         dt = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc)
         month = dt.strftime("%Y%m")
-        by_month[month].append((rid, timestamp))
+        by_month[month].add((timestamp, rid))
 
+    added = 0
     for month, entries in by_month.items():
-        # Oldest first, since the `git-export` job will append them.
-        entries.sort(key=lambda entry: (entry[1], entry[0]))
         ledger = folder / f"{month}.txt"
+        known: set[tuple[int, str]] = set()
+        if ledger.exists():
+            for line in ledger.read_text().splitlines():
+                timestamp, rid = line.rsplit(TIMESTAMP_SEPARATOR, 1)
+                known.add((int(timestamp), rid))
+
+        merged = known | entries
+        if merged == known:
+            continue
+
+        added += len(merged) - len(known)
+        # Oldest first, since the `git-export` job will append them.
         ledger.write_text(
-            "".join(f"{ts}{TIMESTAMP_SEPARATOR}{rid}\n" for rid, ts in entries)
+            "".join(
+                f"{timestamp}{TIMESTAMP_SEPARATOR}{rid}\n"
+                for timestamp, rid in sorted(merged)
+            )
         )
+
+    return added
 
 
 def commit_bucket(
@@ -82,7 +101,7 @@ def commit_bucket(
 ) -> int:
     """
     Write the ledgers of every collection of the bucket on its branch, and commit.
-    Return the number of entries that were written.
+    Return the number of entries that were added.
     """
     branch = f"v1/buckets/{bid}"
     try:
@@ -93,7 +112,7 @@ def commit_bucket(
 
     run_git(repo, "checkout", "--quiet", branch)
 
-    written = 0
+    added = 0
     for cid, tombstones in tombstones_by_cid.items():
         if not (repo / cid).is_dir():
             # This would only happen if a collection was created and the server
@@ -101,8 +120,7 @@ def commit_bucket(
             # git-reader would not like a folder without any `metadata.json`, skip.
             print(f"⚠️ WARNING: {bid}/{cid} not found on {branch}, skipping.")
             continue
-        write_ledgers(repo, cid, tombstones)
-        written += len(tombstones)
+        added += write_ledgers(repo, cid, tombstones)
 
     run_git(repo, "add", "--all")
     if not run_git(repo, "diff", "--staged", "--name-only"):
@@ -110,8 +128,8 @@ def commit_bucket(
         return 0
 
     run_git(repo, "commit", "--message", message)
-    print(f"{branch}: {written} tombstones in {run_git(repo, 'rev-parse', 'HEAD')}")
-    return written
+    print(f"{branch}: {added} tombstones in {run_git(repo, 'rev-parse', 'HEAD')}")
+    return added
 
 
 async def main() -> None:
