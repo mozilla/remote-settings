@@ -45,6 +45,7 @@ REMOTE_NAME = "origin"
 LFS_POINTER_FILE_SIZE_BYTES = 140
 STARTUP_BUNDLE_FILE = "bundles/startup.json.mozlz4"
 GIT_REF_PREFIX = "v1/"  # See cronjobs/src/commands/git_export.py
+LEDGER_TIMESTAMP_SEPARATOR = "\t"
 METRICS_PREFIX = "remotesettings"
 METRICS = {
     "request_duration_seconds": prometheus_client.Histogram(
@@ -152,9 +153,9 @@ class Settings(BaseSettings):
         604800,
         description="Sets the cache-control response header to max-age={value} for static content, like attachments. Default is 604800 (1 week)",
     )
-    filter_refs_cache_size: int = Field(
-        500,
-        description="Number of filter_refs function results to cache. This filters git tags to a specific collection and is expensive to run per request.",
+    storage_max_fetch_size: int = Field(
+        10000,
+        description="Maximum number of objects returned in changeset responses. Name matches Kinto's `storage_max_fetch_size`. Default is 10000",
     )
 
 
@@ -195,14 +196,6 @@ def get_repo(
 class CollectionNotFound(Exception):
     """
     Raised when a requested collection or bucket is not found.
-    """
-
-    pass
-
-
-class OldTimestampError(Exception):
-    """Raised when timestamp requested with `_since` is older
-    than any known timestamp.
     """
 
     pass
@@ -282,30 +275,6 @@ def measure_git_read_time(operation: str) -> Callable[[Callable], Callable]:
     return decorator
 
 
-@lru_cache(maxsize=get_settings().filter_refs_cache_size)
-def filter_refs(
-    repo: pygit2.Repository,
-    bid: str,
-    cid: str,
-) -> list[str]:
-    """
-    Returns a list of git refs filtered to the requested bucket and collection,
-    sorted in reverse chronological order. Because repo is provided as a param,
-    and that ref will change as content changes, this cache will not return
-    stale data.
-    """
-    return sorted(
-        [
-            ref.decode()
-            for ref in repo.raw_listall_references()
-            if ref.decode().startswith(
-                f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/"
-            )
-        ],
-        reverse=True,
-    )
-
-
 class GitService:
     """
     Wrapper on top of pygit2 to serve content.
@@ -324,23 +293,12 @@ class GitService:
 
     def check_content(self) -> None:
         """
-        Check that the repository has the expected branches and tags.
+        Check that the repository has the expected branches.
         """
         branches = {branch_name for branch_name in self.repo.branches.local}
         if f"{GIT_REF_PREFIX}common" not in branches:
             raise RuntimeError(
                 f"Missing '{GIT_REF_PREFIX}common' branch in repository. Found: {branches}"
-            )
-
-        # Check that the repository has timestamps/* tags.
-        timestamp_tags = {
-            ref
-            for ref in self.repo.references
-            if ref.startswith(f"refs/tags/{GIT_REF_PREFIX}timestamps/")
-        }
-        if not timestamp_tags:
-            raise RuntimeError(
-                f"Missing '{GIT_REF_PREFIX}timestamps/*' tags in repository. Found: {timestamp_tags}"
             )
 
         # Check that LFS files are present if self-contained.
@@ -372,19 +330,17 @@ class GitService:
         """
         Get the changeset for a specific collection.
         """
-        # List all tags for this collection and sort them by timestamp desc.
-        refs = filter_refs(self.repo, bid, cid)
-        if not refs:
+        # 1. Read the collection content at the tip of the bucket branch.
+        try:
+            refobj = self.repo.lookup_reference(
+                f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
+            )
+        except KeyError:
             raise CollectionNotFound(bid, cid)
-
-        latest_ref = refs[0]
-        timestamp = int(latest_ref.split("/")[-1])
-
-        # 1. Read the collection content at latest timestamp.
-        refobj = self.repo.lookup_reference(latest_ref)
-        tag = self.repo[refobj.target]
-        commit = tag.peel(pygit2.Commit)
+        commit = cast(pygit2.Commit, self.repo[refobj.target])
         tree = commit.tree
+        if cid not in tree:
+            raise CollectionNotFound(bid, cid)
 
         metadata = None
         records_by_id = {}
@@ -400,67 +356,39 @@ class GitService:
                 records_by_id[rid] = content
         assert metadata is not None, "metadata.json not found"
 
-        # 2. If _since is provided, compare and hide unchanged records.
+        # 2. The collection timestamp is the most recent modification or deletion
+        # of its records.
+        timestamps = [
+            record.get("last_modified", 0) for record in records_by_id.values()
+        ]
+        timestamps.append(self._newest_deletion(tree, cid))
+        timestamp = max(timestamps)
+        if not timestamp:
+            # Collection does not have any record, nor any deleted one.
+            # We can use the collection metadata instead.
+            timestamp = metadata["last_modified"]
+
+        # 3. If _since is provided, only keep the records modified since then, and
+        # add the tombstones of the records deleted since then.
         if _since is not None:
-            # Lookup the nearest older tag.
-            # If there is no tag for this exact timestamp (eg. it was deleted when
-            # old tags were pruned), we fall back to the most recent tag that is
-            # older than it.
-            # The returned changeset will contain unchanged records, which is
-            # harmless for clients since they are applied by id, but at least
-            # tombstones are not missed.
-            timestamps = [int(ref.split("/")[-1]) for ref in refs]
-            older_timestamps = [ts for ts in timestamps if ts <= _since]
-            if not older_timestamps:
-                # No tag older than this timestamp.
-                raise OldTimestampError(_since)
-            base_timestamp = max(older_timestamps)
-            if base_timestamp != _since:
-                logger.info(
-                    "No tag for %s/%s@%s, comparing with %s instead",
-                    bid,
-                    cid,
-                    _since,
-                    base_timestamp,
-                )
-            since_ref = (
-                f"refs/tags/{GIT_REF_PREFIX}timestamps/{bid}/{cid}/{base_timestamp}"
+            changes = [
+                record
+                for record in records_by_id.values()
+                if record.get("last_modified", 0) > _since
+            ]
+            max_tombstones_count = self.settings.storage_max_fetch_size - len(changes)
+            changes += self._read_tombstones(
+                tree,
+                cid,
+                _since,
+                live_ids=set(records_by_id),
+                max_tombstones_count=max_tombstones_count,
             )
-            old_refobj = self.repo.lookup_reference(since_ref)
-
-            old_tag = self.repo[old_refobj.target]
-            old_commit = old_tag.peel(pygit2.Commit)
-            old_tree = old_commit.tree
-            old_records_by_id = {}
-            for path, oid in self._scan_folder(old_tree, path=cid):
-                if not path.endswith("metadata.json"):
-                    bcontent = cast(pygit2.Blob, self.repo[oid]).data
-                    content = json.loads(bcontent.decode("utf-8"))
-                    rid = pathlib.Path(path).stem
-                    old_records_by_id[rid] = content
-
-            filtered = {}
-            for rid, record in records_by_id.items():
-                old_record = old_records_by_id.pop(rid, None)
-                if old_record is None:
-                    filtered[rid] = record
-                elif old_record != record:
-                    filtered[rid] = record
-            # Deleted records are shown as tombstones.
-            # Note: we set an arbitrary `last_modified` value as a
-            # mitigation solution to A-S clients expecting it
-            # although it is not needed and not part of specifications
-            # (v1/ API had the field but was never officially mentioned).
-            for rid in old_records_by_id.keys():
-                filtered[rid] = {"id": rid, "deleted": True, "last_modified": 0}
-            records_by_id = filtered
+        else:
+            changes = list(records_by_id.values())
 
         # Sort records by last_modified desc.
-        changes = sorted(
-            records_by_id.values(),
-            key=lambda r: r.get("last_modified", 0),
-            reverse=True,
-        )
+        changes.sort(key=lambda r: r.get("last_modified", 0), reverse=True)
         return timestamp, metadata, changes
 
     def get_monitor_changes_changeset(
@@ -537,6 +465,85 @@ class GitService:
                 for subentry in folder_tree:
                     if subentry.type == pygit2.GIT_OBJECT_BLOB:
                         yield subentry.name or "", subentry.id
+
+    def _tombstones_ledger_files(
+        self, tree: pygit2.Tree, cid: str
+    ) -> list[pygit2.Object]:
+        """
+        Return the files of deleted records, most recent first.
+
+        Tombstones are stored in `{cid}/tombstones/{YYYYMM}.txt` files, with one
+        `{timestamp}\t{rid}` per line.
+        """
+        try:
+            folder = cast(pygit2.Tree, tree[f"{cid}/tombstones"])
+        except KeyError:
+            # No record was ever deleted in this collection.
+            return []
+        return sorted(folder, key=lambda entry: entry.name or "", reverse=True)
+
+    def _parse_ledger_file(self, entry: pygit2.Object) -> list[tuple[int, str]]:
+        """
+        Parse a ledger file as a list of (deletion timestamp, record id),
+        in the order they were appended, from the oldest to the most recent.
+        """
+        bcontent = cast(pygit2.Blob, self.repo[entry.id]).data
+        tombstones = []
+        for line in bcontent.decode("utf-8").splitlines():
+            deleted_at, rid = line.rsplit(LEDGER_TIMESTAMP_SEPARATOR, 1)
+            tombstones.append((int(deleted_at), rid))
+        return tombstones
+
+    def _newest_deletion(self, tree: pygit2.Tree, cid: str) -> int:
+        """
+        Return the timestamp of the most recent tombstone, or zero if none.
+        """
+        # Files are read from the most recent one. Empty ones are skipped, in
+        # order to never report a timestamp older than an actual deletion.
+        for entry in self._tombstones_ledger_files(tree, cid):
+            tombstones = self._parse_ledger_file(entry)
+            if tombstones:
+                # Entries are sorted by timestamp, the last one is the most recent.
+                deleted_at, _ = tombstones[-1]
+                return deleted_at
+        return 0
+
+    def _read_tombstones(
+        self,
+        tree: pygit2.Tree,
+        cid: str,
+        _since: int,
+        live_ids: set[str],
+        max_tombstones_count: int,
+    ) -> list[dict]:
+        """
+        Return the tombstones of the records deleted since the specified timestamp.
+
+        Since ledger files are named by month, and their entries are sorted by
+        timestamp, we read everything backwards and stop as soon as `_since` is
+        reached: all the remaining entries and files are older.
+
+        At most `max_tombstones_count` tombstones are returned. Since the most
+        recent ones are read first, the oldest are dropped.
+        """
+        tombstones: dict[str, dict] = {}
+        for entry in self._tombstones_ledger_files(tree, cid):
+            for deleted_at, rid in reversed(self._parse_ledger_file(entry)):
+                if len(tombstones) >= max_tombstones_count:
+                    return list(tombstones.values())
+                if deleted_at <= _since:
+                    return list(tombstones.values())
+                if rid in live_ids:
+                    # Records that were deleted and created again are served as changes.
+                    continue
+                # A record can be deleted several times (deleted, created again,
+                # deleted again). Since we read from the most recent, the first
+                # tombstone we find for a record is the only relevant one.
+                tombstones.setdefault(
+                    rid, {"id": rid, "deleted": True, "last_modified": deleted_at}
+                )
+
+        return list(tombstones.values())
 
     @measure_git_read_time(operation="get_file_content")
     def _get_file_content(
@@ -758,7 +765,7 @@ def collection_changeset(
     _since: Annotated[int, Query(ge=0)] | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
-) -> ChangesetResponse | RedirectResponse:
+) -> ChangesetResponse:
     if _since and _expected > 0 and _expected < _since:
         raise HTTPException(
             status_code=400,
@@ -771,15 +778,6 @@ def collection_changeset(
         )
     except CollectionNotFound:
         raise HTTPException(status_code=404, detail=f"{bid}/{cid} not found")
-    except OldTimestampError:
-        logger.info(
-            "Unknown _since timestamp: %s for %s/%s, falling back to full changeset",
-            _since,
-            bid,
-            cid,
-        )
-        without_since = request.url.remove_query_params("_since")
-        return RedirectResponse(without_since, status_code=307)
 
     if "-preview" in f"{bid}/{cid}":
         response.headers["cache-control"] = (
