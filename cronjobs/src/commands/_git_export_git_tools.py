@@ -194,6 +194,7 @@ def list_lfs_pointers(
             sha256_hex, size = parse_lfs_pointer(blob.data)  # ty: ignore[unresolved-attribute]
         except ValueError as exc:
             print(f"Failed to parse LFS pointer for {path}: {exc}")
+            continue
         existing_attachments[path] = (sha256_hex, size)
     return existing_attachments
 
