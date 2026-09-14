@@ -1,4 +1,5 @@
 import time
+from typing import cast
 from unittest import mock
 
 import pygit2
@@ -65,6 +66,33 @@ size 42
         == "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"  # pragma: allowlist secret
     )
     assert size == 42
+
+
+def test_tree_upsert_blobs_prunes_emptied_folders(tmp_repo):
+    repo = tmp_repo
+    base_tree = repo.revparse_single("main").tree
+    # "a/c/d.json" is the only blob of "a/c".
+    tree_oid = tree_upsert_blobs(repo, [("a/c/d.json", None)], base_tree=base_tree)
+
+    tree = repo[tree_oid]
+    subtree = cast(pygit2.Tree, tree)["a"]
+    assert "c" not in repo[subtree.id]
+    assert "b.txt" in repo[subtree.id]
+
+
+def test_tree_upsert_blobs_prunes_nested_emptied_folders(tmp_repo):
+    repo = tmp_repo
+    base_tree = repo.revparse_single("main").tree
+    tree_oid = tree_upsert_blobs(
+        repo,
+        [("a/b.txt", None), ("a/c/d.json", None)],
+        base_tree=base_tree,
+    )
+
+    # "a" folder now goes away
+    tree = cast(pygit2.Tree, repo[tree_oid])
+    assert "a" not in tree
+    assert "root.txt" in tree
 
 
 def test_iter_tree_single_file(tmp_repo):
