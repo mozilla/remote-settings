@@ -114,7 +114,7 @@ def git_export() -> None:
     print(
         f"Testing GitHub Token for {GITHUB_USERNAME or GITHUB_APP_ID} on {REPO_OWNER}/{REPO_NAME}..."
     )
-    auth_header = github_lfs_validate_credentials(
+    auth_header_provider = github_lfs_validate_credentials(
         repo_owner=REPO_OWNER,
         repo_name=REPO_NAME,
         github_username=GITHUB_USERNAME,
@@ -160,7 +160,7 @@ def git_export() -> None:
             objects=changed_attachments,
             repo_owner=REPO_OWNER,
             repo_name=REPO_NAME,
-            auth_header=auth_header,
+            auth_header_provider=auth_header_provider,
         )
 
         changed_tags = [f"+{tag}" for tag in created_tags] + [
