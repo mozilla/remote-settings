@@ -35,7 +35,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-          python-version: "3.14.6"
+          python-version: "3.14.7"
       - name: Install dependencies
         run: make install
       - name: Run tests
