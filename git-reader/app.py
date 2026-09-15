@@ -45,6 +45,16 @@ REMOTE_NAME = "origin"
 LFS_POINTER_FILE_SIZE_BYTES = 140
 STARTUP_BUNDLE_FILE = "bundles/startup.json.mozlz4"
 GIT_REF_PREFIX = "v1/"  # See cronjobs/src/commands/git_export.py
+COMMON_BRANCH = f"{GIT_REF_PREFIX}common"
+# Buckets that must have been replicated for the server to be considered healthy.
+EXPECTED_BUCKETS = (
+    "blocklists",
+    "blocklists-preview",
+    "main",
+    "main-preview",
+    "security-state",
+    "security-state-preview",
+)
 LEDGER_TIMESTAMP_SEPARATOR = "\t"
 METRICS_PREFIX = "remotesettings"
 METRICS = {
@@ -295,10 +305,26 @@ class GitService:
         """
         Check that the repository has the expected branches.
         """
-        branches = {branch_name for branch_name in self.repo.branches.local}
-        if f"{GIT_REF_PREFIX}common" not in branches:
+        # The common branch is the one checked out by the update job, and the
+        # attachments served from the working directory come from it.
+        head = (
+            None
+            if self.repo.head_is_unborn or self.repo.head_is_detached
+            else self.repo.head.name
+        )
+        if head != f"refs/heads/{COMMON_BRANCH}":
             raise RuntimeError(
-                f"Missing '{GIT_REF_PREFIX}common' branch in repository. Found: {branches}"
+                f"Branch '{COMMON_BRANCH}' is not checked out. HEAD is {head!r}"
+            )
+
+        # Content is read from the remote-tracking branches.
+        branches = {branch_name for branch_name in self.repo.branches.remote}
+        expected = {f"{REMOTE_NAME}/{COMMON_BRANCH}"} | {
+            f"{REMOTE_NAME}/{GIT_REF_PREFIX}buckets/{bid}" for bid in EXPECTED_BUCKETS
+        }
+        if missing := expected - branches:
+            raise RuntimeError(
+                f"Missing branches in repository: {sorted(missing)}. Found: {sorted(branches)}"
             )
 
         # Check that LFS files are present if self-contained.
@@ -311,11 +337,11 @@ class GitService:
                     f"{STARTUP_BUNDLE_FILE} is a Git LFS pointer file"
                 )
 
-    def get_head_info(self, branch: str = f"{GIT_REF_PREFIX}common") -> dict:
+    def get_head_info(self, branch: str = COMMON_BRANCH) -> dict:
         """
         Get the HEAD information for a specific branch.
         """
-        refobj = self.repo.lookup_reference(f"refs/heads/{branch}")
+        refobj = self.repo.lookup_reference(f"refs/remotes/{REMOTE_NAME}/{branch}")
         commit = cast(pygit2.Commit, self.repo[refobj.target])
         return {
             "id": str(commit.id),
@@ -333,7 +359,7 @@ class GitService:
         # 1. Read the collection content at the tip of the bucket branch.
         try:
             refobj = self.repo.lookup_reference(
-                f"refs/heads/{GIT_REF_PREFIX}buckets/{bid}"
+                f"refs/remotes/{REMOTE_NAME}/{GIT_REF_PREFIX}buckets/{bid}"
             )
         except KeyError:
             raise CollectionNotFound(bid, cid)
@@ -546,13 +572,11 @@ class GitService:
         return list(tombstones.values())
 
     @measure_git_read_time(operation="get_file_content")
-    def _get_file_content(
-        self, path: str, branch: str = f"{GIT_REF_PREFIX}common"
-    ) -> bytes:
+    def _get_file_content(self, path: str, branch: str = COMMON_BRANCH) -> bytes:
         """
         Get the content of a file in the repository.
         """
-        refobj = self.repo.lookup_reference(f"refs/heads/{branch}")
+        refobj = self.repo.lookup_reference(f"refs/remotes/{REMOTE_NAME}/{branch}")
         commit = self.repo[refobj.target]
         node = commit.tree
 
@@ -693,7 +717,7 @@ def hello(
         attachments_base_url += "/"
 
     server_info = git.get_server_info()
-    common_branch_info = git.get_head_info(branch=f"{GIT_REF_PREFIX}common")
+    common_branch_info = git.get_head_info()
 
     repo_age_seconds = int(time.time()) - common_branch_info["timestamp"]
     METRICS["repository_age_seconds"].set(repo_age_seconds)  # ty: ignore[unresolved-attribute]

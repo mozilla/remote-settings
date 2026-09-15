@@ -8,6 +8,7 @@ from unittest import mock
 import pygit2
 import pytest
 from app import (
+    EXPECTED_BUCKETS,
     NO_GIT_ERROR,
     get_repo,
     read_json_mozlz4,
@@ -125,7 +126,12 @@ def fake_repo(temp_dir):
         base_tree=base_tree,
     )
     # Create a common branch with some data.
-    repo.create_commit("refs/heads/v1/common", author, author, "Message", tree_oid, [])
+    # Server reads content from remote-tracking branches.
+    common_oid = repo.create_commit(
+        "refs/remotes/origin/v1/common", author, author, "Message", tree_oid, []
+    )
+    # Only the common branch is checked out locally (for LFS files).
+    repo.create_reference("refs/heads/v1/common", common_oid)
 
     # Create a bucket branch with a collection and a record.
     base_tree = repo.TreeBuilder().write()
@@ -170,7 +176,7 @@ def fake_repo(temp_dir):
         base_tree=base_tree,
     )
     oid = repo.create_commit(
-        "refs/heads/v1/buckets/main", author, author, "Message", tree_oid, []
+        "refs/remotes/origin/v1/buckets/main", author, author, "Message", tree_oid, []
     )
 
     # Create a new version of this collection.
@@ -215,8 +221,23 @@ def fake_repo(temp_dir):
     )
 
     oid = repo.create_commit(
-        "refs/heads/v1/buckets/main", author, author, "Message", tree_oid, [oid]
+        "refs/remotes/origin/v1/buckets/main",
+        author,
+        author,
+        "Message",
+        tree_oid,
+        [oid],
     )
+
+    # Create the remaining buckets branches to please heartbeat. They are left
+    # empty, only the `main` one above has content.
+    empty_oid = repo.create_commit(
+        None, author, author, "Message", repo.TreeBuilder().write(), []
+    )
+    for bid in EXPECTED_BUCKETS:
+        refname = f"refs/remotes/origin/v1/buckets/{bid}"
+        if refname not in repo.references:
+            repo.create_reference(refname, empty_oid)
 
     # Create some attachments.
     os.makedirs(f"{temp_dir}/attachments/bundles", exist_ok=True)
@@ -295,7 +316,24 @@ def repo_copy(temp_dir, monkeypatch):
         yield pygit2.init_repository(td)
 
 
-def test_heartbeat_failing(api_client, repo_copy):
+@pytest.mark.parametrize(
+    "missing_ref",
+    [
+        "refs/remotes/origin/v1/common",
+        "refs/remotes/origin/v1/buckets/main",
+        "refs/remotes/origin/v1/buckets/security-state",
+    ],
+)
+def test_heartbeat_failing(api_client, repo_copy, missing_ref):
+    repo_copy.references.delete(missing_ref)
+
+    resp = api_client.get("/v2/__heartbeat__")
+
+    assert resp.status_code == 500
+    assert resp.json()["checks"]["git_repo_health"] == "error"
+
+
+def test_heartbeat_failing_common_not_checked_out(api_client, repo_copy):
     repo_copy.references.delete("refs/heads/v1/common")
 
     resp = api_client.get("/v2/__heartbeat__")
