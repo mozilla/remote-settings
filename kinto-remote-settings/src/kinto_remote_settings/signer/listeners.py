@@ -9,7 +9,7 @@ from kinto.core.storage.exceptions import ObjectNotFoundError
 from kinto.core.utils import instance_uri
 from pyramid import httpexceptions
 from pyramid.interfaces import IAuthorizationPolicy
-from pyramid.settings import asbool
+from pyramid.settings import asbool, aslist
 
 from . import events as signer_events
 from .updater import TRACKING_FIELDS, LocalUpdater
@@ -700,6 +700,14 @@ def cleanup_preview_destination(event: Any, resources: dict[str, Any]) -> None:
     permission = event.request.registry.permission
     settings = event.request.registry.settings
 
+    # Editors and reviewers are granted `write` on the source collection to manage its
+    # records. Since deleting a source collection empties and signs its destination
+    # without any review, offboarding a collection is restricted to administrators.
+    administrators = set(aslist(settings.get("bucket_write_principals", ""))) | set(
+        aslist(settings.get("collection_write_principals", ""))
+    )
+    is_administrator = bool(administrators & set(event.request.prefixed_principals))
+
     for impacted in event.impacted_objects:
         old_collection = impacted["old"]
 
@@ -715,6 +723,14 @@ def cleanup_preview_destination(event: Any, resources: dict[str, Any]) -> None:
         )
         if resource is None:
             continue
+
+        if not is_administrator:
+            raise_forbidden(
+                message=(
+                    "Cannot delete the source collection: offboarding a collection "
+                    "requires administrator access."
+                )
+            )
 
         # Delete groups (without tombstones if soft delete)
         should_hard_delete = asbool(

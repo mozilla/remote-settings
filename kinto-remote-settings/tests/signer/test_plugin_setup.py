@@ -571,6 +571,9 @@ class SourceCollectionSoftDeletion(BaseWebTest, PatchAutographMixin, unittest.Te
         resp = self.app.get("/", headers=self.other_headers)
         self.other_userid = resp.json["user"]["id"]
 
+        # Deleting a source collection is reserved to administrators.
+        self.app.app.registry.settings["bucket_write_principals"] = self.userid
+
         self.app.put_json("/buckets/stage", headers=self.headers)
 
         self.app.put_json(
@@ -687,6 +690,9 @@ class SourceCollectionHardDeletion(BaseWebTest, PatchAutographMixin, unittest.Te
         self.other_headers = get_user_headers("Sam:Wan Heilss")
         resp = self.app.get("/", headers=self.other_headers)
         self.other_userid = resp.json["user"]["id"]
+
+        # Deleting a source collection is reserved to administrators.
+        self.app.app.registry.settings["bucket_write_principals"] = self.userid
 
         self.app.put_json("/buckets/stage", headers=self.headers)
 

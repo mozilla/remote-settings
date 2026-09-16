@@ -1142,6 +1142,9 @@ class CollectionDelete(SignoffWebTest, unittest.TestCase):
     def setUp(self):
         super(CollectionDelete, self).setUp()
 
+        # Deleting a source collection is reserved to administrators.
+        self.app.app.registry.settings["bucket_write_principals"] = self.userid
+
         self.app.put(
             self.source_bucket + "/collections/no-preview", headers=self.headers
         )
@@ -1162,6 +1165,11 @@ class CollectionDelete(SignoffWebTest, unittest.TestCase):
             headers=self.headers,
             status=403,
         )
+
+    def test_cannot_delete_source_collection_without_admin_rights(self):
+        # ``other_headers`` has ``write`` on the source bucket, like editors and
+        # reviewers do on the source collection, but is not an administrator.
+        self.app.delete(self.source_collection, headers=self.other_headers, status=403)
 
     def test_can_delete_preview_if_source_is_deleted(self):
         self.app.delete(self.source_collection, headers=self.headers)
