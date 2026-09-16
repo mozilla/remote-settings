@@ -1074,6 +1074,18 @@ def test_ledger_file_is_not_rewritten_when_nothing_is_new(repo):
     assert files == []
 
 
+def test_changeset_to_branch_folder_stores_collection_timestamp(repo):
+    content = dict(
+        git_export.changeset_to_branch_folder(
+            None,
+            changeset("cid", [{"id": "aaa", "last_modified": 1737000000000}]),
+        )
+    )
+
+    # The server timestamp is stored, not the one of the most recent record.
+    assert content["cid/timestamp"] == b"100"
+
+
 def test_changeset_to_branch_folder_removes_deleted_records(repo):
     tree = build_tree(
         repo,
