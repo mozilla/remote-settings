@@ -87,6 +87,7 @@ FORCE = config("FORCE", default=_SHOULD_FORCE, cast=bool)
 GIT_REF_PREFIX = "v1/"
 COMMON_BRANCH = "common"
 LEDGER_TIMESTAMP_SEPARATOR = "\t"
+TIMESTAMP_FILE = "timestamp"
 _user, _email = GIT_AUTHOR.split("<")
 GIT_USER = _user.strip()
 GIT_EMAIL = _email.rstrip(">")
@@ -572,7 +573,10 @@ def changeset_to_branch_folder(
     """
     cid = changeset["metadata"]["id"]
     branch_content: list[tuple[str, bytes | None]] = [
-        (f"{cid}/metadata.json", json_dumpb(changeset["metadata"]))
+        (f"{cid}/metadata.json", json_dumpb(changeset["metadata"])),
+        # Store the collection timestamp as reported by the server, since it cannot
+        # be reliably rebuilt from an empty list of records.
+        (f"{cid}/{TIMESTAMP_FILE}", str(changeset["timestamp"]).encode()),
     ]
 
     # Create one blob per record, and remove the ones that were deleted.
