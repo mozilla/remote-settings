@@ -49,11 +49,30 @@ Test Locally
 
 **Kinto Remote Settings Unit Tests**
 
-To run unit tests, you need Postgres installed and a database ``testdb`` available. This can be created with:
+To run unit tests, you need a PostgreSQL server reachable on ``localhost`` and a
+database ``testdb`` available. Either start the one from docker-compose:
+
+.. code-block:: shell
+
+    docker compose up -d db
+
+or use a locally installed PostgreSQL. Then create the database with:
 
 .. code-block:: shell
 
     make build-db
+
+Both default to port 5432. If that is taken — for example you run the container
+alongside a local PostgreSQL:
+
+.. code-block:: shell
+
+    export POSTGRES_PORT=5433
+    docker compose up -d db
+    make build-db
+
+Note that ``make down`` removes the ``db-data`` volume, so ``make build-db`` has to
+be run again afterwards.
 
 After this setup is complete, tests can be run with ``pytest`` using ``make``:
 
@@ -144,7 +163,6 @@ Because the tests are capable of running against environments with existing data
  - Tests are not allowed to delete the bucket(s), collection(s) or users
  - Test collection records are purged before each test
  - Test collection is expected to have one property named "title" and a required file attachment
-
 
 
 Debugging Locally (simple)
