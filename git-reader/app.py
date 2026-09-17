@@ -56,6 +56,7 @@ EXPECTED_BUCKETS = (
     "security-state-preview",
 )
 LEDGER_TIMESTAMP_SEPARATOR = "\t"
+TIMESTAMP_FILE = "timestamp"
 METRICS_PREFIX = "remotesettings"
 METRICS = {
     "request_duration_seconds": prometheus_client.Histogram(
@@ -370,9 +371,13 @@ class GitService:
 
         metadata = None
         records_by_id = {}
+        timestamp = None
         for path, oid in self._scan_folder(tree, path=cid):
-            # Get metadata and records from {cid}/ folder.
+            # Get metadata, timestamp, and records from {cid}/ folder.
             bcontent = cast(pygit2.Blob, self.repo[oid]).data
+            if path == TIMESTAMP_FILE:
+                timestamp = int(bcontent)
+                continue
             content = json.loads(bcontent.decode("utf-8"))
             if path.endswith("metadata.json"):
                 metadata = content
@@ -381,20 +386,9 @@ class GitService:
                 rid = pathlib.Path(path).stem
                 records_by_id[rid] = content
         assert metadata is not None, "metadata.json not found"
+        assert timestamp is not None, f"{TIMESTAMP_FILE} not found"
 
-        # 2. The collection timestamp is the most recent modification or deletion
-        # of its records.
-        timestamps = [
-            record.get("last_modified", 0) for record in records_by_id.values()
-        ]
-        timestamps.append(self._newest_deletion(tree, cid))
-        timestamp = max(timestamps)
-        if not timestamp:
-            # Collection does not have any record, nor any deleted one.
-            # We can use the collection metadata instead.
-            timestamp = metadata["last_modified"]
-
-        # 3. If _since is provided, only keep the records modified since then, and
+        # 2. If _since is provided, only keep the records modified since then, and
         # add the tombstones of the records deleted since then.
         if _since is not None:
             changes = [
@@ -519,20 +513,6 @@ class GitService:
             deleted_at, rid = line.rsplit(LEDGER_TIMESTAMP_SEPARATOR, 1)
             tombstones.append((int(deleted_at), rid))
         return tombstones
-
-    def _newest_deletion(self, tree: pygit2.Tree, cid: str) -> int:
-        """
-        Return the timestamp of the most recent tombstone, or zero if none.
-        """
-        # Files are read from the most recent one. Empty ones are skipped, in
-        # order to never report a timestamp older than an actual deletion.
-        for entry in self._tombstones_ledger_files(tree, cid):
-            tombstones = self._parse_ledger_file(entry)
-            if tombstones:
-                # Entries are sorted by timestamp, the last one is the most recent.
-                deleted_at, _ = tombstones[-1]
-                return deleted_at
-        return 0
 
     def _read_tombstones(
         self,

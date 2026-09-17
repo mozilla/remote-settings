@@ -150,6 +150,11 @@ def fake_repo(temp_dir):
                 "password-rules-preview/abc.json",
                 {"id": "abc", "last_modified": 113456788, "foo": "baz"},
             ),
+            # Collection timestamp, more recent than any of the live records below.
+            (
+                "password-rules/timestamp",
+                b"130000000",
+            ),
             (
                 "password-rules/metadata.json",
                 {
@@ -160,6 +165,10 @@ def fake_repo(temp_dir):
                         {"x5u": "https://autograph/a/b/cert.pem"},
                     ],
                 },
+            ),
+            (
+                "password-rules-preview/timestamp",
+                b"113456788",
             ),
             (
                 "password-rules-preview/metadata.json",
@@ -204,6 +213,10 @@ def fake_repo(temp_dir):
                 "130000000\tdef\n",
             ),
             # A collection without any record.
+            (
+                "empty/timestamp",
+                b"135000000",
+            ),
             (
                 "empty/metadata.json",
                 {
@@ -500,7 +513,7 @@ def test_changeset(api_client):
     assert resp.status_code == 200
     data = resp.json()
 
-    # Timestamp is the one of the most recent deletion (see ledger files).
+    # Timestamp is read from the `timestamp` file, not rebuilt from the records.
     assert data["timestamp"] == 130000000
     assert (
         data["metadata"]["signature"]["x5u"]
@@ -638,8 +651,20 @@ def test_changeset_empty_collection(api_client):
     assert resp.status_code == 200
     data = resp.json()
 
-    # Collection timestamp is used when it does not have any record.
-    assert data["timestamp"] == 140000000
+    assert data["timestamp"] == 135000000
+    assert data["metadata"]["last_modified"] == 140000000
+    assert data["changes"] == []
+
+
+def test_changeset_since_without_any_tombstone(api_client):
+    resp = api_client.get(
+        "/v2/buckets/main/collections/empty/changeset?_expected=0&_since=42"
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # No record was ever deleted in this collection, hence no ledger file.
+    assert data["timestamp"] == 135000000
     assert data["changes"] == []
 
 
