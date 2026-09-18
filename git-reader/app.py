@@ -663,17 +663,17 @@ def git_repo_health() -> list:
     return result
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root() -> RedirectResponse:
     return RedirectResponse(f"/{API_PREFIX}", status_code=307)
 
 
-@app.get(f"/{API_PREFIX[:-1]}")
+@app.api_route(f"/{API_PREFIX[:-1]}", methods=["GET", "HEAD"])
 def hello_unsuffixed() -> RedirectResponse:
     return RedirectResponse(f"/{API_PREFIX}", status_code=307)
 
 
-@app.get(f"/{API_PREFIX}", response_model=HelloResponse)
+@app.api_route(f"/{API_PREFIX}", methods=["GET", "HEAD"], response_model=HelloResponse)
 def hello(
     request: Request,
     response: Response,
@@ -722,8 +722,9 @@ def hello(
     }
 
 
-@app.get(
+@app.api_route(
     f"/{API_PREFIX}buckets/monitor/collections/changes/changeset",
+    methods=["GET", "HEAD"],
     response_model=ChangesetResponse,
 )
 def monitor_changes(
@@ -756,8 +757,9 @@ def monitor_changes(
     )
 
 
-@app.get(
+@app.api_route(
     f"/{API_PREFIX}buckets/{{bid}}/collections/{{cid}}/changeset",
+    methods=["GET", "HEAD"],
     response_model=ChangesetResponse,
 )
 def collection_changeset(
@@ -808,7 +810,11 @@ def collection_changeset(
     )
 
 
-@app.get(f"/{API_PREFIX}__broadcasts__", response_model=BroadcastsResponse)
+@app.api_route(
+    f"/{API_PREFIX}__broadcasts__",
+    methods=["GET", "HEAD"],
+    response_model=BroadcastsResponse,
+)
 def broadcasts(
     response: Response,
     settings: Settings = Depends(get_settings),
@@ -820,8 +826,9 @@ def broadcasts(
     return git.get_broadcasts()
 
 
-@app.get(
+@app.api_route(
     f"/{API_PREFIX}cert-chains/{{pem:path}}",
+    methods=["GET", "HEAD"],
     response_class=PlainTextResponse,
     name="cert-chain",
 )
