@@ -212,6 +212,11 @@ def fake_repo(temp_dir):
                 "password-rules/tombstones/197002.txt",
                 "130000000\tdef\n",
             ),
+            # An unknown file
+            (
+                "password-rules/README.md",
+                "Hellowww\n",
+            ),
             # A collection without any record.
             (
                 "empty/timestamp",

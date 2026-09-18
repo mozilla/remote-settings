@@ -57,6 +57,7 @@ EXPECTED_BUCKETS = (
 )
 LEDGER_TIMESTAMP_SEPARATOR = "\t"
 TIMESTAMP_FILE = "timestamp"
+METADATA_FILE = "metadata.json"
 METRICS_PREFIX = "remotesettings"
 METRICS = {
     "request_duration_seconds": prometheus_client.Histogram(
@@ -378,14 +379,17 @@ class GitService:
             if path == TIMESTAMP_FILE:
                 timestamp = int(bcontent)
                 continue
+            if not path.endswith(".json"):
+                # Ignore unknown files.
+                continue
             content = json.loads(bcontent.decode("utf-8"))
-            if path.endswith("metadata.json"):
+            if path == METADATA_FILE:
                 metadata = content
             else:
                 # Each record is stored in a separate file named {id}.json
                 rid = pathlib.Path(path).stem
                 records_by_id[rid] = content
-        assert metadata is not None, "metadata.json not found"
+        assert metadata is not None, f"{METADATA_FILE} not found"
         assert timestamp is not None, f"{TIMESTAMP_FILE} not found"
 
         # 2. If _since is provided, only keep the records modified since then, and
