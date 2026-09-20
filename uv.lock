@@ -558,7 +558,7 @@ pyopenssl = [
 
 [[package]]
 name = "google-cloud-bigquery"
-version = "3.44.0"
+version = "3.45.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "google-api-core", extra = ["grpc"] },
@@ -569,9 +569,9 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2f/fb/86d5bfdfbd9d810f6a49eb3e9cc591a2b46d33262338acc244cc79d032c1/google_cloud_bigquery-3.44.0.tar.gz", hash = "sha256:30651ae469b419f450b9c96581fd4942e2e060490df1ac0314bf379f16883215", size = 527575, upload-time = "2026-08-25T19:18:36.317Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/60/f6/e12217ae9518d35e014b2302ddd3a7e047c0854c692e536395c12eb4f81c/google_cloud_bigquery-3.45.1.tar.gz", hash = "sha256:f89bb9d1d546b7495a4c3baaea4f2d56c336a4e06581a19acd8eb8547266e591", size = 528170, upload-time = "2026-09-14T18:52:49.522Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2d/84/af193ca97ce72b56fd05f8ad15776bf7446d99cb0ba1cd2f4880dbc52543/google_cloud_bigquery-3.44.0-py3-none-any.whl", hash = "sha256:ac2f0a6ab61a3c742ba4674dc220fb98461c13e1def96fe7a980ef7d5e0c0285", size = 267691, upload-time = "2026-08-24T21:55:19.249Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/ce/89915c377eaffca9d509e64631185254fa8e07f0fedd3fb749a31f9f7915/google_cloud_bigquery-3.45.1-py3-none-any.whl", hash = "sha256:d58c1b77b7c5ae1a405be7c5341e78ebf61f352173393cf35ef722c1432e6a73", size = 267691, upload-time = "2026-09-14T18:52:27.798Z" },
 ]
 
 [[package]]
