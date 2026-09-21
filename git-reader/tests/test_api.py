@@ -407,6 +407,11 @@ def test_hello_view(api_client):
     assert resp.headers["cache-control"] == "max-age=3600"
 
 
+def test_hello_supports_head(api_client):
+    resp = api_client.head("/v2/")
+    assert resp.status_code == 200
+
+
 def test_hello_view_git_error(app, api_client):
     app.dependency_overrides[get_repo] = empty_get_repo
     resp = api_client.get("/v2/")
@@ -422,6 +427,11 @@ def test_broadcast_view(api_client):
     data = resp.json()
     assert "remote-settings/monitor_changes" in data["broadcasts"]
     assert resp.headers["cache-control"] == "max-age=60"
+
+
+def test_broadcast_supports_head(api_client):
+    resp = api_client.head("/v2/__broadcasts__")
+    assert resp.status_code == 200
 
 
 def test_broadcast_view_git_error(app, api_client):
@@ -444,6 +454,13 @@ def test_monitor_changes_view(api_client):
     assert data["changes"][0]["collection"] == "password-rules"
     assert "last_modified" in data["changes"][0]
     assert resp.headers["cache-control"] == "max-age=60"
+
+
+def test_monitor_changes_supports_head(api_client):
+    resp = api_client.head(
+        "/v2/buckets/monitor/collections/changes/changeset?_expected=0"
+    )
+    assert resp.status_code == 200
 
 
 def test_monitor_changes_view_filtered_since(api_client):
@@ -521,6 +538,13 @@ def test_changeset(api_client):
     )
     assert data["changes"] == [{"id": "abc", "last_modified": 123456789, "foo": "bar"}]
     assert resp.headers["cache-control"] == "max-age=3600"
+
+
+def test_changeset_supports_head(api_client):
+    resp = api_client.head(
+        "/v2/buckets/main/collections/password-rules/changeset?_expected=0"
+    )
+    assert resp.status_code == 200
 
 
 def test_changeset_unknown_collection(api_client):
@@ -680,6 +704,11 @@ def test_cert_chain_404(api_client):
     assert resp.status_code == 404
     resp = api_client.get("/v2/cert-chains/a/b/unknown.pem")
     assert resp.status_code == 404
+
+
+def test_cert_chain_supports_head(api_client):
+    resp = api_client.head("/v2/cert-chains/a/b/cert.pem")
+    assert resp.status_code == 200
 
 
 def test_cert_chain_without_self_contained_does_not_load_git(app, temp_dir):
