@@ -1,8 +1,8 @@
 import asyncio
 import importlib
+import json
 import os
 import shutil
-from types import SimpleNamespace
 from unittest import mock
 
 import pygit2
@@ -48,7 +48,7 @@ def mock_git_push():
 @pytest.fixture
 def mock_repo_sync_content():
     with mock.patch.object(git_export, "repo_sync_content") as mock_sync:
-        mock_sync.return_value = [], [], []
+        mock_sync.return_value = [], set()
         yield mock_sync
 
 
@@ -63,15 +63,9 @@ def mock_github_lfs():
 
 
 @pytest.fixture
-def mock_list_heads():
-    with mock.patch("pygit2.Remote.list_heads") as mock_ls:
-        mock_ls.return_value = []
-        yield mock_ls
-
-
-@pytest.fixture
 def mock_truncate_branch():
     with mock.patch.object(git_export, "truncate_branch") as mock_truncate:
+        mock_truncate.return_value = False
         yield mock_truncate
 
 
@@ -265,22 +259,30 @@ def create_branch_with_empty_commit(repo, branch_name, set_as_repo_head=False):
         repo.set_head(branch_name)
 
 
-def simulate_pushed(repo, mock_list_heads):
-    # Simulate that these branches and tags were pushed in previous `git_export` call.
+def set_previous_run(repo, timestamp):
+    """Simulate a previous run that exported the monitor changeset at `timestamp`."""
+    author = committer = pygit2.Signature("Test User", "test@example.com")
+    remote_ref = "refs/remotes/origin/v1/common"
+    parent = repo[repo.lookup_reference(remote_ref).target]
+    tree_id = tree_upsert_blobs(
+        repo,
+        [("monitor-changes.json", json.dumps({"timestamp": timestamp}).encode())],
+        base_tree=parent.tree,
+    )
+    commit_id = repo.create_commit(
+        None, author, committer, f"common@{timestamp}", tree_id, [parent.id]
+    )
+    # Remote always wins when the repo is reset, so both refs must point to it.
+    repo.references.create(remote_ref, commit_id, force=True)
+    repo.references.create("refs/heads/v1/common", commit_id, force=True)
+
+
+def simulate_pushed(repo):
+    # Simulate that these branches were pushed in previous `git_export` call.
     for branch in repo.branches.local:
         commit = repo.lookup_reference(f"refs/heads/{branch}").peel()
         refname = f"refs/remotes/origin/{branch}"
-        try:
-            repo.references.create(refname, commit.id)
-        except pygit2.AlreadyExistsError:
-            repo.references.delete(refname)
-            repo.references.create(refname, commit.id)
-    ref_names = [
-        SimpleNamespace(name=tag, local=False)
-        for tag in repo.listall_references()
-        if tag.startswith("refs/tags/")
-    ]
-    mock_list_heads.return_value = ref_names
+        repo.references.create(refname, commit.id, force=True)
 
 
 @pytest.fixture
@@ -304,7 +306,6 @@ def test_remote_is_clone_if_dir_missing(
     mock_truncate_branch,
     mock_github_lfs,
     mock_git_push,
-    mock_list_heads,
 ):
     def _fake_clone(url, path, *args, **kwargs):
         return init_fake_repo(path)
@@ -326,7 +327,6 @@ def test_repo_sync_content_starts_from_scratch_if_no_previous_run(
     capsys,
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -335,29 +335,17 @@ def test_repo_sync_content_starts_from_scratch_if_no_previous_run(
 
     mock_git_fetch.assert_called_once()
     stdout = capsys.readouterr().out
-    assert "No previous tags found" in stdout
+    assert "No previous run found" in stdout
     assert "3 collections changed" in stdout
 
     (args, _) = mock_git_push.call_args_list[0]
     assert args == (
         [
-            "+refs/heads/v1/buckets/bid1:refs/heads/v1/buckets/bid1",
-            "+refs/heads/v1/buckets/bid2:refs/heads/v1/buckets/bid2",
-            "+refs/heads/v1/common:refs/heads/v1/common",
-            "+refs/tags/v1/timestamps/bid1/cid1/1700000000000:refs/tags/v1/timestamps/bid1/cid1/1700000000000",
-            "+refs/tags/v1/timestamps/bid2/cid2/1600000000000:refs/tags/v1/timestamps/bid2/cid2/1600000000000",
-            "+refs/tags/v1/timestamps/bid2/cid3/1500000000000:refs/tags/v1/timestamps/bid2/cid3/1500000000000",
-            "+refs/tags/v1/timestamps/common/1700000000000:refs/tags/v1/timestamps/common/1700000000000",
+            "refs/heads/v1/buckets/bid1:refs/heads/v1/buckets/bid1",
+            "refs/heads/v1/buckets/bid2:refs/heads/v1/buckets/bid2",
+            "refs/heads/v1/common:refs/heads/v1/common",
         ],
     )
-
-    # Verify that all collections tags point to the same commit (initial commit with all collections)
-    all_timestamps_tags = set(
-        repo.lookup_reference(tag).peel().id  # commit id of the tag
-        for tag in repo.listall_references()
-        if tag.startswith("refs/tags/v1/timestamps/bid2")
-    )
-    assert len(all_timestamps_tags) == 1
 
     # Verify that branch root contains all collections folders.
     tree = repo.lookup_reference("refs/heads/v1/buckets/bid2").peel().tree
@@ -366,11 +354,27 @@ def test_repo_sync_content_starts_from_scratch_if_no_previous_run(
 
 
 @responses.activate
+def test_common_branch_is_force_pushed_if_history_was_truncated(
+    repo,
+    mock_git_fetch,
+    mock_rs_server_content,
+    mock_truncate_branch,
+    mock_github_lfs,
+    mock_git_push,
+):
+    mock_truncate_branch.return_value = True
+
+    git_export.git_export()
+
+    (args, _) = mock_git_push.call_args_list[0]
+    assert "+refs/heads/v1/common:refs/heads/v1/common" in args[0]
+
+
+@responses.activate
 def test_repo_sync_does_nothing_if_up_to_date(
     capsys,
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_truncate_branch,
     mock_github_lfs,
@@ -381,13 +385,13 @@ def test_repo_sync_does_nothing_if_up_to_date(
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
     git_export.git_export()
-    simulate_pushed(repo, mock_list_heads)
+    simulate_pushed(repo)
     capsys.readouterr()  # Clear previous output
 
     git_export.git_export()
 
     stdout = capsys.readouterr().out
-    assert "Found latest tag: 1700000000000" in stdout
+    assert "Previous run exported 1700000000000" in stdout
     assert "No new changes since last run" in stdout
     assert "0 attachments to upload" in stdout
     assert "Everything up-to-date" in stdout
@@ -398,7 +402,6 @@ def test_repo_sync_can_be_forced_even_if_up_to_date(
     capsys,
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_truncate_branch,
     mock_github_lfs,
@@ -409,7 +412,7 @@ def test_repo_sync_can_be_forced_even_if_up_to_date(
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
     git_export.git_export()
-    simulate_pushed(repo, mock_list_heads)
+    simulate_pushed(repo)
     capsys.readouterr()  # Clear previous output
 
     git_export.FORCE = True
@@ -426,7 +429,6 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
     capsys,
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -435,23 +437,12 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
-    repo.create_tag(
-        "v1/timestamps/common/1600000000000",
-        repo.head.target,
-        pygit2.GIT_OBJECT_COMMIT,
-        pygit2.Signature("Test User", "test@example.com"),
-        "Test tag at 1600000000000",
-    )
-    mock_list_heads.return_value = [
-        SimpleNamespace(
-            name="refs/tags/v1/timestamps/common/1600000000000", local=False
-        )
-    ]
+    set_previous_run(repo, 1600000000000)
 
     git_export.git_export()
 
     stdout = capsys.readouterr().out
-    assert "Found latest tag: 1600000000000" in stdout
+    assert "Previous run exported 1600000000000" in stdout
     assert "1 collections changed" in stdout
 
     urls = [call.request.url.split("?")[0] for call in responses.calls]
@@ -463,10 +454,8 @@ def test_repo_sync_content_uses_previous_run_to_fetch_changes(
     (args, _) = mock_git_push.call_args_list[0]
     assert args == (
         [
-            "+refs/heads/v1/buckets/bid1:refs/heads/v1/buckets/bid1",
-            "+refs/heads/v1/common:refs/heads/v1/common",
-            "+refs/tags/v1/timestamps/bid1/cid1/1700000000000:refs/tags/v1/timestamps/bid1/cid1/1700000000000",
-            "+refs/tags/v1/timestamps/common/1700000000000:refs/tags/v1/timestamps/common/1700000000000",
+            "refs/heads/v1/buckets/bid1:refs/heads/v1/buckets/bid1",
+            "refs/heads/v1/common:refs/heads/v1/common",
         ],
     )
 
@@ -476,7 +465,6 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
     capsys,
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -485,24 +473,13 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
-    repo.create_tag(
-        "v1/timestamps/common/1600000000000",
-        repo.head.target,
-        pygit2.GIT_OBJECT_COMMIT,
-        pygit2.Signature("Test User", "test@example.com"),
-        "Test tag at 1600000000000",
-    )
-    mock_list_heads.return_value = [
-        SimpleNamespace(
-            name="refs/tags/v1/timestamps/common/1600000000000", local=False
-        )
-    ]
+    set_previous_run(repo, 1600000000000)
 
     git_export.FORCE = True
     git_export.git_export()
 
     stdout = capsys.readouterr().out
-    assert "Found latest tag: 1600000000000. Ignoring (forced)" in stdout
+    assert "Previous run exported 1600000000000. Ignoring (forced)" in stdout
     assert "3 collections changed" in stdout
     git_export.FORCE = False
 
@@ -511,7 +488,6 @@ def test_repo_sync_content_ignores_previous_run_if_forced(
 def test_repo_sync_stores_server_info(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -526,7 +502,6 @@ def test_repo_sync_stores_server_info(
 def test_repo_sync_stores_monitor_changes(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -541,7 +516,6 @@ def test_repo_sync_stores_monitor_changes(
 def test_repo_sync_stores_broadcasts(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -556,7 +530,6 @@ def test_repo_sync_stores_broadcasts(
 def test_repo_sync_stores_cert_chains(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -568,44 +541,19 @@ def test_repo_sync_stores_cert_chains(
 
 
 @responses.activate
-def test_repo_sync_tags_common_branch(
+def test_repo_updates_common_branch_if_only_bundle_changed(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
 ):
     git_export.git_export()
 
-    tags = [
-        tag
-        for tag in repo.listall_references()
-        if tag.startswith("refs/tags/v1/timestamps/common/")
-    ]
-    assert "refs/tags/v1/timestamps/common/1700000000000" in tags
-
-
-@responses.activate
-def test_repo_moves_common_branch_tag_if_only_bundle_changed(
-    repo,
-    mock_git_fetch,
-    mock_list_heads,
-    mock_rs_server_content,
-    mock_github_lfs,
-    mock_git_push,
-):
-    git_export.git_export()
-
-    # Latest tag is 1700000000000 on the first common commit.
-    tag_ref = "refs/tags/v1/timestamps/common/1700000000000"
     branch_ref = "refs/heads/v1/common"
     before_commit = repo.lookup_reference(branch_ref).target
-    assert repo.lookup_reference(tag_ref).peel(pygit2.GIT_OBJECT_COMMIT).id == (
-        before_commit
-    )
 
-    simulate_pushed(repo, mock_list_heads)
+    simulate_pushed(repo)
 
     # Now simulate that a new bundle was published, but no new entry on
     # monitor/changes (its timestamp is unchanged). This is detected during the
@@ -619,20 +567,15 @@ def test_repo_moves_common_branch_tag_if_only_bundle_changed(
 
     git_export.git_export()
 
-    # Now assert that the latest tag on the common branch
-    # was moved to a different commit (the head of the branch).
+    # The common branch has a new commit for the new bundle.
     after_commit = repo.lookup_reference(branch_ref).target
     assert after_commit != before_commit
-    assert repo.lookup_reference(tag_ref).peel(pygit2.GIT_OBJECT_COMMIT).id == (
-        after_commit
-    )
 
 
 @responses.activate
-def test_repo_sync_stores_collections_records_in_buckets_branches_with_tags(
+def test_repo_sync_stores_collections_records_in_buckets_branches(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -645,10 +588,6 @@ def test_repo_sync_stores_collections_records_in_buckets_branches_with_tags(
     assert "refs/heads/v1/buckets/bid1" in branches
     assert "refs/heads/v1/buckets/bid2" in branches
 
-    tags = [tag for tag in repo.listall_references() if tag.startswith("refs/tags")]
-    assert "refs/tags/v1/timestamps/bid1/cid1/1700000000000" in tags
-    assert "refs/tags/v1/timestamps/bid2/cid2/1600000000000" in tags
-
     rid1 = read_file(repo, "v1/buckets/bid1", "cid1/rid1-1.json")
     assert '"hello":"world"' in rid1.decode()
 
@@ -660,18 +599,15 @@ def test_repo_sync_stores_collections_records_in_buckets_branches_with_tags(
 def test_repo_sync_deletes_records_from_past_runs(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
 ):
     git_export.git_export()
-    simulate_pushed(repo, mock_list_heads)
+    simulate_pushed(repo)
 
     # File exists before next run (not raising).
-    read_file(
-        repo, "refs/tags/v1/timestamps/bid2/cid2/1600000000000", "cid2/rid2-1.json"
-    )
+    read_file(repo, "v1/buckets/bid2", "cid2/rid2-1.json")
 
     # Now simulate that cid2 deleted its record.
     responses.replace(
@@ -712,22 +648,19 @@ def test_repo_sync_deletes_records_from_past_runs(
 
     # File not there anymore.
     with pytest.raises(KeyError):
-        read_file(
-            repo, "refs/tags/v1/timestamps/bid2/cid2/1800000000000", "cid2/rid2-1.json"
-        )
+        read_file(repo, "v1/buckets/bid2", "cid2/rid2-1.json")
 
 
 @responses.activate
 def test_repo_sync_appends_tombstones_to_the_ledger(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
 ):
     git_export.git_export()
-    simulate_pushed(repo, mock_list_heads)
+    simulate_pushed(repo)
 
     # No record was deleted yet, the collection has no ledger.
     with pytest.raises(KeyError):
@@ -776,7 +709,6 @@ def test_repo_sync_appends_tombstones_to_the_ledger(
 def test_repo_sync_stores_attachments_as_lfs_pointers(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -802,7 +734,6 @@ def test_repo_sync_stores_attachments_as_lfs_pointers(
 def test_repo_syncs_attachment_bundles(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -851,7 +782,6 @@ def test_repo_syncs_attachment_bundles(
 def test_attachment_bundles_is_skipped_if_no_attachment_in_changeset(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -882,7 +812,6 @@ def test_attachment_bundles_is_skipped_if_no_attachment_in_changeset(
 def test_repo_prunes_inactive_attachments_on_full_sync(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
@@ -923,13 +852,12 @@ def test_repo_prunes_inactive_attachments_on_full_sync(
 def test_repo_keeps_inactive_attachments_on_incremental_sync(
     repo,
     mock_git_fetch,
-    mock_list_heads,
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
 ):
     git_export.git_export()
-    simulate_pushed(repo, mock_list_heads)
+    simulate_pushed(repo)
     blob = read_file(repo, "v1/common", "attachments/bid2/random-name.bin")
     assert "lfs" in blob.decode()
 
@@ -965,14 +893,13 @@ def test_repo_is_reset_to_local_content_on_error(
     mock_rs_server_content,
     mock_github_lfs,
     mock_git_push,
-    mock_list_heads,
 ):
     create_branch_with_empty_commit(repo, "v1/common", set_as_repo_head=True)
     create_branch_with_empty_commit(repo, "v1/buckets/bid1")
     create_branch_with_empty_commit(repo, "v1/buckets/bid2")
 
     git_export.git_export()
-    simulate_pushed(repo, mock_list_heads)
+    simulate_pushed(repo)
 
     responses.replace(
         responses.GET,
@@ -1029,8 +956,7 @@ def test_repo_is_reset_to_local_content_on_error(
         "Resetting local branch v1/buckets/bid1 to remote origin/v1/buckets/bid1"
         in stdout
     )
-    assert "Delete local tag refs/tags/v1/timestamps/bid1/cid0/1800000000000" in stdout
-    assert "Delete local tag refs/tags/v1/timestamps/common/1800000000000" in stdout
+    assert "Delete local tag" not in stdout
 
 
 def test_tombstones_are_split_by_month_and_stored_in_ascending_order(repo):
