@@ -6,6 +6,8 @@ PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
 SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader browser-tests bin
 TY_SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader bin
 TYPOS_INSTALLED := $(shell typos --version 2>/dev/null)
+POSTGRES_PORT ?= 5432
+PSQL_CONN := -U postgres -h localhost -p $(POSTGRES_PORT)
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of the following commands.\n"
@@ -68,10 +70,10 @@ build:  ## Build containers
 
 build-db:  ## Initialize database 'postgresql://postgres@localhost/testdb'
 ifdef PSQL_INSTALLED
-	@pg_isready 2>/dev/null 1>&2 || (echo Run PostgreSQL before starting tests. && exit 1)
+	@pg_isready -h localhost -p $(POSTGRES_PORT) 2>/dev/null 1>&2 || (echo Run PostgreSQL before starting tests. && exit 1)
 	@echo Creating db...
-	@psql -tc "SELECT 1 FROM pg_database WHERE datname = 'testdb'" -U postgres -h localhost | grep -q 1 || psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
-	@psql -c "ALTER DATABASE testdb SET TIMEZONE TO UTC;"
+	@psql -tc "SELECT 1 FROM pg_database WHERE datname = 'testdb'" $(PSQL_CONN) | grep -q 1 || psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" $(PSQL_CONN)
+	@psql -c "ALTER DATABASE testdb SET TIMEZONE TO UTC;" $(PSQL_CONN)
 	@echo Done!
 else
 	@echo PostgreSQL not installed. Please install PostgreSQL to use this command.
