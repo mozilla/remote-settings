@@ -31,7 +31,7 @@ You will need:
 
 - Docker
 - ``docker-compose`` with `buildkit <https://docs.docker.com/develop/develop-images/build_enhancements/>`_ enabled
-- `poetry <https://python-poetry.org/>`_
+- `uv <https://docs.astral.sh/uv/>`_
 - `Make <https://www.gnu.org/software/make/>`_
 
 Usage
@@ -215,14 +215,14 @@ Upgrade Things
 
 Dependabot is enabled on this repository, so it should keep dependencies up to date.
 
-To manually edit dependency versions, use `standard poetry commands <https://python-poetry.org/docs/master/managing-dependencies/>`_. Because our
+To manually edit dependency versions, use `standard uv commands <https://docs.astral.sh/uv/concepts/projects/dependencies/>`_. Because our
 usecase is somewhat complex with multiple groups and some dependencies appearing
 in multiple groups, sometimes the easiest way to update packages is to edit
 ``pyproject.toml`` to the specified package version, then run:
 
 .. code-block:: shell
 
-    poetry lock --no-update
+    uv lock
 
 to update the lockfile.
 
