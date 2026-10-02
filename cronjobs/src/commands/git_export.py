@@ -147,7 +147,7 @@ def git_export() -> None:
             auth_header_provider=auth_header_provider,
         )
 
-        push_mirror(repo, changed_branches, callbacks=callbacks)
+        push_mirror(repo, list(changed_branches), callbacks=callbacks)
 
         print("Done.")
     except Exception as exc:

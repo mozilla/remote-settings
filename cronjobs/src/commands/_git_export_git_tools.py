@@ -84,7 +84,7 @@ def reset_repo(repo: pygit2.Repository) -> None:
 
 def push_mirror(
     repo: pygit2.Repository,
-    branches: Iterable[str],
+    branches: list[str],
     callbacks: pygit2.RemoteCallbacks,
 ) -> None:
     """
