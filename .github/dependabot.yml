@@ -19,6 +19,9 @@ updates:
     development-dependencies:
       dependency-type: "development"
       update-types: ["major", "minor", "patch"]
+    security:
+      applies-to: security-updates
+      patterns: ["*"]
   open-pull-requests-limit: 99
 - package-ecosystem: docker
   directory: "/"
