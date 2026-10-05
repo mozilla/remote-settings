@@ -13,9 +13,9 @@ updates:
   allow:
     - dependency-type: "all"
   groups:
-    production-dependency-patches:
+    production-dependencies:
       dependency-type: "production"
-      update-types: ["patch"]
+      update-types: ["minor", "patch"]
     development-dependencies:
       dependency-type: "development"
       update-types: ["major", "minor", "patch"]
