@@ -10,15 +10,24 @@ updates:
     interval: weekly
     day: sunday
     timezone: UCT
+  cooldown:
+    # Let others try before offering update PRs (does not affect security)
+    default-days: 14
   allow:
     - dependency-type: "all"
   groups:
-    production-dependency-patches:
+    google-cloud:
+      patterns: ["google*", "grpcio*", "proto*"]
+      update-types: ["minor", "patch"]
+    production-dependencies:
       dependency-type: "production"
-      update-types: ["patch"]
+      update-types: ["minor", "patch"]
     development-dependencies:
       dependency-type: "development"
       update-types: ["major", "minor", "patch"]
+    security:
+      applies-to: security-updates
+      patterns: ["*"]
   open-pull-requests-limit: 99
 - package-ecosystem: docker
   directory: "/"
