@@ -10,6 +10,9 @@ updates:
     interval: weekly
     day: sunday
     timezone: UCT
+  cooldown:
+    # Let others try before offering update PRs (does not affect security)
+    default-days: 14
   allow:
     - dependency-type: "all"
   groups:
