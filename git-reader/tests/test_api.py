@@ -5,6 +5,7 @@ import shutil
 import tempfile
 from unittest import mock
 
+import httpx
 import pygit2
 import pytest
 from app import (
@@ -753,6 +754,17 @@ def test_startup_rewrites_x5u(api_client, temp_dir):
 def test_attachment_bad_path(api_client):
     resp = api_client.get("/v2/attachments/../../etc/hosts")
     assert resp.status_code == 404
+
+
+def test_attachment_sibling_folder_with_same_prefix(api_client, temp_dir):
+    os.makedirs(f"{temp_dir}/attachments-other", exist_ok=True)
+    with open(f"{temp_dir}/attachments-other/secret.txt", "w") as f:
+        f.write("secret")
+
+    resp = api_client.get(
+        httpx.URL("/v2/attachments/%2e%2e/attachments-other/secret.txt")
+    )
+    assert resp.status_code == 400
 
 
 def test_attachment_unknown_file(api_client):

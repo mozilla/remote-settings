@@ -881,7 +881,7 @@ def attachments(
 
     # Prevent directory traversal: ensure requested_path is inside base_dir
     # See https://codeql.github.com/codeql-query-help/python/py-path-injection/
-    if not requested_path.startswith(base_dir):
+    if not requested_path.startswith(base_dir + os.sep):
         raise HTTPException(status_code=400, detail="Invalid path")
 
     if not os.path.exists(requested_path) or not os.path.isfile(requested_path):
