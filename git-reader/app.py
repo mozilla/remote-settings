@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 import lz4.block
 import prometheus_client
 import pygit2
+import sentry_sdk
 from dockerflow import checks
 from dockerflow.fastapi import router as dockerflow_router
 from dockerflow.fastapi.middleware import (
@@ -168,6 +169,14 @@ class Settings(BaseSettings):
     storage_max_fetch_size: int = Field(
         10000,
         description="Maximum number of objects returned in changeset responses. Name matches Kinto's `storage_max_fetch_size`. Default is 10000",
+    )
+    sentry_dsn: str | None = Field(
+        None,
+        description="Sentry DSN. Errors are not reported to Sentry if not set.",
+    )
+    sentry_env: str | None = Field(
+        None,
+        description="Sentry environment (eg. `prod`, `stage`, ...).",
     )
 
 
@@ -952,5 +961,9 @@ def app_factory() -> FastAPI:
     """
     global app
     settings = get_settings()
+    if settings.sentry_dsn:
+        # The FastAPI integration is enabled automatically when `fastapi` package is installed.
+        sentry_sdk.init(dsn=settings.sentry_dsn, environment=settings.sentry_env)
+        logger.info("Sentry SDK initialized")
     app = wrap_asgi_with_proxy_headers(app, trusted_hosts=settings.trusted_hosts)
     return app

@@ -513,6 +513,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "pygit2" },
     { name = "pyjwt" },
+    { name = "sentry-sdk", extra = ["fastapi"] },
     { name = "uvloop" },
 ]
 
@@ -527,6 +528,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.15.0" },
     { name = "pygit2", specifier = ">=1.19.3" },
     { name = "pyjwt", specifier = ">=2.10.1" },
+    { name = "sentry-sdk", extras = ["fastapi"], specifier = ">=2.71.0" },
     { name = "uvloop", specifier = ">=0.21.0" },
 ]
 
@@ -1808,6 +1810,9 @@ wheels = [
 ]
 
 [package.optional-dependencies]
+fastapi = [
+    { name = "fastapi" },
+]
 sqlalchemy = [
     { name = "sqlalchemy" },
 ]
