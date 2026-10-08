@@ -848,3 +848,26 @@ def test_repo_caching(temp_dir, app, api_client):
 
     resp = api_client.get("/v2/")
     assert resp.status_code == 200
+
+
+@pytest.mark.parametrize("dsn", [None, "https://key@sentry.example.com/1"])
+def test_app_factory_initializes_sentry_if_dsn_set(dsn, monkeypatch):
+    from app import app_factory
+
+    if dsn:
+        monkeypatch.setenv("SENTRY_DSN", dsn)
+    else:
+        monkeypatch.delenv("SENTRY_DSN", raising=False)
+    monkeypatch.setenv("SENTRY_ENV", "test")
+
+    with mock.patch("app.sentry_sdk.init") as mocked_init:
+        # Avoid replacing the global `app` used by other tests.
+        with mock.patch(
+            "app.wrap_asgi_with_proxy_headers", side_effect=lambda a, **kw: a
+        ):
+            app_factory()
+
+    if dsn:
+        mocked_init.assert_called_once_with(dsn=dsn, environment="test")
+    else:
+        assert not mocked_init.called
