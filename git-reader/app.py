@@ -692,7 +692,7 @@ def hello(
 
     # Determine attachments base URL
     attachments_base_url = settings.attachments_base_url
-    if attachments_base_url is None:
+    if not attachments_base_url:
         assert settings.self_contained, (
             "ATTACHMENTS_BASE_URL is required when not SELF_CONTAINED"
         )
