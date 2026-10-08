@@ -566,6 +566,19 @@ def test_changeset_unknown_bucket(api_client):
     assert resp.status_code == 404
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/v2/buckets/main;declare @q varchar(99);--/collections/password-rules/changeset",
+        "/v2/buckets/main/collections/password-rules'+(function(){}())+'/changeset",
+        "/v2/buckets/-main/collections/password-rules/changeset",
+    ],
+)
+def test_changeset_invalid_names(api_client, path):
+    resp = api_client.get(f"{path}?_expected=0")
+    assert resp.status_code == 422
+
+
 def test_changeset_preview_collection(api_client):
     resp = api_client.get(
         "/v2/buckets/main/collections/password-rules-preview/changeset?_expected=0"
