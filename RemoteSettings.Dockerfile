@@ -45,7 +45,7 @@ RUN ./pull-kinto-admin.sh
 # Production stage
 ############################
 
-FROM python:3.14.7-slim AS production
+FROM python:3.14.8-slim AS production
 
 ENV KINTO_INI=config/local.ini \
     KINTO_ADMIN_ASSETS_PATH=/app/kinto-admin/build/ \
