@@ -29,7 +29,7 @@ services:
 
   autograph:
     platform: linux/amd64
-    image: mozilla/autograph
+    image: mozilla/autograph:8.1.3-amd64
     user: root
     ports:
       - 8000:8000
