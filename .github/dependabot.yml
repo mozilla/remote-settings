@@ -35,6 +35,16 @@ updates:
     interval: daily
     timezone: UCT
   open-pull-requests-limit: 99
+- package-ecosystem: docker-compose
+  directory: "/"
+  schedule:
+    interval: daily
+    timezone: UCT
+  cooldown:
+    default-days: 14
+  allow:
+    - dependency-name: "mozilla/autograph"
+  open-pull-requests-limit: 99
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
