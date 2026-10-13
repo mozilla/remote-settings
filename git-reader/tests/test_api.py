@@ -412,6 +412,21 @@ def test_hello_view(api_client):
     assert resp.headers["cache-control"] == "max-age=3600"
 
 
+def test_hello_view_with_empty_attachments_base_url(app, temp_dir, api_client):
+    from app import Settings, get_settings
+
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        self_contained=True, git_repo_path=temp_dir, attachments_base_url=""
+    )
+
+    resp = api_client.get("/v2/")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert (
+        data["capabilities"]["attachments"]["base_url"] == "http://test/v2/attachments/"
+    )
+
+
 def test_hello_supports_head(api_client):
     resp = api_client.head("/v2/")
     assert resp.status_code == 200
