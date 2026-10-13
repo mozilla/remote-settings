@@ -23,7 +23,7 @@ from dockerflow.fastapi.middleware import (
     MozlogRequestSummaryLogger,
     RequestIdMiddleware,
 )
-from fastapi import Depends, FastAPI, Query, Request, Response
+from fastapi import Depends, FastAPI, Path, Query, Request, Response
 from fastapi.exceptions import HTTPException
 from fastapi.responses import (
     FileResponse,
@@ -46,6 +46,9 @@ LFS_POINTER_FILE_SIZE_BYTES = 140
 STARTUP_BUNDLE_FILE = "bundles/startup.json.mozlz4"
 GIT_REF_PREFIX = "v1/"  # See cronjobs/src/commands/git_export.py
 COMMON_BRANCH = f"{GIT_REF_PREFIX}common"
+# Same format as Kinto bucket and collection ids.
+# See https://github.com/Kinto/kinto/blob/eb4743/kinto/core/storage/generators.py#L13
+NAME_PATTERN = r"^[a-zA-Z0-9][a-zA-Z0-9_-]+$"
 # Buckets that must have been replicated for the server to be considered healthy.
 EXPECTED_BUCKETS = (
     "blocklists",
@@ -769,8 +772,8 @@ def monitor_changes(
 def collection_changeset(
     request: Request,
     response: Response,
-    bid: str,
-    cid: str,
+    bid: Annotated[str, Path(pattern=NAME_PATTERN)],
+    cid: Annotated[str, Path(pattern=NAME_PATTERN)],
     _expected: Annotated[int, Query(ge=0)],
     _since: Annotated[int, Query(ge=0)] | None = None,
     settings: Settings = Depends(get_settings),
