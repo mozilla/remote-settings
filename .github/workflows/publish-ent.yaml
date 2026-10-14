@@ -24,7 +24,9 @@ jobs:
       GAR_IMAGE_NAME: remote-settings-git-reader
       LATEST_TAG: ""  # Set after checkout step
     runs-on: ubuntu-latest
-    environment: build
+    environment: 
+      name: build
+      deployment: false
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
