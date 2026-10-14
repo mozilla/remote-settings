@@ -35,9 +35,11 @@ services:
       - 8000:8000
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/__lbheartbeat__"]
-      interval: 1s
-      timeout: 3s
-      retries: 30
+      interval: 30s
+      timeout: 5s
+      retries: 2
+      start_period: 20s
+      start_interval: 1s
 
   web:
     build:
@@ -71,10 +73,11 @@ services:
       - ${SRC_MOUNT:-./kinto-remote-settings:/app/kinto-remote-settings}
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8888/v1/__lbheartbeat__"]
-      interval: 2s
+      interval: 30s
       timeout: 5s
-      retries: 30
-      start_period: 5s
+      retries: 2
+      start_period: 20s
+      start_interval: 1s
 
   git-reader:
     build:
