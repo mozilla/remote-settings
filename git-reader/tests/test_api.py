@@ -10,6 +10,7 @@ import pytest
 from app import (
     EXPECTED_BUCKETS,
     NO_GIT_ERROR,
+    app_factory,
     get_repo,
     read_json_mozlz4,
     write_json_mozlz4,
@@ -850,24 +851,30 @@ def test_repo_caching(temp_dir, app, api_client):
     assert resp.status_code == 200
 
 
-@pytest.mark.parametrize("dsn", [None, "https://key@sentry.example.com/1"])
-def test_app_factory_initializes_sentry_if_dsn_set(dsn, monkeypatch):
-    from app import app_factory
-
-    if dsn:
-        monkeypatch.setenv("SENTRY_DSN", dsn)
-    else:
-        monkeypatch.delenv("SENTRY_DSN", raising=False)
-    monkeypatch.setenv("SENTRY_ENV", "test")
-
+@pytest.fixture
+def mocked_sentry_init():
     with mock.patch("app.sentry_sdk.init") as mocked_init:
         # Avoid replacing the global `app` used by other tests.
         with mock.patch(
             "app.wrap_asgi_with_proxy_headers", side_effect=lambda a, **kw: a
         ):
-            app_factory()
+            yield mocked_init
 
-    if dsn:
-        mocked_init.assert_called_once_with(dsn=dsn, environment="test")
-    else:
-        assert not mocked_init.called
+
+def test_app_factory_initializes_sentry_if_dsn_not_set(mocked_sentry_init, monkeypatch):
+    monkeypatch.delenv("SENTRY_DSN", raising=False)
+
+    app_factory()
+
+    assert not mocked_sentry_init.called
+
+
+def test_app_factory_initializes_sentry_if_dsn_set(mocked_sentry_init, monkeypatch):
+    env = "dev"
+    dsn = "https://key@sentry.example.com/1"
+    monkeypatch.setenv("SENTRY_DSN", dsn)
+    monkeypatch.setenv("SENTRY_ENV", env)
+
+    app_factory()
+
+    mocked_sentry_init.assert_called_once_with(dsn=dsn, environment=env)
