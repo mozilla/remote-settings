@@ -47,6 +47,7 @@ services:
       target: local
       context: .
     image: remotesettings/local
+    pull_policy: build
     depends_on:
       db:
         condition: service_healthy
