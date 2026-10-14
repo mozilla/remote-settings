@@ -8,6 +8,7 @@ Usage:
         python bin/compare-collections.py security-state/onecrl
 """
 
+import itertools
 import os
 import sys
 
@@ -34,7 +35,7 @@ def main(bid_cid):
         records[bucket] = client.get_records(bucket=bucket, collection=cid)
         print(f"{bucket}/{cid}: {len(records[bucket])} records")
 
-    for src, dest in zip(buckets, buckets[1:]):
+    for src, dest in itertools.pairwise(buckets):
         to_create, to_update, to_delete = collection_diff(records[src], records[dest])
         print(f"\n## {src} vs {dest}")
         if not (to_create or to_update or to_delete):
