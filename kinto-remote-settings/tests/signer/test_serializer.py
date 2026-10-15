@@ -39,6 +39,18 @@ def test_removes_deleted_items():
     assert [record] == json.loads(serialized)["data"]
 
 
+def test_includes_collection_if_specified():
+    records = [{"bar": "baz", "last_modified": "45678", "id": "1"}]
+    serialized = json.loads(canonical_json(records, "45678", "main/cfr"))
+    assert serialized["collection"] == "main/cfr"
+
+
+def test_does_not_include_collection_by_default():
+    records = [{"bar": "baz", "last_modified": "45678", "id": "1"}]
+    serialized = json.loads(canonical_json(records, "45678"))
+    assert "collection" not in serialized
+
+
 #
 # Standard
 #
