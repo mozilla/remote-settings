@@ -66,6 +66,13 @@ class ECDSASignerTest(unittest.TestCase):
         signatures = self.signer.sign("this is some text")
         self.signer.verify("this is some text", signatures[0])
 
+    def test_signer_signs_every_payload(self):
+        signatures = self.signer.sign("some text", "other text")
+
+        assert len(signatures) == 2
+        self.signer.verify("some text", signatures[0])
+        self.signer.verify("other text", signatures[1])
+
     def test_base64url_encoding(self):
         signature_bundles = self.signer.sign("this is some text")
         b64signature = signature_bundles[0]["signature"]
@@ -162,41 +169,43 @@ class AutographSignerTest(unittest.TestCase):
         assert signature_bundles[0]["signature"] == SIGNATURE
 
     @mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
-    def test_one_request_per_key_id_is_issued(self, requests):
-        requests.post.side_effect = [
-            mock.MagicMock(
-                json=lambda i=i: [
-                    {"signature": f"sign-{i}", "x5u": f"x5u-{i}", "ref": f"ref-{i}"}
-                ]
-            )
-            for i in range(3)
+    def test_payloads_and_key_ids_are_signed_in_a_single_request(self, requests):
+        requests.post.return_value.json.return_value = [
+            {"signature": f"sign-{i}", "x5u": f"x5u-{i}", "ref": f"ref-{i}"}
+            for i in range(4)
         ]
         signer = autograph.AutographSigner(
             hawk_id="alice",
             hawk_secret="fs5wgcer9",  # pragma: allowlist secret
             server_url="http://localhost:8000",
-            keyids=["key1", "key2", "key3"],
+            keyids=["key1", "key2"],
         )
 
-        signatures = signer.sign("test data")
+        signatures = signer.sign("test data", "other data")
 
-        print(requests.post.call_args_list)
-        assert len(signatures) == 3
-        for i in range(3):
-            assert signatures[i]["signature"] == f"sign-{i}"
-            assert signatures[i]["x5u"] == f"x5u-{i}"
-            assert signatures[i]["ref"] == f"ref-{i}"
+        requests.post.assert_called_once_with(
+            "http://localhost:8000/sign/data",
+            auth=signer.auth,
+            json=[
+                {"input": "dGVzdCBkYXRh", "keyid": "key1"},
+                {"input": "dGVzdCBkYXRh", "keyid": "key2"},
+                {"input": "b3RoZXIgZGF0YQ==", "keyid": "key1"},
+                {"input": "b3RoZXIgZGF0YQ==", "keyid": "key2"},
+            ],
+        )
+        assert signatures == [
+            {"signature": f"sign-{i}", "x5u": f"x5u-{i}", "ref": f"ref-{i}"}
+            for i in range(4)
+        ]
 
-            requests.post.assert_any_call(
-                "http://localhost:8000/sign/data",
-                auth=signer.auth,
-                json=[
-                    {
-                        "input": "dGVzdCBkYXRh",
-                        "keyid": f"key{i + 1}",
-                    }
-                ],
-            )
+    @mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
+    def test_sign_raises_if_signatures_are_missing(self, requests):
+        requests.post.return_value.json.return_value = [
+            {"signature": "sig", "x5u": "x5u", "ref": "ref"}
+        ]
+
+        with pytest.raises(ValueError, match="Expected 2 signatures"):
+            self._signer().sign("test data", "other data")
 
     def _signer(self):
         return autograph.AutographSigner(

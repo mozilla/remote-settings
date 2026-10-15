@@ -87,7 +87,7 @@ class AutographSigner(SignerBase):
             f"({remaining_days - clamped_minimum} days before alert)."
         )
 
-    def sign(self, payload: str | bytes) -> list[dict]:
+    def sign(self, *payloads: str | bytes) -> list[dict]:
         post_sign_with_retry = backoff.on_exception(
             backoff.expo,
             (requests.ConnectionError, requests.Timeout, requests.HTTPError),
@@ -95,29 +95,25 @@ class AutographSigner(SignerBase):
             giveup=_is_client_error,
         )(self._post_sign)
 
-        if isinstance(payload, str):  # pragma: no cover
-            payload = payload.encode("utf-8")
-        b64_payload = base64.b64encode(payload)
+        # Sign every payload with every configured key, in a single batched
+        # request. Autograph returns the signatures in the order of the request.
+        sign_requests = []
+        for payload in payloads:
+            if isinstance(payload, str):  # pragma: no cover
+                payload = payload.encode("utf-8")
+            b64_payload = base64.b64encode(payload).decode("utf-8")
+            for key_id in self.key_ids:
+                logger.info(
+                    "Sign %s bytes using Autograph with key %r",
+                    len(b64_payload),
+                    key_id,
+                )
+                sign_requests.append({"input": b64_payload, "keyid": key_id})
 
-        # Iterate over the configured keys, and return the list of
-        # signatures obtained from Autograph.
+        resp = post_sign_with_retry(json=sign_requests)
+
         signatures = []
-        for key_id in self.key_ids:
-            logger.info(
-                "Sign %s bytes using Autograph with key %r",
-                len(b64_payload),
-                key_id,
-            )
-            resp = post_sign_with_retry(
-                json=[
-                    {
-                        "input": b64_payload.decode("utf-8"),
-                        "keyid": key_id,
-                    }
-                ],
-            )
-            signature_bundle = resp.json()[0]
-
+        for signature_bundle in resp.json():
             # Critical fields must be present, will raise if missing.
             infos = {field: signature_bundle[field] for field in SIGNATURE_FIELDS}
             # Other fields are returned and will be stored as part of the signature.
@@ -135,6 +131,9 @@ class AutographSigner(SignerBase):
                 signature_bundle["ref"],
             )
             signatures.append(infos)
+        if len(signatures) != len(sign_requests):
+            msg = "Expected %s signatures from Autograph, got %s"
+            raise ValueError(msg % (len(sign_requests), len(signatures)))
         return signatures
 
     def _post_sign(self, json: list[dict]) -> requests.Response:
