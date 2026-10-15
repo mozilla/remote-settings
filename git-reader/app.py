@@ -10,6 +10,7 @@ import pathlib
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime
+from enum import Enum
 from functools import lru_cache
 from typing import Annotated, Any, Awaitable, BinaryIO, Callable, Generator, cast
 from urllib.parse import urlparse
@@ -17,6 +18,7 @@ from urllib.parse import urlparse
 import lz4.block
 import prometheus_client
 import pygit2
+import sentry_sdk
 from dockerflow import checks
 from dockerflow.fastapi import router as dockerflow_router
 from dockerflow.fastapi.middleware import (
@@ -32,7 +34,7 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from granian.utils.proxies import wrap_asgi_with_proxy_headers
-from pydantic import BaseModel, Field
+from pydantic import AnyUrl, BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -140,6 +142,12 @@ logging.config.dictConfig(
 )
 
 
+class EnvEnum(str, Enum):
+    dev = "dev"
+    stage = "stage"
+    prod = "prod"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", frozen=True)
     git_repo_path: str = Field("", description="Path to the Git repository")
@@ -171,6 +179,14 @@ class Settings(BaseSettings):
     storage_max_fetch_size: int = Field(
         10000,
         description="Maximum number of objects returned in changeset responses. Name matches Kinto's `storage_max_fetch_size`. Default is 10000",
+    )
+    sentry_dsn: AnyUrl | None = Field(
+        None,
+        description="Sentry DSN. Errors are not reported to Sentry if not set.",
+    )
+    sentry_env: EnvEnum | None = Field(
+        None,
+        description="Sentry environment (eg. `prod`, `stage`, ...).",
     )
 
 
@@ -955,5 +971,12 @@ def app_factory() -> FastAPI:
     """
     global app
     settings = get_settings()
+    if settings.sentry_dsn:
+        # The FastAPI integration is enabled automatically when `fastapi` package is installed.
+        sentry_sdk.init(
+            dsn=str(settings.sentry_dsn),
+            environment=settings.sentry_env.value if settings.sentry_env else None,
+        )
+        logger.info("Sentry SDK initialized")
     app = wrap_asgi_with_proxy_headers(app, trusted_hosts=settings.trusted_hosts)
     return app
