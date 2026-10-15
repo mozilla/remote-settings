@@ -24,6 +24,34 @@ from a `Structurizr <https://structurizr.com>`_ model kept in
 ``docs/architecture/workspace.dsl``. The diagrams are interactive: double-click an element
 to navigate, use the mouse wheel to zoom, and ``i`` to show the key.
 
+System context
+--------------
+
+.. raw:: html
+
+   <div class="diagram"><iframe src="_static/diagrams/index.html?diagram=system-context&amp;embed=true" allow="fullscreen"></iframe></div>
+
+Containers
+----------
+
+.. raw:: html
+
+   <div class="diagram"><iframe src="_static/diagrams/index.html?diagram=containers&amp;embed=true" allow="fullscreen"></iframe></div>
+
+Core cronjobs
+-------------
+
+.. raw:: html
+
+   <div class="diagram"><iframe src="_static/diagrams/index.html?diagram=cronjobs&amp;embed=true" allow="fullscreen"></iframe></div>
+
+.. raw:: html
+
+   <script type="text/javascript" src="_static/diagrams/js/structurizr-embed.js"></script>
+
+Flows
+-----
+
 .. toctree::
    :maxdepth: 1
 
