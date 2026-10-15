@@ -4,7 +4,7 @@ import string
 import unittest
 from unittest import mock
 
-from .support import BaseWebTest, get_user_headers
+from .support import BaseWebTest, get_user_headers, mock_autograph_sign
 
 
 RE_ISO8601 = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00")
@@ -20,18 +20,16 @@ class SignerAttachmentsTest(BaseWebTest, unittest.TestCase):
 
         def fake_sign():
             fake_signature = "".join(random.sample(string.ascii_lowercase, 10))
-            return [
-                {
-                    "signature": "",
-                    "hash_algorithm": "",
-                    "signature_encoding": "",
-                    "content-signature": fake_signature,
-                    "x5u": "",
-                    "ref": "",
-                }
-            ]
+            return {
+                "signature": "",
+                "hash_algorithm": "",
+                "signature_encoding": "",
+                "content-signature": fake_signature,
+                "x5u": "",
+                "ref": "",
+            }
 
-        self.mocked_autograph.post.return_value.json.side_effect = fake_sign
+        mock_autograph_sign(self.mocked_autograph, fake_sign)
 
         self.headers = get_user_headers("tarte:en-pion")
         resp = self.app.get("/", headers=self.headers)

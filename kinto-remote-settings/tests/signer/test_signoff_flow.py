@@ -8,7 +8,7 @@ import pytest
 from kinto.core.errors import ERRORS
 from kinto.core.testing import FormattedErrorMixin
 
-from .support import BaseWebTest, get_user_headers
+from .support import BaseWebTest, get_user_headers, mock_autograph_sign
 
 
 RE_ISO8601 = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00")
@@ -30,17 +30,15 @@ class PostgresWebTest(BaseWebTest):
 
         def fake_sign():
             fake_signature = "".join(random.sample(string.ascii_lowercase, 10))
-            return [
-                {
-                    "signature": fake_signature,
-                    "hash_algorithm": "",
-                    "signature_encoding": "",
-                    "x5u": "",
-                    "ref": "",
-                }
-            ]
+            return {
+                "signature": fake_signature,
+                "hash_algorithm": "",
+                "signature_encoding": "",
+                "x5u": "",
+                "ref": "",
+            }
 
-        self.mocked_autograph.post.return_value.json.side_effect = fake_sign
+        mock_autograph_sign(self.mocked_autograph, fake_sign)
 
     @classmethod
     def get_app_settings(cls, extras=None):

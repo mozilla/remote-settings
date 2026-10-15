@@ -13,7 +13,7 @@ from kinto_remote_settings.signer.listeners import sign_collection_data
 from pyramid import testing
 from requests import exceptions as requests_exceptions
 
-from .support import BaseWebTest, get_user_headers
+from .support import BaseWebTest, get_user_headers, mock_autograph_sign
 
 
 class HelloViewTest(BaseWebTest, unittest.TestCase):
@@ -412,16 +412,17 @@ class PatchAutographMixin:
         patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
         mocked = patch.start()
         self.addCleanup(patch.stop)
-        mocked.post.return_value.json.side_effect = lambda: [
-            {
+        mock_autograph_sign(
+            mocked,
+            lambda: {
                 "signature": uuid.uuid4().hex,
                 "hash_algorithm": "",
                 "signature_encoding": "",
                 "content-signature": "",
                 "x5u": "",
                 "ref": "",
-            }
-        ]
+            },
+        )
 
 
 class BatchTest(BaseWebTest, PatchAutographMixin, unittest.TestCase):
@@ -532,6 +533,7 @@ class RecordChangedTest(BaseWebTest, unittest.TestCase):
         patch = mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
         self.mock = patch.start()
         self.addCleanup(patch.stop)
+        mock_autograph_sign(self.mock, lambda: {"signature": "", "x5u": "", "ref": ""})
 
         self.collection_uri = "/buckets/alice/collections/source"
         self.records_uri = self.collection_uri + "/records"
