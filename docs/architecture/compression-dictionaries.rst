@@ -1,0 +1,189 @@
+.. _architecture-compression-dictionaries:
+
+Compression dictionaries for attachments
+========================================
+
+Attachments change incrementally: a new version of a block list or a model is mostly the
+same bytes as the previous one. With `Compression Dictionary Transport
+<https://datatracker.ietf.org/doc/rfc9842/>`_ (CDT), Firefox offers the version it already
+has as a dictionary, and the CDN answers with the new version compressed against it.
+
+.. note::
+
+   This page describes the intended architecture at the level of Remote Settings
+   components. Firefox networking internals are out of scope. Filenames, hashes and record
+   IDs in the examples are illustrative.
+
+Glossary
+--------
+
+Firefox
+   The browser and its networking layer. It advertises ``dcz`` support, stores
+   dictionaries, sends ``Available-Dictionary``, and decodes ``.dcz`` responses.
+
+Remote Settings client
+   The Remote Settings library inside Firefox. It syncs collections, and its
+   ``attachments.download(record)`` issues the attachment request. It never sees CDT.
+
+Consumer
+   Firefox feature code that calls the Remote Settings client.
+
+CDT (Compression Dictionary Transport)
+   The HTTP standard (`RFC 9842 <https://datatracker.ietf.org/doc/rfc9842/>`_) that lets an
+   HTTP client (here, Firefox) offer a file it already has as a dictionary, so the server
+   can send a newer file compressed using it as the dictionary. Firefox decodes the
+   response before the Remote Settings client sees it, so consumers always get the full
+   attachment.
+
+Attachment (or full attachment)
+   A file published on a record, stored in the attachments bucket as
+   ``{bid}/{cid}/{timestamp}--{record-id}--{filename}``. Each update creates a new object;
+   earlier versions stay in the bucket.
+
+Dictionary
+   A previous version of the same record's attachment, which Firefox already has. The
+   server never stores dictionaries as separate files; on the server side they are just
+   older attachments in the attachments bucket. The CDN uses ``Use-As-Dictionary`` to tell
+   Firefox to keep an attachment as a dictionary, and limits it to the same record with
+   ``match="/{bid}/{cid}/*--{record-id}--*"``.
+
+Compressed attachment (``.dcz``)
+   The latest attachment compressed with zstd using one dictionary, prefixed with a 40-byte
+   header that holds the dictionary's SHA-256. The cronjob builds one per (dictionary,
+   attachment) pair for the last ``PREVIOUS_VERSIONS_COUNT`` (default 5) versions. They are
+   stored in the compression dictionaries bucket as
+   ``cdt/{bid}/{cid}/compressed/target-{attachment}/dcz/from-{dictionary}.dcz``.
+
+``source_sha256``
+   GCS metadata on each ``.dcz`` (served as ``x-goog-meta-source_sha256``) holding the
+   SHA-256 of the dictionary it was built from. The CDN compares it with Firefox's
+   ``Available-Dictionary``.
+
+Compression dictionaries bucket and ``build_compression_dictionaries``
+   The GCS bucket and the cronjob command. Despite their names, they hold and build
+   compressed attachments, not dictionaries.
+
+How Firefox detects updated collections
+---------------------------------------
+
+.. raw:: html
+
+   <div class="diagram"><iframe src="../_static/diagrams/index.html?diagram=firefox-detects-updates&amp;embed=true" allow="fullscreen"></iframe></div>
+
+Autopush notifies Firefox when collections change; Firefox also polls the Remote Settings
+CDN on startup and periodically. Either way, Firefox fetches the changed collections and
+emits a ``sync`` event, and consumers then download the attachments they need.
+
+Attachments from collections without CDT
+----------------------------------------
+
+.. raw:: html
+
+   <div class="diagram"><iframe src="../_static/diagrams/index.html?diagram=attachment-without-cdt&amp;embed=true" allow="fullscreen"></iframe></div>
+
+For collections where CDT is not enabled, the consumer's ``attachments.download(record)``
+is a plain request to the attachments CDN. On a cache miss, the CDN fetches the full
+attachment from the attachments bucket, caches it, and returns it.
+
+No dictionary available
+-----------------------
+
+.. raw:: html
+
+   <div class="diagram"><iframe src="../_static/diagrams/index.html?diagram=cdt-no-dictionary&amp;embed=true" allow="fullscreen"></iframe></div>
+
+Firefox has never downloaded this record with CDT, so it has no dictionary to offer.
+
+.. code-block:: http
+
+   GET /main-workspace/product-integrity/1759000000--abc123--list.bin HTTP/2
+   Host: firefox-settings-attachments.cdn.mozilla.net
+   Accept-Encoding: gzip, br, zstd, dcz
+
+On a cache miss the CDN fetches the full attachment from the attachments bucket and
+advertises it as a dictionary for later versions of the same record:
+
+.. code-block:: http
+
+   HTTP/2 200
+   Use-As-Dictionary: match="/main-workspace/product-integrity/*--abc123--*", id="1759000000--abc123--list.bin", type=raw
+
+Dictionary available, compressed attachment available
+-----------------------------------------------------
+
+.. raw:: html
+
+   <div class="diagram"><iframe src="../_static/diagrams/index.html?diagram=cdt-compressed-available&amp;embed=true" allow="fullscreen"></iframe></div>
+
+The record has a newer attachment, and Firefox offers the previous attachment as its
+dictionary. ``Available-Dictionary`` is the SHA-256 of the previous attachment as a
+structured-field byte sequence; ``Dictionary-ID`` is the ``id`` from the earlier
+``Use-As-Dictionary``.
+
+.. code-block:: http
+
+   GET /main-workspace/product-integrity/1759600000--abc123--list.bin HTTP/2
+   Host: firefox-settings-attachments.cdn.mozilla.net
+   Accept-Encoding: gzip, br, zstd, dcz
+   Available-Dictionary: :pZGm1Av0IEBKARczz7exkNYsZb8LzaMrV7J32a2fFG4=:
+   Dictionary-ID: "1759000000--abc123--list.bin"
+
+The cache key includes the dictionary ID and hash. On a miss the CDN rewrites the backend
+request to the compression dictionaries bucket (despite the name, it holds compressed
+attachments, not dictionaries):
+
+.. code-block:: text
+
+   GET /cdt/main-workspace/product-integrity/compressed/target-1759600000--abc123--list.bin/dcz/from-1759000000--abc123--list.bin.dcz
+
+In the path, ``target-`` is the attachment being requested and ``from-`` is the dictionary
+it was compressed with. The object's ``x-goog-meta-source_sha256`` is the hash of that
+dictionary ("source" means the dictionary, not the attachment). It matches Firefox's
+``Available-Dictionary``, so the CDN returns it as ``dcz``:
+
+.. code-block:: http
+
+   HTTP/2 200
+   Content-Encoding: dcz
+   Vary: Accept-Encoding, Available-Dictionary
+   Cache-Control: public, max-age=31536000, immutable
+   Use-As-Dictionary: match="/main-workspace/product-integrity/*--abc123--*", id="1759600000--abc123--list.bin", type=raw
+
+Firefox decodes the ``.dcz`` and stores the resulting full attachment, not the ``.dcz``, as
+its next dictionary.
+
+Dictionary available, compressed attachment unavailable
+-------------------------------------------------------
+
+.. raw:: html
+
+   <div class="diagram"><iframe src="../_static/diagrams/index.html?diagram=cdt-compressed-unavailable&amp;embed=true" allow="fullscreen"></iframe></div>
+
+Same request as above, but the rewritten backend request fails in one of two ways:
+
+- ``404``: the cronjob hasn't built this ``.dcz`` yet, or Firefox's dictionary is older
+  than the last ``PREVIOUS_VERSIONS_COUNT`` (default 5) versions.
+- ``200``, but ``x-goog-meta-source_sha256`` doesn't match Firefox's
+  ``Available-Dictionary``: the ``.dcz`` was built from a different attachment with the
+  same name.
+
+Either way the CDN restarts once with the fallback flag set and fetches the full attachment
+from the attachments bucket under the plain URL's cache key, shared with requests without
+CDT (older Firefox versions, the iOS Rust client, other HTTP clients). The response is the
+same as in `No dictionary available`_: the full attachment with ``Use-As-Dictionary``.
+
+Building compressed attachments
+-------------------------------
+
+.. raw:: html
+
+   <div class="diagram"><iframe src="../_static/diagrams/index.html?diagram=build-compressed-attachments&amp;embed=true" allow="fullscreen"></iframe></div>
+
+The ``build_compression_dictionaries`` cronjob asks the writer for records with
+attachments in CDT-enabled collections, fetches each latest attachment and its previous
+versions from the attachments bucket, and uploads the missing ``.dcz`` files and a
+``manifest.json`` per collection to the compression dictionaries bucket.
+
+.. raw:: html
+
+   <script type="text/javascript" src="../_static/diagrams/js/structurizr-embed.js"></script>
