@@ -261,6 +261,8 @@ To do so, use the following settings:
 +------------------------------------+--------------------------------------------------------------------------+
 | kinto.signer.autograph.key_ids     | The Autograph key IDs (default: "remote-settings")                       |
 +------------------------------------+--------------------------------------------------------------------------+
+| kinto.signer.autograph.max_retries | Number of retries on Autograph server or connection errors (default: 2)  |
++------------------------------------+--------------------------------------------------------------------------+
 
 
 Workflows

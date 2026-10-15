@@ -5,6 +5,8 @@ from base64 import urlsafe_b64decode, urlsafe_b64encode
 from unittest import mock
 
 import pytest
+import requests
+import responses
 from kinto_remote_settings.signer.backends import (
     autograph,
     base,
@@ -129,6 +131,11 @@ class ECDSASignerTest(unittest.TestCase):
 
 
 class AutographSignerTest(unittest.TestCase):
+    def setUp(self):
+        patcher = mock.patch("backoff._sync.time.sleep")
+        self.sleep = patcher.start()
+        self.addCleanup(patcher.stop)
+
     @mock.patch("kinto_remote_settings.signer.backends.autograph.requests")
     def test_request_is_being_crafted_with_payload_as_input(self, requests):
         response = mock.MagicMock()
@@ -191,6 +198,60 @@ class AutographSignerTest(unittest.TestCase):
                 ],
             )
 
+    def _signer(self):
+        return autograph.AutographSigner(
+            hawk_id="alice",
+            hawk_secret="fs5wgcer9",  # pragma: allowlist secret
+            server_url="http://localhost:8000",
+            keyids=["key1"],
+        )
+
+    @responses.activate
+    def test_sign_is_retried_on_server_errors(self):
+        url = "http://localhost:8000/sign/data"
+        responses.post(url, status=503)
+        responses.post(url, body=requests.ConnectionError("boom"))
+        responses.post(url, json=[{"signature": "sig", "x5u": "x5u", "ref": "ref"}])
+
+        signatures = self._signer().sign("test data")
+
+        assert signatures[0]["signature"] == "sig"
+        assert len(responses.calls) == 3
+        assert self.sleep.call_count == 2
+        # Hawk headers are regenerated on each attempt (fresh nonce).
+        auth_headers = {c.request.headers["Authorization"] for c in responses.calls}
+        assert len(auth_headers) == 3
+
+    @responses.activate
+    def test_sign_raises_after_max_attempts(self):
+        responses.post("http://localhost:8000/sign/data", status=502)
+
+        with pytest.raises(requests.HTTPError):
+            self._signer().sign("test data")
+
+        assert len(responses.calls) == autograph.DEFAULT_MAX_RETRIES + 1
+
+    @responses.activate
+    def test_sign_retries_can_be_configured(self):
+        responses.post("http://localhost:8000/sign/data", status=502)
+        signer = self._signer()
+        signer.max_retries = 0
+
+        with pytest.raises(requests.HTTPError):
+            signer.sign("test data")
+
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_sign_is_not_retried_on_client_errors(self):
+        responses.post("http://localhost:8000/sign/data", status=401)
+
+        with pytest.raises(requests.HTTPError):
+            self._signer().sign("test data")
+
+        assert len(responses.calls) == 1
+        self.sleep.assert_not_called()
+
     @mock.patch("kinto_remote_settings.signer.backends.autograph.AutographSigner")
     def test_load_from_settings(self, mocked_signer):
         autograph.load_from_settings(
@@ -208,4 +269,20 @@ class AutographSignerTest(unittest.TestCase):
             hawk_id=mock.sentinel.hawk_id,
             hawk_secret=mock.sentinel.hawk_secret,
             keyids=["remote-settings"],
+            max_retries=autograph.DEFAULT_MAX_RETRIES,
         )
+
+    @mock.patch("kinto_remote_settings.signer.backends.autograph.AutographSigner")
+    def test_load_max_retries_from_settings(self, mocked_signer):
+        autograph.load_from_settings(
+            {
+                "settings_prefix": "kinto",
+                "signer.autograph.server_url": mock.sentinel.server_url,
+                "signer.autograph.hawk_id": mock.sentinel.hawk_id,
+                "signer.autograph.hawk_secret": mock.sentinel.hawk_secret,
+                "signer.autograph.max_retries": "5",
+            },
+            prefixes=["signer."],
+        )
+
+        assert mocked_signer.call_args.kwargs["max_retries"] == 5

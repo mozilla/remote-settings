@@ -5,6 +5,7 @@ import warnings
 from typing import Any
 from urllib.parse import urljoin
 
+import backoff
 import requests
 from pyramid.settings import aslist
 from requests_hawk import HawkAuth
@@ -18,16 +19,32 @@ logger = logging.getLogger(__name__)
 
 SIGNATURE_FIELDS = ["signature", "x5u"]
 EXTRA_SIGNATURE_FIELDS = ["mode", "public_key", "type", "signer_id", "ref"]
+DEFAULT_MAX_RETRIES = 2
+
+
+def _is_client_error(e: Exception) -> bool:
+    # Do not retry on client errors (eg. bad credentials or key id).
+    return (
+        isinstance(e, requests.HTTPError)
+        and e.response is not None
+        and e.response.status_code < 500
+    )
 
 
 class AutographSigner(SignerBase):
     def __init__(
-        self, server_url: str, hawk_id: str, hawk_secret: str, keyids: list[str]
+        self,
+        server_url: str,
+        hawk_id: str,
+        hawk_secret: str,
+        keyids: list[str],
+        max_retries: int = DEFAULT_MAX_RETRIES,
     ) -> None:
         self.server_url = server_url
         self.auth = HawkAuth(id=hawk_id, key=hawk_secret)
         # List of keys to use for signing.
         self.key_ids = keyids
+        self.max_retries = max_retries
 
     def healthcheck(self, request: Any) -> None:
         if not self.server_url.startswith("https"):
@@ -71,25 +88,27 @@ class AutographSigner(SignerBase):
         )
 
     def sign(self, payload: str | bytes) -> list[dict]:
+        post_sign_with_retry = backoff.on_exception(
+            backoff.expo,
+            (requests.ConnectionError, requests.Timeout, requests.HTTPError),
+            max_tries=self.max_retries + 1,
+            giveup=_is_client_error,
+        )(self._post_sign)
+
         if isinstance(payload, str):  # pragma: no cover
             payload = payload.encode("utf-8")
-
         b64_payload = base64.b64encode(payload)
-        url = urljoin(self.server_url, "/sign/data")
 
         # Iterate over the configured keys, and return the list of
         # signatures obtained from Autograph.
         signatures = []
         for key_id in self.key_ids:
             logger.info(
-                "Sign %s bytes using Autograph %s with key %r",
+                "Sign %s bytes using Autograph with key %r",
                 len(b64_payload),
-                url,
                 key_id,
             )
-            resp = requests.post(
-                url,
-                auth=self.auth,
+            resp = post_sign_with_retry(
                 json=[
                     {
                         "input": b64_payload.decode("utf-8"),
@@ -97,7 +116,6 @@ class AutographSigner(SignerBase):
                     }
                 ],
             )
-            resp.raise_for_status()
             signature_bundle = resp.json()[0]
 
             # Critical fields must be present, will raise if missing.
@@ -118,6 +136,12 @@ class AutographSigner(SignerBase):
             )
             signatures.append(infos)
         return signatures
+
+    def _post_sign(self, json: list[dict]) -> requests.Response:
+        url = urljoin(self.server_url, "/sign/data")
+        resp = requests.post(url, auth=self.auth, json=json)
+        resp.raise_for_status()
+        return resp
 
 
 def load_from_settings(
@@ -147,6 +171,14 @@ def load_from_settings(
                 settings,
                 prefixes,
                 default="remote-settings",
+            )
+        ),
+        max_retries=int(
+            get_first_matching_setting(
+                "autograph.max_retries",
+                settings,
+                prefixes,
+                default=DEFAULT_MAX_RETRIES,
             )
         ),
     )

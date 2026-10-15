@@ -981,6 +981,7 @@ name = "kinto-remote-settings"
 version = "0.0.0"
 source = { editable = "kinto-remote-settings" }
 dependencies = [
+    { name = "backoff" },
     { name = "canonicaljson-rs" },
     { name = "ecdsa" },
     { name = "kinto" },
@@ -989,6 +990,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "backoff" },
     { name = "canonicaljson-rs" },
     { name = "ecdsa" },
     { name = "kinto" },
