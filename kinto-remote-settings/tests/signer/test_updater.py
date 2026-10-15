@@ -327,7 +327,10 @@ class LocalUpdaterTest(unittest.TestCase):
                 "id": "sourcecollection",
             },
         )
-        self.updater.signer.sign.return_value = [mock.sentinel.signature]
+        self.updater.signer.sign.return_value = [
+            mock.sentinel.signature,
+            mock.sentinel.signature_with_collection,
+        ]
 
         self.updater.refresh_signature(DummyRequest(), "work-in-progress")
 
@@ -338,7 +341,24 @@ class LocalUpdaterTest(unittest.TestCase):
             obj={
                 "id": "destcollection",
                 "attachment": {"bundle": True},
-                "signatures": [mock.sentinel.signature],
+                "signatures": [
+                    mock.sentinel.signature,
+                    mock.sentinel.signature_with_collection,
+                ],
                 "signature": mock.sentinel.signature,
             },
+        )
+
+    def test_sign_destination_records_signs_both_payload_formats(self):
+        records = [{"id": "a", "last_modified": 42}]
+        self.patch(self.updater, "get_destination_records", return_value=(records, 42))
+        self.updater.signer.sign.return_value = mock.sentinel.signatures
+
+        signatures = self.updater.sign_destination_records()
+
+        assert signatures == mock.sentinel.signatures
+        self.updater.signer.sign.assert_called_once_with(
+            '{"data":[{"id":"a","last_modified":42}],"last_modified":"42"}',
+            '{"collection":"destbucket/destcollection",'
+            '"data":[{"id":"a","last_modified":42}],"last_modified":"42"}',
         )
