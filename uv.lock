@@ -893,7 +893,7 @@ wheels = [
 
 [[package]]
 name = "kinto"
-version = "26.3.3"
+version = "26.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bcrypt" },
@@ -913,9 +913,9 @@ dependencies = [
     { name = "transaction" },
     { name = "waitress" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b8/73/cbc3e662e90d6f87e58a65cc992172b497c3658ff3eeab8fd49a9a19db68/kinto-26.3.3.tar.gz", hash = "sha256:e1773cf3f10576934d01c95dae1e225b0073b0362ac3aa4ac43d423d8785dcd2", size = 1612762, upload-time = "2026-08-10T15:24:14.313Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/52/8c/aa404595a89c14cd8106137d45b274111537ee5e066a4f8d06eb75308c9e/kinto-26.5.0.tar.gz", hash = "sha256:242d6fe6870456ffea05461b250db4499a2f1431582075b4ddca75c8d7851f7e", size = 1653090, upload-time = "2026-10-13T09:56:12.719Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/44/2f/a5497f46e797ef1f3dad43e8b21116c2ced9ab27dcb6b825553fbc812eda/kinto-26.3.3-py3-none-any.whl", hash = "sha256:6922346321d7edb75ba5616c09cf904426872f926929a366b73cc02f73cb5acd", size = 252157, upload-time = "2026-08-10T15:24:12.574Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/1c/0b55ed7fcf49a2c39bb249282bbdd45e3f9d72444970d52d7275f14693ec/kinto-26.5.0-py3-none-any.whl", hash = "sha256:886a877bc33a810324ca57a4c48bfebd74de440405d194b649c414e34fa614a1", size = 254669, upload-time = "2026-10-13T09:56:10.967Z" },
 ]
 
 [package.optional-dependencies]
