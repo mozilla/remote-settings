@@ -453,7 +453,12 @@ class LocalUpdater(object):
         new_collection = dict(**collection_record)
         new_collection.pop(FIELD_LAST_MODIFIED, None)
         new_collection["signatures"] = signatures
-        new_collection["signature"] = signatures[0]  # For backward compatibility.
+        # For backward compatibility with clients prior to Fx 146
+        # This legacy version should expose the legacy payload (without collection)
+        # See https://github.com/mozilla/remote-settings/pull/1011
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1984079
+        # (Rust client signatures were never enabled and can be ignored).
+        new_collection["signature"] = signatures[0]
         for attr in PUBLISHED_COLLECTION_FIELDS:
             if attr in source_attributes:
                 new_collection[attr] = source_attributes[attr]

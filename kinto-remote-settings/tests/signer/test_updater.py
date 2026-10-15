@@ -1,9 +1,14 @@
 import datetime
+import os
+import tempfile
 import unittest
 from unittest import mock
 
 import pytest
 from kinto.core.storage.exceptions import RecordNotFoundError
+from kinto_remote_settings.signer.backends.exceptions import BadSignatureError
+from kinto_remote_settings.signer.backends.local_ecdsa import ECDSASigner
+from kinto_remote_settings.signer.serializer import canonical_json
 from kinto_remote_settings.signer.updater import LocalUpdater
 from kinto_remote_settings.signer.utils import STATUS
 
@@ -218,6 +223,28 @@ class LocalUpdaterTest(unittest.TestCase):
                 "status": "signed",
             },
         )
+
+    def test_legacy_signature_field_is_computed_without_collection(self):
+        # Clients prior to Fx 146 only read the ``signature`` field, and
+        # verify it against the payload without collection.
+        fd, private_key = tempfile.mkstemp(suffix="private_key")
+        os.close(fd)
+        self.addCleanup(os.remove, private_key)
+        with open(private_key, "wb") as f:
+            f.write(ECDSASigner.generate_keypair()[0])
+        self.updater.signer = ECDSASigner(private_key=private_key)
+        records = [{"id": "a", "last_modified": 42}]
+        self.patch(self.updater, "get_destination_records", return_value=(records, 42))
+        self.storage.get.return_value = {"id": "destcollection"}
+
+        self.updater.refresh_signature(DummyRequest())
+
+        signature = self.storage.update.call_args.kwargs["obj"]["signature"]
+        self.updater.signer.verify(canonical_json(records, 42), signature)
+        with pytest.raises(BadSignatureError):
+            self.updater.signer.verify(
+                canonical_json(records, 42, "destbucket/destcollection"), signature
+            )
 
     def test_set_destination_signatures_keeps_the_legacy_signature_field(self):
         self.storage.get.return_value = {"id": 1234, "last_modified": 1234}
