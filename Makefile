@@ -2,6 +2,7 @@ VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 INSTALL_STAMP := $(VENV)/.install.stamp
 DOC_STAMP := $(VENV)/.doc.install.stamp
 SPHINX_BUILDDIR = docs/_build
+DIAGRAMS := docs/_static/diagrams/index.html
 PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
 SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader browser-tests bin
 TY_SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader bin
@@ -95,7 +96,19 @@ $(DOC_STAMP): uv.lock
 	uv sync --no-install-project --group docs
 	touch $(DOC_STAMP)
 
-docs: install-docs  ## Build documentation
-	$(VENV)/bin/sphinx-build -a -W -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
+$(DIAGRAMS): docs/architecture/workspace.dsl docs/architecture/icons/*
+	bin/structurizr-export.sh
+
+diagrams: $(DIAGRAMS)  ## Generate the Structurizr diagrams embedded in the architecture docs
+
+docs: install-docs $(DIAGRAMS)  ## Build documentation
+	$(VENV)/bin/sphinx-build --write-all --fail-on-warning --nitpicky --builder html \
+	  --doctree-dir $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"
+
+docs-serve: install-docs $(DIAGRAMS)  ## Serve the docs on http://localhost:8000, rebuilding on changes
+	$(VENV)/bin/sphinx-autobuild --fail-on-warning --nitpicky --builder html \
+	  --doctree-dir $(SPHINX_BUILDDIR)/doctrees \
+	  --pre-build "$(MAKE) diagrams" --ignore "docs/_static/diagrams/*" \
+	  docs $(SPHINX_BUILDDIR)/html
