@@ -1,0 +1,145 @@
+%% Labels are markdown strings. Logos come from a `logo-*` class on a node (see
+%% docs/_static/mermaid.css).
+flowchart LR
+  classDef person fill:#08427b,stroke:#052e56,color:#fff
+  classDef container fill:#438dd5,stroke:#2e6295,color:#fff
+  classDef external fill:#999999,stroke:#6b6b6b,color:#fff
+
+  editor(["`**Editor / Reviewer**
+  *[Person]*`"]):::person
+  sso["`**Mozilla SSO**
+  *[Software System]*
+  Auth0, OpenID Connect`"]:::external
+  class sso logo-auth0
+  experimenter["`**Experimenter**
+  *[Software System]*`"]:::external
+  addons["`**Addons Server**
+  *[Software System]*`"]:::external
+  ingestion["`**Ingestion jobs**
+  *[Software System]*
+  Other teams' cronjobs, run alongside the core ones`"]:::external
+
+  subgraph publishing [Publishing]
+    adminUi["`**Admin UI**
+    *[Container: React]*
+    kinto-admin at /v1/admin/`"]:::container
+    class adminUi logo-kinto
+    writer["`**Writer**
+    *[Container: Python / Kinto]*
+    remote-settings.mozilla.org
+    Multi-signoff and content signing`"]:::container
+    class writer logo-kinto
+    cronjobs["`**Core cronjobs**
+    *[Container: Python / k8s CronJob]*
+    Signatures, bundles, .dcz, git export, purges`"]:::container
+    permissions["`**Permissions sync**
+    *[Container: Python / k8s CronJob]*
+    Applies editors and reviewers groups from remote-settings-permissions`"]:::container
+  end
+  subgraph databases [Databases]
+    postgres[("`**Database**
+    *[Container: Cloud SQL / PostgreSQL]*
+    Records, permissions, history, writer cache`")]:::container
+    class postgres logo-postgresql
+    memcached[("`**Reader cache**
+    *[Container: Memcached]*`")]:::container
+    class memcached logo-memcached
+  end
+  subgraph buckets [Buckets]
+    gcsAttachments[("`**attachments bucket**
+    *[Container: GCS]*`")]:::container
+    gcsBundles[("`**bundles bucket**
+    *[Container: GCS]*`")]:::container
+    gcsDictionaries[("`**compression-dictionaries bucket**
+    *[Container: GCS]*`")]:::container
+    class gcsAttachments,gcsBundles,gcsDictionaries logo-gcs
+  end
+  bigquery[("`**CDN logs**
+  *[Container: BigQuery]*
+  Fastly request logs and hourly aggregates`")]:::container
+  class bigquery logo-bigquery
+  subgraph reading [Reading]
+    reader["`**Reader**
+    *[Container: Python / Kinto]*
+    Read-only Kinto, /v1`"]:::container
+    class reader logo-kinto
+    gitReader["`**Git reader**
+    *[Container: Python / FastAPI / pygit2]*
+    Serves /v2 from a clone of remote-settings-data on a shared volume, refreshed every minute`"]:::container
+    settingsCdn["`**Remote Settings CDN**
+    *[Container: Fastly]*
+    firefox.settings.services.mozilla.com`"]:::container
+    attachmentsCdn["`**Attachments CDN**
+    *[Container: Fastly]*
+    firefox-settings-attachments.cdn.mozilla.net`"]:::container
+    class settingsCdn,attachmentsCdn logo-fastly
+  end
+
+  firefox["`**Firefox**
+  *[Software System]*`"]:::external
+  class firefox logo-firefox
+  autopush["`**Autopush**
+  *[Software System]*`"]:::external
+  autograph["`**Autograph**
+  *[Software System]*
+  Content signatures, x5u chains`"]:::external
+  github["`**remote-settings-data**
+  *[Software System]*
+  GitHub repository`"]:::external
+  class github logo-github
+  notifications["`**Slack / Email**
+  *[Software System]*`"]:::external
+  class notifications logo-slack
+  telescope["`**Telescope**
+  *[Software System]*
+  Health checks`"]:::external
+
+  %% Publishing
+  editor -->|"Signs in (OIDC)"| sso
+  editor -->|"Edits, reviews"| adminUi
+  adminUi -->|"Kinto REST API"| writer
+  experimenter -->|"Experiment recipes"| writer
+  addons -->|"Add-ons blocklist"| writer
+  ingestion -->|"Records and attachments"| writer
+  permissions -->|"Group memberships, daily"| writer
+  writer -.->|"Verifies access tokens"| sso
+  writer -->|"Content signatures (HTTPS / Hawk)"| autograph
+  writer -->|"Review requested, approved, rejected"| notifications
+  writer -->|"Stores attachments"| gcsAttachments
+  writer -->|"SQL"| postgres
+
+  %% Cronjobs, git export
+  cronjobs -->|"Reads, re-signs, purges"| writer
+  cronjobs -->|"Previous attachments; expires orphans"| gcsAttachments
+  cronjobs -->|"startup.json.mozlz4, attachment bundles"| gcsBundles
+  cronjobs -->|".dcz, manifest.json"| gcsDictionaries
+  cronjobs -->|"git_export pushes (git+ssh)"| github
+  cronjobs -->|"Consumption reports"| bigquery
+
+  %% Reading
+  postgres -->|"SQL, read-only user"| reader
+  memcached --> reader
+  reader -->|"/v1"| settingsCdn
+  gitReader -->|"/v2"| settingsCdn
+  github -->|"Pulled every minute (git+ssh)"| gitReader
+  gcsAttachments -->|"Attachments"| attachmentsCdn
+  gcsBundles -->|"Bundles"| attachmentsCdn
+  gcsDictionaries -->|".dcz"| attachmentsCdn
+  settingsCdn -->|"Changed collections"| firefox
+  attachmentsCdn -->|"Attachments"| firefox
+  autograph -->|"x5u chains"| firefox
+  autopush -->|"Checks for changes"| settingsCdn
+  autopush -->|"Push notification"| firefox
+
+  %% Monitoring
+  settingsCdn -.->|"Request logs"| bigquery
+  attachmentsCdn -.->|"Request logs"| bigquery
+  telescope -.-> writer
+  telescope -.-> settingsCdn
+  telescope -.-> attachmentsCdn
+  telescope -.-> autopush
+
+  style publishing fill:none,stroke:#1168bd,stroke-dasharray:5 5
+  style databases fill:none,stroke:#1168bd,stroke-dasharray:5 5
+  style buckets fill:none,stroke:#1168bd,stroke-dasharray:5 5
+  style reading fill:none,stroke:#1168bd,stroke-dasharray:5 5
