@@ -368,6 +368,7 @@ def test_error_endpoint(caplog, app):
         ) as client:
             resp = client.get("/v2/__error__")
     assert resp.status_code == 500
+    assert "application/json" in resp.headers["content-type"]
     assert "This is a test exception from the /__error__ endpoint." in caplog.text
 
 
