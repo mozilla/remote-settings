@@ -9,6 +9,8 @@ workspace "Remote Settings" "Mozilla's service for shipping signed configuration
     model {
         editor = person "Editor / Reviewer" "Mozilla staff who change collection data and approve each other's changes."
 
+        sso = softwareSystem "Mozilla SSO" "Auth0, OpenID Connect."
+
         autopush = softwareSystem "Autopush" "Mozilla's push service. Wakes Firefox up when collections change."
         firefox = softwareSystem "Firefox" {
             tags "WebBrowser"
@@ -17,12 +19,13 @@ workspace "Remote Settings" "Mozilla's service for shipping signed configuration
         autograph = softwareSystem "Autograph" "Content signature service. Signs collection data and serves certificate chains (x5u) from its CDN."
         experimenter = softwareSystem "Experimenter" "Nimbus experiments console. Publishes experiment recipes."
         addonsServer = softwareSystem "Addons Server" "addons.mozilla.org. Publishes the add-ons blocklist."
-        ingestionJobs = softwareSystem "Ingestion jobs" "Consumer-team cronjobs (mdn-browser-compat-data, shavar lists, password manager, ...) that publish records with kinto-http."
+        ingestionJobs = softwareSystem "Ingestion jobs" "Consumer-team cronjobs (mdn-browser-compat-data, shavar lists, password manager, ...) that publish records with kinto-http. Run alongside the core cronjobs."
         telescope = softwareSystem "Telescope" "Health checks: writer heartbeat, signatures, changes timestamps, attachments, push timestamp, uptake."
         # https://github.com/mozilla/remote-settings-data
         githubData = softwareSystem "remote-settings-data" "GitHub repository holding the published collections (one branch per collection) and attachments in Git LFS." {
             tags "GitHub"
         }
+        notifications = softwareSystem "Slack / Email" "Review notifications and cronjob reports."
 
         remoteSettings = softwareSystem "Remote Settings" {
             adminUi = container "Admin UI" "kinto-admin, the React UI served by the writer at /v1/admin/." "React" {
@@ -34,12 +37,12 @@ workspace "Remote Settings" "Mozilla's service for shipping signed configuration
             reader = container "Reader" "Read-only Kinto serving /v1 changesets. firefox.settings.services.mozilla.com" "Python / Kinto" {
                 tags "Kinto"
             }
-            gitReader = container "Git reader" "Serves /v2 changesets and attachments out of a bare clone of remote-settings-data. A sidecar pulls on a schedule and flips a symlink." "Python / FastAPI / pygit2"
+            gitReader = container "Git reader" "Serves /v2 changesets and attachments out of a clone of remote-settings-data on a shared volume. A sidecar pulls every minute and flips a symlink." "Python / FastAPI / pygit2"
             # https://github.com/mozilla/webservices-infra/blob/main/remote-settings/tf/modules/remote_settings_infra/cloud_sql.tf
-            postgres = container "Database" "Buckets, collections, records, history, permissions. kinto (rw) and kinto_ro (ro) users." "Cloud SQL / PostgreSQL" {
+            postgres = container "Database" "Buckets, collections, records, history, permissions, and the writer's cache. kinto (rw) and kinto_ro (ro) users." "Cloud SQL / PostgreSQL" {
                 tags "Google Cloud Platform - Cloud SQL"
             }
-            memcached = container "Cache" "Kinto cache backend. One for the writer, one for the reader." "Memcached" {
+            memcached = container "Reader cache" "Kinto cache backend for the reader." "Memcached" {
                 tags "Google Cloud Platform - Cloud Memorystore"
             }
             settingsCdn = container "Remote Settings CDN" "Fastly CDN + WAF in front of reader" "Fastly" {
@@ -50,7 +53,10 @@ workspace "Remote Settings" "Mozilla's service for shipping signed configuration
                 tags "Fastly"
             }
             # https://github.com/mozilla/webservices-infra/blob/97178c8e8b4c8820af57f2c40112ba0b747e2853/remote-settings/tf/modules/remote_settings_infra/buckets.tf#L3
-            gcsAttachments = container "Attachments bucket" "Uploaded attachments plus bundles" "GCS" {
+            gcsAttachments = container "Attachments bucket" "Uploaded attachments." "GCS" {
+                tags "Google Cloud Platform - Cloud Storage"
+            }
+            gcsBundles = container "Bundles bucket" "startup.json.mozlz4 and per-collection attachment bundles." "GCS" {
                 tags "Google Cloud Platform - Cloud Storage"
             }
             # https://github.com/mozilla/webservices-infra/blob/97178c8e8b4c8820af57f2c40112ba0b747e2853/remote-settings/tf/modules/remote_settings_infra/buckets.tf#L5
@@ -59,32 +65,47 @@ workspace "Remote Settings" "Mozilla's service for shipping signed configuration
             gcsDictionaries = container "compression-dictionaries bucket" "Compressed attachments (.dcz) and a manifest.json per collection, under cdt/." "GCS" {
                 tags "Google Cloud Platform - Cloud Storage"
             }
+            bigquery = container "CDN logs" "Fastly request logs and hourly aggregates." "BigQuery" {
+                tags "Google Cloud Platform - BigQuery"
+            }
+            # https://github.com/mozilla/remote-settings-permissions
+            permissionsSync = container "Permissions sync" "Applies editors and reviewers groups from the remote-settings-permissions repository." "Python / k8s CronJob" {
+                tags "Google Cloud Platform - Cloud Scheduler"
+            }
             cronjobs = container "Core cronjobs" "remote-settings-core-cronjobs image." "Python / k8s CronJob" {
                 tags "Google Cloud Platform - Cloud Scheduler"
                 # https://github.com/mozilla/remote-settings/blob/main/cronjobs/src/commands/refresh_signature.py
-                refreshSignature = component "refresh_signature" "Re-signs collections whose signature is older than the configured age, so certificate chains stay valid." "Cron Job"
+                refreshSignature = component "refresh_signature" "Re-signs collections whose signature is older than the configured age, so certificate chains stay valid." "Cron Job, daily"
                 # https://github.com/mozilla/remote-settings/blob/main/cronjobs/src/commands/build_bundles.py
-                buildBundles = component "build_bundles" "Builds startup.json.mozlz4 and per-collection attachment bundles (.zip)." "Cron Job"
+                buildBundles = component "build_bundles" "Builds startup.json.mozlz4 and per-collection attachment bundles (.zip)." "Cron Job, every 10 min"
                 # https://github.com/mozilla/remote-settings/blob/main/cronjobs/src/commands/build_compression_dictionaries.py
                 # Despite the name, this builds compressed attachments, not dictionaries.
-                buildDictionaries = component "build_compression_dictionaries" "Builds .dcz versions of latest attachments using previous versions as dictionaries." "Cron Job"
+                buildDictionaries = component "build_compression_dictionaries" "Builds .dcz versions of latest attachments using previous versions as dictionaries." "Cron Job, every 5 min"
                 # https://github.com/mozilla/remote-settings/blob/main/cronjobs/src/commands/git_export.py
-                gitExport = component "git_export" "Exports published collections and their attachments to the remote-settings-data Git repository." "Cron Job"
+                gitExport = component "git_export" "Exports published collections and their attachments to the remote-settings-data Git repository." "Cron Job, every minute"
                 # https://github.com/mozilla/remote-settings/blob/main/cronjobs/src/commands/purge_history.py
-                purgeHistory = component "purge_history" "Deletes history entries older than MAX_AGE_DAYS." "Cron Job"
+                purgeHistory = component "purge_history" "Deletes history entries older than MAX_AGE_DAYS." "Cron Job, weekly"
+                purgeDeleted = component "purge-deleted" "Trims record and history tombstones to 10000 per collection." "kinto CLI, weekly"
+                # https://github.com/mozilla/remote-settings/blob/main/cronjobs/src/commands/expire_orphan_attachments.py
+                expireOrphans = component "expire_orphan_attachments" "Deletes attachment files no record references anymore." "Cron Job, weekly"
+                # https://github.com/mozilla/remote-settings/blob/main/cronjobs/src/commands/consumption_movers.py
+                consumptionMovers = component "consumption_movers" "Reports collections whose CDN traffic changed the most." "Cron Job, weekly"
             }
         }
 
         # Publishing
+        editor -> sso "Signs in with" "OpenID Connect"
         editor -> adminUi "Edits records, requests review, approves or rejects"
         adminUi -> writer "Calls the Kinto REST API" "HTTPS / JSON"
         experimenter -> writer "Publishes experiment recipes" "HTTPS / JSON"
         addonsServer -> writer "Publishes the add-ons blocklist" "HTTPS / JSON"
         ingestionJobs -> writer "Publish records and attachments" "HTTPS / JSON"
+        permissionsSync -> writer "Applies group memberships, daily" "HTTPS / JSON"
+        writer -> sso "Verifies access tokens"
         writer -> autograph "Requests content signatures for approved collections" "HTTPS / Hawk"
+        writer -> notifications "Review requested, approved, rejected"
         writer -> gcsAttachments "Stores uploaded attachments"
         writer -> postgres "Reads and writes" "SQL"
-        writer -> memcached "Caches"
 
         # Reading
         reader -> postgres "Reads" "SQL"
@@ -96,28 +117,36 @@ workspace "Remote Settings" "Mozilla's service for shipping signed configuration
         firefox -> settingsCdn "Fetches changed collection"
         firefox -> attachmentsCdn "Fetches attachments"
         firefox -> autograph "Fetches certificate chains (x5u) to verify signatures"
-        attachmentsCdn -> gcsAttachments "Serves attachments and bundles from"
+        attachmentsCdn -> gcsAttachments "Serves attachments from"
+        attachmentsCdn -> gcsBundles "Serves bundles from"
         attachmentsCdn -> gcsDictionaries "Serves dictionary-compressed (.dcz) attachments from"
 
         # Git export and v2
         gitExport -> writer "Reads published collections and changesets"
         gitExport -> githubData "Pushes changesets and LFS attachments" "git+ssh"
-        gitReader -> githubData "Pulls on a schedule (gitupdate)" "git+ssh"
+        gitReader -> githubData "Pulls every minute (gitupdate)" "git+ssh"
 
         # Other cronjobs
         refreshSignature -> writer "Re-triggers signing of stale collections"
         buildBundles -> writer "Reads published collections"
-        buildBundles -> gcsAttachments "Uploads startup.json.mozlz4 and attachment bundles"
+        buildBundles -> gcsBundles "Uploads startup.json.mozlz4 and attachment bundles"
         buildDictionaries -> writer "Fetch records with attachments in CDT-enabled collections"
         buildDictionaries -> gcsAttachments "Fetches the latest attachment and its previous versions (the dictionaries) to build missing .dcz files"
         buildDictionaries -> gcsDictionaries "Publishes .dcz files (latest attachment compressed using each previous version as the dictionary) and a manifest.json per collection"
         purgeHistory -> writer "Deletes old history entries"
+        purgeDeleted -> postgres "Deletes tombstones" "SQL"
+        expireOrphans -> writer "Lists referenced attachments"
+        expireOrphans -> gcsAttachments "Deletes unreferenced files"
+        consumptionMovers -> bigquery "Queries hourly aggregates"
+        consumptionMovers -> notifications "Posts report to Slack"
 
         # Monitoring
         telescope -> writer "Heartbeat, signatures, collections consistency"
         telescope -> settingsCdn "Changes timestamps, main signatures"
         telescope -> attachmentsCdn "Attachment availability"
         telescope -> autopush "Push timestamp vs. changes timestamp"
+        settingsCdn -> bigquery "Request logs"
+        attachmentsCdn -> bigquery "Request logs"
     }
 
     views {
