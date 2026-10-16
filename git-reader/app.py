@@ -29,6 +29,7 @@ from fastapi import Depends, FastAPI, Path, Query, Request, Response
 from fastapi.exceptions import HTTPException
 from fastapi.responses import (
     FileResponse,
+    JSONResponse,
     PlainTextResponse,
     RedirectResponse,
     StreamingResponse,
@@ -630,7 +631,16 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> Respo
     # Doing it here gives us more control on future requirements about format etc.,
     # and most importantly allows us to test it with `TestClient`.
     logger.exception(exc)
-    return Response(status_code=500)
+    # Mimic https://github.com/Kinto/kinto/blob/7c8fb413/kinto/core/views/errors.py#L107-L145
+    return JSONResponse(
+        status_code=500,
+        content={
+            "code": 500,
+            "errno": 999,
+            "error": "Internal Server Error",
+            "message": "A programmatic error occurred, developers have been informed",
+        },
+    )
 
 
 @app.middleware("http")
