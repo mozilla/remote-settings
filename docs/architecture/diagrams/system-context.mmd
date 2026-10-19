@@ -1,0 +1,70 @@
+%% Labels are markdown strings. Logos come from a `logo-*` class on a node (see
+%% docs/_static/mermaid.css).
+flowchart TB
+  classDef person fill:#08427b,stroke:#052e56,color:#fff
+  classDef system fill:#1168bd,stroke:#0b4884,color:#fff
+  classDef external fill:#999999,stroke:#6b6b6b,color:#fff
+
+  editor(["`**Editor / Reviewer**
+  *[Person]*
+  Changes and approves collection data`"]):::person
+  sso["`**Mozilla SSO**
+  *[Software System]*
+  Auth0, OpenID Connect`"]:::external
+  class sso logo-auth0
+  experimenter["`**Experimenter**
+  *[Software System]*
+  Nimbus experiments console`"]:::external
+  addons["`**Addons Server**
+  *[Software System]*
+  addons.mozilla.org`"]:::external
+  ingestion["`**Ingestion jobs**
+  *[Software System]*
+  Scheduled publishers owned by other teams`"]:::external
+  telescope["`**Telescope**
+  *[Software System]*
+  Health checks`"]:::external
+
+  rs["`**Remote Settings**
+  *[Software System]*
+  Signed configuration data for Firefox and other clients`"]:::system
+  class rs logo-kinto
+
+  autograph["`**Autograph**
+  *[Software System]*
+  Content signatures and certificate chains (x5u)`"]:::external
+  github["`**remote-settings-data**
+  *[Software System]*
+  GitHub repository, one branch per collection`"]:::external
+  class github logo-github
+  notifications["`**Slack / Email**
+  *[Software System]*
+  Review notifications`"]:::external
+  class notifications logo-slack
+  autopush["`**Autopush**
+  *[Software System]*
+  Mozilla's push service`"]:::external
+  firefox["`**Firefox**
+  *[Software System]*`"]:::external
+  class firefox logo-firefox
+  mobile["`**Fenix / Firefox for iOS**
+  *[Software System]*`"]:::external
+  class mobile logo-mobile
+
+  editor -->|"Signs in with"| sso
+  editor -->|"Edits records, requests review, approves or rejects"| rs
+  experimenter -->|"Publishes experiment recipes"| rs
+  addons -->|"Publishes the add-ons blocklist"| rs
+  ingestion -->|"Publish records and attachments"| rs
+  telescope -.->|"Health checks"| rs
+  telescope -.->|"Push timestamp vs. changes timestamp"| autopush
+
+  rs -->|"Requests content signatures"| autograph
+  rs -->|"Notifies editors and reviewers via"| notifications
+  rs <-->|"Pushes and pulls changesets and LFS attachments (git+ssh)"| github
+  rs -->|"Checked for changes by"| autopush
+  autopush -->|"Push notification for collection updates"| firefox
+  rs -->|"Serves changed collections and attachments to"| firefox
+  autograph -->|"Serves certificate chains (x5u) to"| firefox
+  rs -->|"Serves changed collections and attachments to"| mobile
+  autograph -->|"Serves certificate chains (x5u) to"| mobile

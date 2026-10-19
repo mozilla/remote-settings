@@ -40,7 +40,13 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinxcontrib.mermaid',
 ]
+
+# -- Options for sphinxcontrib-mermaid ---------------------------------------
+mermaid_version = '12.2.0'
+# Size each diagram by its own aspect ratio instead of a fixed 500px height.
+mermaid_height = 'auto'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -86,7 +92,10 @@ html_theme = 'alabaster'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['screencasts']  # , '_static',]
+html_static_path = ['screencasts', '_static']
+
+# Styles for the Mermaid diagrams, see docs/_static/mermaid.css.
+html_css_files = ['mermaid.css']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

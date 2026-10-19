@@ -1,0 +1,74 @@
+%% Labels are markdown strings. Logos come from a `logo-*` class on a node (see
+%% docs/_static/mermaid.css).
+flowchart TB
+  classDef component fill:#85bbf0,stroke:#5d82a8,color:#000
+  classDef container fill:#438dd5,stroke:#2e6295,color:#fff
+  classDef external fill:#999999,stroke:#6b6b6b,color:#fff
+
+  subgraph cronjobs [Core cronjobs]
+    direction LR
+    refreshSignature["`**refresh_signature**
+    *[Component: Cron Job, daily]*
+    Re-signs collections whose signature is older than the configured age`"]:::component
+    buildBundles["`**build_bundles**
+    *[Component: Cron Job, every 10 min]*
+    Builds startup.json.mozlz4 and per-collection attachment bundles`"]:::component
+    buildDictionaries["`**build_compression_dictionaries**
+    *[Component: Cron Job, every 5 min]*
+    Builds .dcz versions of latest attachments using previous versions as dictionaries`"]:::component
+    gitExport["`**git_export**
+    *[Component: Cron Job, every minute]*
+    Exports published collections and attachments to Git`"]:::component
+    purgeHistory["`**purge_history**
+    *[Component: Cron Job, weekly]*
+    Deletes history entries older than MAX_AGE_DAYS`"]:::component
+    purgeDeleted["`**purge-deleted**
+    *[Component: kinto CLI, weekly]*
+    Trims record and history tombstones to 10000 per collection`"]:::component
+    expireOrphans["`**expire_orphan_attachments**
+    *[Component: Cron Job, weekly]*
+    Marks attachment files no record references anymore as expired`"]:::component
+    consumptionMovers["`**consumption_movers**
+    *[Component: Cron Job, weekly]*
+    Reports on Slack the collections whose CDN traffic changed the most`"]:::component
+  end
+
+  writer["`**Writer**
+  *[Container: Python / Kinto]*`"]:::container
+  class writer logo-kinto
+  postgres[("`**Database**
+  *[Container: Cloud SQL / PostgreSQL]*`")]:::container
+  class postgres logo-postgresql
+  gcsAttachments[("`**attachments bucket**
+  *[Container: GCS]*`")]:::container
+  gcsBundles[("`**bundles bucket**
+  *[Container: GCS]*`")]:::container
+  gcsDictionaries[("`**compression-dictionaries bucket**
+  *[Container: GCS]*`")]:::container
+  class gcsAttachments,gcsBundles,gcsDictionaries logo-gcs
+  bigquery[("`**CDN logs**
+  *[Container: BigQuery]*`")]:::container
+  class bigquery logo-bigquery
+  github["`**remote-settings-data**
+  *[Software System]*`"]:::external
+  class github logo-github
+  slack["`**Slack**
+  *[Software System]*`"]:::external
+  class slack logo-slack
+
+  refreshSignature -->|"Re-triggers signing of stale collections"| writer
+  purgeHistory -->|"Deletes old history entries"| writer
+  purgeDeleted -->|"Deletes tombstones (SQL)"| postgres
+  buildBundles -->|"Reads published collections"| writer
+  buildBundles -->|"Uploads startup.json.mozlz4 and bundles"| gcsBundles
+  buildDictionaries -->|"Records with attachments in CDT-enabled collections"| writer
+  buildDictionaries -->|"Fetches latest attachments and previous versions"| gcsAttachments
+  buildDictionaries -->|"Publishes .dcz files and manifest.json"| gcsDictionaries
+  expireOrphans -->|"Lists referenced attachments"| writer
+  expireOrphans -->|"Marks unreferenced files as expired"| gcsAttachments
+  gitExport -->|"Reads published collections and changesets"| writer
+  gitExport -->|"Pushes changesets and LFS attachments (git+ssh)"| github
+  consumptionMovers -->|"Queries hourly aggregates"| bigquery
+  consumptionMovers -->|"Posts report"| slack
+
+  style cronjobs fill:none,stroke:#438dd5,stroke-dasharray:5 5

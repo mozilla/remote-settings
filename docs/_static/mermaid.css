@@ -1,0 +1,33 @@
+/* Styles for the Mermaid diagrams in docs/architecture. */
+
+/* The theme styles every <p> in the page body (hyphenation, line height). Mermaid
+   measures labels in place, so pin those properties or the fullscreen view, which lives
+   outside the body, renders text larger than the boxes it was measured for. */
+.mermaid .nodeLabel p,
+.mermaid .edgeLabel p {
+    hyphens: manual;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Vendor logos above node labels. Any node given a `logo-*` class in a .mmd file
+   (`class writer logo-kinto`) gets an icon; the class only sets which one. Icons are
+   hot-linked from iconify. */
+.mermaid [class*="logo-"] .nodeLabel::before {
+    content: "";
+    display: block;
+    height: 28px;
+    margin: 0 auto 4px;
+    background: var(--logo) no-repeat center / contain;
+}
+.mermaid .logo-kinto      { --logo: url(https://api.iconify.design/logos/kinto-icon.svg); }
+.mermaid .logo-fastly     { --logo: url(https://api.iconify.design/logos/fastly.svg); }
+.mermaid .logo-firefox    { --logo: url(https://api.iconify.design/logos/firefox.svg); }
+.mermaid .logo-gcs        { --logo: url(https://api.iconify.design/logos/google-cloud.svg); }
+.mermaid .logo-mobile     { --logo: url(https://api.iconify.design/mdi/cellphone.svg?color=white); }
+.mermaid .logo-postgresql { --logo: url(https://api.iconify.design/logos/postgresql.svg); }
+.mermaid .logo-memcached  { --logo: url(https://api.iconify.design/logos/memcached.svg); }
+.mermaid .logo-github     { --logo: url(https://api.iconify.design/logos/github-icon.svg); }
+.mermaid .logo-auth0      { --logo: url(https://api.iconify.design/logos/auth0-icon.svg); }
+.mermaid .logo-slack      { --logo: url(https://api.iconify.design/logos/slack-icon.svg); }
+.mermaid .logo-bigquery   { --logo: url(https://api.iconify.design/logos/google-cloud.svg); }

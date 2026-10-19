@@ -96,6 +96,12 @@ $(DOC_STAMP): uv.lock
 	touch $(DOC_STAMP)
 
 docs: install-docs  ## Build documentation
-	$(VENV)/bin/sphinx-build -a -W -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
+	$(VENV)/bin/sphinx-build --write-all --fail-on-warning --nitpicky --builder html \
+	  --doctree-dir $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"
+
+docs-serve: install-docs  ## Serve the docs on http://localhost:8000, rebuilding on changes
+	$(VENV)/bin/sphinx-autobuild --fail-on-warning --nitpicky --builder html \
+	  --doctree-dir $(SPHINX_BUILDDIR)/doctrees \
+	  docs $(SPHINX_BUILDDIR)/html
