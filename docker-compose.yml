@@ -44,10 +44,11 @@ services:
   web:
     build:
       dockerfile: RemoteSettings.Dockerfile
-      target: local
       context: .
     image: remotesettings/local
     pull_policy: build
+    # root so the process can write to the named volumes mounted below
+    user: root
     depends_on:
       db:
         condition: service_healthy
@@ -66,6 +67,9 @@ services:
       - KINTO_PERMISSION_URL=postgresql://postgres@db/postgres
       - GRANIAN_ACCESS_LOG=true
       - KINTO_SLACK_DEBUG_DIR=/app/slack
+      # Serve attachments at /attachments
+      - GRANIAN_STATIC_PATH_ROUTE=/attachments
+      - GRANIAN_STATIC_PATH_MOUNT=/tmp/attachments
     volumes:
       - debug-mail:/app/mail
       - debug-slack:/app/slack
