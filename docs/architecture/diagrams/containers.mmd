@@ -78,6 +78,9 @@ flowchart LR
   firefox["`**Firefox**
   *[Software System]*`"]:::external
   class firefox logo-firefox
+  mobile["`**Fenix / Firefox for iOS**
+  *[Software System]*`"]:::external
+  class mobile logo-mobile
   autopush["`**Autopush**
   *[Software System]*`"]:::external
   autograph["`**Autograph**
@@ -128,6 +131,9 @@ flowchart LR
   settingsCdn -->|"Changed collections"| firefox
   attachmentsCdn -->|"Attachments"| firefox
   autograph -->|"x5u chains"| firefox
+  settingsCdn -->|"Changed collections"| mobile
+  attachmentsCdn -->|"Attachments"| mobile
+  autograph -->|"x5u chains"| mobile
   autopush -->|"Checks for changes"| settingsCdn
   autopush -->|"Push notification"| firefox
 

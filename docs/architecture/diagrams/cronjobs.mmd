@@ -27,10 +27,10 @@ flowchart TB
     Trims record and history tombstones to 10000 per collection`"]:::component
     expireOrphans["`**expire_orphan_attachments**
     *[Component: Cron Job, weekly]*
-    Deletes attachment files no record references anymore`"]:::component
+    Marks attachment files no record references anymore as expired`"]:::component
     consumptionMovers["`**consumption_movers**
     *[Component: Cron Job, weekly]*
-    Reports collections whose CDN traffic changed the most`"]:::component
+    Reports on Slack the collections whose CDN traffic changed the most`"]:::component
   end
 
   writer["`**Writer**
@@ -65,7 +65,7 @@ flowchart TB
   buildDictionaries -->|"Fetches latest attachments and previous versions"| gcsAttachments
   buildDictionaries -->|"Publishes .dcz files and manifest.json"| gcsDictionaries
   expireOrphans -->|"Lists referenced attachments"| writer
-  expireOrphans -->|"Deletes unreferenced files"| gcsAttachments
+  expireOrphans -->|"Marks unreferenced files as expired"| gcsAttachments
   gitExport -->|"Reads published collections and changesets"| writer
   gitExport -->|"Pushes changesets and LFS attachments (git+ssh)"| github
   consumptionMovers -->|"Queries hourly aggregates"| bigquery

@@ -4,7 +4,8 @@ Architecture
 ============
 
 Remote Settings is a `Kinto <https://github.com/Kinto/kinto>`_ server with Mozilla-specific
-plugins, fronted by a CDN, plus a client built into Firefox. The main pieces are:
+plugins, fronted by a CDN, plus two clients: a JavaScript one built into Gecko, and a Rust
+one for mobile apps. The main pieces are:
 
 - **Writer**: the Kinto server at ``remote-settings.mozilla.org`` where editors and
   reviewers change data. It implements multi-signoff and content signing, authenticates

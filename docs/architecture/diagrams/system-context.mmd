@@ -45,9 +45,11 @@ flowchart TB
   *[Software System]*
   Mozilla's push service`"]:::external
   firefox["`**Firefox**
-  *[Software System]*
-  Remote Settings client`"]:::external
+  *[Software System]*`"]:::external
   class firefox logo-firefox
+  mobile["`**Fenix / Firefox for iOS**
+  *[Software System]*`"]:::external
+  class mobile logo-mobile
 
   editor -->|"Signs in with"| sso
   editor -->|"Edits records, requests review, approves or rejects"| rs
@@ -64,3 +66,5 @@ flowchart TB
   autopush -->|"Push notification for collection updates"| firefox
   rs -->|"Serves changed collections and attachments to"| firefox
   autograph -->|"Serves certificate chains (x5u) to"| firefox
+  rs -->|"Serves changed collections and attachments to"| mobile
+  autograph -->|"Serves certificate chains (x5u) to"| mobile

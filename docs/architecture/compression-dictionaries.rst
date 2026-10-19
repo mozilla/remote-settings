@@ -3,7 +3,7 @@
 Compression dictionaries for attachments
 ========================================
 
-Attachments change incrementally: a new version of a block list or a model is mostly the
+Some attachments change incrementally: a new version of a block list or a model is mostly the
 same bytes as the previous one. With `Compression Dictionary Transport
 <https://datatracker.ietf.org/doc/rfc9842/>`_ (CDT), Firefox offers the version it already
 has as a dictionary, and the CDN answers with the new version compressed against it.
@@ -23,7 +23,8 @@ Firefox
 
 Remote Settings client
    The Remote Settings library inside Firefox. It syncs collections, and its
-   ``attachments.download(record)`` issues the attachment request. It never sees CDT.
+   ``attachments.download(record)`` issues the attachment request. CDT happens
+   transparently at the HTTP transport level and the client never sees it.
 
 Consumer
    Firefox feature code that calls the Remote Settings client.

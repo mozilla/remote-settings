@@ -24,6 +24,7 @@
 .mermaid .logo-fastly     { --logo: url(https://api.iconify.design/logos/fastly.svg); }
 .mermaid .logo-firefox    { --logo: url(https://api.iconify.design/logos/firefox.svg); }
 .mermaid .logo-gcs        { --logo: url(https://api.iconify.design/logos/google-cloud.svg); }
+.mermaid .logo-mobile     { --logo: url(https://api.iconify.design/mdi/cellphone.svg?color=white); }
 .mermaid .logo-postgresql { --logo: url(https://api.iconify.design/logos/postgresql.svg); }
 .mermaid .logo-memcached  { --logo: url(https://api.iconify.design/logos/memcached.svg); }
 .mermaid .logo-github     { --logo: url(https://api.iconify.design/logos/github-icon.svg); }
