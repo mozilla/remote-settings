@@ -11,4 +11,4 @@ build:
     post_create_environment:
       - pip install uv
     post_install:
-      - uv sync --group docs --no-install-project
+      - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --only-group docs
