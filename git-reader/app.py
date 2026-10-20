@@ -988,5 +988,7 @@ def app_factory() -> FastAPI:
             environment=settings.sentry_env.value if settings.sentry_env else None,
         )
         logger.info("Sentry SDK initialized")
+    else:
+        logger.warning("Sentry not configured")
     app = wrap_asgi_with_proxy_headers(app, trusted_hosts=settings.trusted_hosts)
     return app
