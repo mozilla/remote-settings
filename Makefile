@@ -40,7 +40,7 @@ format: $(INSTALL_STAMP)  ## Format code base
 
 lint: $(INSTALL_STAMP)  ## Analyze code base
 	$(VENV)/bin/ruff check $(SOURCES)
-	$(VENV)/bin/ruff format $(SOURCES)
+	$(VENV)/bin/ruff format --check $(SOURCES)
 	$(VENV)/bin/ty check $(TY_SOURCES)
 ifndef TYPOS_INSTALLED
 	$(warning "'typos' is not available please install typos-cli")
