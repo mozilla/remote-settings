@@ -368,7 +368,12 @@ def test_error_endpoint(caplog, app):
         ) as client:
             resp = client.get("/v2/__error__")
     assert resp.status_code == 500
-    assert "application/json" in resp.headers["content-type"]
+    assert resp.json() == {
+        "code": 500,
+        "errno": 999,
+        "error": "Internal Server Error",
+        "message": "A programmatic error occurred, developers have been informed",
+    }
     assert "This is a test exception from the /__error__ endpoint." in caplog.text
 
 
@@ -439,8 +444,12 @@ def test_hello_view_git_error(app, api_client):
     resp = api_client.get("/v2/")
 
     assert resp.status_code == 503
-    data = resp.json()
-    assert data["detail"] == NO_GIT_ERROR
+    assert resp.json() == {
+        "code": 503,
+        "errno": 201,
+        "error": "Service Unavailable",
+        "message": NO_GIT_ERROR,
+    }
 
 
 def test_broadcast_view(api_client):
@@ -517,10 +526,24 @@ def test_monitor_changes_negative_values(api_client):
         "/v2/buckets/monitor/collections/changes/changeset?_since=-1&_expected=223456789"
     )
     assert resp.status_code == 422
+    assert resp.json() == {
+        "code": 422,
+        "errno": 107,
+        "error": "Invalid parameters",
+        "message": "_since in query: Input should be greater than or equal to 0",
+        "details": [
+            {
+                "location": "query",
+                "name": "_since",
+                "description": "Input should be greater than or equal to 0",
+            }
+        ],
+    }
     resp = api_client.get(
         "/v2/buckets/monitor/collections/changes/changeset?_since=-2&_expected=-1"
     )
     assert resp.status_code == 422
+    assert len(resp.json()["details"]) == 2
 
 
 def test_monitor_changes_view_filtered_bid(api_client):
@@ -574,6 +597,35 @@ def test_changeset_unknown_collection(api_client):
         "/v2/buckets/main/collections/wallpapers/changeset?_expected=0"
     )
     assert resp.status_code == 404
+    assert resp.json() == {
+        "code": 404,
+        "errno": 111,
+        "error": "Not Found",
+        "message": "main/wallpapers not found",
+    }
+
+
+def test_unknown_url(api_client):
+    resp = api_client.get("/v2/unknown")
+    assert resp.status_code == 404
+    assert resp.json() == {
+        "code": 404,
+        "errno": 111,
+        "error": "Not Found",
+        "message": "The resource you are looking for could not be found.",
+    }
+
+
+def test_method_not_allowed(api_client):
+    resp = api_client.post("/v2/__broadcasts__")
+    assert resp.status_code == 405
+    assert set(resp.headers["allow"].split(", ")) == {"GET", "HEAD"}
+    assert resp.json() == {
+        "code": 405,
+        "errno": 115,
+        "error": "Method Not Allowed",
+        "message": "Method not allowed on this endpoint.",
+    }
 
 
 def test_changeset_unknown_bucket(api_client):
@@ -594,6 +646,7 @@ def test_changeset_unknown_bucket(api_client):
 def test_changeset_invalid_names(api_client, path):
     resp = api_client.get(f"{path}?_expected=0")
     assert resp.status_code == 422
+    assert resp.json()["details"][0]["location"] == "path"
 
 
 def test_changeset_preview_collection(api_client):
@@ -788,7 +841,7 @@ def test_attachment_bad_path(api_client):
 def test_attachment_unknown_file(api_client):
     resp = api_client.get("/v2/attachments/path/unknown.txt")
     assert resp.status_code == 404
-    assert resp.json()["detail"] == "Attachment path/unknown.txt not found"
+    assert resp.json()["message"] == "Attachment path/unknown.txt not found"
 
 
 def test_attachment_lfs_file(api_client, temp_dir):
