@@ -27,10 +27,34 @@ services:
     image: memcached:1-alpine
     command: memcached -m 16 -c 32
 
+  autograph-db:
+    build:
+      # Keep this ref in sync with the `autograph` image tag below (Dependabot only
+      # bumps the image). The schema it loads is at
+      # https://github.com/mozilla-services/autograph/blob/9.0.1/database/schema.sql
+      context: https://github.com/mozilla-services/autograph.git#9.0.1:database
+    environment:
+      POSTGRES_DB: autograph
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGUSER: postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "autograph" ]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
   autograph:
     platform: linux/amd64
-    image: mozilla/autograph:8.1.3-amd64
+    # Keep this tag in sync with the `autograph-db` build context ref above.
+    image: mozilla/autograph:9.0.1-amd64
     user: root
+    depends_on:
+      autograph-db:
+        condition: service_healthy
+    environment:
+      # The role is created by the Autograph schema; no password is needed since
+      # `autograph-db` trusts all connections.
+      - AUTOGRAPH_DB_DSN=postgres://myautographdbuser@autograph-db/autograph?sslmode=disable
     ports:
       - 8000:8000
     healthcheck:

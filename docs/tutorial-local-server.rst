@@ -65,25 +65,15 @@ With Multi-signoff (advanced)
 
 Using a different configuration, we can obtain a local instance that has proper authentication and multi-signoff that interacts with an `Autograph instance <https://github.com/mozilla-services/autograph/>`_ in order to sign the data, roughly like the STAGE server.
 
-.. code-block:: bash
-
-    mkdir -m 777 /tmp/attachments  # world writable
+Autograph reads its signers and credentials from its own PostgreSQL database, so the simplest way to get everything wired together is the Docker Compose setup in the `mozilla/remote-settings <https://github.com/mozilla/remote-settings>`_ repository:
 
 .. code-block:: bash
 
-    docker run -p 8000:8000 \
-               --rm --name autograph mozilla/autograph
+    git clone https://github.com/mozilla/remote-settings
+    cd remote-settings
+    make start
 
-And run the Remote Settings server with a link to ``autograph`` container:
-
-.. code-block:: bash
-
-    docker run --link autograph:autograph \
-               -e KINTO_INI=config/local.ini \
-               -p 8888:8888 \
-               mozilla/remote-settings
-
-Both containers should be connected, and the heartbeat endpoint should only return positive checks:
+All services should be connected, and the heartbeat endpoint should only return positive checks:
 
 .. code-block:: bash
 
@@ -98,10 +88,6 @@ Unlike with *Simple Mode*, we'll need an ``admin`` user:
     curl -X PUT ${SERVER}/accounts/admin \
          -d '{"data": {"password": "s3cr3t"}}' \
          -H 'Content-Type:application/json'
-
-.. note::
-
-    Another option is to clone the `mozilla/remote-settings <https://github.com/mozilla/remote-settings>`_ repository and run ``make start``
 
 
 Prepare the client
