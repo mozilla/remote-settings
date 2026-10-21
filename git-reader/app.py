@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from enum import Enum
 from functools import lru_cache
+from http import HTTPStatus
 from typing import Annotated, Any, Awaitable, BinaryIO, Callable, Generator, cast
 from urllib.parse import urlparse
 
@@ -26,7 +27,7 @@ from dockerflow.fastapi.middleware import (
     RequestIdMiddleware,
 )
 from fastapi import Depends, FastAPI, Path, Query, Request, Response
-from fastapi.exceptions import HTTPException
+from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import (
     FileResponse,
     JSONResponse,
@@ -37,6 +38,7 @@ from fastapi.responses import (
 from granian.utils.proxies import wrap_asgi_with_proxy_headers
 from pydantic import AnyUrl, BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
 HERE = pathlib.Path(__file__).parent.resolve()
@@ -625,6 +627,76 @@ app.add_middleware(MozlogRequestSummaryLogger)
 app.add_middleware(RequestIdMiddleware)
 
 
+# Errno values from https://github.com/Kinto/kinto/blob/7c8fb413/kinto/core/errors.py
+ERRNO_BY_STATUS = {
+    400: 107,  # INVALID_PARAMETERS
+    422: 107,  # INVALID_PARAMETERS
+    404: 111,  # MISSING_RESOURCE
+    405: 115,  # METHOD_NOT_ALLOWED
+    503: 201,  # BACKEND
+}
+DEFAULT_MESSAGES = {
+    404: "The resource you are looking for could not be found.",
+    405: "Method not allowed on this endpoint.",
+}
+
+
+def error_response(
+    status_code: int,
+    message: str,
+    error: str | None = None,
+    details: Any = None,
+    headers: dict[str, str] | None = None,
+) -> JSONResponse:
+    """
+    Return a JSON error response matching the Kinto error format.
+    See https://docs.kinto-storage.org/en/stable/api/1.x/errors.html
+    """
+    content = {
+        "code": status_code,
+        "errno": ERRNO_BY_STATUS.get(status_code, 999),
+        "error": error or HTTPStatus(status_code).phrase,
+        "message": message,
+    }
+    if details is not None:
+        content["details"] = details
+    return JSONResponse(status_code=status_code, content=content, headers=headers)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(
+    request: Request, exc: StarletteHTTPException
+) -> Response:
+    message = exc.detail
+    if message == HTTPStatus(exc.status_code).phrase:
+        # Raised by the router (eg. unknown URL), without custom message.
+        message = DEFAULT_MESSAGES.get(exc.status_code, message)
+    return error_response(exc.status_code, message, headers=exc.headers)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> Response:
+    # Mimic https://github.com/Kinto/kinto/blob/7c8fb413/kinto/core/errors.py#L131-L177
+    details = [
+        {
+            # Note: Kinto uses `querystring` where FastAPI uses `query`.
+            "location": error["loc"][0],
+            "name": ".".join(str(part) for part in error["loc"][1:]),
+            "description": error["msg"],
+        }
+        for error in exc.errors()
+    ]
+    first = details[0]
+    return error_response(
+        422,
+        f"{first['name']} in {first['location']}: {first['description']}",
+        error="Invalid parameters",
+        details=details,
+    )
+
+
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> Response:
     # This shouldn't be necessary when ran with `uvicorn``, which already does that.
@@ -632,14 +704,8 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> Respo
     # and most importantly allows us to test it with `TestClient`.
     logger.exception(exc)
     # Mimic https://github.com/Kinto/kinto/blob/7c8fb413/kinto/core/views/errors.py#L107-L145
-    return JSONResponse(
-        status_code=500,
-        content={
-            "code": 500,
-            "errno": 999,
-            "error": "Internal Server Error",
-            "message": "A programmatic error occurred, developers have been informed",
-        },
+    return error_response(
+        500, "A programmatic error occurred, developers have been informed"
     )
 
 
