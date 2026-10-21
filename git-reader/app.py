@@ -13,7 +13,16 @@ from datetime import datetime
 from enum import Enum
 from functools import lru_cache
 from http import HTTPStatus
-from typing import Annotated, Any, Awaitable, BinaryIO, Callable, Generator, cast
+from typing import (
+    Annotated,
+    Any,
+    Awaitable,
+    BinaryIO,
+    Callable,
+    Generator,
+    Mapping,
+    cast,
+)
 from urllib.parse import urlparse
 
 import lz4.block
@@ -646,7 +655,7 @@ def error_response(
     message: str,
     error: str | None = None,
     details: Any = None,
-    headers: dict[str, str] | None = None,
+    headers: Mapping[str, str] | None = None,
 ) -> JSONResponse:
     """
     Return a JSON error response matching the Kinto error format.
