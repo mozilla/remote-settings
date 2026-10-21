@@ -26,7 +26,11 @@ def main(bid_cid):
 
     buckets = {
         "main": ("main-workspace", "main-preview", "main"),
-        "security-state": ("security-state-staging", "security-state-preview", "security-state"),
+        "security-state": (
+            "security-state-staging",
+            "security-state-preview",
+            "security-state",
+        ),
         "blocklists": ("blocklists-staging", "blocklists-preview", "blocklists"),
     }[bid]
 
