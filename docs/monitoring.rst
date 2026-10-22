@@ -109,15 +109,17 @@ Reader Instances
     labels."k8s-pod/app_kubernetes_io/component"="reader"
 
 
-Cronjobs
-''''''''
+(Ingestion) Cronjobs
+''''''''''''''''''''
 
 Via log explorer:
 ::
 
     labels."k8s-pod/app_kubernetes_io/component"=~"^cron-<my-github-repo-name>$"
 
-Via `yardstick <https://yardstick.mozilla.org/d/aeogevsa6rxfkf/cronjob-dashboard-examples?orgId=1&from=now-6h&to=now&timezone=browser>`_:
+Via `this generic Yardstick dashboard <https://yardstick.mozilla.org/d/mlzgcq9/ingestion-jobs?orgId=1&from=now-7d&to=now&timezone=utc&var-cronjob=passwordmgr-remote-settings-updater>`_.
+
+Or via BigQuery:
 
 .. code-block::
 
@@ -127,7 +129,6 @@ Via `yardstick <https://yardstick.mozilla.org/d/aeogevsa6rxfkf/cronjob-dashboard
 		AND $__timeFilter(timestamp)
 		ORDER BY timestamp DESC
 		LIMIT 100;
-
 
 
 Attachments CDN Logs
