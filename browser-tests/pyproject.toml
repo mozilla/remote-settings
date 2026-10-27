@@ -4,7 +4,7 @@ version = "0"
 description = "Browser tests"
 requires-python = ">=3.11,<3.15"
 dependencies = [
-    "aiohttp==3.14.4",
+    "aiohttp==3.14.5",
     "autograph-utils==1.0.1",
     "canonicaljson-rs==0.9.3",
     "httpie==3.2.4",
@@ -12,6 +12,6 @@ dependencies = [
     "pytest==9.1.1",
     "webtest==3.0.7",
     "playwright==1.63.0",
-    "pytest-playwright==0.9.0",
+    "pytest-playwright==0.10.0",
     "pytest-timeout==2.4.0",
 ]

@@ -298,16 +298,6 @@ def _flush_default_collection(
         print(e)
 
 
-@pytest.fixture(scope="session", autouse=True)
-def _verify_url(
-    request: pytest.FixtureRequest, base_url: str, request_session: requests.Session
-):
-    """Verifies the base URL"""
-    verify = request.config.option.verify_base_url
-    if base_url and verify:
-        request_session.get(base_url, verify=False)
-
-
 def create_user(request_session: requests.Session, server: str, auth: Auth):
     # check if user already exists before creating
     r = request_session.get(server, auth=auth)
