@@ -102,7 +102,7 @@ class ChangesSchema(resource.ResourceSchema):
     bucket = colander.SchemaNode(colander.String())
     collection = colander.SchemaNode(colander.String())
 
-    class Options:
+    class Options:  # ty: ignore[invalid-attribute-override]
         preserve_unknown = False
 
 
