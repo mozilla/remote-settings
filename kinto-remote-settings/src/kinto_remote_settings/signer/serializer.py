@@ -10,6 +10,6 @@ def canonical_json(records: Iterable[dict], last_modified: int) -> str:
 
     payload = {"data": records, "last_modified": "%s" % last_modified}
 
-    dump = canonicaljson.dumps(payload)  # ty: ignore[unresolved-attribute]
+    dump = canonicaljson.dumps(payload)
 
     return dump
