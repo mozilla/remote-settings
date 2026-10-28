@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = "==3.14.*"
 
 [[package]]
@@ -144,18 +144,21 @@ wheels = [
 
 [[package]]
 name = "canonicaljson-rs"
-version = "0.9.3"
+version = "0.12.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/24/67/8f760decb93b185675cc0c491b3bd8df09172ee21e0a4b05483670559525/canonicaljson_rs-0.9.3.tar.gz", hash = "sha256:3700d3287c146a5b32ce422e057d2d25467f25b95282ae18699d03e045314577", size = 14262, upload-time = "2025-10-14T16:27:10.22Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8b/75/74d24116b1abc57ffbaea4d18412694e52bedd604aef234ca68deb5bb040/canonicaljson_rs-0.12.0.tar.gz", hash = "sha256:53b77bc702bd99daf6fad914c99633be6ccb261b63b5ae82518ebb059a5368d0", size = 14877, upload-time = "2026-10-27T09:53:52.507Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/88/3e/91b4ec65f72a65c50c1e77b9fa5618f437203e48a0d3427e04080d1f37f7/canonicaljson_rs-0.9.3-cp314-cp314-macosx_10_12_x86_64.whl", hash = "sha256:328ceab003495ed4b268f59d5f18a0ddbb90f96c793ecb15f75398e7425ec7f0", size = 863192, upload-time = "2025-10-14T16:26:39.557Z" },
-    { url = "https://files.pythonhosted.org/packages/06/c4/4c988efd34d33279d63f6daca880ab59c9efc419da0e2833b12c1db86855/canonicaljson_rs-0.9.3-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:138e1be69b337b9b78e9b68b8dc928cc55dee87ca964daf60a12988af88912f9", size = 813175, upload-time = "2025-10-14T16:26:40.784Z" },
-    { url = "https://files.pythonhosted.org/packages/bf/7d/e0e381ceeb586e997dc90e8b5eed5be8a02924c1c02f371dc1f763d471d9/canonicaljson_rs-0.9.3-cp314-cp314-manylinux_2_28_aarch64.whl", hash = "sha256:f46f04d4df4be8cb6119004f9d9a4b6c8ab34e2df9b58184030ed29d427fb13f", size = 932551, upload-time = "2025-10-14T16:26:42.071Z" },
-    { url = "https://files.pythonhosted.org/packages/8f/ed/db52a53f888e7e47cffbe514e8b2be75d9eda26b846503768b4795b49095/canonicaljson_rs-0.9.3-cp314-cp314-manylinux_2_28_ppc64le.whl", hash = "sha256:7d8508bc4e2016af2a9f195fcb86d9e782765d469ef1f41df7c225ac0bcdf682", size = 1124724, upload-time = "2025-10-14T16:26:43.243Z" },
-    { url = "https://files.pythonhosted.org/packages/e8/0e/201eca98d7835d18b511e7e6f0e6b04ebb3aa98b32fc0aa441724e04c030/canonicaljson_rs-0.9.3-cp314-cp314-manylinux_2_28_s390x.whl", hash = "sha256:d11cd024fb7310a7827e0358c91c10e6f3beb4defc602b2241723ebe968f0b72", size = 1015783, upload-time = "2025-10-14T16:26:44.473Z" },
-    { url = "https://files.pythonhosted.org/packages/df/6c/34d1f94454632199842d7335558c0211f918970a23f31eb3dbd482463499/canonicaljson_rs-0.9.3-cp314-cp314-manylinux_2_28_x86_64.whl", hash = "sha256:89ae14c0ff3da95281d417f18db75290ff49720d9ec15bcecb4afbc7ff673e6d", size = 957680, upload-time = "2025-10-14T16:26:46.184Z" },
-    { url = "https://files.pythonhosted.org/packages/8a/da/1628c467cc655db74b13ad8ed2f2e3c002a3b0175359ff2e54f1ffaed88f/canonicaljson_rs-0.9.3-cp314-cp314-musllinux_1_1_aarch64.whl", hash = "sha256:5f3c3188493529e9bd238ba9ff0fa5a3f05396b1ad6c7c9ffd7c82dbf3f1b42f", size = 1113365, upload-time = "2025-10-14T16:26:47.362Z" },
-    { url = "https://files.pythonhosted.org/packages/91/13/978b1ea7b3ca4a91558747f9386554e7672849d402d96bb9065d11c0d27e/canonicaljson_rs-0.9.3-cp314-cp314-musllinux_1_1_x86_64.whl", hash = "sha256:0ef2922a75f0a3d10d649f30c6f6c305ba7d2e9509c47a248b5f5d310a0c9d4f", size = 1147235, upload-time = "2025-10-14T16:26:49.096Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/b3/396f823f19fb847281ea19a48eac2e9355bef62040f1d502dfc0ada9be71/canonicaljson_rs-0.12.0-cp314-cp314-macosx_10_12_x86_64.whl", hash = "sha256:28b29c618a06512d5f2707d9fce41a93cac90abd0e7d88e56917a918b80ec4c9", size = 862821, upload-time = "2026-10-27T09:52:43.562Z" },
+    { url = "https://files.pythonhosted.org/packages/67/74/5010377307765d7bfa8550dce425d1a860721077d2ecba43a5b398cdd311/canonicaljson_rs-0.12.0-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:62b394b23a671331191ee8259197a41b178460300ecd10aa9a84e60a61f80835", size = 822678, upload-time = "2026-10-27T09:52:45.526Z" },
+    { url = "https://files.pythonhosted.org/packages/cc/ff/be6facc13d13ce8b533621860a54252ae5df61d6cc8261f3daa0dfe97fe1/canonicaljson_rs-0.12.0-cp314-cp314-manylinux_2_28_aarch64.whl", hash = "sha256:b7bd5e7c510ca6badabe71db3339d3baf85fe6017f1a54d7445e509f63b1492a", size = 943152, upload-time = "2026-10-27T09:52:47.164Z" },
+    { url = "https://files.pythonhosted.org/packages/c3/be/bf36df52aab0f64a21b70f0265eef9d36edae478163378a969916d2e9478/canonicaljson_rs-0.12.0-cp314-cp314-manylinux_2_28_armv7l.whl", hash = "sha256:45683aac27837a3beac141248e8a4ae59898fe939154db805f8325a0ce9aa05b", size = 896981, upload-time = "2026-10-27T09:52:49.036Z" },
+    { url = "https://files.pythonhosted.org/packages/98/96/1a5cb641643dc292fa6a327c9cd094ea5eab8f8499993551a828abed4295/canonicaljson_rs-0.12.0-cp314-cp314-manylinux_2_28_ppc64le.whl", hash = "sha256:fb26f5ef61d93dbf235b329ea9e857458c86149d55c03479199841453b80c634", size = 1113752, upload-time = "2026-10-27T09:52:50.728Z" },
+    { url = "https://files.pythonhosted.org/packages/16/58/ae39b149bcd760e4a741d50928050924625b7542df0981100b859a5fad9b/canonicaljson_rs-0.12.0-cp314-cp314-manylinux_2_28_s390x.whl", hash = "sha256:0cfd25108bbb8de20540b76289d9d9bd082a837e5f1aaf4862da3e03d8619402", size = 1008503, upload-time = "2026-10-27T09:52:53.284Z" },
+    { url = "https://files.pythonhosted.org/packages/0d/64/3fabbee8c0e59a7195d05d98f0eac642127ede26ce997aa296c04b39f012/canonicaljson_rs-0.12.0-cp314-cp314-manylinux_2_28_x86_64.whl", hash = "sha256:1869e4fd98826530096f13e779a6ed86f0e052d04c92804d8907ab984a2cbc40", size = 962826, upload-time = "2026-10-27T09:52:54.936Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/59/b07bbe7c56116ce52e9c47a81e272b5ca4ce45173f947195d8ab2c31314e/canonicaljson_rs-0.12.0-cp314-cp314-musllinux_1_1_aarch64.whl", hash = "sha256:355744e0373181176a0a7a170e56002fb44ca4e2844e72ef0087f8e20d65e9c6", size = 1122563, upload-time = "2026-10-27T09:52:56.783Z" },
+    { url = "https://files.pythonhosted.org/packages/88/9c/c0b05f503ad566546d17a7d9771fec589b5272dd7aad792549da41fbfb20/canonicaljson_rs-0.12.0-cp314-cp314-musllinux_1_1_x86_64.whl", hash = "sha256:48eee99686409a7834ad20646d20c5c4a8357a2445fdd36b5247b9ee0ca362ed", size = 1194330, upload-time = "2026-10-27T09:52:58.592Z" },
+    { url = "https://files.pythonhosted.org/packages/58/0e/4df55a34591df54746bcff75adb90966f02f7a55b9efadb7bc34889c6bea/canonicaljson_rs-0.12.0-cp314-cp314-win32.whl", hash = "sha256:0d5dc52caa9ea69e1f0fdb0b7c0d6f6f91420209086d2db2b1124cbb40488c51", size = 653034, upload-time = "2026-10-27T09:53:00.322Z" },
+    { url = "https://files.pythonhosted.org/packages/10/aa/2b94421bff6f17e34c29a96aa1a1af687105ee94b62998fcbf3734bcd8db/canonicaljson_rs-0.12.0-cp314-cp314-win_amd64.whl", hash = "sha256:0b173ea512cb6e377719ebd8fb1a9fb47362d97d8739fb9757c21a0e396ac3f2", size = 737666, upload-time = "2026-10-27T09:53:02.202Z" },
 ]
 
 [[package]]
@@ -1657,7 +1660,7 @@ kinto-remote-settings = [
 
 [package.metadata]
 requires-dist = [
-    { name = "canonicaljson-rs", specifier = "==0.9.3" },
+    { name = "canonicaljson-rs", specifier = "==0.12.0" },
     { name = "cryptography", specifier = "<51" },
     { name = "ecdsa", specifier = "==0.19.2" },
     { name = "granian", specifier = ">=2.7.9,<3.0.0" },
