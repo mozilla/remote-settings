@@ -105,3 +105,12 @@ docs-serve: install-docs  ## Serve the docs on http://localhost:8000, rebuilding
 	$(VENV)/bin/sphinx-autobuild --fail-on-warning --nitpicky --builder html \
 	  --doctree-dir $(SPHINX_BUILDDIR)/doctrees \
 	  docs $(SPHINX_BUILDDIR)/html
+
+lock-all:  ## Lock all uv lock files
+	uv lock
+	cd browser-tests/
+	uv lock
+	cd git-reader/
+	uv lock
+	cd cronjobs/
+	uv lock
