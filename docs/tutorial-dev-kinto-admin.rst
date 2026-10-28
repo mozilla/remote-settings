@@ -9,6 +9,7 @@ Goals
 * Development environment for Kinto Admin
 * Connect to a local Remote Settings server
 * Contribute patches
+* Ship changes to production
 
 Prerequisites
 -------------
@@ -146,13 +147,40 @@ Submit Patches
 
 Development `happens on Github <https://github.com/Kinto/kinto-admin>`_.
 
-The process for a patch to reach Remote Settings is the following:
+How Kinto Admin is packaged
+'''''''''''''''''''''''''''
 
-* Get the patch merged on Kinto/kinto-admin
-* Create a new release version of kinto-admin on Github (`kinto-admin releases <https://github.com/Kinto/kinto-admin/releases>`_)
-* Upgrade the kinto-admin release in Kinto (`example kinto PR <https://github.com/Kinto/kinto/pull/3303>`_)
-* Release a new version of Kinto (`kinto instructions <https://docs.kinto-storage.org/en/latest/community.html#how-to-release>`_)
-* Upgrade Kinto in Remote Settings (`example remote-settings PR <https://github.com/mozilla/remote-settings/pull/463>`_)
-* Release a new version of Remote Settings
-* DEV and STAGE are deployed automatically when a new tag is published
-* Initiate deployment in PROD (See *Releasing* section in README)
+The Admin UI served at ``/v1/admin/`` is included in the server image by downloading a prebuilt release of Kinto Admin, at the version pinned in `kinto-admin/VERSION <https://github.com/mozilla/remote-settings/blob/main/kinto-admin/VERSION>`_:
+
+* ``kinto-admin/VERSION`` holds a Kinto Admin release number, without the ``v`` prefix (eg. ``6.6.0``)
+* The ``get-admin`` stage of `RemoteSettings.Dockerfile <https://github.com/mozilla/remote-settings/blob/main/RemoteSettings.Dockerfile>`_ runs `bin/pull-kinto-admin.sh <https://github.com/mozilla/remote-settings/blob/main/bin/pull-kinto-admin.sh>`_, which downloads ``kinto-admin-release.tar`` from the GitHub release ``v$VERSION``
+* The assets are served by Kinto's ``kinto.plugins.admin``, which reads them from ``KINTO_ADMIN_ASSETS_PATH``
+
+The tarball is built by Kinto Admin's `release workflow <https://github.com/Kinto/kinto-admin/blob/master/.github/workflows/release.yml>`_ when a ``vX.Y.Z`` tag is pushed, using ``npm run build:kinto-single``. The Kinto Admin bundled in the Kinto Python package is not used.
+
+Shipping a change to production
+'''''''''''''''''''''''''''''''
+
+#. **Merge the change** on `Kinto/kinto-admin <https://github.com/Kinto/kinto-admin>`_.
+#. **Release Kinto Admin.** Publish a ``vX.Y.Z`` release on `Kinto Admin releases <https://github.com/Kinto/kinto-admin/releases>`_, from the GitHub UI or by pushing a tag (see `Releasing <https://github.com/Kinto/kinto-admin#releasing>`_). Wait until ``kinto-admin-release.tar`` is attached to the release: it takes a few minutes, and the Remote Settings image build fails without it.
+#. **Bump the version in Remote Settings.** A `scheduled workflow <https://github.com/mozilla/remote-settings/blob/main/.github/workflows/scheduled.yaml>`_ checks for a new Kinto Admin release daily at 00:00 UTC, and opens a pull-request titled *Update Kinto Admin version to X.Y.Z*. To skip the wait, edit ``kinto-admin/VERSION`` in a pull-request yourself.
+#. **Merge the pull-request.** DEV and STAGE are deployed automatically on merges to ``main``.
+#. **Check the change on STAGE.** This is the last chance before PROD.
+#. **Release Remote Settings.** Publish a new ``vX.Y.Z`` release (see `Releasing <https://github.com/mozilla/remote-settings#releasing>`_). Following our `versioning rules <https://github.com/mozilla/remote-settings#about-versioning>`_, a Kinto Admin minor bump is a Remote Settings minor bump.
+#. **Wait for PROD.** STAGE is updated to the release version, and an ArgoCD workflow automatically promotes STAGE to PROD after successful `browser tests <https://github.com/mozilla/remote-settings/tree/main/browser-tests>`_.
+
+For example:
+
+* 2026-10-09: `Kinto Admin v6.6.0 <https://github.com/Kinto/kinto-admin/releases/tag/v6.6.0>`_ was released
+* 2026-10-10: the scheduled workflow opened `#1642 <https://github.com/mozilla/remote-settings/pull/1642>`_
+* 2026-10-13: #1642 was merged, deploying it to DEV and STAGE
+* 2026-10-15: `Remote Settings v43.3.0 <https://github.com/mozilla/remote-settings/releases/tag/v43.3.0>`_ was released and promoted to PROD
+
+Check the deployed version
+''''''''''''''''''''''''''
+
+The server exposes the Kinto Admin version in its capabilities:
+
+.. code-block:: bash
+
+    curl -s https://remote-settings-dev.allizom.org/v1/ | jq .capabilities.admin.version
