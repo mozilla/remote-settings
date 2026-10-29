@@ -7,24 +7,48 @@ We will help you to use Remote Settings in your application!
 
 .. _go-to-prod:
 
-Create a new official type of Remote Settings
----------------------------------------------
+Request a new collection
+------------------------
 
-Basically, you will have to go through these 3 steps:
+A collection holds the data for one use case, such as the search engine configuration (``search-config``), the default top sites (``top-sites``), or the password manager's site-specific rules (``password-recipes``). Each collection has its own editors and reviewers, and Firefox picks up their changes without a release (see :ref:`introduction`).
+
+To request a new collection, you will go through these 3 steps:
 
 1. Design your data model (see below) and prepare the list of colleagues that will be allowed to review your data
 2. Request the creation of your collection using `this Bugzilla ticket template <https://bugzilla.mozilla.org/enter_bug.cgi?bug_file_loc=http%3A%2F%2F&bug_ignored=0&bug_severity=normal&bug_status=NEW&bug_type=task&cf_accessibility_severity=---&cf_fx_iteration=---&cf_fx_points=---&cf_status_conduit_push=---&cf_status_firefox153=---&cf_status_firefox154=---&cf_status_firefox155=---&cf_status_firefox_esr115=---&cf_status_firefox_esr140=---&cf_status_firefox_esr153=---&cf_tracking_conduit_push=---&cf_tracking_firefox153=---&cf_tracking_firefox154=---&cf_tracking_firefox155=---&cf_tracking_firefox_esr115=---&cf_tracking_firefox_esr140=---&cf_tracking_firefox_esr153=---&cf_tracking_firefox_relnote=---&comment=Collection%20name%3A%20_____%20%28eg.%20fingerprint-fonts%2C%20focus-experiments%2C%20...%29%0D%0A%28optional%29%20Bucket%3A%20%28default%3A%20main%29%0D%0ADescription%3A%20...%0D%0ACost%20center%3A%20_____%20%28numeric%2C%20eg.%201234%29%0D%0AEstimated%20collection%20size%3A%20%20~X%20records%2C%20%28~Y%20kB%20as%20serialized%20JSON%29%0D%0A%0D%0AList%20of%20LDAP%20emails%20allowed%20to%20change%20the%20records%20%28editors%29%3A%0D%0A%20-%20user1%40mozilla.com%0D%0A%20-%20...%0D%0A%0D%0AList%20of%20LDAP%20emails%20allowed%20to%20approve%20the%20changes%20%28reviewers%29%2C%20if%20different%20from%20editors.%0D%0A%20-%20user1%40mozilla.com%0D%0A%20-%20...%0D%0A%0D%0AAllow%20file%20attachments%20on%20records%3A%20%28yes%2Fno%29%0D%0AAre%20attachments%20required%20on%20records%20%28yes%2Fno%29%0D%0ABundle%20all%20attachments%20in%20one%20archive%20for%20faster%20sync%20on%20new%20profiles%3F%20%28yes%2Fno%29%0D%0AEstimated%20size%20of%20attachments%3F%20%28note%3A%20files%20over%2020MB%20will%20be%20blocked%20if%20not%20explicitly%20allowed%29%0D%0AEstimated%20frequency%2Fsize%20of%20attachments%20updates%3A%20___%20%20%28eg.%20X%20kB%20per%20week%29%0D%0A%0D%0A%28optional%29%20JEXL%20target%20filters%3A%20%28yes%2Fno%29%0D%0A%28optional%29%20JSON%20schema%20to%20validate%20records%20%28in%20YAML%20format%29%3A%20%28eg.%20https%3A%2F%2Fgist.github.com%2Fleplatrem%2F4d86d5a64a56b5d8990be9af592d0e7f%29%0D%0A%28optional%29%20Manual%20records%20ID%3A%20%28yes%2Fno%29%0D%0A%28optional%29%20UI%20schema%20to%20customize%20the%20record%20form%20%28in%20YAML%20format%29%3A%20%28see%20https%3A%2F%2Frjsf-team.github.io%2Freact-jsonschema-form%2Fdocs%2Fapi-reference%2FuiSchema%29%0D%0A%28optional%29%20List%20of%20fields%20names%20to%20display%20as%20columns%20in%20the%20records%20list%20UI%3A%20%28eg.%20%22name%22%2C%20%22details.size%22%29%0D%0A&component=Server%3A%20Remote%20Settings&contenttypemethod=list&contenttypeselection=text%2Fplain&defined_groups=1&filed_via=standard_form&flag_type-37=X&flag_type-607=X&flag_type-708=X&flag_type-721=X&flag_type-737=X&flag_type-748=X&flag_type-787=X&flag_type-803=X&flag_type-846=X&flag_type-864=X&flag_type-936=X&flag_type-963=X&flag_type-968=X&flag_type-970=X&groups=mozilla-employee-confidential&needinfo_role=other&needinfo_type=needinfo_from&op_sys=Unspecified&priority=--&product=Cloud%20Services&rep_platform=Unspecified&short_desc=Please%20create%20the%20new%20collection%20%22_____%22&target_milestone=---&version=unspecified>`_
-3. While the collection is being created, setup the `Mozilla VPN <https://mana.mozilla.org/wiki/display/IT/Mozilla+Corporate+VPN>`_. If you are mentioned as an editor or reviewer, you will be given the appropriate VPN group automatically.
+3. While the collection is being created, set up the `Mozilla VPN <https://mozilla-hub.atlassian.net/wiki/spaces/SD/pages/26741194/VPN>`_. The Remote Settings team grants STAGE and PROD access to the editors and reviewers listed in your request (see :ref:`request-access`).
 
 Once done, you will be able to login and edit your records on the Admin UIs:
 
-- https://remote-settings.mozilla.org/v1/admin/
+- https://remote-settings.allizom.org/v1/admin/ (STAGE)
+- https://remote-settings.mozilla.org/v1/admin/ (PROD)
 
 The records will then be publicly visible at `<https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/{collection-id}/changeset?_expected=0>`__
 
 Don't hesitate to contact us (``#delivery`` on Slack) if you're stuck or have questions about the process!
 
 Check out the :ref:`screencast to create, request review and approve changes <screencasts-modify-request-review>`, or :ref:`our FAQ <faq>`!
+
+
+.. _request-access:
+
+Request access to an existing collection
+----------------------------------------
+
+To edit or review the records of a collection on STAGE or PROD, you need two things:
+
+- membership in the VPN group for that environment (``vpn_kinto1_stage`` or ``vpn_kinto1_prod``), so you can reach the Admin UI over the Mozilla VPN. You request it with a bug (step 2).
+- editor or reviewer permission on the collection. You add yourself with a pull-request (step 3).
+
+1. Set up the `Mozilla VPN <https://mozilla-hub.atlassian.net/wiki/spaces/SD/pages/26741194/VPN>`_. DEV doesn't need it.
+2. `File an access request to the VPN groups <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings&bug_type=task&groups=mozilla-employee-confidential&short_desc=Please%20add%20_____%20to%20the%20Remote%20Settings%20VPN%20groups&comment=LDAP%20email%3A%20_____%0AEnvironments%3A%20stage%2C%20prod%0ACollection(s)%20I%20will%20work%20on%3A%20_____%0APull-request%20on%20remote-settings-permissions%3A%20_____%0A>`_ with your LDAP email, the environments, and the collection(s) you will work on.
+3. Open a pull-request on ``remote-settings-permissions`` (see :ref:`collection-manifests`) that adds you (``ldap:<email>``) to the ``{collection}-editors`` or ``{collection}-reviewers`` group. The Remote Settings team reviews and merges it.
+
+   - Or, `file a bug <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings&bug_type=task&groups=mozilla-employee-confidential&short_desc=Please%20add%20_____%20to%20the%20editors%2Freviewers%20of%20collection%20_____&comment=LDAP%20email%3A%20_____%0ACollection(s)%3A%20_____%0ARole%3A%20editor%20and%2For%20reviewer%0AEnvironments%3A%20prod%2C%20stage%2C%20dev%0A>`_ with your LDAP email, the collection(s), editor and/or reviewer, and the environments.
+
+4. Once you are in the VPN group and your permission change is merged, connect to the VPN and log in to the Admin UI.
+
+If you get a 403 on the Admin UI, you are not connected to the VPN, or not yet in the VPN group for that environment.
 
 
 Environments
@@ -169,10 +193,6 @@ Collection manifests
 Both STAGE and PROD collections attributes and permissions are managed via YAML files in the `remote-settings-permissions <https://github.com/mozilla/remote-settings-permissions>`_ Github repository.
 
 If you want to accelerate the process of getting your collection deployed or adjust its schema, in DEV, STAGE or PROD, you can open a pull-request with the collection, and the definition of ``{collection}-editors`` and ``{collection}-reviewers`` groups. Check out the existing ones that were merged.
-
-.. note::
-
-    Only members of the `mozilla/all-wg` workgroup have read access to this repository. If you are part of the `mozilla` Github organization, you can request your membership via the https://github.com/orgs/mozilla/teams/remote-settings-collections-owners/members team.
 
 
 .. _collection-offboarding:
