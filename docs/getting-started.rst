@@ -48,7 +48,7 @@ To edit or review the records of a collection on STAGE or PROD, you need two thi
 
 4. Once you are in the VPN group and your permission change is merged, connect to the VPN and log in to the Admin UI.
 
-If you get a 403 on the Admin UI, you are not connected to the VPN, or not yet in the VPN group for that environment.
+If you get a 403 on the Admin UI, you are not connected to the VPN, or not yet in the VPN group for that environment. To check, look for ``vpn_kinto1_stage`` or ``vpn_kinto1_prod`` under **Access Groups** on your `people.mozilla.org <https://people.mozilla.org>`_ profile.
 
 
 Environments
