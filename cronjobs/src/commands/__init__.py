@@ -22,10 +22,32 @@ REQUESTS_TIMEOUT_SECONDS = float(os.getenv("REQUESTS_TIMEOUT_SECONDS", 2))
 REQUESTS_NB_RETRIES = int(os.getenv("REQUESTS_NB_RETRIES", 4))
 DRY_MODE = os.getenv("DRY_RUN", "0") in "1yY"
 
+def _should_giveup_network_error(e: Exception) -> bool:
+    if isinstance(
+        e,
+        (
+            requests.exceptions.Timeout,
+            requests.exceptions.ConnectionError,
+            requests.exceptions.ChunkedEncodingError,
+        ),
+    ):
+        return False
+    if isinstance(e, kinto_http.exceptions.KintoException):
+        if e.response is not None and e.response.status_code in (502, 503, 504):
+            return False
+    return True
+
+
 retry_timeout = backoff.on_exception(
     backoff.expo,
-    (requests.exceptions.Timeout, requests.exceptions.ConnectionError),
+    (
+        requests.exceptions.Timeout,
+        requests.exceptions.ConnectionError,
+        requests.exceptions.ChunkedEncodingError,
+        kinto_http.exceptions.KintoException,
+    ),
     max_tries=REQUESTS_NB_RETRIES,
+    giveup=_should_giveup_network_error,
 )
 
 
