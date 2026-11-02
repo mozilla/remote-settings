@@ -18,24 +18,9 @@ def ts2dt(ts: int) -> datetime.datetime:
 
 
 PARALLEL_REQUESTS = int(os.getenv("PARALLEL_REQUESTS", 4))
-REQUESTS_TIMEOUT_SECONDS = float(os.getenv("REQUESTS_TIMEOUT_SECONDS", 2))
+REQUESTS_TIMEOUT_SECONDS = float(os.getenv("REQUESTS_TIMEOUT_SECONDS", 30))
 REQUESTS_NB_RETRIES = int(os.getenv("REQUESTS_NB_RETRIES", 4))
 DRY_MODE = os.getenv("DRY_RUN", "0") in "1yY"
-
-def _should_giveup_network_error(e: Exception) -> bool:
-    if isinstance(
-        e,
-        (
-            requests.exceptions.Timeout,
-            requests.exceptions.ConnectionError,
-            requests.exceptions.ChunkedEncodingError,
-        ),
-    ):
-        return False
-    if isinstance(e, kinto_http.exceptions.KintoException):
-        if e.response is not None and e.response.status_code in (502, 503, 504):
-            return False
-    return True
 
 
 retry_timeout = backoff.on_exception(
@@ -44,10 +29,8 @@ retry_timeout = backoff.on_exception(
         requests.exceptions.Timeout,
         requests.exceptions.ConnectionError,
         requests.exceptions.ChunkedEncodingError,
-        kinto_http.exceptions.KintoException,
     ),
     max_tries=REQUESTS_NB_RETRIES,
-    giveup=_should_giveup_network_error,
 )
 
 
@@ -71,6 +54,7 @@ class KintoClient(kinto_http.Client):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs.setdefault("retry", REQUESTS_NB_RETRIES)
+        kwargs.setdefault("timeout", REQUESTS_TIMEOUT_SECONDS)
         kwargs.setdefault("dry_mode", DRY_MODE)
         super().__init__(*args, **kwargs)
 
