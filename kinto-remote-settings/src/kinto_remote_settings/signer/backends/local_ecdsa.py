@@ -55,6 +55,7 @@ class ECDSASigner(SignerBase):
 
         with open(self.private_key, "rb") as key_file:
             key = serialization.load_pem_private_key(key_file.read(), password=None)
+        assert isinstance(key, ec.EllipticCurvePrivateKey)
         return key
 
     def load_public_key(self) -> ec.EllipticCurvePublicKey | None:
@@ -65,6 +66,7 @@ class ECDSASigner(SignerBase):
         if self.public_key:
             with open(self.public_key, "rb") as key_file:
                 key = serialization.load_pem_public_key(key_file.read())
+            assert isinstance(key, ec.EllipticCurvePublicKey)
             return key
         return None
 
