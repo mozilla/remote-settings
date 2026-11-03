@@ -18,7 +18,7 @@ from .exceptions import BadSignatureError
 SIGN_PREFIX = b"Content-Signature:\x00"
 
 # Signatures are the raw concatenation of r and s, each 48 bytes on P-384.
-COORDINATE_SIZE = 48
+P384_COMPONENT_SIZE = 48
 
 
 class ECDSASigner(SignerBase):
@@ -80,8 +80,8 @@ class ECDSASigner(SignerBase):
             payload = SIGN_PREFIX + payload
             der_signature = private_key.sign(payload, ec.ECDSA(hashes.SHA384()))
             r, s = decode_dss_signature(der_signature)
-            signature = r.to_bytes(COORDINATE_SIZE, "big") + s.to_bytes(
-                COORDINATE_SIZE, "big"
+            signature = r.to_bytes(P384_COMPONENT_SIZE, "big") + s.to_bytes(
+                P384_COMPONENT_SIZE, "big"
             )
             x5u = ""
             enc_signature = base64.urlsafe_b64encode(signature).decode("utf-8")
@@ -104,10 +104,10 @@ class ECDSASigner(SignerBase):
         public_key = self.load_public_key()
         assert public_key is not None
         try:
-            if len(signature_bytes) != 2 * COORDINATE_SIZE:
+            if len(signature_bytes) != 2 * P384_COMPONENT_SIZE:
                 raise ValueError(f"Invalid signature length: {len(signature_bytes)}")
-            r = int.from_bytes(signature_bytes[:COORDINATE_SIZE], "big")
-            s = int.from_bytes(signature_bytes[COORDINATE_SIZE:], "big")
+            r = int.from_bytes(signature_bytes[:P384_COMPONENT_SIZE], "big")
+            s = int.from_bytes(signature_bytes[P384_COMPONENT_SIZE:], "big")
             public_key.verify(
                 encode_dss_signature(r, s), payload, ec.ECDSA(hashes.SHA384())
             )
