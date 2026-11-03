@@ -462,18 +462,6 @@ wheels = [
 ]
 
 [[package]]
-name = "ecdsa"
-version = "0.19.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/25/ca/8de7744cb3bc966c85430ca2d0fcaeea872507c6a4cf6e007f7fe269ed9d/ecdsa-0.19.2.tar.gz", hash = "sha256:62635b0ac1ca2e027f82122b5b81cb706edc38cd91c63dda28e4f3455a2bf930", size = 202432, upload-time = "2026-03-26T09:58:17.675Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/51/79/119091c98e2bf49e24ed9f3ae69f816d715d2904aefa6a2baa039a2ba0b0/ecdsa-0.19.2-py2.py3-none-any.whl", hash = "sha256:840f5dc5e375c68f36c1a7a5b9caad28f95daa65185c9253c0c08dd952bb7399", size = 150818, upload-time = "2026-03-26T09:58:15.808Z" },
-]
-
-[[package]]
 name = "execnet"
 version = "2.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -985,7 +973,7 @@ source = { editable = "kinto-remote-settings" }
 dependencies = [
     { name = "backoff" },
     { name = "canonicaljson-rs" },
-    { name = "ecdsa" },
+    { name = "cryptography" },
     { name = "kinto" },
     { name = "requests-hawk" },
 ]
@@ -994,7 +982,7 @@ dependencies = [
 requires-dist = [
     { name = "backoff" },
     { name = "canonicaljson-rs" },
-    { name = "ecdsa" },
+    { name = "cryptography" },
     { name = "kinto" },
     { name = "requests-hawk" },
 ]
@@ -1617,7 +1605,6 @@ source = { editable = "." }
 dependencies = [
     { name = "canonicaljson-rs" },
     { name = "cryptography" },
-    { name = "ecdsa" },
     { name = "granian" },
     { name = "kinto", extra = ["memcached", "monitoring", "postgresql"] },
     { name = "kinto-attachment" },
@@ -1661,7 +1648,6 @@ kinto-remote-settings = [
 requires-dist = [
     { name = "canonicaljson-rs", specifier = "==0.9.3" },
     { name = "cryptography", specifier = "<51" },
-    { name = "ecdsa", specifier = "==0.19.2" },
     { name = "granian", specifier = ">=2.7.9,<3.0.0" },
     { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.3.3,<27" },
     { name = "kinto-attachment", specifier = ">=9.0.1" },
