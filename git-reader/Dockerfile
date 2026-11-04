@@ -1,7 +1,7 @@
 ARG UID=10001
 ARG GID=10001
 
-FROM python:3.14.7-slim-trixie
+FROM python:3.15.0-slim-trixie
 
 ARG UID
 ARG GID
