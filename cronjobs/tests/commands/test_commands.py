@@ -83,6 +83,7 @@ def test_fetch_all_changesets():
         },
     ]
 
+
 @responses.activate
 def test_kinto_client_retries_on_chunked_encoding_error():
     import requests
@@ -90,7 +91,9 @@ def test_kinto_client_retries_on_chunked_encoding_error():
     responses.add(
         responses.GET,
         "http://testserver:9999/v1/buckets/monitor/collections/changes/changeset",
-        body=requests.exceptions.ChunkedEncodingError("Connection broken: ConnectionResetError(104)"),
+        body=requests.exceptions.ChunkedEncodingError(
+            "Connection broken: ConnectionResetError(104)"
+        ),
     )
     responses.add(
         responses.GET,
@@ -132,8 +135,8 @@ def test_kinto_client_retries_on_transient_502():
 
 @responses.activate
 def test_kinto_client_gives_up_on_client_error_404():
-    import pytest
     import kinto_http.exceptions
+    import pytest
 
     responses.add(
         responses.GET,
@@ -150,4 +153,3 @@ def test_kinto_client_gives_up_on_client_error_404():
         client.get_changeset("monitor", "changes")
 
     assert len(responses.calls) == 1
-
