@@ -15,8 +15,7 @@ I cannot access my collection
 '''''''''''''''''''''''''''''
 
 * Check that you can ping the server on the VPN
-  - Make sure you were added in the appropriate VPN group (see :ref:`getting-started`)
-  - Join ``#engops`` on Slack to troubleshoot.
+  - A 403 on the Admin UI means you are not in the VPN group for that environment (``vpn_kinto1_stage`` or ``vpn_kinto1_prod``). See :ref:`request-access`, or ask in ``#delivery``.
 * Check that you can login on the Admin UI
 * In the ``main-workspace`` bucket, check that you can create records in your collection (eg. ``main-workspace/tippytop``)
 
@@ -290,7 +289,5 @@ How to change my collection JSON schema?
 Collections definition are managed via YAML files in the `remote-settings-permissions <https://github.com/mozilla/remote-settings-permissions>`_ Github repository.
 
 .. note::
-
-    Only members of the `mozilla/all-wg` workgroup have read access to this repository. If you are part of the `mozilla` Github organization, you can request your membership via the https://github.com/orgs/mozilla/teams/remote-settings-collections-owners/members team.
 
     If you are stuck, please request your schema change via Bugzilla (`example <https://bugzilla.mozilla.org/show_bug.cgi?id=2012607>`_.)

@@ -9,7 +9,6 @@ requires-python = ">=3.14,<3.16"
 dependencies = [
     "canonicaljson-rs==0.12.0",
     "cryptography<51",
-    "ecdsa==0.19.2",
     "kinto[postgresql,memcached,monitoring]>=26.3.3,<27",
     "kinto-attachment>=9.0.1",
     "kinto-emailer>=4",

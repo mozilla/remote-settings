@@ -7,6 +7,6 @@ dependencies = [
     "backoff",
     "kinto",
     "canonicaljson-rs",
-    "ecdsa",
+    "cryptography",
     "requests-hawk",
 ]
