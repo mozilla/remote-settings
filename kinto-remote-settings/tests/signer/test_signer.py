@@ -90,6 +90,12 @@ class ECDSASignerTest(unittest.TestCase):
         with pytest.raises(exceptions.BadSignatureError):
             self.signer.verify("Text not matching with the sig.", signature_bundle)
 
+    def test_signature_with_wrong_length_raises_an_error(self):
+        signature_bundle = {"signature": urlsafe_b64encode(b"short").decode()}
+
+        with pytest.raises(exceptions.BadSignatureError, match="length"):
+            self.signer.verify("this is some text", signature_bundle)
+
     def test_signer_returns_a_base64_string(self):
         signature = self.signer.sign("this is some text")[0]["signature"]
         urlsafe_b64decode(signature.encode("utf-8"))  # Raise if wrong.
