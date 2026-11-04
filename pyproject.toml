@@ -121,7 +121,7 @@ pythonpath = ["git-reader", "cronjobs"]
     ]
 
 [tool.pytest_env]
-SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # pragma: allowlist secret
+SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # trufflehog:ignore
 
 [tool.typos.default]
 extend-ignore-re = [

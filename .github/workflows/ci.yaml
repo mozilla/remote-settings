@@ -24,7 +24,7 @@ jobs:
           ./actionlint -color
         env:
           ACTIONLINT_VERSION: 1.7.12
-          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  # pragma: allowlist secret
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
       - name: Install trufflehog
         run: |
           curl --fail -L "https://github.com/trufflesecurity/trufflehog/releases/download/v${{ env.TRUFFLEHOG_VERSION }}/trufflehog_${{ env.TRUFFLEHOG_VERSION }}_linux_amd64.tar.gz" -o trufflehog.tar.gz

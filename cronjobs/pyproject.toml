@@ -29,11 +29,11 @@ packages = ["src/commands"]
 # Basically, undo anything that might get dragged in
 # from a personal .env file.
 DEBUG = false
-REDASH_API_KEY = "shhhuhsecret" # pragma: allowlist secret
+REDASH_API_KEY = "shhhuhsecret"
 REDASH_API_QUERY_URL = "https://sql.telemetry.example.com/api/queries/001/"
 EXCLUDE_SOURCES = "trouble/*"
 DEFAULT_ERROR_THRESHOLD_PERCENT = 3.0
-SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # pragma: allowlist secret
+SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # trufflehog:ignore
 GOOGLE_CLOUD_PROJECT = "remote-settings"
 
 [tool.pytest.ini_options]

@@ -443,7 +443,7 @@ def test_github_lfs_batch_request_failure(capsys):
 @responses.activate
 def test_success_first_try(no_sleep):
     attachment_content = b"deadbeef"
-    sha256_hex = "2baf1f40105d9501fe319a8ec463fdf4325a2a5df445adf3f572f626253678c9"  # pragma: allowlist secret
+    sha256_hex = "2baf1f40105d9501fe319a8ec463fdf4325a2a5df445adf3f572f626253678c9"
     size = len(attachment_content)
 
     download_url = "https://cdn.example.com/file.bin"
@@ -508,7 +508,7 @@ def test_upload_http_error(capsys, no_sleep):
     # Download OK, but upload returns 500 and raise_for_status should raise
     download_url = "https://cdn.example.com/file.bin"
     attachment_content = b"deadbeef"
-    sha256_hex = "2baf1f40105d9501fe319a8ec463fdf4325a2a5df445adf3f572f626253678c9"  # pragma: allowlist secret
+    sha256_hex = "2baf1f40105d9501fe319a8ec463fdf4325a2a5df445adf3f572f626253678c9"
     size = len(attachment_content)
     responses.get(
         download_url,
@@ -590,7 +590,7 @@ def test_batch_upload_already_present_and_no_verify(capsys):
     # record if upload helper was called (should NOT be)
     download_url = "https://cdn.example.com/file.bin"
     attachment_content = b"deadbeef"
-    sha256_hex = "2baf1f40105d9501fe319a8ec463fdf4325a2a5df445adf3f572f626253678c9"  # pragma: allowlist secret
+    sha256_hex = "2baf1f40105d9501fe319a8ec463fdf4325a2a5df445adf3f572f626253678c9"
     size = len(attachment_content)
 
     obj = (sha256_hex, size, download_url)
@@ -716,12 +716,12 @@ def test_batch_upload_reports_every_failed_object():
 def test_batch_upload_and_verify():
     download_url_1 = "https://cdn.example.com/file.bin"
     attachment_content_1 = b"deadbeef"
-    sha256_hex_1 = "2baf1f40105d9501fe319a8ec463fdf4325a2a5df445adf3f572f626253678c9"  # pragma: allowlist secret
+    sha256_hex_1 = "2baf1f40105d9501fe319a8ec463fdf4325a2a5df445adf3f572f626253678c9"
     size_1 = len(attachment_content_1)
 
     download_url_2 = "https://cdn.example.com/file2.bin"
     attachment_content_2 = b"deadbeef2"
-    sha256_hex_2 = "5e2e0e8a6ce8ed283ade50645227a5a62bbd6c2dd80483880a640ad9d2236801"  # pragma: allowlist secret
+    sha256_hex_2 = "5e2e0e8a6ce8ed283ade50645227a5a62bbd6c2dd80483880a640ad9d2236801"
     size_2 = len(attachment_content_2)
 
     # two objects, both need upload + verify
