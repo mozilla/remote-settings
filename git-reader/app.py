@@ -383,6 +383,7 @@ class GitService:
         # Every collection folder must be readable by `get_collection_changeset()`.
         buckets_prefix = f"{REMOTE_NAME}/{GIT_REF_PREFIX}buckets/"
         malformed = []
+        missing_certs = []
         collections: set[tuple[str, str]] = set()
         for branch_name in sorted(branches):
             if not branch_name.startswith(buckets_prefix):
@@ -409,8 +410,18 @@ class GitService:
                     malformed.append(f"{bid}/{ledger}")
 
                 collections.add((bid, cid))
+                if self.settings.self_contained:
+                    metadata = json.loads(
+                        cast(pygit2.Blob, tree[f"{cid}/{METADATA_FILE}"]).data
+                    )
+                    x5u = metadata.get("signature", {}).get("x5u", "")
+                    pem = urlparse(x5u).path.lstrip("/")
+                    if not pem or f"cert-chains/{pem}" not in common_tree:
+                        missing_certs.append(f"{bid}/{cid}")
         if malformed:
             raise RuntimeError(f"Malformed collection folders: {malformed}")
+        if missing_certs:
+            raise RuntimeError(f"Missing certificate chains for: {missing_certs}")
 
         # Collections listed in monitor/changes must match the bucket branches.
         monitor_changes = json.loads(

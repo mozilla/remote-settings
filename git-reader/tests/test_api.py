@@ -507,6 +507,35 @@ def test_heartbeat_failing_collection_folder_not_monitored(api_client, repo_copy
     assert "not monitored: ['main/deleted']" in str(resp.json()["details"])
 
 
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        # Certificate chain not exported.
+        {"id": "empty", "signature": {"x5u": "https://autograph/unknown.pem"}},
+        # Unsigned collection.
+        {"id": "empty"},
+    ],
+)
+def test_heartbeat_failing_missing_cert_chain(
+    api_client, repo_copy, monkeypatch, metadata
+):
+    monkeypatch.setenv("SELF_CONTAINED", "true")
+    edit_main_bucket(repo_copy, [("empty/metadata.json", metadata)])
+
+    resp = api_client.get("/v2/__heartbeat__")
+
+    assert resp.status_code == 500
+    assert "certificate chains for: ['main/empty']" in str(resp.json()["details"])
+
+
+def test_heartbeat_ignores_cert_chains_if_not_self_contained(api_client, repo_copy):
+    edit_main_bucket(repo_copy, [("empty/metadata.json", {"id": "empty"})])
+
+    resp = api_client.get("/v2/__heartbeat__")
+
+    assert resp.status_code == 200
+
+
 def test_heartbeat_failing_common_not_checked_out(api_client, repo_copy):
     repo_copy.references.delete("refs/heads/v1/common")
 
