@@ -360,6 +360,23 @@ class GitService:
                 f"Missing branches in repository: {sorted(missing)}. Found: {sorted(branches)}"
             )
 
+        # Every collection folder must be readable by `get_collection_changeset()`.
+        buckets_prefix = f"{REMOTE_NAME}/{GIT_REF_PREFIX}buckets/"
+        malformed = []
+        for branch_name in sorted(branches):
+            if not branch_name.startswith(buckets_prefix):
+                continue
+            bid = branch_name.removeprefix(buckets_prefix)
+            tree = self.repo.branches.remote[branch_name].peel(pygit2.Commit).tree
+            for entry in tree:
+                cid = entry.name
+                if entry.type != pygit2.GIT_OBJECT_TREE or not all(
+                    f"{cid}/{f}" in tree for f in (METADATA_FILE, TIMESTAMP_FILE)
+                ):
+                    malformed.append(f"{bid}/{cid}")
+        if malformed:
+            raise RuntimeError(f"Malformed collection folders: {malformed}")
+
         # Check that LFS files are present if self-contained.
         if self.settings.self_contained:
             known_lfs_file = os.path.join(

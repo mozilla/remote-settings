@@ -352,6 +352,28 @@ def test_heartbeat_failing(api_client, repo_copy, missing_ref):
     assert resp.json()["checks"]["git_repo_health"] == "error"
 
 
+@pytest.mark.parametrize(
+    "items",
+    [
+        [("legacy/abc.json", {"id": "abc"})],
+        [("legacy/timestamp", b"42")],
+        [("legacy/metadata.json", {"id": "legacy"})],
+        [("legacy", b"not a folder")],
+    ],
+)
+def test_heartbeat_failing_malformed_collection_folder(api_client, repo_copy, items):
+    author = pygit2.Signature("Test", "test@example.com")
+    ref = repo_copy.lookup_reference("refs/remotes/origin/v1/buckets/main")
+    parent = repo_copy[ref.target]
+    tree_oid = upsert_blobs(repo_copy, items, base_tree=parent.tree)
+    repo_copy.create_commit(ref.name, author, author, "Msg", tree_oid, [parent.id])
+
+    resp = api_client.get("/v2/__heartbeat__")
+
+    assert resp.status_code == 500
+    assert "main/legacy" in str(resp.json()["details"]["git_repo_health"])
+
+
 def test_heartbeat_failing_common_not_checked_out(api_client, repo_copy):
     repo_copy.references.delete("refs/heads/v1/common")
 
