@@ -355,6 +355,18 @@ async def repo_sync_content(
             )
         )
 
+    # Purge from the Git repo what is not in monitor/changes.
+    # Note that `monitor_changeset` list is fetched unfiltered (no `_since`).
+    live_collections = {
+        (entry["bucket"], entry["collection"]) for entry in monitor_changeset["changes"]
+    }
+    changed_branches |= remove_deleted_collections(
+        repo,
+        author=author,
+        committer=committer,
+        live_collections=live_collections,
+    )
+
     return changed_attachments, changed_branches
 
 
@@ -660,5 +672,49 @@ def update_bucket_branches(
             new_tip = repo.lookup_reference(branch_refname).target
             branch_tree = repo.get(new_tip).tree  # ty: ignore[unresolved-attribute]
             parents = [new_tip]
+
+    return changed_branches
+
+
+def remove_deleted_collections(
+    repo: pygit2.Repository,
+    author: pygit2.Signature,
+    committer: pygit2.Signature,
+    live_collections: set[tuple[str, str]],
+) -> set[str]:
+    """
+    Remove the folders of collections that no longer exist on the server.
+    Return the set of changed branches.
+    """
+    changed_branches: set[str] = set()
+    bucket_prefix = f"{GIT_REF_PREFIX}buckets/"
+    for branch_name in list(repo.branches.local):
+        if not branch_name.startswith(bucket_prefix):
+            continue
+        bid = branch_name.removeprefix(bucket_prefix)
+        branch_refname = f"refs/heads/{branch_name}"
+        branch_tip = repo.lookup_reference(branch_refname).target
+        branch_tree = repo.get(branch_tip).tree  # ty: ignore[unresolved-attribute]
+
+        for entry in branch_tree:
+            cid = cast(str, entry.name)
+            if (bid, cid) in live_collections:
+                continue
+            # Delete the `cid` folder.
+            print(f"Remove deleted collection {bid}/{cid}")
+            files_tree_id = tree_upsert_blobs(
+                repo, [(cid, None)], base_tree=branch_tree
+            )
+            branch_tip = repo.create_commit(
+                branch_refname,
+                author,
+                committer,
+                f"Remove deleted collection {bid}/{cid}",
+                files_tree_id,
+                [branch_tip],
+            )
+            print(f"Created commit {branch_refname}: {branch_tip}")
+            branch_tree = repo.get(branch_tip).tree  # ty: ignore[unresolved-attribute]
+            changed_branches.add(branch_refname)
 
     return changed_branches
