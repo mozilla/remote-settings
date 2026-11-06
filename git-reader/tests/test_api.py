@@ -357,15 +357,41 @@ def test_heartbeat_failing(api_client, repo_copy, missing_ref):
 
 
 @pytest.mark.parametrize(
-    "items",
+    ("items", "expected"),
     [
-        [("legacy/abc.json", {"id": "abc"})],
-        [("legacy/timestamp", b"42")],
-        [("legacy/metadata.json", {"id": "legacy"})],
-        [("legacy", b"not a folder")],
+        # Old export format
+        ([("legacy/abc.json", {"id": "abc"})], "main/legacy"),
+        # Missing metadata.
+        ([("legacy/timestamp", b"42")], "main/legacy"),
+        # Missing timestamp.
+        ([("legacy/metadata.json", {"id": "legacy"})], "main/legacy"),
+        # Collection is a file.
+        ([("cid-as-file", b"not a folder")], "main/cid-as-file"),
+        # Ledger is a file.
+        (
+            [("empty/tombstones", b"not a folder")],
+            "main/empty/tombstones",
+        ),
+        # Ledger file without month.
+        (
+            [("password-rules/tombstones/2025.txt", "")],
+            "main/password-rules/tombstones",
+        ),
+        # Ledger file with invalid month.
+        (
+            [("password-rules/tombstones/202513.txt", "")],
+            "main/password-rules/tombstones",
+        ),
+        # Subfolder in ledger.
+        (
+            [("password-rules/tombstones/202501/a.txt", "")],
+            "main/password-rules/tombstones",
+        ),
     ],
 )
-def test_heartbeat_failing_malformed_collection_folder(api_client, repo_copy, items):
+def test_heartbeat_failing_malformed_collection_folder(
+    api_client, repo_copy, items, expected
+):
     author = pygit2.Signature("Test", "test@example.com")
     ref = repo_copy.lookup_reference("refs/remotes/origin/v1/buckets/main")
     parent = repo_copy[ref.target]
@@ -375,7 +401,7 @@ def test_heartbeat_failing_malformed_collection_folder(api_client, repo_copy, it
     resp = api_client.get("/v2/__heartbeat__")
 
     assert resp.status_code == 500
-    assert "main/legacy" in str(resp.json()["details"]["git_repo_health"])
+    assert expected in str(resp.json()["details"]["git_repo_health"])
 
 
 @pytest.mark.parametrize(

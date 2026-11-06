@@ -7,6 +7,7 @@ import logging.config
 import mimetypes
 import os
 import pathlib
+import re
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -73,6 +74,7 @@ EXPECTED_BUCKETS = (
     "security-state-preview",
 )
 LEDGER_TIMESTAMP_SEPARATOR = "\t"
+LEDGER_FILE_PATTERN = r"\d{4}(0[1-9]|1[0-2])\.txt"
 TIMESTAMP_FILE = "timestamp"
 METADATA_FILE = "metadata.json"
 METRICS_PREFIX = "remotesettings"
@@ -392,6 +394,18 @@ class GitService:
                     f"{cid}/{f}" in tree for f in (METADATA_FILE, TIMESTAMP_FILE)
                 ):
                     malformed.append(f"{bid}/{cid}")
+                    continue
+                # If there is a tombstones ledger, check its format.
+                ledger = f"{cid}/tombstones"
+                if ledger in tree and (
+                    tree[ledger].type != pygit2.GIT_OBJECT_TREE
+                    or not all(
+                        f.type == pygit2.GIT_OBJECT_BLOB
+                        and re.fullmatch(LEDGER_FILE_PATTERN, f.name or "")
+                        for f in cast(pygit2.Tree, tree[ledger])
+                    )
+                ):
+                    malformed.append(f"{bid}/{ledger}")
         if malformed:
             raise RuntimeError(f"Malformed collection folders: {malformed}")
 
