@@ -652,7 +652,7 @@ def test_repo_sync_deletes_records_from_past_runs(
 
 
 @responses.activate
-def test_repo_sync_removes_collections_deleted_from_server(
+def test_repo_sync_deletes_stale_folders(
     repo,
     mock_git_fetch,
     mock_rs_server_content,

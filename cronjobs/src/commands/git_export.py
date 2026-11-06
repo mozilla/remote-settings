@@ -360,7 +360,7 @@ async def repo_sync_content(
     live_collections = {
         (entry["bucket"], entry["collection"]) for entry in monitor_changeset["changes"]
     }
-    changed_branches |= remove_deleted_collections(
+    changed_branches |= delete_stale_folders(
         repo,
         author=author,
         committer=committer,
@@ -676,7 +676,7 @@ def update_bucket_branches(
     return changed_branches
 
 
-def remove_deleted_collections(
+def delete_stale_folders(
     repo: pygit2.Repository,
     author: pygit2.Signature,
     committer: pygit2.Signature,
