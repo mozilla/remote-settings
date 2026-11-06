@@ -350,6 +350,24 @@ class GitService:
                 f"Branch '{COMMON_BRANCH}' is not checked out. HEAD is {head!r}"
             )
 
+        # Check that all expected folders and files are available.
+        common_tree = self.repo.head.peel(pygit2.Commit).tree
+        expected_entries = {
+            "server-info.json": pygit2.GIT_OBJECT_BLOB,
+            "monitor-changes.json": pygit2.GIT_OBJECT_BLOB,
+            "broadcasts.json": pygit2.GIT_OBJECT_BLOB,
+            "cert-chains": pygit2.GIT_OBJECT_TREE,
+            "attachments": pygit2.GIT_OBJECT_TREE,
+        }
+        if missing := [
+            name
+            for name, obj_type in expected_entries.items()
+            if name not in common_tree or common_tree[name].type != obj_type
+        ]:
+            raise RuntimeError(
+                f"Missing or invalid content in '{COMMON_BRANCH}' branch: {missing}"
+            )
+
         # Content is read from the remote-tracking branches.
         branches = {branch_name for branch_name in self.repo.branches.remote}
         expected = {f"{REMOTE_NAME}/{COMMON_BRANCH}"} | {

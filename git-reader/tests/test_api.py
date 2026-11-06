@@ -374,6 +374,29 @@ def test_heartbeat_failing_malformed_collection_folder(api_client, repo_copy, it
     assert "main/legacy" in str(resp.json()["details"]["git_repo_health"])
 
 
+@pytest.mark.parametrize(
+    "items",
+    [
+        [("server-info.json", None)],
+        [("monitor-changes.json", None)],
+        [("broadcasts.json", None)],
+        [("cert-chains", None)],
+        [("attachments", None)],
+        [("cert-chains", b"not a folder")],
+    ],
+)
+def test_heartbeat_failing_common_branch_content(api_client, repo_copy, items):
+    author = pygit2.Signature("Test", "test@example.com")
+    parent = repo_copy.head.peel(pygit2.Commit)
+    tree_oid = upsert_blobs(repo_copy, items, base_tree=parent.tree)
+    repo_copy.create_commit("HEAD", author, author, "Msg", tree_oid, [parent.id])
+
+    resp = api_client.get("/v2/__heartbeat__")
+
+    assert resp.status_code == 500
+    assert items[0][0] in str(resp.json()["details"]["git_repo_health"])
+
+
 def test_heartbeat_failing_common_not_checked_out(api_client, repo_copy):
     repo_copy.references.delete("refs/heads/v1/common")
 
