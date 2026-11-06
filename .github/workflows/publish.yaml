@@ -123,6 +123,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Authenticate on GCP
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         id: gcp_auth
         uses: google-github-actions/auth@v3
         with:
@@ -196,7 +197,7 @@ jobs:
             docker buildx imagetools create --tag "${tag}" "${SRC}"
           done
       - name: Notify DEVs of build failure
-        if: failure()
+        if: ${{ failure() && !github.event.pull_request.head.repo.fork }}
         uses: slackapi/slack-github-action@v4.0.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -232,6 +233,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Authenticate on GCP
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         id: gcp_auth
         uses: google-github-actions/auth@v3
         with:
@@ -255,7 +257,7 @@ jobs:
           cache-from: type=gha,scope=cronjobs
           cache-to: type=gha,mode=max,scope=cronjobs
       - name: Notify DEVs of build failure
-        if: failure()
+        if: ${{ failure() && !github.event.pull_request.head.repo.fork }}
         uses: slackapi/slack-github-action@v4.0.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -291,6 +293,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Authenticate on GCP
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         id: gcp_auth
         uses: google-github-actions/auth@v3
         with:
@@ -314,7 +317,7 @@ jobs:
           cache-from: type=gha,scope=browser-tests
           cache-to: type=gha,mode=max,scope=browser-tests
       - name: Notify DEVs of build failure
-        if: failure()
+        if: ${{ failure() && !github.event.pull_request.head.repo.fork }}
         uses: slackapi/slack-github-action@v4.0.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -362,6 +365,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Authenticate on GCP
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         id: gcp_auth
         uses: google-github-actions/auth@v3
         with:
@@ -385,7 +389,7 @@ jobs:
           cache-from: type=gha,scope=git-reader
           cache-to: type=gha,mode=max,scope=git-reader
       - name: Notify DEVs of build failure
-        if: failure()
+        if: ${{ failure() && !github.event.pull_request.head.repo.fork }}
         uses: slackapi/slack-github-action@v4.0.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
