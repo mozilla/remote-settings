@@ -123,6 +123,10 @@ def fake_repo(temp_dir):
                 "cert-chains/a/b/cert.pem",
                 "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n".encode(),
             ),
+            (
+                "attachments/bundles/startup.json.mozlz4",
+                "version https://git-lfs.github.com/spec/v1\n",
+            ),
         ],
         base_tree=base_tree,
     )
@@ -382,6 +386,7 @@ def test_heartbeat_failing_malformed_collection_folder(api_client, repo_copy, it
         [("broadcasts.json", None)],
         [("cert-chains", None)],
         [("attachments", None)],
+        [("attachments/bundles/startup.json.mozlz4", None)],
         [("cert-chains", b"not a folder")],
     ],
 )

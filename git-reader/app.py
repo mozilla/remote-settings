@@ -357,7 +357,7 @@ class GitService:
             "monitor-changes.json": pygit2.GIT_OBJECT_BLOB,
             "broadcasts.json": pygit2.GIT_OBJECT_BLOB,
             "cert-chains": pygit2.GIT_OBJECT_TREE,
-            "attachments": pygit2.GIT_OBJECT_TREE,
+            f"attachments/{STARTUP_BUNDLE_FILE}": pygit2.GIT_OBJECT_BLOB,
         }
         if missing := [
             name
