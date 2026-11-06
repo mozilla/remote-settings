@@ -6,6 +6,7 @@ PSQL_INSTALLED := $(shell psql --version 2>/dev/null)
 SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader browser-tests bin
 TY_SOURCES := kinto-remote-settings kinto-slack cronjobs git-reader bin
 TYPOS_INSTALLED := $(shell typos --version 2>/dev/null)
+TRUFFLEHOG_INSTALLED := $(shell trufflehog --version 2>/dev/null)
 POSTGRES_PORT ?= 5432
 PSQL_CONN := -U postgres -h localhost -p $(POSTGRES_PORT)
 
@@ -47,7 +48,11 @@ ifndef TYPOS_INSTALLED
 else
 	typos `git ls-files | grep -v -E '.png|.jpg|.jpeg|.webm'`
 endif
-	$(VENV)/bin/detect-secrets-hook `git ls-files | grep -v uv.lock` --baseline .secrets.baseline
+ifndef TRUFFLEHOG_INSTALLED
+	$(warning "'trufflehog' is not available please install it")
+else
+	trufflehog filesystem --no-update --fail `git ls-files | grep -v -E 'uv.lock|ecdsa.private.pem'`
+endif
 	$(VENV)/bin/python bin/repo-python-versions.py
 
 test: $(INSTALL_STAMP)  ## Run unit tests
