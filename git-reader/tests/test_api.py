@@ -88,6 +88,16 @@ def fake_repo(temp_dir):
                             "last_modified": 123456789,
                         },
                         {
+                            "collection": "password-rules-preview",
+                            "bucket": "main",
+                            "last_modified": 113456788,
+                        },
+                        {
+                            "collection": "empty",
+                            "bucket": "main",
+                            "last_modified": 135000000,
+                        },
+                        {
                             "collection": "intermediates",
                             "bucket": "security-state",
                             "last_modified": 123456788,
@@ -252,8 +262,32 @@ def fake_repo(temp_dir):
         [oid],
     )
 
+    tree_oid = upsert_blobs(
+        repo,
+        items=[
+            ("intermediates/timestamp", b"123456788"),
+            (
+                "intermediates/metadata.json",
+                {
+                    "id": "intermediates",
+                    "bucket": "security-state",
+                    "signature": {"x5u": "https://autograph/a/b/cert.pem"},
+                },
+            ),
+        ],
+        base_tree=repo.TreeBuilder().write(),
+    )
+    repo.create_commit(
+        "refs/remotes/origin/v1/buckets/security-state",
+        author,
+        author,
+        "Message",
+        tree_oid,
+        [],
+    )
+
     # Create the remaining buckets branches to please heartbeat. They are left
-    # empty, only the `main` one above has content.
+    # empty.
     empty_oid = repo.create_commit(
         None, author, author, "Message", repo.TreeBuilder().write(), []
     )
@@ -426,6 +460,51 @@ def test_heartbeat_failing_common_branch_content(api_client, repo_copy, items):
 
     assert resp.status_code == 500
     assert items[0][0] in str(resp.json()["details"]["git_repo_health"])
+
+
+def edit_monitor_changes(repo, edit):
+    author = pygit2.Signature("Test", "test@example.com")
+    parent = repo.head.peel(pygit2.Commit)
+    content = json.loads(parent.tree["monitor-changes.json"].data)
+    edit(content["changes"])
+    tree_oid = upsert_blobs(
+        repo, [("monitor-changes.json", content)], base_tree=parent.tree
+    )
+    repo.create_commit("HEAD", author, author, "Msg", tree_oid, [parent.id])
+
+
+def edit_main_bucket(repo, items):
+    author = pygit2.Signature("Test", "test@example.com")
+    ref = repo.lookup_reference("refs/remotes/origin/v1/buckets/main")
+    parent = repo[ref.target]
+    tree_oid = upsert_blobs(repo, items, base_tree=parent.tree)
+    repo.create_commit(ref.name, author, author, "Msg", tree_oid, [parent.id])
+
+
+def test_heartbeat_failing_monitored_collection_without_folder(api_client, repo_copy):
+    edit_monitor_changes(
+        repo_copy,
+        lambda changes: changes.append(
+            {"bucket": "main", "collection": "unknown", "last_modified": 42}
+        ),
+    )
+
+    resp = api_client.get("/v2/__heartbeat__")
+
+    assert resp.status_code == 500
+    assert "without folder: ['main/unknown']" in str(resp.json()["details"])
+
+
+def test_heartbeat_failing_collection_folder_not_monitored(api_client, repo_copy):
+    edit_main_bucket(
+        repo_copy,
+        [("deleted/metadata.json", {"id": "deleted"}), ("deleted/timestamp", b"42")],
+    )
+
+    resp = api_client.get("/v2/__heartbeat__")
+
+    assert resp.status_code == 500
+    assert "not monitored: ['main/deleted']" in str(resp.json()["details"])
 
 
 def test_heartbeat_failing_common_not_checked_out(api_client, repo_copy):
@@ -629,8 +708,8 @@ def test_monitor_changes_view_filtered_bid(api_client):
     assert resp.status_code == 200
     data = resp.json()
 
-    assert len(data["changes"]) == 1
-    assert data["changes"][0]["bucket"] == "main"
+    assert len(data["changes"]) == 3
+    assert {c["bucket"] for c in data["changes"]} == {"main"}
 
 
 def test_monitor_changes_view_filtered_cid(api_client):

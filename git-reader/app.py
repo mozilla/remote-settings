@@ -383,13 +383,14 @@ class GitService:
         # Every collection folder must be readable by `get_collection_changeset()`.
         buckets_prefix = f"{REMOTE_NAME}/{GIT_REF_PREFIX}buckets/"
         malformed = []
+        collections: set[tuple[str, str]] = set()
         for branch_name in sorted(branches):
             if not branch_name.startswith(buckets_prefix):
                 continue
             bid = branch_name.removeprefix(buckets_prefix)
             tree = self.repo.branches.remote[branch_name].peel(pygit2.Commit).tree
             for entry in tree:
-                cid = entry.name
+                cid = cast(str, entry.name)
                 if entry.type != pygit2.GIT_OBJECT_TREE or not all(
                     f"{cid}/{f}" in tree for f in (METADATA_FILE, TIMESTAMP_FILE)
                 ):
@@ -406,8 +407,20 @@ class GitService:
                     )
                 ):
                     malformed.append(f"{bid}/{ledger}")
+
+                collections.add((bid, cid))
         if malformed:
             raise RuntimeError(f"Malformed collection folders: {malformed}")
+
+        # Collections listed in monitor/changes must match the bucket branches.
+        monitor_changes = json.loads(
+            cast(pygit2.Blob, common_tree["monitor-changes.json"]).data
+        )
+        monitored = {(c["bucket"], c["collection"]) for c in monitor_changes["changes"]}
+        if unknown := sorted(f"{b}/{c}" for b, c in monitored - collections):
+            raise RuntimeError(f"Monitored collections without folder: {unknown}")
+        if stale := sorted(f"{b}/{c}" for b, c in collections - monitored):
+            raise RuntimeError(f"Collection folders not monitored: {stale}")
 
         # Check that LFS files are present if self-contained.
         if self.settings.self_contained:
