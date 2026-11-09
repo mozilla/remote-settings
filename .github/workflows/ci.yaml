@@ -24,7 +24,15 @@ jobs:
           ./actionlint -color
         env:
           ACTIONLINT_VERSION: 1.7.12
-          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  # pragma: allowlist secret
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+      - name: Install trufflehog
+        run: |
+          curl --fail -L "https://github.com/trufflesecurity/trufflehog/releases/download/v${{ env.TRUFFLEHOG_VERSION }}/trufflehog_${{ env.TRUFFLEHOG_VERSION }}_linux_amd64.tar.gz" -o trufflehog.tar.gz
+          echo "${{ env.TRUFFLEHOG_SHA256 }} trufflehog.tar.gz" | sha256sum --check -
+          sudo tar xzf trufflehog.tar.gz -C /usr/local/bin trufflehog
+        env:
+          TRUFFLEHOG_VERSION: 3.99.7
+          TRUFFLEHOG_SHA256: bdbea0508e439b144f49de14e775908de5f902f3d14ea7ae8354bae72b0b72ef
       - name: Install typos spellcheck
         run: cargo install typos-cli
       - name: Install uv

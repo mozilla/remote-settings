@@ -27,7 +27,6 @@ dev = [
     "pytest-cov<8.0.0",
     "webtest==3.0.7",
     "coverage==7.17.0",
-    "detect-secrets>=1.5.0",
     "ruff>=0.16.1",
     "responses>=0.26.2",
     "httpx>=0.28.1",
@@ -122,7 +121,7 @@ pythonpath = ["git-reader", "cronjobs"]
     ]
 
 [tool.pytest_env]
-SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # pragma: allowlist secret
+SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # trufflehog:ignore
 
 [tool.typos.default]
 extend-ignore-re = [
