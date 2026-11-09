@@ -652,6 +652,49 @@ def test_repo_sync_deletes_records_from_past_runs(
 
 
 @responses.activate
+def test_repo_sync_deletes_stale_folders(
+    repo,
+    mock_git_fetch,
+    mock_rs_server_content,
+    mock_github_lfs,
+    mock_git_push,
+):
+    git_export.git_export()
+    simulate_pushed(repo)
+    read_file(repo, "v1/buckets/bid1", "cid1/rid1-1.json")
+    read_file(repo, "v1/buckets/bid2", "cid3/timestamp")
+
+    # Only cid2 is left on the server.
+    responses.replace(
+        responses.GET,
+        "http://testserver:9999/v1/buckets/monitor/collections/changes/changeset",
+        json={
+            "timestamp": 1800000000000,
+            "changes": [
+                {
+                    "last_modified": 1600000000000,
+                    "bucket": "bid2",
+                    "collection": "cid2",
+                },
+            ],
+        },
+    )
+
+    git_export.git_export()
+
+    pushed = {ref for call in mock_git_push.call_args_list for ref in call.args[0]}
+    assert "refs/heads/v1/buckets/bid1:refs/heads/v1/buckets/bid1" in pushed
+    assert "refs/heads/v1/buckets/bid2:refs/heads/v1/buckets/bid2" in pushed
+    with pytest.raises(KeyError):
+        read_file(repo, "v1/buckets/bid1", "cid1/rid1-1.json")
+    with pytest.raises(KeyError):
+        read_file(repo, "v1/buckets/bid2", "cid3/timestamp")
+    read_file(repo, "v1/buckets/bid2", "cid2/rid2-1.json")
+    bid2_tip = repo[repo.lookup_reference("refs/heads/v1/buckets/bid2").target]
+    assert bid2_tip.message == "Remove deleted collection bid2/cid3"
+
+
+@responses.activate
 def test_repo_sync_appends_tombstones_to_the_ledger(
     repo,
     mock_git_fetch,

@@ -25,6 +25,21 @@ def test_broadcasts(server: str, context: BrowserContext) -> None:
     assert "remote-settings/monitor_changes" in resp.json()["broadcasts"]
 
 
+def test_attachment_download(
+    server_config: dict, context: BrowserContext, editor_client: RemoteSettingsClient
+) -> None:
+    record_id = "attachment-download"
+    editor_client.create_record(data={"id": record_id, "title": "val"})
+    editor_client.add_attachment(id=record_id, filepath="kinto-logo.svg")
+    attachment = editor_client.get_record(id=record_id)["data"]["attachment"]
+
+    base_url = server_config["capabilities"]["attachments"]["base_url"]
+    resp = context.request.get(f"{base_url}{attachment['location']}")
+    assert resp.status == 200
+    with open("kinto-logo.svg", "rb") as f:
+        assert resp.body() == f.read()
+
+
 def test_prometheus_collection(
     request_session: requests.Session, server: str, editor_client: RemoteSettingsClient
 ) -> None:

@@ -125,11 +125,14 @@ services:
       context: browser-tests/
     image: remotesettings/browser-tests
     profiles: [browser-tests]
+    # Share web-proxy's network, so that localhost:8888 reaches the proxy from inside this
+    # container.
+    network_mode: service:web-proxy
     depends_on:
       web:
         condition: service_healthy
     environment:
-      - SERVER=http://web:8888/v1
+      - SERVER=http://localhost:8888/v1
       - MAIL_DIR=/var/debug-mail/
       - SLACK_DIR=/var/debug-slack/
     volumes:
