@@ -7,6 +7,7 @@ import logging.config
 import mimetypes
 import os
 import pathlib
+import re
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -73,6 +74,7 @@ EXPECTED_BUCKETS = (
     "security-state-preview",
 )
 LEDGER_TIMESTAMP_SEPARATOR = "\t"
+LEDGER_FILE_PATTERN = r"\d{4}(0[1-9]|1[0-2])\.txt"
 TIMESTAMP_FILE = "timestamp"
 METADATA_FILE = "metadata.json"
 METRICS_PREFIX = "remotesettings"
@@ -336,8 +338,19 @@ class GitService:
 
     def check_content(self) -> None:
         """
-        Check that the repository has the expected branches.
+        Check that the repository is sound, raise if not.
         """
+        self._check_head()
+        common_tree = self.repo.head.peel(pygit2.Commit).tree
+        self._check_common_content(common_tree)
+        self._check_branches()
+        self._check_collection_folders()
+        self._check_monitored_collections(common_tree)
+        if self.settings.self_contained:
+            self._check_cert_chains(common_tree)
+            self._check_lfs_files()
+
+    def _check_head(self) -> None:
         # The common branch is the one checked out by the update job, and the
         # attachments served from the working directory come from it.
         head = (
@@ -350,6 +363,24 @@ class GitService:
                 f"Branch '{COMMON_BRANCH}' is not checked out. HEAD is {head!r}"
             )
 
+    def _check_common_content(self, common_tree: pygit2.Tree) -> None:
+        expected_entries = {
+            "server-info.json": pygit2.GIT_OBJECT_BLOB,
+            "monitor-changes.json": pygit2.GIT_OBJECT_BLOB,
+            "broadcasts.json": pygit2.GIT_OBJECT_BLOB,
+            "cert-chains": pygit2.GIT_OBJECT_TREE,
+            f"attachments/{STARTUP_BUNDLE_FILE}": pygit2.GIT_OBJECT_BLOB,
+        }
+        if missing := [
+            name
+            for name, obj_type in expected_entries.items()
+            if name not in common_tree or common_tree[name].type != obj_type
+        ]:
+            raise RuntimeError(
+                f"Missing or invalid content in '{COMMON_BRANCH}' branch: {missing}"
+            )
+
+    def _check_branches(self) -> None:
         # Content is read from the remote-tracking branches.
         branches = {branch_name for branch_name in self.repo.branches.remote}
         expected = {f"{REMOTE_NAME}/{COMMON_BRANCH}"} | {
@@ -360,15 +391,81 @@ class GitService:
                 f"Missing branches in repository: {sorted(missing)}. Found: {sorted(branches)}"
             )
 
-        # Check that LFS files are present if self-contained.
-        if self.settings.self_contained:
-            known_lfs_file = os.path.join(
-                self.settings.git_repo_path, "attachments", STARTUP_BUNDLE_FILE
-            )
-            if os.path.getsize(known_lfs_file) < LFS_POINTER_FILE_SIZE_BYTES:
-                raise LFSPointerFoundError(
-                    f"{STARTUP_BUNDLE_FILE} is a Git LFS pointer file"
+    def _bucket_trees(self) -> Generator[tuple[str, pygit2.Tree], None, None]:
+        """
+        Yield the id and tree of each bucket branch.
+        """
+        buckets_prefix = f"{REMOTE_NAME}/{GIT_REF_PREFIX}buckets/"
+        for branch_name in sorted(self.repo.branches.remote):
+            if branch_name.startswith(buckets_prefix):
+                bid = branch_name.removeprefix(buckets_prefix)
+                branch = self.repo.branches.remote[branch_name]
+                yield bid, branch.peel(pygit2.Commit).tree
+
+    def _check_collection_folders(self) -> None:
+        # Every collection folder must be readable by `get_collection_changeset()`.
+        malformed = []
+        for bid, tree in self._bucket_trees():
+            for entry in tree:
+                cid = cast(str, entry.name)
+                if entry.type != pygit2.GIT_OBJECT_TREE or not all(
+                    f"{cid}/{f}" in tree for f in (METADATA_FILE, TIMESTAMP_FILE)
+                ):
+                    malformed.append(f"{bid}/{cid}")
+                    continue
+                # If there is a tombstones ledger, check its format.
+                ledger = f"{cid}/tombstones"
+                if ledger in tree and (
+                    tree[ledger].type != pygit2.GIT_OBJECT_TREE
+                    or not all(
+                        f.type == pygit2.GIT_OBJECT_BLOB
+                        and re.fullmatch(LEDGER_FILE_PATTERN, f.name or "")
+                        for f in cast(pygit2.Tree, tree[ledger])
+                    )
+                ):
+                    malformed.append(f"{bid}/{ledger}")
+        if malformed:
+            raise RuntimeError(f"Malformed collection folders: {malformed}")
+
+    def _check_monitored_collections(self, common_tree: pygit2.Tree) -> None:
+        # Collections listed in monitor/changes must match the bucket branches.
+        monitor_changes = json.loads(
+            cast(pygit2.Blob, common_tree["monitor-changes.json"]).data
+        )
+        monitored = {(c["bucket"], c["collection"]) for c in monitor_changes["changes"]}
+        collections = {
+            (bid, cast(str, entry.name))
+            for bid, tree in self._bucket_trees()
+            for entry in tree
+        }
+        if unknown := sorted(f"{b}/{c}" for b, c in monitored - collections):
+            raise RuntimeError(f"Monitored collections without folder: {unknown}")
+        if stale := sorted(f"{b}/{c}" for b, c in collections - monitored):
+            raise RuntimeError(f"Collection folders not monitored: {stale}")
+
+    def _check_cert_chains(self, common_tree: pygit2.Tree) -> None:
+        missing_certs = []
+        for bid, tree in self._bucket_trees():
+            for entry in tree:
+                cid = entry.name
+                metadata = json.loads(
+                    cast(pygit2.Blob, tree[f"{cid}/{METADATA_FILE}"]).data
                 )
+                x5u = metadata.get("signature", {}).get("x5u", "")
+                pem = urlparse(x5u).path.lstrip("/")
+                if not pem or f"cert-chains/{pem}" not in common_tree:
+                    missing_certs.append(f"{bid}/{cid}")
+        if missing_certs:
+            raise RuntimeError(f"Missing certificate chains for: {missing_certs}")
+
+    def _check_lfs_files(self) -> None:
+        known_lfs_file = os.path.join(
+            self.settings.git_repo_path, "attachments", STARTUP_BUNDLE_FILE
+        )
+        if os.path.getsize(known_lfs_file) < LFS_POINTER_FILE_SIZE_BYTES:
+            raise LFSPointerFoundError(
+                f"{STARTUP_BUNDLE_FILE} is a Git LFS pointer file"
+            )
 
     def get_head_info(self, branch: str = COMMON_BRANCH) -> dict:
         """
