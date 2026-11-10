@@ -46,7 +46,7 @@ services:
   autograph:
     platform: linux/amd64
     # Keep this tag in sync with the `autograph-db` build context ref above.
-    image: mozilla/autograph:9.0.1-amd64
+    image: mozilla/autograph:9.0.2-amd64
     user: root
     depends_on:
       autograph-db:
