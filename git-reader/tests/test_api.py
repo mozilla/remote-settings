@@ -698,11 +698,20 @@ def test_monitor_changes_bad_expected(api_client, _expected):
     assert resp.headers["cache-control"] == "max-age=3600"
 
 
-def test_monitor_changes_view_filtered_bad_since(api_client):
+def test_monitor_changes_expected_older_than_since_redirects(api_client):
     resp = api_client.get(
-        "/v2/buckets/monitor/collections/changes/changeset?_since=223456789&_expected=123456789"
+        "/v2/buckets/monitor/collections/changes/changeset?_since=223456789&_expected=123456789&bucket=main",
+        follow_redirects=False,
     )
-    assert resp.status_code == 400
+    assert resp.status_code == 307
+    assert resp.headers["location"] == (
+        "/v2/buckets/monitor/collections/changes/changeset?_since=223456789&_expected=223456789&bucket=main"
+    )
+    assert resp.headers["cache-control"] == "max-age=3600"
+
+    resp = api_client.get(resp.headers["location"])
+    assert resp.status_code == 200
+    assert resp.json()["changes"] == []
 
 
 def test_monitor_changes_negative_values(api_client):
@@ -849,6 +858,14 @@ def test_changeset_bad_since(api_client, since):
         f"/v2/buckets/main/collections/password-rules/changeset?_since={since}&_expected=123456789"
     )
     assert resp.status_code in (400, 422)
+
+
+def test_changeset_expected_older_than_since(api_client):
+    resp = api_client.get(
+        "/v2/buckets/main/collections/password-rules/changeset?_since=223456789&_expected=123456789",
+        follow_redirects=False,
+    )
+    assert resp.status_code == 400
 
 
 @pytest.mark.parametrize("_expected", ["", "-1", "abc", '"42"'])
