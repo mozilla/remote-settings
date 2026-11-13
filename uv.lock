@@ -1918,7 +1918,7 @@ requires-dist = [
     { name = "canonicaljson-rs", specifier = "==0.12.0" },
     { name = "cryptography", specifier = "<51" },
     { name = "granian", specifier = ">=2.7.9,<3.0.0" },
-    { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.3.3,<27" },
+    { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.6.0,<27" },
     { name = "kinto-attachment", specifier = ">=9.0.1" },
     { name = "kinto-emailer", specifier = ">=4" },
     { name = "kinto-slack", editable = "kinto-slack" },
