@@ -24,7 +24,7 @@ from typing import (
     Mapping,
     cast,
 )
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 import lz4.block
 import prometheus_client
@@ -933,6 +933,7 @@ def hello(
     response_model=ChangesetResponse,
 )
 def monitor_changes(
+    request: Request,
     response: Response,
     _expected: Annotated[int, Query(ge=0)],
     _since: Annotated[int, Query(ge=0)] | None = None,
@@ -940,11 +941,15 @@ def monitor_changes(
     collection: str | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
-) -> ChangesetResponse:
+) -> ChangesetResponse | RedirectResponse:
     if _since and _expected > 0 and _expected < _since:
-        raise HTTPException(
-            status_code=400,
-            detail="_expected must be superior to _since if both are provided",
+        # The client is already more recent than the expected timestamp (eg. it
+        # received a debounced Push broadcast after a timer sync).
+        # Redirect to a cacheable URL (`_expected={_since}`).
+        params = dict(request.query_params)
+        params["_expected"] = str(_since)
+        return RedirectResponse(
+            f"{request.url.path}?{urlencode(params)}", status_code=307
         )
 
     if _expected == 0 or f"{_expected}".startswith("9999"):
