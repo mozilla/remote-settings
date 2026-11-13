@@ -1033,7 +1033,7 @@ wheels = [
 
 [[package]]
 name = "kinto"
-version = "26.5.0"
+version = "26.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bcrypt" },
@@ -1053,9 +1053,9 @@ dependencies = [
     { name = "transaction" },
     { name = "waitress" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/52/8c/aa404595a89c14cd8106137d45b274111537ee5e066a4f8d06eb75308c9e/kinto-26.5.0.tar.gz", hash = "sha256:242d6fe6870456ffea05461b250db4499a2f1431582075b4ddca75c8d7851f7e", size = 1653090, upload-time = "2026-10-13T09:56:12.719Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f1/6a/cbba602ec0b47acebba63cb39b84462525fd99dfb70cbda4e3ab9c6455d1/kinto-26.6.0.tar.gz", hash = "sha256:73d8dfd2b960c8bf7a966ec6500ae93f38fc9fa638f58ae1a7294c460d38faf1", size = 1645530, upload-time = "2026-11-13T08:17:21.441Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8c/1c/0b55ed7fcf49a2c39bb249282bbdd45e3f9d72444970d52d7275f14693ec/kinto-26.5.0-py3-none-any.whl", hash = "sha256:886a877bc33a810324ca57a4c48bfebd74de440405d194b649c414e34fa614a1", size = 254669, upload-time = "2026-10-13T09:56:10.967Z" },
+    { url = "https://files.pythonhosted.org/packages/60/65/49d50279c17f26b86e76b6719a46fb1c32691f8a33bd2c1042083ee1ebff/kinto-26.6.0-py3-none-any.whl", hash = "sha256:daf012734c9c3c4ed7505abf2c0412b08ae3ad7b0e6e45fbb4f28fdc6860cea6", size = 255328, upload-time = "2026-11-13T08:17:19.761Z" },
 ]
 
 [package.optional-dependencies]
@@ -1918,7 +1918,7 @@ requires-dist = [
     { name = "canonicaljson-rs", specifier = "==0.12.0" },
     { name = "cryptography", specifier = "<51" },
     { name = "granian", specifier = ">=2.7.9,<3.0.0" },
-    { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.3.3,<27" },
+    { name = "kinto", extras = ["postgresql", "memcached", "monitoring"], specifier = ">=26.6.0,<27" },
     { name = "kinto-attachment", specifier = ">=9.0.1" },
     { name = "kinto-emailer", specifier = ">=4" },
     { name = "kinto-slack", editable = "kinto-slack" },
