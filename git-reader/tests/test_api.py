@@ -860,6 +860,14 @@ def test_changeset_bad_since(api_client, since):
     assert resp.status_code in (400, 422)
 
 
+def test_changeset_expected_older_than_since(api_client):
+    resp = api_client.get(
+        "/v2/buckets/main/collections/password-rules/changeset?_since=223456789&_expected=123456789",
+        follow_redirects=False,
+    )
+    assert resp.status_code == 400
+
+
 @pytest.mark.parametrize("_expected", ["", "-1", "abc", '"42"'])
 def test_changeset_bad_expected(api_client, _expected):
     expected_param = f"?_expected={_expected}" if _expected else ""
