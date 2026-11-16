@@ -171,7 +171,7 @@ def fake_repo(temp_dir):
                 b"130000000",
             ),
             (
-                "password-rules/metadata.json",
+                "password-rules/metadata",
                 {
                     "id": "password-rules",
                     "bucket": "main",
@@ -186,7 +186,7 @@ def fake_repo(temp_dir):
                 b"113456788",
             ),
             (
-                "password-rules-preview/metadata.json",
+                "password-rules-preview/metadata",
                 {
                     "id": "password-rules-preview",
                     "bucket": "main",
@@ -238,7 +238,7 @@ def fake_repo(temp_dir):
                 b"135000000",
             ),
             (
-                "empty/metadata.json",
+                "empty/metadata",
                 {
                     "id": "empty",
                     "bucket": "main",
@@ -267,7 +267,7 @@ def fake_repo(temp_dir):
         items=[
             ("intermediates/timestamp", b"123456788"),
             (
-                "intermediates/metadata.json",
+                "intermediates/metadata",
                 {
                     "id": "intermediates",
                     "bucket": "security-state",
@@ -398,7 +398,7 @@ def test_heartbeat_failing(api_client, repo_copy, missing_ref):
         # Missing metadata.
         ([("legacy/timestamp", b"42")], "main/legacy"),
         # Missing timestamp.
-        ([("legacy/metadata.json", {"id": "legacy"})], "main/legacy"),
+        ([("legacy/metadata", {"id": "legacy"})], "main/legacy"),
         # Collection is a file.
         ([("cid-as-file", b"not a folder")], "main/cid-as-file"),
         # Ledger is a file.
@@ -498,7 +498,7 @@ def test_heartbeat_failing_monitored_collection_without_folder(api_client, repo_
 def test_heartbeat_failing_collection_folder_not_monitored(api_client, repo_copy):
     edit_main_bucket(
         repo_copy,
-        [("deleted/metadata.json", {"id": "deleted"}), ("deleted/timestamp", b"42")],
+        [("deleted/metadata", {"id": "deleted"}), ("deleted/timestamp", b"42")],
     )
 
     resp = api_client.get("/v2/__heartbeat__")
@@ -520,7 +520,7 @@ def test_heartbeat_failing_missing_cert_chain(
     api_client, repo_copy, monkeypatch, metadata
 ):
     monkeypatch.setenv("SELF_CONTAINED", "true")
-    edit_main_bucket(repo_copy, [("empty/metadata.json", metadata)])
+    edit_main_bucket(repo_copy, [("empty/metadata", metadata)])
 
     resp = api_client.get("/v2/__heartbeat__")
 
@@ -529,7 +529,7 @@ def test_heartbeat_failing_missing_cert_chain(
 
 
 def test_heartbeat_ignores_cert_chains_if_not_self_contained(api_client, repo_copy):
-    edit_main_bucket(repo_copy, [("empty/metadata.json", {"id": "empty"})])
+    edit_main_bucket(repo_copy, [("empty/metadata", {"id": "empty"})])
 
     resp = api_client.get("/v2/__heartbeat__")
 
@@ -967,6 +967,24 @@ def test_changeset_empty_collection(api_client):
     assert data["timestamp"] == 135000000
     assert data["metadata"]["last_modified"] == 140000000
     assert data["changes"] == []
+
+
+def test_changeset_record_with_metadata_id(app, api_client, repo_copy):
+    from app import Settings, get_settings
+
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        self_contained=True, git_repo_path=os.environ["GIT_REPO_PATH"]
+    )
+    edit_main_bucket(
+        repo_copy, [("empty/metadata.json", {"id": "metadata", "last_modified": 42})]
+    )
+
+    resp = api_client.get("/v2/buckets/main/collections/empty/changeset?_expected=0")
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert data["metadata"]["id"] == "empty"
+    assert data["changes"] == [{"id": "metadata", "last_modified": 42}]
 
 
 def test_changeset_since_without_any_tombstone(api_client):
