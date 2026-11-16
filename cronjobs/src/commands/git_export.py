@@ -85,6 +85,10 @@ GIT_REF_PREFIX = "v1/"
 COMMON_BRANCH = "common"
 LEDGER_TIMESTAMP_SEPARATOR = "\t"
 TIMESTAMP_FILE = "timestamp"
+METADATA_FILE = "metadata"
+# Legacy metadata file, which can conflict with a record with id `metadata`.
+# Kept until git-reader reads `METADATA_FILE` (see #1696).
+LEGACY_METADATA_FILE = "metadata.json"
 _user, _email = GIT_AUTHOR.split("<")
 GIT_USER = _user.strip()
 GIT_EMAIL = _email.rstrip(">")
@@ -555,8 +559,10 @@ def changeset_to_branch_folder(
     Convert a changeset to a list of files to be stored in the corresponding branch folder.
     """
     cid = changeset["metadata"]["id"]
+    metadata = json_dumpb(changeset["metadata"])
     branch_content: list[tuple[str, bytes | None]] = [
-        (f"{cid}/metadata.json", json_dumpb(changeset["metadata"])),
+        (f"{cid}/{METADATA_FILE}", metadata),
+        (f"{cid}/{LEGACY_METADATA_FILE}", metadata),
         # Store the collection timestamp as reported by the server, since it cannot
         # be reliably rebuilt from an empty list of records.
         (f"{cid}/{TIMESTAMP_FILE}", str(changeset["timestamp"]).encode()),
