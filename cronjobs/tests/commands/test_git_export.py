@@ -1055,6 +1055,15 @@ def test_changeset_to_branch_folder_stores_collection_timestamp(repo):
     assert content["cid/timestamp"] == b"100"
 
 
+def test_changeset_to_branch_folder_stores_metadata_with_and_without_extension(
+    repo,
+):
+    content = dict(git_export.changeset_to_branch_folder(None, changeset("cid", [])))
+
+    assert content["cid/metadata"] == content["cid/metadata.json"]
+    assert json.loads(content["cid/metadata"])["id"] == "cid"
+
+
 def test_changeset_to_branch_folder_removes_deleted_records(repo):
     tree = build_tree(
         repo,
