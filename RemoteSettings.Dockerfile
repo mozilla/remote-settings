@@ -2,7 +2,7 @@
 # Compile stage
 ############################
 
-FROM python:3.15.1 AS compile
+FROM python:3.15.2 AS compile
 
 ENV VIRTUAL_ENV=/opt/.venv \
     PATH="/opt/.venv/bin:$PATH"
