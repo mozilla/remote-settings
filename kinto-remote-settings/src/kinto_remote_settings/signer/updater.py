@@ -146,10 +146,7 @@ class LocalUpdater(object):
                 request
             )
 
-        records, timestamp = self.get_destination_records(empty_none=False)
-        serialized_records = canonical_json(records, timestamp)
-        logger.debug(f"{self.source_collection_uri}:\t'{serialized_records}'")
-        signatures = self.signer.sign(serialized_records)
+        signatures = self.sign_destination_records()
 
         self.set_destination_signatures(signatures, source_attributes, request)
         if next_source_status is not None:
@@ -169,12 +166,9 @@ class LocalUpdater(object):
             object_id=self.source["collection"],
         )
 
-        records, timestamp = self.get_destination_records(empty_none=False)
-        serialized_records = canonical_json(records, timestamp)
-        logger.debug(f"{self.source_collection_uri}:\t'{serialized_records}'")
-        signature = self.signer.sign(serialized_records)
+        signatures = self.sign_destination_records()
         self.set_destination_signatures(
-            signature, request=request, source_attributes=source_attributes
+            signatures, request=request, source_attributes=source_attributes
         )
 
         if next_source_status is not None:
@@ -184,6 +178,33 @@ class LocalUpdater(object):
             attrs[TRACKING_FIELDS.LAST_SIGNATURE_BY.value] = current_userid
             attrs[TRACKING_FIELDS.LAST_SIGNATURE_DATE.value] = current_date
             self._update_source_attributes(request, **attrs)
+
+    def sign_destination_records(self) -> list[dict]:
+        """Sign the destination records with both payload formats.
+
+        The legacy format is first in the list, because most of our
+        clients still expect the old format without collection, and won't
+        notice this server change.
+
+        The new clients however will fail with the first entries of the list
+        with the legacy payload.
+        And once most of our clients expect the new format, we can swap and put
+        legacy format second.
+        (the single field ``"signature"`` in the collection metadata will always
+        have to point to the legacy payload though, see below).
+        """
+        records, timestamp = self.get_destination_records(empty_none=False)
+        serialized_records = canonical_json(records, timestamp)
+        logger.debug(f"{self.source_collection_uri}:\t'{serialized_records}'")
+
+        collection = "%s/%s" % (
+            self.destination["bucket"],
+            self.destination["collection"],
+        )
+        serialized_with_collection = canonical_json(records, timestamp, collection)
+        logger.debug(f"{self.source_collection_uri}:\t'{serialized_with_collection}'")
+
+        return self.signer.sign(serialized_records, serialized_with_collection)
 
     def rollback_changes(
         self,
@@ -432,7 +453,12 @@ class LocalUpdater(object):
         new_collection = dict(**collection_record)
         new_collection.pop(FIELD_LAST_MODIFIED, None)
         new_collection["signatures"] = signatures
-        new_collection["signature"] = signatures[0]  # For backward compatibility.
+        # For backward compatibility with clients prior to Fx 146
+        # This legacy version should expose the legacy payload (without collection)
+        # See https://github.com/mozilla/remote-settings/pull/1011
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1984079
+        # (Rust client signatures were never enabled and can be ignored).
+        new_collection["signature"] = signatures[0]
         for attr in PUBLISHED_COLLECTION_FIELDS:
             if attr in source_attributes:
                 new_collection[attr] = source_attributes[attr]
