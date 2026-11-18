@@ -76,7 +76,7 @@ EXPECTED_BUCKETS = (
 LEDGER_TIMESTAMP_SEPARATOR = "\t"
 LEDGER_FILE_PATTERN = r"\d{4}(0[1-9]|1[0-2])\.txt"
 TIMESTAMP_FILE = "timestamp"
-METADATA_FILE = "metadata.json"
+METADATA_FILE = "metadata"
 METRICS_PREFIX = "remotesettings"
 METRICS = {
     "request_duration_seconds": prometheus_client.Histogram(
@@ -507,16 +507,15 @@ class GitService:
             if path == TIMESTAMP_FILE:
                 timestamp = int(bcontent)
                 continue
+            if path == METADATA_FILE:
+                metadata = json.loads(bcontent.decode("utf-8"))
+                continue
             if not path.endswith(".json"):
                 # Ignore unknown files.
                 continue
-            content = json.loads(bcontent.decode("utf-8"))
-            if path == METADATA_FILE:
-                metadata = content
-            else:
-                # Each record is stored in a separate file named {id}.json
-                rid = pathlib.Path(path).stem
-                records_by_id[rid] = content
+            # Each record is stored in a separate file named {id}.json
+            rid = pathlib.Path(path).stem
+            records_by_id[rid] = json.loads(bcontent.decode("utf-8"))
         assert metadata is not None, f"{METADATA_FILE} not found"
         assert timestamp is not None, f"{TIMESTAMP_FILE} not found"
 
