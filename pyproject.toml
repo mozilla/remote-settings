@@ -23,7 +23,7 @@ kinto-remote-settings = ["kinto-remote-settings"]
 cronjobs = ["cronjobs"]
 git-reader = ["git-reader"]
 dev = [
-    "pytest==9.1.1",
+    "pytest==9.2.0",
     "pytest-cov<8.0.0",
     "webtest==3.0.7",
     "coverage==7.17.0",
@@ -35,7 +35,7 @@ dev = [
     "ty>=0.0.68",
 ]
 docs = [
-    "docutils==0.22.4",
+    "docutils==0.23",
     "sphinx==9.2.0",
     "sphinx-autobuild==2025.8.25",
     "sphinxcontrib-mermaid==2.1.1",
