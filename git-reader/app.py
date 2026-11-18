@@ -510,7 +510,7 @@ class GitService:
             if path == METADATA_FILE:
                 metadata = json.loads(bcontent.decode("utf-8"))
                 continue
-            if not path.endswith(".json"):
+            if path == "metadata.json" or not path.endswith(".json"):
                 # Ignore unknown files.
                 continue
             # Each record is stored in a separate file named {id}.json

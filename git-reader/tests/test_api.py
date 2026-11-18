@@ -969,14 +969,15 @@ def test_changeset_empty_collection(api_client):
     assert data["changes"] == []
 
 
-def test_changeset_record_with_metadata_id(app, api_client, repo_copy):
+def test_changeset_ignores_legacy_metadata_file(app, api_client, repo_copy):
     from app import Settings, get_settings
 
     app.dependency_overrides[get_settings] = lambda: Settings(
         self_contained=True, git_repo_path=os.environ["GIT_REPO_PATH"]
     )
+    # git-export also writes the collection metadata to `metadata.json` (legacy).
     edit_main_bucket(
-        repo_copy, [("empty/metadata.json", {"id": "metadata", "last_modified": 42})]
+        repo_copy, [("empty/metadata.json", {"id": "empty", "last_modified": 42})]
     )
 
     resp = api_client.get("/v2/buckets/main/collections/empty/changeset?_expected=0")
@@ -984,7 +985,7 @@ def test_changeset_record_with_metadata_id(app, api_client, repo_copy):
     data = resp.json()
 
     assert data["metadata"]["id"] == "empty"
-    assert data["changes"] == [{"id": "metadata", "last_modified": 42}]
+    assert data["changes"] == []
 
 
 def test_changeset_since_without_any_tombstone(api_client):
