@@ -1,11 +1,14 @@
 import os
 
+import pytest
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 
+from .conftest import RemoteSettingsClient
 
-# -- BEGIN Code imported from Telescope
+
+# -- BEGIN Webdriver code imported from Telescope
 # https://github.com/mozilla-services/telescope/blob/20e8179cb453a4e2d8dd354a0c60aa489a6a8d9f/checks/remotesettings/firefox_sync.py
 
 FIREFOX_BINARY_PATH = os.getenv("FIREFOX_BINARY_PATH")
@@ -96,4 +99,45 @@ def sync_from_browser(
     finally:
         driver.quit()
 
-# -- END Code imported from Telescope
+
+# -- END Webdriver code imported from Telescope
+
+
+@pytest.mark.readonly
+@pytest.mark.skipif(
+    not (FIREFOX_BINARY_PATH and GECKODRIVER_BINARY_PATH),
+    reason="FIREFOX_BINARY_PATH and GECKODRIVER_BINARY_PATH must be set",
+)
+@pytest.mark.parametrize(
+    "script", [JS_SYNC_SCRIPT, RUST_SYNC_SCRIPT], ids=["js", "rust"]
+)
+def test_firefox_sync(
+    server: str,
+    script: str,
+    setup_client: RemoteSettingsClient | None,
+    anonymous_client: RemoteSettingsClient,
+) -> None:
+    if setup_client:
+        # We run integration-tests with `setup_client: True` on local
+        # servers, and CI on pull-requests.
+        # We skip the synchronization from a real server for now
+        # because we don't a real V2 server yet (See RMST-620).
+
+        # We will only run this test on STAGE for the deploy gateway
+        # that promotes the build to PROD if successful.
+
+        # TODO/Notes:
+        # - Writer https://remote-settings.allizom.org is only /v1/
+        # - V2 reader at https://firefox.settings.services.allizom.org blocks
+        #   is behind CDN + WAF, thus blocks __heartbeat__ and has latency
+        #   (would not test data from freshly deployed stack)
+        # - V2 reader on the origin is not detected as STAGE by the JS client
+        #   code (see https://searchfox.org/firefox-main/rev/6d6f414f5ed/services/settings/Utils.sys.mjs#148-150)
+        #   and signature verification will fail.
+        # - run.sh waits on __heartbeat__
+        pytest.skip("Setup credentials provided, not a deployed environment.")
+
+    cid = anonymous_client.collection_name
+    result = sync_from_browser(server, script, [[cid]], timeout_seconds=30)
+
+    assert result["ok"], result
