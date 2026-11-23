@@ -23,7 +23,7 @@ kinto-remote-settings = ["kinto-remote-settings"]
 cronjobs = ["cronjobs"]
 git-reader = ["git-reader"]
 dev = [
-    "pytest==9.2.0",
+    "pytest==9.1.1",
     "pytest-cov<8.0.0",
     "webtest==3.0.7",
     "coverage==7.17.0",
