@@ -20,7 +20,7 @@ from pygit2 import (
 from . import ts2dt
 from ._git_export_git_tools import (
     clone_or_fetch,
-    list_lfs_pointers,
+    list_repo_attachments,
     make_lfs_pointer,
     push_mirror,
     reset_repo,
@@ -314,11 +314,8 @@ async def repo_sync_content(
         "base_url"
     ].rstrip("/")
 
-    # Scan the existing LFS pointers in the repository, in order to detect changed attachments.
-    # When exporting locally, all attachments are fetched and overwritten.
-    existing_attachments = (
-        {} if LOCAL_EXPORT else list_lfs_pointers(repo, common_base_tree)
-    )
+    # Scan the existing attachments in the repository, in order to detect changed ones.
+    existing_attachments = list_repo_attachments(repo, common_base_tree)
     print(f"Found {len(existing_attachments)} attachments in tree")
     # Compare attachments in the changesets with existing ones, fetch the ones that
     # have changed, and return the content of the 'common' branch.
