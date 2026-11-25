@@ -8,6 +8,7 @@ It then uploads these zip files to Google Cloud Storage.
 import io
 import json
 import os
+import shutil
 import tempfile
 import zipfile
 from email.utils import parsedate_to_datetime
@@ -30,6 +31,9 @@ DESTINATION_FOLDER = os.getenv("DESTINATION_FOLDER", "bundles")
 # Flags for local development
 BUILD_ALL = os.getenv("BUILD_ALL", "0") in "1yY"
 SKIP_UPLOAD = os.getenv("SKIP_UPLOAD", "0") in "1yY"
+# Write the bundles into this folder instead of the Cloud storage bucket
+# (eg. the attachments folder served by the local server).
+LOCAL_DESTINATION_DIR = os.getenv("LOCAL_DESTINATION_DIR")
 
 
 @retry_timeout
@@ -112,6 +116,22 @@ def sync_cloud_storage(
         if blob.name in to_delete_set:
             blob.delete()
             print(f"Deleted gs://{storage_bucket}/{blob.name}")
+
+
+def sync_local_folder(folder: str, to_upload: list[str], to_delete: list[str]) -> None:
+    """
+    Copy the specified `to_upload` filenames into `folder`, and delete the specified
+    `to_delete` filenames from it.
+    """
+    os.makedirs(folder, exist_ok=True)
+    for filename in to_upload:
+        shutil.copy(filename, os.path.join(folder, filename))
+        print(f"Copied {filename} to {folder}")
+    for filename in to_delete:
+        path = os.path.join(folder, filename)
+        if os.path.exists(path):
+            os.remove(path)
+            print(f"Deleted {path}")
 
 
 def build_bundles() -> None:
@@ -234,7 +254,9 @@ def build_bundles() -> None:
     else:
         print(f"Existing {startup_file!r} bundle up-to-date. Nothing to do.")
 
-    if not SKIP_UPLOAD:
+    if LOCAL_DESTINATION_DIR:
+        sync_local_folder(LOCAL_DESTINATION_DIR, bundles_to_upload, bundles_to_delete)
+    elif not SKIP_UPLOAD:
         sync_cloud_storage(
             STORAGE_BUCKET_NAME,
             DESTINATION_FOLDER,

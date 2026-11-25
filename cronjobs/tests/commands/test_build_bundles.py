@@ -12,6 +12,7 @@ from commands.build_bundles import (
     fetch_attachment,
     get_modified_timestamp,
     sync_cloud_storage,
+    sync_local_folder,
     write_json_mozlz4,
     write_zip,
 )
@@ -361,3 +362,57 @@ def test_sync_cloud_storage_upload_and_delete(mock_storage_client, mock_environm
 
     # Check deletions
     mock_blob3.delete.assert_called_once()
+
+
+def test_sync_local_folder_copy_and_delete(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "file1.txt").write_text("content1")
+    dest = tmp_path / "dest"
+    dest.mkdir()
+    (dest / "file2.txt").write_text("old")
+
+    sync_local_folder(str(dest), ["file1.txt"], ["file2.txt", "file3.txt"])
+
+    assert sorted(os.listdir(dest)) == ["file1.txt"]
+    assert (dest / "file1.txt").read_text() == "content1"
+
+
+@responses.activate
+def test_build_bundles_writes_to_local_folder(
+    mock_fetch_all_changesets,
+    mock_sync_cloud_storage,
+    monkeypatch,
+    tmp_path,
+):
+    server_url = "http://testserver"
+    monkeypatch.setenv("SERVER", server_url)
+    responses.add(
+        responses.GET,
+        server_url,
+        json={
+            "capabilities": {"attachments": {"base_url": f"{server_url}/attachments/"}}
+        },
+    )
+    for bundle in ["changesets.json.mozlz4", "startup.json.mozlz4"]:
+        # No previous bundle.
+        responses.add(
+            responses.GET, f"{server_url}/attachments/bundles/{bundle}", status=404
+        )
+    mock_fetch_all_changesets.return_value = [
+        {
+            "changes": [],
+            "metadata": {
+                "id": "collection0",
+                "bucket": "bucket0",
+                "flags": ["startup"],
+            },
+            "timestamp": 1720004688000,
+        },
+    ]
+    dest = tmp_path / "bundles"
+
+    with patch("commands.build_bundles.LOCAL_DESTINATION_DIR", str(dest)):
+        build_bundles()
+
+    assert sorted(os.listdir(dest)) == ["changesets.json.mozlz4", "startup.json.mozlz4"]
+    mock_sync_cloud_storage.assert_not_called()
