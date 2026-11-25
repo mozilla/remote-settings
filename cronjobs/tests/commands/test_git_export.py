@@ -1016,11 +1016,10 @@ def local_export(monkeypatch, tmp_path):
 def test_local_export_pushes_to_local_bare_repo(
     local_export,
     mock_rs_server_content,
-    mock_github_lfs,
 ):
+    # Any request to GitHub would fail with `responses`.
     git_export.git_export()
 
-    mock_github_lfs.assert_not_called()
     remote = pygit2.Repository(str(local_export))
     assert remote.is_bare
     assert remote.head.name == "refs/heads/v1/common"

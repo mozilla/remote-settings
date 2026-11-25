@@ -115,6 +115,10 @@ def git_export() -> None:
                 initial_head=f"{GIT_REF_PREFIX}{COMMON_BRANCH}",
             )
         callbacks = RemoteCallbacks()
+
+        def auth_header_provider() -> str:  # pragma: no cover
+            raise RuntimeError("Nothing is uploaded to LFS on local exports")
+
     else:
         print(
             f"Use SSH key {SSH_PUBKEY_PATH} with {'*' * len(SSH_KEY_PASSPHRASE) if SSH_KEY_PASSPHRASE else 'empty'} passphrase"
@@ -160,14 +164,13 @@ def git_export() -> None:
             changed_branches.remove(f"refs/heads/{common_branch_name}")
             changed_branches.add(f"+refs/heads/{common_branch_name}")
 
-        if not LOCAL_EXPORT:
-            print(f"{len(changed_attachments)} attachments to upload via LFS.")
-            github_lfs_batch_upload_many(
-                objects=changed_attachments,
-                repo_owner=REPO_OWNER,
-                repo_name=REPO_NAME,
-                auth_header_provider=auth_header_provider,
-            )
+        print(f"{len(changed_attachments)} attachments to upload via LFS.")
+        github_lfs_batch_upload_many(
+            objects=changed_attachments,
+            repo_owner=REPO_OWNER,
+            repo_name=REPO_NAME,
+            auth_header_provider=auth_header_provider,
+        )
 
         push_mirror(repo, list(changed_branches), callbacks=callbacks)
 
