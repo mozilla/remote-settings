@@ -1002,6 +1002,43 @@ def test_repo_is_reset_to_local_content_on_error(
     assert "Delete local tag" not in stdout
 
 
+@pytest.fixture
+def local_export(monkeypatch, tmp_path):
+    remote_path = tmp_path / "remote.git"
+    monkeypatch.setenv("GIT_REMOTE_URL", f"file://{remote_path}")
+    # No SSH key is needed.
+    monkeypatch.setenv("SSH_PRIVKEY_PATH", str(tmp_path / "missing"))
+    importlib.reload(git_export)
+    return remote_path
+
+
+@responses.activate
+def test_local_export_pushes_to_local_bare_repo(
+    local_export,
+    mock_rs_server_content,
+    mock_github_lfs,
+):
+    git_export.git_export()
+
+    mock_github_lfs.assert_not_called()
+    remote = pygit2.Repository(str(local_export))
+    assert remote.is_bare
+    assert remote.head.name == "refs/heads/v1/common"
+    assert set(remote.branches.local) == {
+        "v1/common",
+        "v1/buckets/bid1",
+        "v1/buckets/bid2",
+    }
+    # Attachments are stored as regular files.
+    assert read_file(remote, "v1/common", "attachments/bid2/random-name.bin") == b"123"
+    assert (
+        read_file(remote, "v1/common", "attachments/bundles/startup.json.mozlz4")
+        == b"a" * 42
+    )
+    with pytest.raises(KeyError):
+        read_file(remote, "v1/common", ".gitattributes")
+
+
 def test_tombstones_are_split_by_month_and_stored_in_ascending_order(repo):
     files = git_export.tombstones_to_ledger_files(
         None,
