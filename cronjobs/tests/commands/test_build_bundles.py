@@ -393,11 +393,12 @@ def test_build_bundles_writes_to_local_folder(
             "capabilities": {"attachments": {"base_url": f"{server_url}/attachments/"}}
         },
     )
+    # Pretend that none of the bundles exist yet, to create them all locally.
     for bundle in ["changesets.json.mozlz4", "startup.json.mozlz4"]:
-        # No previous bundle.
         responses.add(
             responses.GET, f"{server_url}/attachments/bundles/{bundle}", status=404
         )
+
     mock_fetch_all_changesets.return_value = [
         {
             "changes": [],
