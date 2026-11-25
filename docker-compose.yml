@@ -145,6 +145,26 @@ services:
     image: remotesettings/cronjobs
     profiles: [cronjobs]
 
+  # Publish the attachments and changeset bundles in the
+  # same folder as kinto-attachment (served by `web`).
+  # See `GRANIAN_STATIC_PATH_MOUNT`.
+  build-bundles:
+    build:
+      context: cronjobs/
+    image: remotesettings/cronjobs
+    profiles: [cronjobs]
+    command: build_bundles
+    # root so the process can write to the named volumes mounted below
+    user: root
+    # Share web-proxy's network, so that localhost:8888 reaches the proxy from inside this
+    # container.
+    network_mode: service:web-proxy
+    environment:
+      - SERVER=http://localhost:8888/v1
+      - LOCAL_DESTINATION_DIR=/tmp/attachments/bundles
+    volumes:
+      - attachments:/tmp/attachments
+
   web-proxy:
     image: openresty/openresty
     ports:
