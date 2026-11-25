@@ -3,6 +3,7 @@ volumes:
   debug-mail:
   debug-slack:
   attachments:
+  git-export:
 services:
   db:
     image: postgres:15
@@ -144,6 +145,22 @@ services:
       context: cronjobs/
     image: remotesettings/cronjobs
     profiles: [cronjobs]
+
+  # Export the server content into a local bare Git repository (no GitHub, no LFS).
+  git-export:
+    build:
+      context: cronjobs/
+    image: remotesettings/cronjobs
+    profiles: [cronjobs]
+    command: git_export
+    # root so the process can write to the named volume mounted below
+    user: root
+    network_mode: service:web-proxy
+    environment:
+      - SERVER=http://localhost:8888/v1
+      - GIT_REMOTE_URL=file:///mnt/git-export/remote-settings-data.git
+    volumes:
+      - git-export:/mnt/git-export
 
   web-proxy:
     image: openresty/openresty
