@@ -980,11 +980,14 @@ def collection_changeset(
     _since: Annotated[int, Query(ge=0)] | None = None,
     settings: Settings = Depends(get_settings),
     git: GitService = Depends(GitService.dep),
-) -> ChangesetResponse:
+) -> ChangesetResponse | RedirectResponse:
     if _since and _expected > 0 and _expected < _since:
-        raise HTTPException(
-            status_code=400,
-            detail="_expected must be superior to _since if both are provided",
+        # The client is already more recent than the expected timestamp.
+        # Redirect to a cacheable URL (`_expected={_since}`).
+        params = dict(request.query_params)
+        params["_expected"] = str(_since)
+        return RedirectResponse(
+            f"{request.url.path}?{urlencode(params)}", status_code=307
         )
 
     try:
