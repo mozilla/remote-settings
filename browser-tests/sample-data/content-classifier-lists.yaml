@@ -1,0 +1,138 @@
+buckets:
+  main-workspace:
+    collections:
+      content-classifier-lists:
+        permissions: {}
+        data:
+          sort: -last_modified
+          flags:
+          - compression-dictionaries
+          schema:
+            type: object
+            required:
+            - Name
+            properties:
+              Name:
+                type: string
+                title: List name
+                description: Name of the list
+              Metadata:
+                type: object
+                title: Metadata
+                description: The metadata that describes this list entry
+                additionalProperties: true
+              attachment:
+                type: object
+                title: The attachment itself
+                properties:
+                  hash:
+                    type: string
+                    title: Hash
+                  size:
+                    type: number
+                    title: Size (bytes)
+                  filename:
+                    type: string
+                    title: Filename
+                  location:
+                    type: string
+                    title: URL
+                  mimetype:
+                    type: string
+                    title: MIME type
+                  original:
+                    type: object
+                    title: Pre-gzipped file
+                    properties:
+                      hash:
+                        type: string
+                        title: Hash
+                      size:
+                        type: number
+                        title: Size (bytes)
+                      filename:
+                        type: string
+                        title: Filename
+                      mimetype:
+                        type: string
+                        title: MIME type
+                    additionalProperties: false
+                description: Information about the attached file.
+                additionalProperties: false
+            additionalProperties: true
+          created: '2026-03-04'
+          tickets:
+          - https://bugzilla.mozilla.org/show_bug.cgi?id=2020920
+          uiSchema:
+            Name:
+              ui:widget: text
+              ui:placeholder: The name of the list
+          attachment:
+            bundle: true
+            enabled: true
+            required: true
+          description: The collection for delivering lists for the content classifier engine.
+          cache_expires: 0
+          displayFields:
+          - Name
+          - Metadata
+          - attachment.filename
+          id: content-classifier-lists
+        records:
+          5413e2b1-2734-41e6-a520-a1c78b1c4304:
+            data:
+              Name: mozilla-harmful-addon
+              schema: 1795659012385
+              attachment:
+                hash: 7725e1900b17114e95b855275acd637b03d3ec70d75ee05c1537e4ae9689ee55
+                size: 2943
+                filename: harmful-addon-protection.txt
+                location: main-workspace/content-classifier-lists/20261126021012--5413e2b1-2734-41e6-a520-a1c78b1c4304--bb764b1d-589e-4c5b-b619-7c727b41dd59.txt
+                mimetype: text/plain
+              id: 5413e2b1-2734-41e6-a520-a1c78b1c4304
+              last_modified: 1795659012659
+            permissions: {}
+          1084ecbc-f1d6-4e57-8a75-f1015b260dcb:
+            data:
+              Name: disconnect-cryptominer-base
+              schema: 1795659011986
+              attachment:
+                hash: af60bac4f9dfd15c4e032a6f6c0c679f59ee361a86ea3baa13f9a33f093de4e8
+                size: 1429
+                filename: disconnect-tracking-protection.txt
+                location: main-workspace/content-classifier-lists/20261126021012--1084ecbc-f1d6-4e57-8a75-f1015b260dcb--a750d4e7-83ec-43e3-aadd-74c85a0f0c34.txt
+                mimetype: text/plain
+              id: 1084ecbc-f1d6-4e57-8a75-f1015b260dcb
+              last_modified: 1795659012375
+            permissions: {}
+          9d59ec38-6bcb-4311-a190-f90b2873388d:
+            data:
+              Name: disconnect-fingerprinters-base
+              schema: 1795659011076
+              attachment:
+                hash: f40265524b385e442ca15ffc2e84e201c25baa8b2b97da5c2511dec880869dbb
+                size: 8025
+                filename: disconnect-tracking-protection.txt
+                location: main-workspace/content-classifier-lists/20261126021011--9d59ec38-6bcb-4311-a190-f90b2873388d--b4183f91-b144-4225-9cf1-4853b77d8a16.txt
+                mimetype: text/plain
+              id: 9d59ec38-6bcb-4311-a190-f90b2873388d
+              last_modified: 1795659011456
+            permissions: {}
+          f24e14c8-57ee-4e56-a524-05bbe4ecc01b:
+            data:
+              Name: mozilla-social
+              schema: 1795659010621
+              attachment:
+                hash: f2e5b7c6794c8b7cb073cb367aac3b87c493402f119fcd57720d96c6d7445e24
+                size: 11066
+                filename: disconnect-tracking-protection.txt
+                location: main-workspace/content-classifier-lists/20261126021010--f24e14c8-57ee-4e56-a524-05bbe4ecc01b--4d466e54-4c38-4594-99bc-db58172798fc.txt
+                mimetype: text/plain
+              id: f24e14c8-57ee-4e56-a524-05bbe4ecc01b
+              last_modified: 1795659011065
+            permissions: {}
+    groups:
+      content-classifier-lists-reviewers:
+        data:
+          members:
+          - account:sample-data-reviewer

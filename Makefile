@@ -46,7 +46,7 @@ lint: $(INSTALL_STAMP)  ## Analyze code base
 ifndef TYPOS_INSTALLED
 	$(warning "'typos' is not available please install typos-cli")
 else
-	typos `git ls-files | grep -v -E '.png|.jpg|.jpeg|.webm'`
+	typos --force-exclude `git ls-files | grep -v -E '.png|.jpg|.jpeg|.webm'`
 endif
 ifndef TRUFFLEHOG_INSTALLED
 	$(warning "'trufflehog' is not available please install it")
@@ -67,6 +67,7 @@ test: $(INSTALL_STAMP)  ## Run unit tests
 browser-test:  ## Run browser tests using Docker
 	docker compose --profile=browser-tests build browser-tests -q
 	docker compose run --rm web migrate
+	docker compose run --rm sample-data
 	docker compose run --rm browser-tests
 
 build:  ## Build containers

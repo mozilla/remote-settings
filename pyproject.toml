@@ -123,6 +123,9 @@ pythonpath = ["git-reader", "cronjobs"]
 [tool.pytest_env]
 SENTRY_DSN = "https://fake:secret@sentry.example.com/001" # trufflehog:ignore
 
+[tool.typos.files]
+extend-exclude = ["browser-tests/sample-data/"]
+
 [tool.typos.default]
 extend-ignore-re = [
     # Ignore blocks between `# spellchecker:off` and `# spellchecker:on`

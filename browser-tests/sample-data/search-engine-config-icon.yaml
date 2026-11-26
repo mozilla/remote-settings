@@ -1,0 +1,76 @@
+buckets:
+  main-workspace:
+    collections:
+      search-engine-config-icon:
+        permissions: {}
+        data:
+          sort: -last_modified
+          schema:
+            type: object
+            title: Search Engine Icons Schema
+            required:
+            - engineIdentifierPrefixes
+            - imageSize
+            properties:
+              imageSize:
+                type: number
+                title: Image Size
+                description: The image size in pixels. May be used to choose the most appropriate image for the display.
+              engineIdentifiers:
+                type: array
+                items:
+                  type: string
+                  pattern: ^[a-zA-Z0-9-_]*$
+                title: Engine Identifiers
+                description: An array of search engine identifiers that the attached icon is for. This is in addition to the list in engineIdentifierPrefixes.
+              filter_expression:
+                type: string
+                title: Filter Expression
+                pattern: ^[a-zA-Z0-9-_=!"{} .]*$
+                description: A JEXL to filter records
+              engineIdentifierPrefixes:
+                type: array
+                items:
+                  type: string
+                  pattern: ^[a-zA-Z0-9-_]*$
+                title: Engine Identifier Prefixes
+                description: An array of search engine identifier prefixes that the attached icon is for. This is in addition to the list in engineIdentifiers.
+            description: This schema contains the structure of data for search engine icons which built from search-engine-config-v2. The associated remote settings collection is search-config-icons.
+          uiSchema:
+            ui:order:
+            - engineIdentifierPrefixes
+            - engineIdentifiers
+            - imageSize
+            - filter_expression
+          attachment:
+            enabled: true
+            required: true
+          cache_expires: 0
+          displayFields:
+          - engineIdentifierPrefixes
+          - engineIdentifiers
+          - imageSize
+          - filter_expression
+          id: search-engine-config-icon
+        records:
+          34194698-ce92-448f-bd97-8048b91e3a72:
+            data:
+              schema: 1702129232464
+              imageSize: 16
+              attachment:
+                hash: d994f806b1e4225b50be5ab681b2cecf845cc216a19a432d878cea3cb815bafd
+                size: 2799
+                filename: ddg.ico
+                location: main-workspace/search-engine-config-icon/1b639d30-698d-4d16-9f9b-c1a30ec09ff0.ico
+                mimetype: image/x-icon
+              engineIdentifiers:
+              - test
+              engineIdentifierPrefixes: []
+              id: 34194698-ce92-448f-bd97-8048b91e3a72
+              last_modified: 1702130388705
+            permissions: {}
+    groups:
+      search-engine-config-icon-reviewers:
+        data:
+          members:
+          - account:sample-data-reviewer

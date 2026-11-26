@@ -1,0 +1,59 @@
+buckets:
+  main-workspace:
+    collections:
+      newtab-renderer:
+        permissions: {}
+        data:
+          created: '2025-12-15'
+          tickets:
+          - https://bugzilla.mozilla.org/show_bug.cgi?id=2005788
+          attachment:
+            bundle: true
+            enabled: true
+            required: false
+          description: "This will be a remotely bundled renderer to improve deployment and iterations\nfor UX/UI concerns. No external calls come to or from this renderer, it all runs\nthrough a coordinator embedded in a traditional manner to protect and secure\nsensitive data."
+          displayFields:
+          - version
+          - buildTime
+          - dataSchemaVersion
+          - attachment.filename
+          - attachment.hash
+          id: newtab-renderer
+        records:
+          45cc107a-855d-480f-84aa-1c0cd5f0ba2d:
+            data:
+              hash: BVSpgoIh
+              type: css
+              version: 0.0.0
+              buildTime: '2026-04-08T15:43:06.428Z'
+              attachment:
+                hash: 32ac24c7e082d9ef309890ffee45a589bc05ac599f72e9d891b2f91b02e4dbb9
+                size: 919
+                filename: renderer.BVSpgoIh.css
+                location: main-workspace/newtab-renderer/18501dc8-a0b3-4689-8b2f-aab00b75a0d7.css
+                mimetype: text/css
+              dataSchemaVersion: 0.0.0
+              id: 45cc107a-855d-480f-84aa-1c0cd5f0ba2d
+              last_modified: 1775663363709
+            permissions: {}
+          5bc9d8c9-39f9-4b6d-84a9-c9c6ad270fc8:
+            data:
+              hash: tQLriCnN
+              type: js
+              version: 0.0.0
+              buildTime: '2026-04-08T15:43:06.428Z'
+              attachment:
+                hash: ebbff843b4346284dc48c30e374e09ab296412f0501928efbe046506228e7406
+                size: 195959
+                filename: index.tQLriCnN.js
+                location: main-workspace/newtab-renderer/2b7d33a3-5a1d-49aa-ac50-04a71cb032ae.js
+                mimetype: text/javascript
+              dataSchemaVersion: 0.0.0
+              id: 5bc9d8c9-39f9-4b6d-84a9-c9c6ad270fc8
+              last_modified: 1775663326268
+            permissions: {}
+    groups:
+      newtab-renderer-reviewers:
+        data:
+          members:
+          - account:sample-data-reviewer

@@ -1,0 +1,38 @@
+[Adblock Plus 2.0]
+! Title: Disconnect Tracking Protection
+! Last modified: 2026-11-26T02:10:12Z
+
+! --- Blocking rules ---
+||adless.io^$domain=~adless.io
+||analytics.blue^$domain=~vidzi.nu
+||authedmine.com^$domain=~authedmine.com
+||authedwebmine.cz^$domain=~webmine.cz
+||bmst.pw^$domain=~bmst.pw
+||cashbeet.com^$domain=~cashbeet.com
+||coinpot.co^$domain=~coinpot.co
+||cryptaloot.pro^$domain=~crypto-loot.com
+||crypto-loot.com^$domain=~crypto-loot.com
+||crypto-webminer.com^$domain=~crypto-webminer.com
+||ethtrader.de^$domain=~crypto-webminer.com
+||feesocrald.com^$domain=~vidzi.nu
+||flightzy.date^$domain=~flightzy.date|~zymerget.bid
+||freecontent.date^$domain=~jsecoin.com
+||freecontent.stream^$domain=~jsecoin.com
+||gitgrub.pro^$domain=~crypto-loot.com
+||gramombird.com^$domain=~vidzi.nu
+||hashing.win^$domain=~jsecoin.com
+||hostingcloud.racing^$domain=~jsecoin.com
+||hostingcloud.science^$domain=~jsecoin.com
+||istlandoll.com^$domain=~vidzi.nu
+||jsecoin.com^$domain=~jsecoin.com
+||mepirtedic.com^$domain=~vidzi.nu
+||pampopholf.com^$domain=~vidzi.nu
+||serv1swork.com^$domain=~cashbeet.com
+||service4refresh.info^$domain=~service4refresh.info
+||statdynamic.com^$domain=~crypto-loot.com
+||swiftmining.win^$domain=~swiftmining.win
+||tulip18.com^$domain=~vidzi.nu
+||webmine.cz^$domain=~webmine.cz
+||webmine.pro^$domain=~crypto-loot.com
+||webminepool.com^$domain=~webminepool.com
+||zymerget.bid^$domain=~flightzy.date|~zymerget.bid
