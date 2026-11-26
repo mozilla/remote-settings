@@ -67,7 +67,6 @@ buckets:
               - test
               engineIdentifierPrefixes: []
               id: 34194698-ce92-448f-bd97-8048b91e3a72
-              last_modified: 1702130388705
             permissions: {}
     groups:
       search-engine-config-icon-reviewers:

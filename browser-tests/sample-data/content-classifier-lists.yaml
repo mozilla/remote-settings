@@ -90,7 +90,6 @@ buckets:
                 location: main-workspace/content-classifier-lists/20261126021012--5413e2b1-2734-41e6-a520-a1c78b1c4304--bb764b1d-589e-4c5b-b619-7c727b41dd59.txt
                 mimetype: text/plain
               id: 5413e2b1-2734-41e6-a520-a1c78b1c4304
-              last_modified: 1795659012659
             permissions: {}
           1084ecbc-f1d6-4e57-8a75-f1015b260dcb:
             data:
@@ -103,7 +102,6 @@ buckets:
                 location: main-workspace/content-classifier-lists/20261126021012--1084ecbc-f1d6-4e57-8a75-f1015b260dcb--a750d4e7-83ec-43e3-aadd-74c85a0f0c34.txt
                 mimetype: text/plain
               id: 1084ecbc-f1d6-4e57-8a75-f1015b260dcb
-              last_modified: 1795659012375
             permissions: {}
           9d59ec38-6bcb-4311-a190-f90b2873388d:
             data:
@@ -116,7 +114,6 @@ buckets:
                 location: main-workspace/content-classifier-lists/20261126021011--9d59ec38-6bcb-4311-a190-f90b2873388d--b4183f91-b144-4225-9cf1-4853b77d8a16.txt
                 mimetype: text/plain
               id: 9d59ec38-6bcb-4311-a190-f90b2873388d
-              last_modified: 1795659011456
             permissions: {}
           f24e14c8-57ee-4e56-a524-05bbe4ecc01b:
             data:
@@ -129,7 +126,6 @@ buckets:
                 location: main-workspace/content-classifier-lists/20261126021010--f24e14c8-57ee-4e56-a524-05bbe4ecc01b--4d466e54-4c38-4594-99bc-db58172798fc.txt
                 mimetype: text/plain
               id: f24e14c8-57ee-4e56-a524-05bbe4ecc01b
-              last_modified: 1795659011065
             permissions: {}
     groups:
       content-classifier-lists-reviewers:

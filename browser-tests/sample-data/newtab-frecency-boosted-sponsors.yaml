@@ -100,7 +100,6 @@ buckets:
                 mimetype: image/png
               redirect_url: https://www.expedia.com/
               id: 8a87fad9-e702-4685-8f40-f10402b9137f
-              last_modified: 1765998297474
             permissions: {}
           f2532896-a9dc-4ab2-980c-b461e61c4194:
             data:
@@ -116,7 +115,6 @@ buckets:
                 mimetype: image/jpeg
               redirect_url: https://www.temu.com/
               id: f2532896-a9dc-4ab2-980c-b461e61c4194
-              last_modified: 1765997848076
             permissions: {}
           98d74e64-b577-45a1-bf65-833a9c32110a:
             data:
@@ -132,7 +130,6 @@ buckets:
                 mimetype: image/png
               redirect_url: https://developer.mozilla.org/en-US/
               id: 98d74e64-b577-45a1-bf65-833a9c32110a
-              last_modified: 1764871628723
             permissions: {}
           0b0a87ef-5875-44d0-aa3f-3953221a19cb:
             data:
@@ -148,7 +145,6 @@ buckets:
                 mimetype: image/png
               redirect_url: https://www.mozillafoundation.org/en/
               id: 0b0a87ef-5875-44d0-aa3f-3953221a19cb
-              last_modified: 1764871424036
             permissions: {}
     groups:
       newtab-frecency-boosted-sponsors-reviewers:

@@ -528,7 +528,6 @@ buckets:
               identifier: startpage
               recordType: engine
               id: 9bf5b93a-2403-4926-92a0-5312936eda21
-              last_modified: 1791458222803
             permissions: {}
           c3b226db-185f-43cf-84dc-ecf84f419396:
             data:
@@ -563,7 +562,6 @@ buckets:
               identifier: perplexity
               recordType: engine
               id: c3b226db-185f-43cf-84dc-ecf84f419396
-              last_modified: 1791458221838
             permissions: {}
           172b915e-1843-4ed9-b373-f77eb18cb45a:
             data:
@@ -626,7 +624,6 @@ buckets:
               identifier: ecosia
               recordType: engine
               id: 172b915e-1843-4ed9-b373-f77eb18cb45a
-              last_modified: 1791458218844
             permissions: {}
           71cf4866-b2d1-47b0-b409-342c803846d8:
             data:
@@ -884,7 +881,6 @@ buckets:
               identifier: google
               recordType: engine
               id: 71cf4866-b2d1-47b0-b409-342c803846d8
-              last_modified: 1776869998795
             permissions: {}
           8c4db826-302a-4770-8343-965aabf08902:
             data:
@@ -993,7 +989,6 @@ buckets:
               identifier: bing
               recordType: engine
               id: 8c4db826-302a-4770-8343-965aabf08902
-              last_modified: 1753980883442
             permissions: {}
           e7e9921c-e61c-4ef8-8710-34e427115981:
             data:
@@ -1105,7 +1100,6 @@ buckets:
               - zh-TW
               recordType: availableLocales
               id: e7e9921c-e61c-4ef8-8710-34e427115981
-              last_modified: 1753980879601
             permissions: {}
           20a2afd8-55a8-437a-879d-60b7939db784:
             data:
@@ -1128,7 +1122,6 @@ buckets:
               schema: 1744015051994
               recordType: engineOrders
               id: 20a2afd8-55a8-437a-879d-60b7939db784
-              last_modified: 1744015052267
             permissions: {}
           a37f6b89-2c2a-4a49-9be1-c957bf6691c5:
             data:
@@ -1256,7 +1249,6 @@ buckets:
               identifier: wikipedia
               recordType: engine
               id: a37f6b89-2c2a-4a49-9be1-c957bf6691c5
-              last_modified: 1744015024486
             permissions: {}
           7de0af80-e810-4909-913b-60f831e69145:
             data:
@@ -1323,7 +1315,6 @@ buckets:
               identifier: qwant
               recordType: engine
               id: 7de0af80-e810-4909-913b-60f831e69145
-              last_modified: 1744015021821
             permissions: {}
           baac2612-11eb-41ff-a55e-f30db3b2032b:
             data:
@@ -1372,7 +1363,6 @@ buckets:
               identifier: ebay
               recordType: engine
               id: baac2612-11eb-41ff-a55e-f30db3b2032b
-              last_modified: 1744015011829
             permissions: {}
           7c707b52-3da9-4a20-885f-44b4d81c96a9:
             data:
@@ -1426,7 +1416,6 @@ buckets:
               identifier: ddg
               recordType: engine
               id: 7c707b52-3da9-4a20-885f-44b4d81c96a9
-              last_modified: 1744015011559
             permissions: {}
           47698159-94e5-442e-ad78-4998ffd11e3d:
             data:
@@ -1471,7 +1460,6 @@ buckets:
               identifier: baidu
               recordType: engine
               id: 47698159-94e5-442e-ad78-4998ffd11e3d
-              last_modified: 1744015009959
             permissions: {}
           50942227-78cf-4ad1-babd-688bf71c6c16:
             data:
@@ -1523,7 +1511,6 @@ buckets:
                   distributions:
                   - gmxfr
               id: 50942227-78cf-4ad1-babd-688bf71c6c16
-              last_modified: 1744015008359
             permissions: {}
     groups:
       search-config-v2-reviewers:

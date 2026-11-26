@@ -34,7 +34,6 @@ buckets:
               schema: 1795596798269
               description: 'plugin (Windows beta): nsAppShell::StaticCreateEventWindow'
               id: id-462
-              last_modified: 1795596800204
             permissions: {}
           id-461:
             data:
@@ -47,7 +46,6 @@ buckets:
               schema: 1795596796604
               description: 'gpu (Windows nightly): RtlReportFatalFailure'
               id: id-461
-              last_modified: 1795596798259
             permissions: {}
           id-460:
             data:
@@ -56,7 +54,6 @@ buckets:
               schema: 1795596794993
               description: 'main (Mac nightly): mozilla::ipc::FatalError | mozilla::ipc::IProtocol::HandleFatalError | nsDocShellLoadState::nsDocShellLoadState'
               id: id-460
-              last_modified: 1795596796593
             permissions: {}
           id-459:
             data:
@@ -73,7 +70,6 @@ buckets:
               schema: 1795596793436
               description: 'gpu (Windows nightly): <unknown in atiumd6a.dll>'
               id: id-459
-              last_modified: 1795596794983
             permissions: {}
           id-458:
             data:
@@ -86,7 +82,6 @@ buckets:
               schema: 1795596791829
               description: 'utility (Linux release): haar1'
               id: id-458
-              last_modified: 1795596793425
             permissions: {}
           id-457:
             data:
@@ -114,7 +109,6 @@ buckets:
               schema: 1795596790158
               description: 'main (Windows nightly): AsyncShutdownTimeout | AddonManager: Waiting to start provider shutdown. | AddonRepository Background Updater'
               id: id-457
-              last_modified: 1795596791818
             permissions: {}
           id-456:
             data:
@@ -150,7 +144,6 @@ buckets:
               schema: 1795596788510
               description: 'content (Windows beta): ZwUserMsgWaitForMultipleObjectsEx'
               id: id-456
-              last_modified: 1795596790148
             permissions: {}
           id-455:
             data:
@@ -159,7 +152,6 @@ buckets:
               schema: 1795596786883
               description: 'content (Android nightly): mozilla::dom::Navigation::InnerFireNavigateEvent'
               id: id-455
-              last_modified: 1795596788500
             permissions: {}
           id-454:
             data:
@@ -169,7 +161,6 @@ buckets:
               schema: 1795596785292
               description: 'content (Mac beta): OOM | unknown | NS_ABORT_OOM | mozilla::dom::Promise::CreateInfallible | mozilla::dom::streams_abstract::ReadableStreamCancel'
               id: id-454
-              last_modified: 1795596786870
             permissions: {}
           id-453:
             data:
@@ -178,7 +169,6 @@ buckets:
               schema: 1795596783675
               description: 'gpu (Android beta): libc.so | boot.oat'
               id: id-453
-              last_modified: 1795596785281
             permissions: {}
           id-452:
             data:
@@ -187,7 +177,6 @@ buckets:
               schema: 1795596782080
               description: 'plugin (Linux release): arena_t::DallocSmall | arena_dalloc | BaseAllocator::free | MozJemalloc::free | PageFree'
               id: id-452
-              last_modified: 1795596783665
             permissions: {}
           id-451:
             data:
@@ -196,7 +185,6 @@ buckets:
               schema: 1795596780455
               description: 'content (Mac nightly): OOM | unknown | NS_ABORT_OOM | mozilla::dom::Promise::CreateInfallible | mozilla::dom::streams_abstract::SetUpReadableStreamDefaultController'
               id: id-451
-              last_modified: 1795596782069
             permissions: {}
           id-450:
             data:
@@ -234,7 +222,6 @@ buckets:
               schema: 1795596778389
               description: 'gpu (Windows beta): <unknown in igd10um64xe.dll> | CContext::TID3D11DeviceContext_Draw_<T>'
               id: id-450
-              last_modified: 1795596780445
             permissions: {}
           id-449:
             data:
@@ -243,7 +230,6 @@ buckets:
               schema: 1795596776499
               description: 'content (Android beta): OOM | unknown | js::AutoEnterOOMUnsafeRegion::crash_impl | <mozglue_static::GeckoAlloc as core::alloc::global::GlobalAlloc>::dealloc'
               id: id-449
-              last_modified: 1795596778377
             permissions: {}
           id-448:
             data:
@@ -252,7 +238,6 @@ buckets:
               schema: 1795596774624
               description: 'main (Mac nightly): mozilla::net::Http2Session::VerifyStream'
               id: id-448
-              last_modified: 1795596776489
             permissions: {}
           id-447:
             data:
@@ -285,7 +270,6 @@ buckets:
               schema: 1795596772998
               description: 'content (Windows release): OOM | large | xul.dll | NS_internal_main'
               id: id-447
-              last_modified: 1795596774615
             permissions: {}
           id-446:
             data:
@@ -294,7 +278,6 @@ buckets:
               schema: 1795596771356
               description: 'utility (Windows nightly): _stdio_common_vsprintf_s'
               id: id-446
-              last_modified: 1795596772988
             permissions: {}
           id-445:
             data:
@@ -303,7 +286,6 @@ buckets:
               schema: 1795596769757
               description: 'utility (Mac release): nsTArray_Impl<T>::~nsTArray_Impl | nsTArray<T>::~nsTArray | AutoTArray<T>::~AutoTArray'
               id: id-445
-              last_modified: 1795596771345
             permissions: {}
           id-444:
             data:
@@ -323,7 +305,6 @@ buckets:
               schema: 1795596768121
               description: 'gpu (Windows nightly): igd12umd64.dll | CGraphicsCommandList::CopyBufferRegion_VariadicHelper<T>::Variadic_Thk'
               id: id-444
-              last_modified: 1795596769747
             permissions: {}
           id-443:
             data:
@@ -361,7 +342,6 @@ buckets:
               schema: 1795596766447
               description: 'gpu (Mac release): __cxxabiv1::failed_throw | objc_exception_throw | CoreFoundation'
               id: id-443
-              last_modified: 1795596768111
             permissions: {}
           id-442:
             data:
@@ -372,7 +352,6 @@ buckets:
               schema: 1795596764799
               description: 'rdd (Mac release): AppleIntelKBLGraphicsVADriver'
               id: id-442
-              last_modified: 1795596766436
             permissions: {}
           id-441:
             data:
@@ -382,7 +361,6 @@ buckets:
               schema: 1795596763207
               description: 'content (Android beta): nsPresContext::PresShell'
               id: id-441
-              last_modified: 1795596764788
             permissions: {}
           id-440:
             data:
@@ -391,7 +369,6 @@ buckets:
               schema: 1795596761530
               description: 'utility (Mac release): mozilla::ArrayOfRemoteAudioData::RemoteAudioData::RemoteAudioData'
               id: id-440
-              last_modified: 1795596763198
             permissions: {}
           id-439:
             data:
@@ -400,7 +377,6 @@ buckets:
               schema: 1795596759780
               description: 'gpu (Android nightly): libc.so | liblog.so'
               id: id-439
-              last_modified: 1795596761518
             permissions: {}
           id-438:
             data:
@@ -435,7 +411,6 @@ buckets:
               schema: 1795596758212
               description: 'main (Windows nightly): OOM | small'
               id: id-438
-              last_modified: 1795596759771
             permissions: {}
           id-437:
             data:
@@ -450,7 +425,6 @@ buckets:
               schema: 1795596756600
               description: 'main (Linux beta): libgio-2.0.so.0'
               id: id-437
-              last_modified: 1795596758198
             permissions: {}
           id-436:
             data:
@@ -459,7 +433,6 @@ buckets:
               schema: 1795596754968
               description: 'plugin (Linux release): mozilla::BufferList<T>::IterImpl::RemainingInSegment'
               id: id-436
-              last_modified: 1795596756589
             permissions: {}
           id-435:
             data:
@@ -497,7 +470,6 @@ buckets:
               schema: 1795596753362
               description: 'rdd (Windows release): mozilla::MFTDecoder::~MFTDecoder'
               id: id-435
-              last_modified: 1795596754958
             permissions: {}
           id-434:
             data:
@@ -506,7 +478,6 @@ buckets:
               schema: 1795596751726
               description: 'rdd (Windows beta): decode_b'
               id: id-434
-              last_modified: 1795596753351
             permissions: {}
           id-433:
             data:
@@ -515,7 +486,6 @@ buckets:
               schema: 1795596750100
               description: 'plugin (Linux release): mozilla::Queue<T>::Pop'
               id: id-433
-              last_modified: 1795596751715
             permissions: {}
           id-432:
             data:
@@ -524,7 +494,6 @@ buckets:
               schema: 1795596748360
               description: 'rdd (Windows beta): mozilla::PrintfTarget::vprint'
               id: id-432
-              last_modified: 1795596750088
             permissions: {}
           id-431:
             data:
@@ -562,7 +531,6 @@ buckets:
               schema: 1795596746370
               description: 'main (Windows beta): AsyncShutdownTimeout | IOUtils: waiting for sendTelemetry IO to complete | TelemetryController: shutting down'
               id: id-431
-              last_modified: 1795596748347
             permissions: {}
           id-430:
             data:
@@ -571,7 +539,6 @@ buckets:
               schema: 1795596744442
               description: 'plugin (Android nightly): libc.so | libart.so | libc.so | libart.so | boot.oat'
               id: id-430
-              last_modified: 1795596746265
             permissions: {}
           id-429:
             data:
@@ -580,7 +547,6 @@ buckets:
               schema: 1795596742853
               description: 'content (Linux nightly): JS::GCCellPtr::kind'
               id: id-429
-              last_modified: 1795596744431
             permissions: {}
           id-428:
             data:
@@ -589,7 +555,6 @@ buckets:
               schema: 1795596741249
               description: 'utility (Windows beta): mozilla::ipc::UtilityProcessImpl::LoadLibraryOrCrash'
               id: id-428
-              last_modified: 1795596742843
             permissions: {}
           id-427:
             data:
@@ -601,7 +566,6 @@ buckets:
               schema: 1795596739637
               description: 'content (Windows nightly): ZwQueryFullAttributesFile'
               id: id-427
-              last_modified: 1795596741237
             permissions: {}
           id-426:
             data:
@@ -610,7 +574,6 @@ buckets:
               schema: 1795596737733
               description: 'content (Android beta): OOM | large | js::AutoEnterOOMUnsafeRegion::crash_impl | <.plt ELF section in libxul.so> | js::jit::AttachBaselineCacheIRStubLocked'
               id: id-426
-              last_modified: 1795596739627
             permissions: {}
           id-425:
             data:
@@ -624,7 +587,6 @@ buckets:
               schema: 1795596736139
               description: 'content (Windows nightly): OOM | large | xul.dll'
               id: id-425
-              last_modified: 1795596737723
             permissions: {}
           id-424:
             data:
@@ -662,7 +624,6 @@ buckets:
               schema: 1795596734546
               description: 'main (Windows release): mozilla::LinkedListElement<T>::setPreviousUnsafe'
               id: id-424
-              last_modified: 1795596736129
             permissions: {}
           id-423:
             data:
@@ -671,7 +632,6 @@ buckets:
               schema: 1795596732970
               description: 'utility (Mac release): quant_partition'
               id: id-423
-              last_modified: 1795596734534
             permissions: {}
           id-422:
             data:
@@ -707,7 +667,6 @@ buckets:
               schema: 1795596731366
               description: 'gpu (Windows release): <unknown in igd10um64xe.dll> | CVertexShader::CLS::FinalConstruct'
               id: id-422
-              last_modified: 1795596732959
             permissions: {}
           id-421:
             data:
@@ -716,7 +675,6 @@ buckets:
               schema: 1795596729653
               description: 'gpu (Android beta): libc.so | gralloc.rogue.so'
               id: id-421
-              last_modified: 1795596731357
             permissions: {}
           id-420:
             data:
@@ -725,7 +683,6 @@ buckets:
               schema: 1795596728068
               description: 'gpu (Android beta): @0xea3b285a'
               id: id-420
-              last_modified: 1795596729642
             permissions: {}
           id-419:
             data:
@@ -735,7 +692,6 @@ buckets:
               schema: 1795596726485
               description: 'rdd (Linux nightly): NvEglwlaf47906in'
               id: id-419
-              last_modified: 1795596728056
             permissions: {}
           id-418:
             data:
@@ -744,7 +700,6 @@ buckets:
               schema: 1795596724871
               description: 'content (Linux nightly): js::jit::RInstruction::isResumePoint'
               id: id-418
-              last_modified: 1795596726475
             permissions: {}
           id-417:
             data:
@@ -753,7 +708,6 @@ buckets:
               schema: 1795596723288
               description: 'utility (Mac release): decode_pulses'
               id: id-417
-              last_modified: 1795596724862
             permissions: {}
           id-416:
             data:
@@ -763,7 +717,6 @@ buckets:
               schema: 1795596721585
               description: 'content (Mac nightly): mozilla::net::HttpBaseChannel::DoApplyContentConversionsInternal'
               id: id-416
-              last_modified: 1795596723278
             permissions: {}
           id-415:
             data:
@@ -792,7 +745,6 @@ buckets:
               schema: 1795596719388
               description: 'gpu (Windows beta): igd12umd64.dll | CGraphicsCommandList::CopyBufferRegion_VariadicHelper<T>::Variadic_Thk'
               id: id-415
-              last_modified: 1795596721480
             permissions: {}
           id-414:
             data:
@@ -830,7 +782,6 @@ buckets:
               schema: 1795596716896
               description: 'socket (Windows release): CreateRectRgn'
               id: id-414
-              last_modified: 1795596719379
             permissions: {}
           id-413:
             data:
@@ -839,7 +790,6 @@ buckets:
               schema: 1795596714456
               description: 'main (Mac beta): AsyncShutdownTimeout | profile-before-change | ServiceWorkerRegistrar: Flushing data'
               id: id-413
-              last_modified: 1795596716757
             permissions: {}
           id-412:
             data:
@@ -848,7 +798,6 @@ buckets:
               schema: 1795596712871
               description: 'gpu (Android beta): libc.so | firefox_on_glean::private::<T>::size_of'
               id: id-412
-              last_modified: 1795596714444
             permissions: {}
           id-411:
             data:
@@ -857,7 +806,6 @@ buckets:
               schema: 1795596711273
               description: 'content (Linux beta): JS::GetCompartment'
               id: id-411
-              last_modified: 1795596712860
             permissions: {}
           id-410:
             data:
@@ -866,7 +814,6 @@ buckets:
               schema: 1795596709587
               description: 'plugin (Linux release): libstdc++.so.6'
               id: id-410
-              last_modified: 1795596711263
             permissions: {}
           id-409:
             data:
@@ -875,7 +822,6 @@ buckets:
               schema: 1795596707636
               description: 'utility (Mac release): js::frontend::SpecificParserAtomLookup<T>::equalsEntry'
               id: id-409
-              last_modified: 1795596709272
             permissions: {}
           id-408:
             data:
@@ -885,7 +831,6 @@ buckets:
               schema: 1795596705989
               description: 'content (Android nightly): OOM | unknown | NS_ABORT_OOM | mozilla::jni::ReportException'
               id: id-408
-              last_modified: 1795596707625
             permissions: {}
           id-407:
             data:
@@ -896,7 +841,6 @@ buckets:
               schema: 1795596704399
               description: 'rdd (Mac release): libsystem_kernel.dylib'
               id: id-407
-              last_modified: 1795596705980
             permissions: {}
           id-406:
             data:
@@ -905,7 +849,6 @@ buckets:
               schema: 1795596702746
               description: 'socket (Mac release): _sigtramp'
               id: id-406
-              last_modified: 1795596704388
             permissions: {}
           id-405:
             data:
@@ -920,7 +863,6 @@ buckets:
               schema: 1795596701111
               description: 'content (Windows nightly): ICUReporter::Alloc'
               id: id-405
-              last_modified: 1795596702736
             permissions: {}
           id-404:
             data:
@@ -958,7 +900,6 @@ buckets:
               schema: 1795596699374
               description: 'socket (Windows release): RtlpFcChangeRegistrationCallback | TppStartThreadData'
               id: id-404
-              last_modified: 1795596701100
             permissions: {}
           id-403:
             data:
@@ -968,7 +909,6 @@ buckets:
               schema: 1795596697779
               description: 'rdd (Mac release): dav1d_emu_edge_8bpc_avx2.v_loop_1'
               id: id-403
-              last_modified: 1795596699364
             permissions: {}
           id-402:
             data:
@@ -977,7 +917,6 @@ buckets:
               schema: 1795596696196
               description: 'gpu (Android nightly): OOM | small'
               id: id-402
-              last_modified: 1795596697769
             permissions: {}
           id-401:
             data:
@@ -988,7 +927,6 @@ buckets:
               schema: 1795596694626
               description: 'main (Mac beta): AsyncShutdownTimeout | AddonManager: Waiting to start provider shutdown. | AddonRepository Background Updater'
               id: id-401
-              last_modified: 1795596696186
             permissions: {}
           id-400:
             data:
@@ -1023,7 +961,6 @@ buckets:
               schema: 1795596693000
               description: 'gpu (Windows beta): NtUserMsgWaitForMultipleObjectsEx'
               id: id-400
-              last_modified: 1795596694616
             permissions: {}
           id-399:
             data:
@@ -1059,7 +996,6 @@ buckets:
               schema: 1795596691300
               description: 'main (Windows beta): AsyncShutdownTimeout | AddonManager: Waiting to start provider shutdown. | AddonRepository Background Updater'
               id: id-399
-              last_modified: 1795596692989
             permissions: {}
           id-398:
             data:
@@ -1082,7 +1018,6 @@ buckets:
               schema: 1795596689498
               description: 'utility (Linux release): mozilla::EnterChroot'
               id: id-398
-              last_modified: 1795596691290
             permissions: {}
           id-397:
             data:
@@ -1091,7 +1026,6 @@ buckets:
               schema: 1795596687413
               description: 'gpu (Mac beta): MetalOld.dylib'
               id: id-397
-              last_modified: 1795596689487
             permissions: {}
           id-396:
             data:
@@ -1100,7 +1034,6 @@ buckets:
               schema: 1795596685730
               description: 'gpu (Android nightly): __aarch64_ldadd8_relax'
               id: id-396
-              last_modified: 1795596687402
             permissions: {}
           id-395:
             data:
@@ -1109,7 +1042,6 @@ buckets:
               schema: 1795596684135
               description: 'gpu (Android beta): libc.so | libc++.so'
               id: id-395
-              last_modified: 1795596685720
             permissions: {}
           id-394:
             data:
@@ -1118,7 +1050,6 @@ buckets:
               schema: 1795596682568
               description: 'gpu (Mac nightly): mozilla::ipc::UntypedEndpoint::Bind'
               id: id-394
-              last_modified: 1795596684125
             permissions: {}
           id-393:
             data:
@@ -1127,7 +1058,6 @@ buckets:
               schema: 1795596680995
               description: 'rdd (Windows beta): dav1d_lpf_v_sb_y_8bpc_ssse3'
               id: id-393
-              last_modified: 1795596682557
             permissions: {}
           id-392:
             data:
@@ -1136,7 +1066,6 @@ buckets:
               schema: 1795596679443
               description: 'rdd (Linux nightly): memset | _dl_map_segments'
               id: id-392
-              last_modified: 1795596680986
             permissions: {}
           id-391:
             data:
@@ -1173,7 +1102,6 @@ buckets:
               schema: 1795596677802
               description: 'content (Windows release): OOM | large | js::AutoEnterOOMUnsafeRegion::crash_impl | js::AutoEnterOOMUnsafeRegion::crash_impl | mozilla::Array<T>::operator[]'
               id: id-391
-              last_modified: 1795596679433
             permissions: {}
           id-390:
             data:
@@ -1210,7 +1138,6 @@ buckets:
               schema: 1795596676173
               description: 'content (Windows release): InProcessClient64.dll | TppExecuteWaitCallback'
               id: id-390
-              last_modified: 1795596677790
             permissions: {}
           id-389:
             data:
@@ -1219,7 +1146,6 @@ buckets:
               schema: 1795596674528
               description: 'socket (Linux release): ipcclientcerts::trace_attr'
               id: id-389
-              last_modified: 1795596676162
             permissions: {}
           id-388:
             data:
@@ -1228,7 +1154,6 @@ buckets:
               schema: 1795596672931
               description: 'plugin (Windows beta): msmpeg2vdec.dll | wmf::CreateMFT'
               id: id-388
-              last_modified: 1795596674518
             permissions: {}
           id-387:
             data:
@@ -1237,7 +1162,6 @@ buckets:
               schema: 1795596671318
               description: 'utility (Windows beta): RtlpReAllocateHeapInternal | RtlReAllocateHeap | SogouTSF.ime'
               id: id-387
-              last_modified: 1795596672920
             permissions: {}
           id-386:
             data:
@@ -1247,7 +1171,6 @@ buckets:
               schema: 1795596669561
               description: 'main (Linux beta): AsyncShutdownTimeout | Places Clients shutdown | sanitize.js: Sanitize on shutdown'
               id: id-386
-              last_modified: 1795596671306
             permissions: {}
           id-385:
             data:
@@ -1263,7 +1186,6 @@ buckets:
               schema: 1795596667966
               description: 'rdd (Mac release): AppleIntelHD5000GraphicsVADriver'
               id: id-385
-              last_modified: 1795596669550
             permissions: {}
           id-384:
             data:
@@ -1300,7 +1222,6 @@ buckets:
               schema: 1795596666277
               description: 'rdd (Linux release): abort | libgallium-26.3.1-arch3.4.so'
               id: id-384
-              last_modified: 1795596667892
             permissions: {}
           id-383:
             data:
@@ -1334,7 +1255,6 @@ buckets:
               schema: 1795596664716
               description: 'plugin (Windows release): widevinecdm.dll | xul.dll | NS_internal_main'
               id: id-383
-              last_modified: 1795596666268
             permissions: {}
           id-382:
             data:
@@ -1370,7 +1290,6 @@ buckets:
               schema: 1795596663111
               description: 'gpu (Windows release): RtlReportFatalFailure'
               id: id-382
-              last_modified: 1795596664706
             permissions: {}
           id-381:
             data:
@@ -1408,7 +1327,6 @@ buckets:
               schema: 1795596661504
               description: 'socket (Windows release): flhhlp.dll | LdrpSendDllNotifications'
               id: id-381
-              last_modified: 1795596663100
             permissions: {}
           id-380:
             data:
@@ -1446,7 +1364,6 @@ buckets:
               schema: 1795596659192
               description: 'socket (Windows release): OOM | small'
               id: id-380
-              last_modified: 1795596661493
             permissions: {}
           id-379:
             data:
@@ -1483,7 +1400,6 @@ buckets:
               schema: 1795596656686
               description: 'utility (Windows release): InProcessClient64.dll | TppExecuteWaitCallback'
               id: id-379
-              last_modified: 1795596659180
             permissions: {}
           id-378:
             data:
@@ -1492,7 +1408,6 @@ buckets:
               schema: 1795596654561
               description: 'utility (Mac release): gguf_get_n_kv'
               id: id-378
-              last_modified: 1795596656674
             permissions: {}
           id-377:
             data:
@@ -1530,7 +1445,6 @@ buckets:
               schema: 1795596652906
               description: 'utility (Windows release): InProcessClient64.dll'
               id: id-377
-              last_modified: 1795596654551
             permissions: {}
           id-376:
             data:
@@ -1568,7 +1482,6 @@ buckets:
               schema: 1795596651280
               description: 'rdd (Windows beta): RaiseException'
               id: id-376
-              last_modified: 1795596652895
             permissions: {}
           id-375:
             data:
@@ -1604,7 +1517,6 @@ buckets:
               schema: 1795596649679
               description: 'utility (Windows release): <unknown in igd10um64xe.dll> | NDXGI::CDevice::CreateDriverInstance'
               id: id-375
-              last_modified: 1795596651269
             permissions: {}
           id-374:
             data:
@@ -1613,7 +1525,6 @@ buckets:
               schema: 1795596648070
               description: 'rdd (Linux beta): nsThreadPool::PutEvent'
               id: id-374
-              last_modified: 1795596649668
             permissions: {}
           id-373:
             data:
@@ -1623,7 +1534,6 @@ buckets:
               schema: 1795596646461
               description: 'rdd (Linux nightly): @0x0 | NvGlEglGetFunctions'
               id: id-373
-              last_modified: 1795596648058
             permissions: {}
           id-372:
             data:
@@ -1632,7 +1542,6 @@ buckets:
               schema: 1795596644848
               description: 'content (Mac beta): OOM | unknown | NS_ABORT_OOM | mozilla::dom::Promise::CreateInfallible | mozilla::dom::streams_abstract::SetUpReadableByteStreamController'
               id: id-372
-              last_modified: 1795596646451
             permissions: {}
           id-371:
             data:
@@ -1643,7 +1552,6 @@ buckets:
               schema: 1795596643291
               description: 'main (Mac beta): AsyncShutdownTimeout | profile-before-change | AddonManager: shutting down.'
               id: id-371
-              last_modified: 1795596644837
             permissions: {}
           id-370:
             data:
@@ -1653,7 +1561,6 @@ buckets:
               schema: 1795596641666
               description: 'main (Linux nightly): libmozsqlite3.so (deleted)'
               id: id-370
-              last_modified: 1795596643280
             permissions: {}
           id-369:
             data:
@@ -1663,7 +1570,6 @@ buckets:
               schema: 1795596638051
               description: 'utility (Mac release): mozilla::ipc::MessagePump::Run'
               id: id-369
-              last_modified: 1795596641656
             permissions: {}
           id-368:
             data:
@@ -1701,7 +1607,6 @@ buckets:
               schema: 1795596636455
               description: 'content (Linux release): mozilla::detail::InvalidArrayIndex_CRASH | mozilla::Array<T>::operator[]'
               id: id-368
-              last_modified: 1795596638039
             permissions: {}
           id-367:
             data:
@@ -1739,7 +1644,6 @@ buckets:
               schema: 1795596634889
               description: 'gpu (Windows release): amdxc64.dll'
               id: id-367
-              last_modified: 1795596636444
             permissions: {}
           id-366:
             data:
@@ -1751,7 +1655,6 @@ buckets:
               schema: 1795596633301
               description: 'utility (Linux release): libfdk-aac.so.2'
               id: id-366
-              last_modified: 1795596634878
             permissions: {}
           id-365:
             data:
@@ -1760,7 +1663,6 @@ buckets:
               schema: 1795596631600
               description: 'rdd (Windows nightly): stackoverflow | RtlpHeapGenerateRandomValue32 | RtlpLowFragHeapAllocFromContext | RtlpAllocateHeapInternal | LdrpGetNewTlsVector'
               id: id-365
-              last_modified: 1795596633291
             permissions: {}
           id-364:
             data:
@@ -1769,7 +1671,6 @@ buckets:
               schema: 1795596629457
               description: 'plugin (Mac release): cerror_nocancel'
               id: id-364
-              last_modified: 1795596631491
             permissions: {}
           id-363:
             data:
@@ -1781,7 +1682,6 @@ buckets:
               schema: 1795596627381
               description: 'utility (Linux release): elf_machine_rela_relative'
               id: id-363
-              last_modified: 1795596629447
             permissions: {}
           id-362:
             data:
@@ -1790,7 +1690,6 @@ buckets:
               schema: 1795596625672
               description: 'socket (Mac release): mozilla::net::SocketProcessBridgeParent::RecvInitMediaTransport'
               id: id-362
-              last_modified: 1795596627371
             permissions: {}
           id-361:
             data:
@@ -1800,7 +1699,6 @@ buckets:
               schema: 1795596624075
               description: 'socket (Linux release): mozilla::SandboxProfiler::ReportLog'
               id: id-361
-              last_modified: 1795596625660
             permissions: {}
           id-360:
             data:
@@ -1825,7 +1723,6 @@ buckets:
               schema: 1795596621806
               description: 'content (Windows beta): OOM | large | xul.dll'
               id: id-360
-              last_modified: 1795596624064
             permissions: {}
           id-359:
             data:
@@ -1853,7 +1750,6 @@ buckets:
               schema: 1795596619404
               description: 'content (Windows release): OOM | large | xul.dll | _PR_NativeRunThread | pr_root'
               id: id-359
-              last_modified: 1795596621688
             permissions: {}
           id-358:
             data:
@@ -1863,7 +1759,6 @@ buckets:
               schema: 1795596617811
               description: 'content (Android beta): pages_decommit'
               id: id-358
-              last_modified: 1795596619394
             permissions: {}
           id-357:
             data:
@@ -1872,7 +1767,6 @@ buckets:
               schema: 1795596616194
               description: 'gpu (Mac nightly): _sigtramp'
               id: id-357
-              last_modified: 1795596617800
             permissions: {}
           id-356:
             data:
@@ -1881,7 +1775,6 @@ buckets:
               schema: 1795596614579
               description: 'gpu (Android nightly): libc.so | libglslcompiler.so'
               id: id-356
-              last_modified: 1795596616184
             permissions: {}
           id-355:
             data:
@@ -1890,7 +1783,6 @@ buckets:
               schema: 1795596613018
               description: 'plugin (Windows nightly): widevinecdm.dll'
               id: id-355
-              last_modified: 1795596614568
             permissions: {}
           id-354:
             data:
@@ -1899,7 +1791,6 @@ buckets:
               schema: 1795596611402
               description: 'content (Linux nightly): js::gc::FreeSpan::isEmpty'
               id: id-354
-              last_modified: 1795596613007
             permissions: {}
           id-353:
             data:
@@ -1908,7 +1799,6 @@ buckets:
               schema: 1795596609267
               description: 'socket (Linux release): sandbox::bpf_dsl::Caser<T>::Cases'
               id: id-353
-              last_modified: 1795596611392
             permissions: {}
           id-352:
             data:
@@ -1937,7 +1827,6 @@ buckets:
               schema: 1795596606923
               description: 'main (Android beta): mozilla::jni::Accessor::EndAccess<T>'
               id: id-352
-              last_modified: 1795596609251
             permissions: {}
           id-351:
             data:
@@ -1952,7 +1841,6 @@ buckets:
               schema: 1795596605106
               description: 'content (Windows nightly): RtlpUnwindPrologue | RtlpxVirtualUnwind | encoding_rs::mem::convert_latin1_to_utf16::convert_latin1_to_utf16_avx_avx2_bmi1_sse_sse2_sse3_sse41_ssse3_version'
               id: id-351
-              last_modified: 1795596606913
             permissions: {}
           id-350:
             data:
@@ -1965,7 +1853,6 @@ buckets:
               schema: 1795596603521
               description: 'gpu (Windows nightly): amdxx64.dll | delete'
               id: id-350
-              last_modified: 1795596605095
             permissions: {}
           id-349:
             data:
@@ -1974,7 +1861,6 @@ buckets:
               schema: 1795596601917
               description: 'content (Mac nightly): mozilla::dom::RemoteObjectProxyBase::GetOrCreateProxyObject'
               id: id-349
-              last_modified: 1795596603511
             permissions: {}
           id-348:
             data:
@@ -1983,7 +1869,6 @@ buckets:
               schema: 1795596600316
               description: 'gpu (Mac beta): pthread_kill | abort | IOGPUMetalCommandBufferStorageAllocResourceAtIndex'
               id: id-348
-              last_modified: 1795596601906
             permissions: {}
           id-347:
             data:
@@ -1992,7 +1877,6 @@ buckets:
               schema: 1795596598303
               description: 'plugin (Mac release): mozilla::gmp::GMPChild::GetUTF8LibPath'
               id: id-347
-              last_modified: 1795596600305
             permissions: {}
           id-346:
             data:
@@ -2023,7 +1907,6 @@ buckets:
               schema: 1795596596428
               description: 'main (Android nightly): mozilla::dom::JSValidatorParent::Create::$::operator()'
               id: id-346
-              last_modified: 1795596598292
             permissions: {}
           id-345:
             data:
@@ -2061,7 +1944,6 @@ buckets:
               schema: 1795596594681
               description: 'main (Windows release): OOM | small'
               id: id-345
-              last_modified: 1795596596417
             permissions: {}
           id-344:
             data:
@@ -2070,7 +1952,6 @@ buckets:
               schema: 1795596593116
               description: 'rdd (Windows beta): msmpeg2vdec.dll | <unknown in combase.dll> | CoCreateInstance'
               id: id-344
-              last_modified: 1795596594671
             permissions: {}
           id-343:
             data:
@@ -2085,7 +1966,6 @@ buckets:
               schema: 1795596591489
               description: 'gpu (Android release): libc.so | libxul.so | libc.so | libsrv_um.so'
               id: id-343
-              last_modified: 1795596593107
             permissions: {}
           id-342:
             data:
@@ -2121,7 +2001,6 @@ buckets:
               schema: 1795596589792
               description: 'rdd (Linux release): __std_2U4S4U_X08'
               id: id-342
-              last_modified: 1795596591479
             permissions: {}
           id-341:
             data:
@@ -2140,7 +2019,6 @@ buckets:
               schema: 1795596587805
               description: 'content (Windows beta): XPCJSContext::NewXPCJSContext'
               id: id-341
-              last_modified: 1795596589679
             permissions: {}
           id-340:
             data:
@@ -2161,7 +2039,6 @@ buckets:
               schema: 1795596586129
               description: 'plugin (Windows release): widevinecdm.dll | mozilla::gmp::ChromiumCDMChild::RecvUpdateSession'
               id: id-340
-              last_modified: 1795596587795
             permissions: {}
           id-339:
             data:
@@ -2170,7 +2047,6 @@ buckets:
               schema: 1795596584495
               description: 'rdd (Windows nightly): msmpeg2vdec.dll'
               id: id-339
-              last_modified: 1795596586117
             permissions: {}
           id-338:
             data:
@@ -2180,7 +2056,6 @@ buckets:
               schema: 1795596582916
               description: 'content (Android beta): OOM | large | js::AutoEnterOOMUnsafeRegion::crash_impl | js::RunScript'
               id: id-338
-              last_modified: 1795596584483
             permissions: {}
           id-337:
             data:
@@ -2191,7 +2066,6 @@ buckets:
               schema: 1795596581298
               description: 'content (Mac beta): nsPIDOMWindowInner::GetExtantDoc'
               id: id-337
-              last_modified: 1795596582905
             permissions: {}
           id-336:
             data:
@@ -2229,7 +2103,6 @@ buckets:
               schema: 1795596579624
               description: 'content (Android release): OOM | large | js::AutoEnterOOMUnsafeRegion::crash_impl | EnterJit'
               id: id-336
-              last_modified: 1795596581287
             permissions: {}
           id-335:
             data:
@@ -2267,7 +2140,6 @@ buckets:
               schema: 1795596578080
               description: 'gpu (Windows release): igd12umd64.dll | DDIMap::CallDDI<T>'
               id: id-335
-              last_modified: 1795596579614
             permissions: {}
           id-334:
             data:
@@ -2302,7 +2174,6 @@ buckets:
               schema: 1795596576484
               description: 'socket (Windows release): InjUmon64.dll'
               id: id-334
-              last_modified: 1795596578069
             permissions: {}
           id-333:
             data:
@@ -2312,7 +2183,6 @@ buckets:
               schema: 1795596574948
               description: 'utility (Mac release): libvDSP.dylib'
               id: id-333
-              last_modified: 1795596576475
             permissions: {}
           id-332:
             data:
@@ -2321,7 +2191,6 @@ buckets:
               schema: 1795596573371
               description: 'content (Mac nightly): js::IsProxy'
               id: id-332
-              last_modified: 1795596574938
             permissions: {}
           id-331:
             data:
@@ -2330,7 +2199,6 @@ buckets:
               schema: 1795596571781
               description: 'rdd (Windows beta): stackoverflow | OOM | large | OnThreadExit'
               id: id-331
-              last_modified: 1795596573360
             permissions: {}
           id-330:
             data:
@@ -2356,7 +2224,6 @@ buckets:
               schema: 1795596570191
               description: 'content (Linux release): <name omitted> | nsGlobalWindowInner::ClearDocumentDependentSlots'
               id: id-330
-              last_modified: 1795596571769
             permissions: {}
           id-329:
             data:
@@ -2394,7 +2261,6 @@ buckets:
               schema: 1795596568557
               description: 'gpu (Windows nightly): IPCError-content | GPUProcessKill'
               id: id-329
-              last_modified: 1795596570180
             permissions: {}
           id-328:
             data:
@@ -2422,7 +2288,6 @@ buckets:
               schema: 1795596566606
               description: 'content (Windows release): InProcessClient64.dll'
               id: id-328
-              last_modified: 1795596568546
             permissions: {}
           id-327:
             data:
@@ -2459,7 +2324,6 @@ buckets:
               schema: 1795596564973
               description: 'main (Windows beta): OOM | large | js::AutoEnterOOMUnsafeRegion::crash_impl | js::AutoEnterOOMUnsafeRegion::crash_impl | js::AutoEnterOOMUnsafeRegion::crash | js::gc::AllocateTenuredCellInGC'
               id: id-327
-              last_modified: 1795596566594
             permissions: {}
           id-326:
             data:
@@ -2493,7 +2357,6 @@ buckets:
               schema: 1795596563401
               description: 'main (Windows beta): mozilla::dom::quota::QuotaManager::Shutdown::<T>::operator()'
               id: id-326
-              last_modified: 1795596564964
             permissions: {}
           id-325:
             data:
@@ -2531,7 +2394,6 @@ buckets:
               schema: 1795596561787
               description: 'rdd (Linux release): abort | libgallium-26.3.1-arch3.5.so'
               id: id-325
-              last_modified: 1795596563391
             permissions: {}
           id-324:
             data:
@@ -2543,7 +2405,6 @@ buckets:
               schema: 1795596560245
               description: 'content (Linux beta): mozilla::layers::ImageBridgeChild::InitForContent'
               id: id-324
-              last_modified: 1795596561778
             permissions: {}
           id-323:
             data:
@@ -2553,7 +2414,6 @@ buckets:
               schema: 1795596558673
               description: 'rdd (Linux beta): mozilla::ipc::FileDescriptor::FileDescriptor'
               id: id-323
-              last_modified: 1795596560235
             permissions: {}
           id-322:
             data:
@@ -2562,7 +2422,6 @@ buckets:
               schema: 1795596557088
               description: 'content (Mac nightly): js::gc::HeaderWord::get'
               id: id-322
-              last_modified: 1795596558663
             permissions: {}
           id-321:
             data:
@@ -2571,7 +2430,6 @@ buckets:
               schema: 1795596555494
               description: 'socket (Linux release): std::shared_ptr<T>::shared_ptr'
               id: id-321
-              last_modified: 1795596557078
             permissions: {}
           id-320:
             data:
@@ -2604,7 +2462,6 @@ buckets:
               schema: 1795596553941
               description: 'content (Mac release): js::jit::CacheIRStubInfo::fieldType'
               id: id-320
-              last_modified: 1795596555484
             permissions: {}
           id-319:
             data:
@@ -2613,7 +2470,6 @@ buckets:
               schema: 1795596552371
               description: 'content (Android nightly): mozilla::media::Interval<T>::Interval<T> | mozilla::media::TimeIntervals::ToMicrosecondResolution'
               id: id-319
-              last_modified: 1795596553931
             permissions: {}
           id-318:
             data:
@@ -2651,7 +2507,6 @@ buckets:
               schema: 1795596550706
               description: 'content (Windows beta): OOM | unknown | NS_ABORT_OOM | XPCJSContext::Initialize'
               id: id-318
-              last_modified: 1795596552360
             permissions: {}
           id-317:
             data:
@@ -2689,7 +2544,6 @@ buckets:
               schema: 1795596549088
               description: 'content (Windows release): xul.dll | _PR_NativeRunThread | pr_root'
               id: id-317
-              last_modified: 1795596550695
             permissions: {}
           id-316:
             data:
@@ -2727,7 +2581,6 @@ buckets:
               schema: 1795596547519
               description: 'gpu (Android release): mozilla::ipc::MessageChannel::AssertWorkerThread | mozilla::ipc::MessageChannel::Send | mozilla::ipc::IProtocol::ChannelSend | Mutex::Unlock'
               id: id-316
-              last_modified: 1795596549078
             permissions: {}
           id-315:
             data:
@@ -2761,7 +2614,6 @@ buckets:
               schema: 1795596545925
               description: 'utility (Windows release): CreateRectRgn'
               id: id-315
-              last_modified: 1795596547509
             permissions: {}
           id-314:
             data:
@@ -2797,7 +2649,6 @@ buckets:
               schema: 1795596544343
               description: 'main (Windows nightly): shutdownhang | mozilla::(anonymous namespace)::RunWatchdog'
               id: id-314
-              last_modified: 1795596545913
             permissions: {}
           id-313:
             data:
@@ -2807,7 +2658,6 @@ buckets:
               schema: 1795596542715
               description: 'rdd (Linux nightly): vaapi_buffer_free | buffer_pool_flush'
               id: id-313
-              last_modified: 1795596544332
             permissions: {}
           id-312:
             data:
@@ -2826,7 +2676,6 @@ buckets:
               schema: 1795596540972
               description: 'socket (Linux release): <name omitted> | EnterChroot'
               id: id-312
-              last_modified: 1795596542704
             permissions: {}
           id-311:
             data:
@@ -2837,7 +2686,6 @@ buckets:
               schema: 1795596538503
               description: 'main (Mac beta): AsyncShutdownTimeout | Places Clients shutdown | sanitize.js: Sanitize on shutdown'
               id: id-311
-              last_modified: 1795596540812
             permissions: {}
           id-310:
             data:
@@ -2875,7 +2723,6 @@ buckets:
               schema: 1795596536399
               description: 'content (Linux release): mozilla::ipc::PortLink::SendMessage'
               id: id-310
-              last_modified: 1795596538493
             permissions: {}
           id-309:
             data:
@@ -2886,7 +2733,6 @@ buckets:
               schema: 1795596534639
               description: 'main (Linux beta): libgobject-2.0.so.0'
               id: id-309
-              last_modified: 1795596536389
             permissions: {}
           id-308:
             data:
@@ -2895,7 +2741,6 @@ buckets:
               schema: 1795596533067
               description: 'plugin (Windows beta): mozilla::gmp::GMPChild::ProcessingError'
               id: id-308
-              last_modified: 1795596534628
             permissions: {}
           id-307:
             data:
@@ -2905,7 +2750,6 @@ buckets:
               schema: 1795596531484
               description: 'content (Linux beta): arena_dalloc | BaseAllocator::free | MozJemalloc::free | PageFree'
               id: id-307
-              last_modified: 1795596533056
             permissions: {}
           id-306:
             data:
@@ -2915,7 +2759,6 @@ buckets:
               schema: 1795596529886
               description: 'main (Linux beta): EnterJit'
               id: id-306
-              last_modified: 1795596531473
             permissions: {}
           id-305:
             data:
@@ -2925,7 +2768,6 @@ buckets:
               schema: 1795596528312
               description: 'content (Linux beta): mozilla::TaskController::InitializeThreadPool'
               id: id-305
-              last_modified: 1795596529876
             permissions: {}
           id-304:
             data:
@@ -2952,7 +2794,6 @@ buckets:
               schema: 1795596526725
               description: 'socket (Linux release): mozilla::EnterChroot'
               id: id-304
-              last_modified: 1795596528302
             permissions: {}
           id-303:
             data:
@@ -2990,7 +2831,6 @@ buckets:
               schema: 1795596525135
               description: 'rdd (Linux release): <name omitted> | abort | libgallium-26.2.7.so'
               id: id-303
-              last_modified: 1795596526714
             permissions: {}
           id-302:
             data:
@@ -2999,7 +2839,6 @@ buckets:
               schema: 1795596523586
               description: 'main (Mac nightly): js::gc::ChunkMarkBitmap::markIfUnmarkedThreadSafe'
               id: id-302
-              last_modified: 1795596525125
             permissions: {}
           id-301:
             data:
@@ -3008,7 +2847,6 @@ buckets:
               schema: 1795596521986
               description: 'utility (Windows beta): stackoverflow | _SEH_prolog4_GS'
               id: id-301
-              last_modified: 1795596523577
             permissions: {}
           id-300:
             data:
@@ -3018,7 +2856,6 @@ buckets:
               schema: 1795596520309
               description: 'utility (Windows beta): _invoke_watson'
               id: id-300
-              last_modified: 1795596521976
             permissions: {}
           id-299:
             data:
@@ -3037,7 +2874,6 @@ buckets:
               schema: 1795596518703
               description: 'main (Mac nightly): AsyncShutdownTimeout | profile-change-teardown | ServiceWorkerShutdownBlocker: shutting down Service Workers'
               id: id-299
-              last_modified: 1795596520298
             permissions: {}
           id-298:
             data:
@@ -3075,7 +2911,6 @@ buckets:
               schema: 1795596517149
               description: 'main (Mac release): js::gc::detail::ChunkPtrHasStoreBuffer'
               id: id-298
-              last_modified: 1795596518694
             permissions: {}
           id-297:
             data:
@@ -3113,7 +2948,6 @@ buckets:
               schema: 1795596515561
               description: 'content (Android release): OOM | unknown | NS_ABORT_OOM | NS_ABORT_OOM'
               id: id-297
-              last_modified: 1795596517139
             permissions: {}
           id-296:
             data:
@@ -3151,7 +2985,6 @@ buckets:
               schema: 1795596513999
               description: 'main (Mac release): objc_retain | NSKeyValueNotifyObserver'
               id: id-296
-              last_modified: 1795596515552
             permissions: {}
           id-295:
             data:
@@ -3189,7 +3022,6 @@ buckets:
               schema: 1795596512416
               description: 'content (Windows beta): __scrt_throw_std_bad_alloc'
               id: id-295
-              last_modified: 1795596513989
             permissions: {}
           id-294:
             data:
@@ -3226,7 +3058,6 @@ buckets:
               schema: 1795596510833
               description: 'socket (Windows release): PANTALPC64.DLL'
               id: id-294
-              last_modified: 1795596512405
             permissions: {}
           id-293:
             data:
@@ -3260,7 +3091,6 @@ buckets:
               schema: 1795596509276
               description: 'content (Windows beta): OOM | large | js::AutoEnterOOMUnsafeRegion::crash_impl | js::AutoEnterOOMUnsafeRegion::crash_impl | mozilla::Array<T>::operator[]'
               id: id-293
-              last_modified: 1795596510823
             permissions: {}
           id-292:
             data:
@@ -3298,7 +3128,6 @@ buckets:
               schema: 1795596507209
               description: 'main (Windows beta): shutdownhang | mozilla::(anonymous namespace)::RunWatchdog'
               id: id-292
-              last_modified: 1795596509265
             permissions: {}
           id-291:
             data:
@@ -3308,7 +3137,6 @@ buckets:
               schema: 1795596505504
               description: 'content (Linux beta): <T>::load'
               id: id-291
-              last_modified: 1795596507200
             permissions: {}
           id-290:
             data:
@@ -3317,7 +3145,6 @@ buckets:
               schema: 1795596503921
               description: 'socket (Linux release): mozilla::StaticPrefs::InitStaticPrefsFromShared'
               id: id-290
-              last_modified: 1795596505494
             permissions: {}
           id-289:
             data:
@@ -3326,7 +3153,6 @@ buckets:
               schema: 1795596502329
               description: 'rdd (Windows beta): mozilla::Variant<T>::Variant | mozilla::detail::ResultImplementation<T>::ResultImplementation'
               id: id-289
-              last_modified: 1795596503910
             permissions: {}
           id-288:
             data:
@@ -3352,7 +3178,6 @@ buckets:
               schema: 1795596500772
               description: 'gpu (Android release): mozilla::wr::RenderThread::HandleFrameOneDocInner'
               id: id-288
-              last_modified: 1795596502318
             permissions: {}
           id-287:
             data:
@@ -3367,7 +3192,6 @@ buckets:
               schema: 1795596499213
               description: 'plugin (Mac release): mozilla::gmp::GMPLoader::Load'
               id: id-287
-              last_modified: 1795596500762
             permissions: {}
           id-286:
             data:
@@ -3405,7 +3229,6 @@ buckets:
               schema: 1795596497639
               description: 'rdd (Linux release): abort | amdgpu_winsys_create'
               id: id-286
-              last_modified: 1795596499203
             permissions: {}
           id-285:
             data:
@@ -3414,7 +3237,6 @@ buckets:
               schema: 1795596496020
               description: 'content (Android beta): mozilla::StyleHeaderSlice<T>::IsEmpty'
               id: id-285
-              last_modified: 1795596497627
             permissions: {}
           id-284:
             data:
@@ -3440,7 +3262,6 @@ buckets:
               schema: 1795596494409
               description: 'main (Android nightly): mozilla::jni::Accessor::EndAccess<T>'
               id: id-284
-              last_modified: 1795596496010
             permissions: {}
           id-283:
             data:
@@ -3478,7 +3299,6 @@ buckets:
               schema: 1795596492809
               description: 'gpu (Mac release): abort | gpusKillClientExt'
               id: id-283
-              last_modified: 1795596494399
             permissions: {}
           id-282:
             data:
@@ -3487,7 +3307,6 @@ buckets:
               schema: 1795596491265
               description: 'content (Mac nightly): mozilla::dom::BrowsingContext::BrowsingContext'
               id: id-282
-              last_modified: 1795596492799
             permissions: {}
           id-281:
             data:
@@ -3498,7 +3317,6 @@ buckets:
               schema: 1795596489570
               description: 'main (Linux nightly): mozilla::dom::quota::QuotaManager::Shutdown::$::operator()'
               id: id-281
-              last_modified: 1795596491256
             permissions: {}
           id-280:
             data:
@@ -3529,7 +3347,6 @@ buckets:
               schema: 1795596488018
               description: 'content (Mac release): JS::PropertyKey::operator=='
               id: id-280
-              last_modified: 1795596489560
             permissions: {}
           id-279:
             data:
@@ -3551,7 +3368,6 @@ buckets:
               schema: 1795596486434
               description: 'gpu (Windows beta): ZwUserMsgWaitForMultipleObjectsEx'
               id: id-279
-              last_modified: 1795596488004
             permissions: {}
           id-278:
             data:
@@ -3562,7 +3378,6 @@ buckets:
               schema: 1795596484840
               description: 'rdd (Windows beta): nsThreadPool::PutEvent'
               id: id-278
-              last_modified: 1795596486424
             permissions: {}
           id-277:
             data:
@@ -3577,7 +3392,6 @@ buckets:
               schema: 1795596483285
               description: 'main (Windows nightly): AsyncShutdownTimeout | profile-before-change | AddonManager: shutting down.'
               id: id-277
-              last_modified: 1795596484831
             permissions: {}
           id-276:
             data:
@@ -3586,7 +3400,6 @@ buckets:
               schema: 1795596481706
               description: 'gpu (Android beta): libc.so'
               id: id-276
-              last_modified: 1795596483276
             permissions: {}
           id-275:
             data:
@@ -3624,7 +3437,6 @@ buckets:
               schema: 1795596479909
               description: 'gpu (Windows beta): mtx_do_lock'
               id: id-275
-              last_modified: 1795596481696
             permissions: {}
           id-274:
             data:
@@ -3650,7 +3462,6 @@ buckets:
               schema: 1795596477575
               description: 'content (Windows nightly): mozJSModuleLoader::InitSharedGlobal'
               id: id-274
-              last_modified: 1795596479898
             permissions: {}
           id-273:
             data:
@@ -3688,7 +3499,6 @@ buckets:
               schema: 1795596476000
               description: 'main (Linux release): libxul.so | libglib-2.0.so.0'
               id: id-273
-              last_modified: 1795596477565
             permissions: {}
           id-272:
             data:
@@ -3706,7 +3516,6 @@ buckets:
               schema: 1795596474254
               description: 'plugin (Windows release): xul.dll | NS_internal_main'
               id: id-272
-              last_modified: 1795596475991
             permissions: {}
           id-271:
             data:
@@ -3744,7 +3553,6 @@ buckets:
               schema: 1795596472688
               description: 'content (Windows release): OOM | large | xul.dll'
               id: id-271
-              last_modified: 1795596474244
             permissions: {}
           id-270:
             data:
@@ -3782,7 +3590,6 @@ buckets:
               schema: 1795596471093
               description: 'main (Linux release): <name omitted> | HandleGLibMessage'
               id: id-270
-              last_modified: 1795596472678
             permissions: {}
           id-269:
             data:
@@ -3792,7 +3599,6 @@ buckets:
               schema: 1795596469516
               description: 'main (Linux nightly): __syscall_cancel_arch'
               id: id-269
-              last_modified: 1795596471082
             permissions: {}
           id-268:
             data:
@@ -3829,7 +3635,6 @@ buckets:
               schema: 1795596466068
               description: 'gpu (Windows release): igd12umd64.dll | CGraphicsCommandList::CopyBufferRegion_VariadicHelper<T>::Variadic_Thk'
               id: id-268
-              last_modified: 1795596469506
             permissions: {}
           id-267:
             data:
@@ -3867,7 +3672,6 @@ buckets:
               schema: 1795596464453
               description: 'main (Android release): libaudioclient.so'
               id: id-267
-              last_modified: 1795596466059
             permissions: {}
           id-266:
             data:
@@ -3904,7 +3708,6 @@ buckets:
               schema: 1795596462893
               description: 'gpu (Mac release): libc++abi.dylib'
               id: id-266
-              last_modified: 1795596464444
             permissions: {}
           id-265:
             data:
@@ -3936,7 +3739,6 @@ buckets:
               schema: 1795596461267
               description: 'socket (Mac release): nr_turn_stun_ctx_handle_redirect'
               id: id-265
-              last_modified: 1795596462878
             permissions: {}
           id-264:
             data:
@@ -3946,7 +3748,6 @@ buckets:
               schema: 1795596459570
               description: 'content (Linux beta): OOM | small'
               id: id-264
-              last_modified: 1795596461257
             permissions: {}
           id-263:
             data:
@@ -3984,7 +3785,6 @@ buckets:
               schema: 1795596458012
               description: 'content (Android release): OOM | unknown | NS_ABORT_OOM | mozilla::jni::ReportException'
               id: id-263
-              last_modified: 1795596459560
             permissions: {}
           id-262:
             data:
@@ -4021,7 +3821,6 @@ buckets:
               schema: 1795596456445
               description: 'content (Linux release): mozilla::dom::syncedcontext::Transaction<T>::Commit | mozilla::dom::BrowsingContext::SetOpenerPolicy'
               id: id-262
-              last_modified: 1795596458000
             permissions: {}
           id-261:
             data:
@@ -4057,7 +3856,6 @@ buckets:
               schema: 1795596454905
               description: 'main (Linux release): NvGlEglGetFunctions'
               id: id-261
-              last_modified: 1795596456434
             permissions: {}
           id-260:
             data:
@@ -4072,7 +3870,6 @@ buckets:
               schema: 1795596453328
               description: 'gpu (Android release): libart.so | boot-core-libart.oat'
               id: id-260
-              last_modified: 1795596454895
             permissions: {}
           id-259:
             data:
@@ -4110,7 +3907,6 @@ buckets:
               schema: 1795596451780
               description: 'gpu (Mac release): IPCError-content | GPUProcessKill'
               id: id-259
-              last_modified: 1795596453319
             permissions: {}
           id-258:
             data:
@@ -4123,7 +3919,6 @@ buckets:
               schema: 1795596449957
               description: 'utility (Linux release): nsThreadPool::Run'
               id: id-258
-              last_modified: 1795596451770
             permissions: {}
           id-257:
             data:
@@ -4132,7 +3927,6 @@ buckets:
               schema: 1795596446872
               description: 'content (Android nightly): nsWindowWatcher::OpenWindowInternal'
               id: id-257
-              last_modified: 1795596449947
             permissions: {}
           id-256:
             data:
@@ -4142,7 +3936,6 @@ buckets:
               schema: 1795596445193
               description: 'content (Android nightly): mozilla::Maybe<T>::ref | js::gc::GCRuntime::gcOptions'
               id: id-256
-              last_modified: 1795596446861
             permissions: {}
           id-255:
             data:
@@ -4151,7 +3944,6 @@ buckets:
               schema: 1795596443624
               description: 'content (Android nightly): js::detail::OrderedHashTableImpl<T>::getNurseryIterators'
               id: id-255
-              last_modified: 1795596445183
             permissions: {}
           id-254:
             data:
@@ -4189,7 +3981,6 @@ buckets:
               schema: 1795596442046
               description: 'main (Windows release): AsyncShutdownTimeout | Places Clients shutdown | sanitize.js: Sanitize on shutdown'
               id: id-254
-              last_modified: 1795596443614
             permissions: {}
           id-253:
             data:
@@ -4227,7 +4018,6 @@ buckets:
               schema: 1795596440467
               description: 'content (Android release): mozilla::jni::detail::ProxyNativeCall<T>::Call<T>'
               id: id-253
-              last_modified: 1795596442035
             permissions: {}
           id-252:
             data:
@@ -4259,7 +4049,6 @@ buckets:
               schema: 1795596438863
               description: 'main (Windows release): CTitleBar::InitializeDComp'
               id: id-252
-              last_modified: 1795596440457
             permissions: {}
           id-251:
             data:
@@ -4290,7 +4079,6 @@ buckets:
               schema: 1795596437312
               description: 'rdd (Mac release): AppleIntelHD4000GraphicsVADriver'
               id: id-251
-              last_modified: 1795596438849
             permissions: {}
           id-250:
             data:
@@ -4325,7 +4113,6 @@ buckets:
               schema: 1795596435732
               description: 'gpu (Windows beta): atiumd6a.dll'
               id: id-250
-              last_modified: 1795596437302
             permissions: {}
           id-249:
             data:
@@ -4358,7 +4145,6 @@ buckets:
               schema: 1795596434196
               description: 'main (Android release): mozilla::jni::Accessor::EndAccess<T>'
               id: id-249
-              last_modified: 1795596435722
             permissions: {}
           id-248:
             data:
@@ -4396,7 +4182,6 @@ buckets:
               schema: 1795596432614
               description: 'main (Mac release): AsyncShutdownTimeout | AddonManager: Waiting to start provider shutdown. | AddonRepository Background Updater'
               id: id-248
-              last_modified: 1795596434186
             permissions: {}
           id-247:
             data:
@@ -4408,7 +4193,6 @@ buckets:
               schema: 1795596431025
               description: 'content (Windows nightly): mozilla::ipc::PortLink::SendMessage'
               id: id-247
-              last_modified: 1795596432602
             permissions: {}
           id-246:
             data:
@@ -4443,7 +4227,6 @@ buckets:
               schema: 1795596429375
               description: 'content (Mac release): mozilla::CheckedInt<T>::value | mozilla::media::TimeUnit::operator<T>'
               id: id-246
-              last_modified: 1795596431014
             permissions: {}
           id-245:
             data:
@@ -4454,7 +4237,6 @@ buckets:
               schema: 1795596427810
               description: 'main (Linux beta): mozilla::dom::quota::QuotaManager::Shutdown::$::operator()'
               id: id-245
-              last_modified: 1795596429365
             permissions: {}
           id-244:
             data:
@@ -4469,7 +4251,6 @@ buckets:
               schema: 1795596426248
               description: 'gpu (Android release): IPC::MessageReader::FatalError | IPC::ParamTraits<mozilla::ipc::BigBuffer>::Read | mojo::core::ports::Node::SendUserMessageInternal'
               id: id-244
-              last_modified: 1795596427800
             permissions: {}
           id-243:
             data:
@@ -4479,7 +4260,6 @@ buckets:
               schema: 1795596424679
               description: 'content (Mac beta): mozilla::Omnijar::Init'
               id: id-243
-              last_modified: 1795596426238
             permissions: {}
           id-242:
             data:
@@ -4489,7 +4269,6 @@ buckets:
               schema: 1795596423111
               description: 'main (Linux nightly): libxul.so (deleted) | libxul.so (deleted) | handle_response | list_children_and_wm_state'
               id: id-242
-              last_modified: 1795596424668
             permissions: {}
           id-241:
             data:
@@ -4527,7 +4306,6 @@ buckets:
               schema: 1795596421508
               description: 'content (Mac release): IPCError-content | RecvConstructBrowser BrowserChild::Init failed (rv=NS_ERROR_NOT_AVAILABLE)'
               id: id-241
-              last_modified: 1795596423101
             permissions: {}
           id-240:
             data:
@@ -4561,7 +4339,6 @@ buckets:
               schema: 1795596419686
               description: 'main (Mac release): libc++abi.dylib'
               id: id-240
-              last_modified: 1795596421498
             permissions: {}
           id-239:
             data:
@@ -4572,7 +4349,6 @@ buckets:
               schema: 1795596417385
               description: 'gpu (Android beta): libc.so | libIMGegl.so'
               id: id-239
-              last_modified: 1795596419676
             permissions: {}
           id-238:
             data:
@@ -4606,7 +4382,6 @@ buckets:
               schema: 1795596415751
               description: 'main (Linux release): mozilla::dom::quota::QuotaManager::Shutdown::$::operator()'
               id: id-238
-              last_modified: 1795596417376
             permissions: {}
           id-237:
             data:
@@ -4615,7 +4390,6 @@ buckets:
               schema: 1795596414109
               description: 'rdd (Windows nightly): inter_recon'
               id: id-237
-              last_modified: 1795596415741
             permissions: {}
           id-236:
             data:
@@ -4638,7 +4412,6 @@ buckets:
               schema: 1795596412546
               description: 'main (Linux beta): HandleGLibMessage'
               id: id-236
-              last_modified: 1795596414098
             permissions: {}
           id-235:
             data:
@@ -4676,7 +4449,6 @@ buckets:
               schema: 1795596410956
               description: 'content (Android release): OOM | large | js::AutoEnterOOMUnsafeRegion::crash_impl | js::jit::AttachBaselineCacheIRStubLocked'
               id: id-235
-              last_modified: 1795596412536
             permissions: {}
           id-234:
             data:
@@ -4704,7 +4476,6 @@ buckets:
               schema: 1795596409369
               description: 'content (Linux release): js::BaseShape::realm'
               id: id-234
-              last_modified: 1795596410946
             permissions: {}
           id-233:
             data:
@@ -4742,7 +4513,6 @@ buckets:
               schema: 1795596407749
               description: 'content (Android release): rlbox::detail::dynamic_check'
               id: id-233
-              last_modified: 1795596409358
             permissions: {}
           id-232:
             data:
@@ -4757,7 +4527,6 @@ buckets:
               schema: 1795596406148
               description: 'gpu (Android release): mozilla::wr::RenderTextureHost::Release'
               id: id-232
-              last_modified: 1795596407739
             permissions: {}
           id-231:
             data:
@@ -4790,7 +4559,6 @@ buckets:
               schema: 1795596404453
               description: 'content (Android release): OOM | unknown | NS_ABORT_OOM | libart.so | boot.oat'
               id: id-231
-              last_modified: 1795596406138
             permissions: {}
           id-230:
             data:
@@ -4800,7 +4568,6 @@ buckets:
               schema: 1795596402866
               description: 'main (Linux nightly): shutdownhang | mozilla::(anonymous namespace)::RunWatchdog'
               id: id-230
-              last_modified: 1795596404444
             permissions: {}
           id-229:
             data:
@@ -4838,7 +4605,6 @@ buckets:
               schema: 1795596401282
               description: 'rdd (Windows release): RtlReportFatalFailure'
               id: id-229
-              last_modified: 1795596402852
             permissions: {}
           id-228:
             data:
@@ -4865,7 +4631,6 @@ buckets:
               schema: 1795596399619
               description: 'gpu (Windows beta): igd10iumd64.dll'
               id: id-228
-              last_modified: 1795596401272
             permissions: {}
           id-227:
             data:
@@ -4903,7 +4668,6 @@ buckets:
               schema: 1795596398054
               description: 'gpu (Mac release): IOAccelerator'
               id: id-227
-              last_modified: 1795596399609
             permissions: {}
           id-226:
             data:
@@ -4931,7 +4695,6 @@ buckets:
               schema: 1795596396472
               description: 'gpu (Mac release): _sigtramp'
               id: id-226
-              last_modified: 1795596398044
             permissions: {}
           id-225:
             data:
@@ -4968,7 +4731,6 @@ buckets:
               schema: 1795596394893
               description: 'utility (Windows release): SogouTSF.ime'
               id: id-225
-              last_modified: 1795596396462
             permissions: {}
           id-224:
             data:
@@ -5003,7 +4765,6 @@ buckets:
               schema: 1795596393271
               description: 'content (Windows release): xul.dll | NS_internal_main'
               id: id-224
-              last_modified: 1795596394883
             permissions: {}
           id-223:
             data:
@@ -5039,7 +4800,6 @@ buckets:
               schema: 1795596391572
               description: 'main (Mac release): AsyncShutdownTimeout | profile-before-change | AddonManager: shutting down.'
               id: id-223
-              last_modified: 1795596393260
             permissions: {}
           id-222:
             data:
@@ -5077,7 +4837,6 @@ buckets:
               schema: 1795596389403
               description: 'main (Windows release): AsyncShutdownTimeout | IOUtils: waiting for sendTelemetry IO to complete | TelemetryController: shutting down'
               id: id-222
-              last_modified: 1795596391412
             permissions: {}
           id-221:
             data:
@@ -5086,7 +4845,6 @@ buckets:
               schema: 1795596387289
               description: 'main (Mac beta): pthread_kill | libsystem_c.dylib'
               id: id-221
-              last_modified: 1795596389393
             permissions: {}
           id-220:
             data:
@@ -5095,7 +4853,6 @@ buckets:
               schema: 1795596385358
               description: 'plugin (Linux nightly): ___xstat64'
               id: id-220
-              last_modified: 1795596387278
             permissions: {}
           id-219:
             data:
@@ -5104,7 +4861,6 @@ buckets:
               schema: 1795596383774
               description: 'plugin (Linux release): <name omitted> | mozilla::gmp::GMPChild::GetUTF8LibPath'
               id: id-219
-              last_modified: 1795596385347
             permissions: {}
           id-218:
             data:
@@ -5113,7 +4869,6 @@ buckets:
               schema: 1795596382204
               description: 'utility (Linux beta): mozilla::MozPromise<T>::ChainTo'
               id: id-218
-              last_modified: 1795596383765
             permissions: {}
           id-217:
             data:
@@ -5122,7 +4877,6 @@ buckets:
               schema: 1795596380639
               description: 'gpu (Linux release): libc.so.6 | libc.so.6 | libc.so.6 | PollWrapper'
               id: id-217
-              last_modified: 1795596382195
             permissions: {}
           id-216:
             data:
@@ -5131,7 +4885,6 @@ buckets:
               schema: 1795596379071
               description: 'gpu (Mac nightly): gl::Framebuffer::unsetSurfaces'
               id: id-216
-              last_modified: 1795596380629
             permissions: {}
           id-215:
             data:
@@ -5140,7 +4893,6 @@ buckets:
               schema: 1795596377493
               description: 'content (Linux nightly): JSClass::isNativeObject'
               id: id-215
-              last_modified: 1795596379061
             permissions: {}
           id-214:
             data:
@@ -5150,7 +4902,6 @@ buckets:
               schema: 1795596375909
               description: 'main (Linux beta): libX11.so.6'
               id: id-214
-              last_modified: 1795596377484
             permissions: {}
           id-213:
             data:
@@ -5159,7 +4910,6 @@ buckets:
               schema: 1795596374366
               description: 'gpu (Android beta): libc.so | 111__libcpp_db17__dereferenceableEPKv'
               id: id-213
-              last_modified: 1795596375898
             permissions: {}
           id-212:
             data:
@@ -5190,7 +4940,6 @@ buckets:
               schema: 1795596372775
               description: 'plugin (Windows release): mozilla::ChromiumCDMAdapter::GMPInit'
               id: id-212
-              last_modified: 1795596374356
             permissions: {}
           id-211:
             data:
@@ -5199,7 +4948,6 @@ buckets:
               schema: 1795596371236
               description: 'content (Mac nightly): pthread_kill | abort | onnxruntime::BroadcastIterator::Append'
               id: id-211
-              last_modified: 1795596372765
             permissions: {}
           id-210:
             data:
@@ -5209,7 +4957,6 @@ buckets:
               schema: 1795596369579
               description: 'content (Mac nightly): mozilla::detail::InvalidArrayIndex_CRASH | nsTArray_Impl<T>::ElementAt | nsTArray_Impl<T>::operator[] | mozilla::SMILAnimationFunction::InterpolateResult'
               id: id-210
-              last_modified: 1795596371226
             permissions: {}
           id-209:
             data:
@@ -5218,7 +4965,6 @@ buckets:
               schema: 1795596368030
               description: 'content (Linux nightly): js::jit::X86Encoding::BaseAssembler::nextJump'
               id: id-209
-              last_modified: 1795596369569
             permissions: {}
           id-208:
             data:
@@ -5227,7 +4973,6 @@ buckets:
               schema: 1795596366413
               description: 'rdd (Linux nightly): _nv019glcore'
               id: id-208
-              last_modified: 1795596368020
             permissions: {}
           id-207:
             data:
@@ -5236,7 +4981,6 @@ buckets:
               schema: 1795596364860
               description: 'content (Mac beta): OOM | unknown | NS_ABORT_OOM | mozilla::dom::Promise::CreateInfallible | mozilla::dom::streams_abstract::WritableStreamDefaultWriterEnsureReadyPromiseRejected'
               id: id-207
-              last_modified: 1795596366403
             permissions: {}
           id-206:
             data:
@@ -5245,7 +4989,6 @@ buckets:
               schema: 1795596363281
               description: 'gpu (Mac nightly): mozilla::layers::CanvasTranslator::ReadNextEvent'
               id: id-206
-              last_modified: 1795596364849
             permissions: {}
           id-205:
             data:
@@ -5254,7 +4997,6 @@ buckets:
               schema: 1795596361719
               description: 'main (Mac beta): liblangid.dylib'
               id: id-205
-              last_modified: 1795596363271
             permissions: {}
           id-204:
             data:
@@ -5274,7 +5016,6 @@ buckets:
               schema: 1795596359883
               description: 'plugin (Windows release): msmpeg2vdec.dll | wmf::CreateMFT'
               id: id-204
-              last_modified: 1795596361708
             permissions: {}
           id-203:
             data:
@@ -5284,7 +5025,6 @@ buckets:
               schema: 1795596357166
               description: 'main (Linux beta): libxul.so (deleted) | libxul.so (deleted) | libxul.so (deleted) | libxul.so (deleted) | libxul.so (deleted) | libxul.so (deleted) | libxul.so (deleted) | libxul.so (deleted) | libxul.so (deleted) | libxul.so (deleted) | libxul.so (deleted) | libxul.so ...'
               id: id-203
-              last_modified: 1795596359873
             permissions: {}
           id-202:
             data:
@@ -5319,7 +5059,6 @@ buckets:
               schema: 1795596355517
               description: 'plugin (Windows release): SophosED.dll | mozilla::interceptor::FuncHook<T>::operator()'
               id: id-202
-              last_modified: 1795596357155
             permissions: {}
           id-201:
             data:
@@ -5349,7 +5088,6 @@ buckets:
               schema: 1795596353846
               description: 'utility (Windows release): <unknown in ntdll.pdb>'
               id: id-201
-              last_modified: 1795596355506
             permissions: {}
           id-200:
             data:
@@ -5358,7 +5096,6 @@ buckets:
               schema: 1795596352272
               description: 'utility (Windows beta): _AllocString<T>'
               id: id-200
-              last_modified: 1795596353837
             permissions: {}
           id-199:
             data:
@@ -5367,7 +5104,6 @@ buckets:
               schema: 1795596350582
               description: 'rdd (Windows beta): stackoverflow | RtlUserThreadStart'
               id: id-199
-              last_modified: 1795596352262
             permissions: {}
           id-198:
             data:
@@ -5376,7 +5112,6 @@ buckets:
               schema: 1795596349032
               description: 'main (Mac beta): -[CALayer observationInfo]'
               id: id-198
-              last_modified: 1795596350572
             permissions: {}
           id-197:
             data:
@@ -5414,7 +5149,6 @@ buckets:
               schema: 1795596347471
               description: 'rdd (Windows release): dav1d_recon_b_inter_8bpc'
               id: id-197
-              last_modified: 1795596349020
             permissions: {}
           id-196:
             data:
@@ -5452,7 +5186,6 @@ buckets:
               schema: 1795596345823
               description: 'utility (Windows release): msmpeg2vdec.dll'
               id: id-196
-              last_modified: 1795596347462
             permissions: {}
           id-195:
             data:
@@ -5461,7 +5194,6 @@ buckets:
               schema: 1795596344275
               description: 'utility (Windows nightly): stackoverflow | opus_multistream_decode_native'
               id: id-195
-              last_modified: 1795596345813
             permissions: {}
           id-194:
             data:
@@ -5472,7 +5204,6 @@ buckets:
               schema: 1795596342659
               description: 'content (Linux beta): mozilla::image::DecodePool::DecodePool'
               id: id-194
-              last_modified: 1795596344266
             permissions: {}
           id-193:
             data:
@@ -5510,7 +5241,6 @@ buckets:
               schema: 1795596341008
               description: 'content (Mac release): mozilla::detail::RWLockImpl::readLock'
               id: id-193
-              last_modified: 1795596342649
             permissions: {}
           id-192:
             data:
@@ -5541,7 +5271,6 @@ buckets:
               schema: 1795596339312
               description: 'gpu (Windows release): igd12umd64.dll | CGraphicsCommandList::VersionedCopyBufferRegion'
               id: id-192
-              last_modified: 1795596340999
             permissions: {}
           id-191:
             data:
@@ -5579,7 +5308,6 @@ buckets:
               schema: 1795596337754
               description: 'content (Windows release): mozilla::ipc::PortLink::SendMessage'
               id: id-191
-              last_modified: 1795596339301
             permissions: {}
           id-190:
             data:
@@ -5588,7 +5316,6 @@ buckets:
               schema: 1795596336179
               description: 'utility (Windows beta): _EH_epilog3_GS'
               id: id-190
-              last_modified: 1795596337744
             permissions: {}
           id-189:
             data:
@@ -5599,7 +5326,6 @@ buckets:
               schema: 1795596334635
               description: 'plugin (Windows beta): widevinecdm.dll | BaseThreadInitThunk'
               id: id-189
-              last_modified: 1795596336170
             permissions: {}
           id-188:
             data:
@@ -5610,7 +5336,6 @@ buckets:
               schema: 1795596333041
               description: 'rdd (Windows beta): mozilla::detail::InvalidArrayIndex_CRASH | nsTArray_Impl<T>::ElementAt | nsTArray_Impl<T>::operator[] | mozilla::WMFVideoMFTManager::Output'
               id: id-188
-              last_modified: 1795596334624
             permissions: {}
           id-187:
             data:
@@ -5627,7 +5352,6 @@ buckets:
               schema: 1795596331392
               description: 'gpu (Windows nightly): amdxx64.dll | CallAndLogImpl<T>'
               id: id-187
-              last_modified: 1795596333030
             permissions: {}
           id-186:
             data:
@@ -5647,7 +5371,6 @@ buckets:
               schema: 1795596329360
               description: 'gpu (Android release): libc.so | libhwui.so'
               id: id-186
-              last_modified: 1795596331280
             permissions: {}
           id-185:
             data:
@@ -5656,7 +5379,6 @@ buckets:
               schema: 1795596327334
               description: 'gpu (Android nightly): libstagefright.so'
               id: id-185
-              last_modified: 1795596329350
             permissions: {}
           id-184:
             data:
@@ -5666,7 +5388,6 @@ buckets:
               schema: 1795596325718
               description: 'main (Linux nightly): _nv019glcore'
               id: id-184
-              last_modified: 1795596327325
             permissions: {}
           id-183:
             data:
@@ -5676,7 +5397,6 @@ buckets:
               schema: 1795596324101
               description: 'gpu (Mac beta): __cxxabiv1::failed_throw | objc_exception_throw | -[NSObject doesNotRecognizeSelector:] | ___forwarding___ | __forwarding_prep_0___ | rx::mtl::CreateShaderLibrary'
               id: id-183
-              last_modified: 1795596325707
             permissions: {}
           id-182:
             data:
@@ -5685,7 +5405,6 @@ buckets:
               schema: 1795596322553
               description: 'gpu (Android beta): 8�'
               id: id-182
-              last_modified: 1795596324092
             permissions: {}
           id-181:
             data:
@@ -5696,7 +5415,6 @@ buckets:
               schema: 1795596320941
               description: 'content (Mac beta): mozilla::dom::TypedArray_base<T>::ProcessFixedData<T>'
               id: id-181
-              last_modified: 1795596322543
             permissions: {}
           id-180:
             data:
@@ -5705,7 +5423,6 @@ buckets:
               schema: 1795596319412
               description: 'plugin (Linux release): <name omitted> | mozilla::SetMediaPluginSandbox'
               id: id-180
-              last_modified: 1795596320932
             permissions: {}
           id-179:
             data:
@@ -5714,7 +5431,6 @@ buckets:
               schema: 1795596317819
               description: 'gpu (Android nightly): vulkan.powervr.so'
               id: id-179
-              last_modified: 1795596319401
             permissions: {}
           id-178:
             data:
@@ -5723,7 +5439,6 @@ buckets:
               schema: 1795596316177
               description: 'content (Mac nightly): mozilla::dom::NavigationWaitForAllScope::CommitNavigateEventSuccessSteps | mozilla::dom::Navigation::RunNavigateEventHandlerSteps::$::operator()'
               id: id-178
-              last_modified: 1795596317810
             permissions: {}
           id-177:
             data:
@@ -5732,7 +5447,6 @@ buckets:
               schema: 1795596314576
               description: 'main (Mac nightly): AsyncShutdownTimeout | Places Clients shutdown | sanitize.js: Sanitize on shutdown'
               id: id-177
-              last_modified: 1795596316166
             permissions: {}
           id-176:
             data:
@@ -5741,7 +5455,6 @@ buckets:
               schema: 1795596313012
               description: 'gpu (Linux release): NvGlEglGetFunctions'
               id: id-176
-              last_modified: 1795596314566
             permissions: {}
           id-175:
             data:
@@ -5777,7 +5490,6 @@ buckets:
               schema: 1795596311394
               description: 'main (Windows beta): AsyncShutdownTimeout | Places Clients shutdown | sanitize.js: Sanitize on shutdown'
               id: id-175
-              last_modified: 1795596313002
             permissions: {}
           id-174:
             data:
@@ -5786,7 +5498,6 @@ buckets:
               schema: 1795596309703
               description: 'plugin (Linux release): libxul.so | firefox'
               id: id-174
-              last_modified: 1795596311385
             permissions: {}
           id-173:
             data:
@@ -5795,7 +5506,6 @@ buckets:
               schema: 1795596308157
               description: 'content (Android nightly): EnterJit'
               id: id-173
-              last_modified: 1795596309693
             permissions: {}
           id-172:
             data:
@@ -5806,7 +5516,6 @@ buckets:
               schema: 1795596306089
               description: 'content (Mac beta): mozilla::dom::RemoteObjectProxyBase::GetOrCreateProxyObject'
               id: id-172
-              last_modified: 1795596308147
             permissions: {}
           id-171:
             data:
@@ -5815,7 +5524,6 @@ buckets:
               schema: 1795596304529
               description: 'main (Mac beta): AsyncShutdownTimeout | quit-application | RemoteSettingsExperimentLoader: disabling'
               id: id-171
-              last_modified: 1795596306079
             permissions: {}
           id-170:
             data:
@@ -5853,7 +5561,6 @@ buckets:
               schema: 1795596302931
               description: 'gpu (Windows beta): <unknown in igd10um32xe.pdb>'
               id: id-170
-              last_modified: 1795596304519
             permissions: {}
           id-169:
             data:
@@ -5862,7 +5569,6 @@ buckets:
               schema: 1795596301272
               description: 'gpu (Android beta): libc.so | libufwriter.so'
               id: id-169
-              last_modified: 1795596302920
             permissions: {}
           id-168:
             data:
@@ -5872,7 +5578,6 @@ buckets:
               schema: 1795596298861
               description: 'utility (Windows beta): UIItemsView::_OnBatchTimer'
               id: id-168
-              last_modified: 1795596301114
             permissions: {}
           id-167:
             data:
@@ -5887,7 +5592,6 @@ buckets:
               schema: 1795596294897
               description: 'main (Windows nightly): mozilla::net::LoadInfo::SetReservedClientInfo'
               id: id-167
-              last_modified: 1795596298850
             permissions: {}
           id-166:
             data:
@@ -5896,7 +5600,6 @@ buckets:
               schema: 1795596293329
               description: 'content (Android nightly): OOM | large | js::AutoEnterOOMUnsafeRegion::crash_impl | boot-mediatek-telephony-common.oat'
               id: id-166
-              last_modified: 1795596294885
             permissions: {}
           id-165:
             data:
@@ -5905,7 +5608,6 @@ buckets:
               schema: 1795596291735
               description: 'content (Mac beta): mozilla::dom::Timeout::~Timeout'
               id: id-165
-              last_modified: 1795596293318
             permissions: {}
           id-164:
             data:
@@ -5918,7 +5620,6 @@ buckets:
               schema: 1795596290174
               description: 'gpu (Windows nightly): amdh264enc64.dll | mozilla::MFTEncoder::SendMFTMessage'
               id: id-164
-              last_modified: 1795596291726
             permissions: {}
           id-163:
             data:
@@ -5927,7 +5628,6 @@ buckets:
               schema: 1795596288581
               description: 'utility (Linux beta): nsThreadPool::PutEvent'
               id: id-163
-              last_modified: 1795596290164
             permissions: {}
           id-162:
             data:
@@ -5945,7 +5645,6 @@ buckets:
               schema: 1795596286991
               description: 'main (Windows nightly): AsyncShutdownTimeout | Places Clients shutdown | sanitize.js: Sanitize on shutdown'
               id: id-162
-              last_modified: 1795596288571
             permissions: {}
           id-161:
             data:
@@ -5962,7 +5661,6 @@ buckets:
               schema: 1795596285352
               description: 'content (Windows nightly): xul.dll | NS_internal_main'
               id: id-161
-              last_modified: 1795596286980
             permissions: {}
           id-160:
             data:
@@ -5972,7 +5670,6 @@ buckets:
               schema: 1795596283318
               description: 'main (Linux nightly): gfxPlatform::FallbackFromAcceleration'
               id: id-160
-              last_modified: 1795596285341
             permissions: {}
           id-159:
             data:
@@ -5981,7 +5678,6 @@ buckets:
               schema: 1795596280766
               description: 'content (Linux nightly): mozilla::VideoFrameConverterImpl<T>::ProcessVideoFrame::{lambda#1}::operator()'
               id: id-159
-              last_modified: 1795596283304
             permissions: {}
           id-158:
             data:
@@ -5991,7 +5687,6 @@ buckets:
               schema: 1795596279127
               description: 'rdd (Mac release): _sigtramp'
               id: id-158
-              last_modified: 1795596280755
             permissions: {}
           id-157:
             data:
@@ -6026,7 +5721,6 @@ buckets:
               schema: 1795596277575
               description: 'plugin (Windows release): widevinecdm.dll | mozilla::gmp::ChromiumCDMChild::RecvDecryptAndDecodeFrame'
               id: id-157
-              last_modified: 1795596279116
             permissions: {}
           id-156:
             data:
@@ -6056,7 +5750,6 @@ buckets:
               schema: 1795596275953
               description: 'content (Windows beta): xul.dll | NS_internal_main'
               id: id-156
-              last_modified: 1795596277564
             permissions: {}
           id-155:
             data:
@@ -6094,7 +5787,6 @@ buckets:
               schema: 1795596274363
               description: 'rdd (Windows release): msmpeg2vdec.dll | CServerContextActivator::CreateInstance'
               id: id-155
-              last_modified: 1795596275941
             permissions: {}
           id-154:
             data:
@@ -6103,7 +5795,6 @@ buckets:
               schema: 1795596272772
               description: 'plugin (Windows beta): widevinecdm.dll'
               id: id-154
-              last_modified: 1795596274353
             permissions: {}
           id-153:
             data:
@@ -6112,7 +5803,6 @@ buckets:
               schema: 1795596271210
               description: 'rdd (Linux nightly): decode_cabac_mb_skip'
               id: id-153
-              last_modified: 1795596272761
             permissions: {}
           id-152:
             data:
@@ -6122,7 +5812,6 @@ buckets:
               schema: 1795596269458
               description: 'plugin (Windows beta): widevinecdm.dll | mozilla::gmp::ChromiumCDMChild::RecvDecryptAndDecodeFrame'
               id: id-152
-              last_modified: 1795596271200
             permissions: {}
           id-151:
             data:
@@ -6131,7 +5820,6 @@ buckets:
               schema: 1795596267389
               description: 'rdd (Linux nightly): __vfprintf_internal'
               id: id-151
-              last_modified: 1795596269447
             permissions: {}
           id-150:
             data:
@@ -6140,7 +5828,6 @@ buckets:
               schema: 1795596265745
               description: 'utility (Windows nightly): mozilla::ipc::UtilityProcessImpl::LoadLibraryOrCrash'
               id: id-150
-              last_modified: 1795596267380
             permissions: {}
           id-149:
             data:
@@ -6149,7 +5836,6 @@ buckets:
               schema: 1795596264094
               description: 'gpu (Android nightly): libc.so | mozilla::gl::GLContext::fDrawArraysInstanced'
               id: id-149
-              last_modified: 1795596265735
             permissions: {}
           id-148:
             data:
@@ -6187,7 +5873,6 @@ buckets:
               schema: 1795596262467
               description: 'main (Windows beta): AsyncShutdownTimeout | profile-before-change | AddonManager: shutting down.'
               id: id-148
-              last_modified: 1795596264083
             permissions: {}
           id-147:
             data:
@@ -6225,7 +5910,6 @@ buckets:
               schema: 1795596260784
               description: 'rdd (Windows release): mc'
               id: id-147
-              last_modified: 1795596262456
             permissions: {}
           id-146:
             data:
@@ -6261,7 +5945,6 @@ buckets:
               schema: 1795596259213
               description: 'gpu (Windows release): <unknown in atiumd6a.dll>'
               id: id-146
-              last_modified: 1795596260773
             permissions: {}
           id-145:
             data:
@@ -6274,7 +5957,6 @@ buckets:
               schema: 1795596257604
               description: 'utility (Windows beta): OOM | small'
               id: id-145
-              last_modified: 1795596259202
             permissions: {}
           id-144:
             data:
@@ -6285,7 +5967,6 @@ buckets:
               schema: 1795596255858
               description: 'rdd (Mac release): FigXPCRemoteClientDispose'
               id: id-144
-              last_modified: 1795596257595
             permissions: {}
           id-143:
             data:
@@ -6294,7 +5975,6 @@ buckets:
               schema: 1795596254291
               description: 'content (Mac nightly): OOM | unknown | NS_ABORT_OOM | mozilla::dom::Promise::CreateInfallible | mozilla::dom::ReadableStreamDefaultReader::Read'
               id: id-143
-              last_modified: 1795596255848
             permissions: {}
           id-142:
             data:
@@ -6303,7 +5983,6 @@ buckets:
               schema: 1795596252637
               description: 'utility (Windows nightly): <unknown in ntdll.dll> | RtlEnterCriticalSection | CPropMgrImpl::SetPropValue'
               id: id-142
-              last_modified: 1795596254280
             permissions: {}
           id-141:
             data:
@@ -6314,7 +5993,6 @@ buckets:
               schema: 1795596251013
               description: 'content (Windows nightly): style::shared_lock::Locked<T>::read_with'
               id: id-141
-              last_modified: 1795596252627
             permissions: {}
           id-140:
             data:
@@ -6324,7 +6002,6 @@ buckets:
               schema: 1795596249335
               description: 'gpu (Android nightly): libsrv_um.so'
               id: id-140
-              last_modified: 1795596251003
             permissions: {}
           id-139:
             data:
@@ -6356,7 +6033,6 @@ buckets:
               schema: 1795596247734
               description: 'gpu (Windows release): <unknown in nvdxgiwrapx.dll> | wgpu_hal::auxil::dxgi::dxgi_lib::DxgiLib::create_factory_media'
               id: id-139
-              last_modified: 1795596249325
             permissions: {}
           id-138:
             data:
@@ -6366,7 +6042,6 @@ buckets:
               schema: 1795596246148
               description: 'main (Mac nightly): shutdownhang | mozilla::(anonymous namespace)::RunWatchdog'
               id: id-138
-              last_modified: 1795596247724
             permissions: {}
           id-137:
             data:
@@ -6404,7 +6079,6 @@ buckets:
               schema: 1795596244589
               description: 'content (Windows nightly): IPCError-content | ShutDownKill'
               id: id-137
-              last_modified: 1795596246137
             permissions: {}
           id-136:
             data:
@@ -6413,7 +6087,6 @@ buckets:
               schema: 1795596242983
               description: 'utility (Windows nightly): stackoverflow | RtlpLowFragHeapAllocFromContext | RtlpAllocateNTHeapInternal | RtlAllocateHeap'
               id: id-136
-              last_modified: 1795596244579
             permissions: {}
           id-135:
             data:
@@ -6425,7 +6098,6 @@ buckets:
               schema: 1795596241412
               description: 'main (Mac nightly): AsyncShutdownTimeout | AddonManager: Waiting to start provider shutdown. | AddonRepository Background Updater'
               id: id-135
-              last_modified: 1795596242973
             permissions: {}
           id-134:
             data:
@@ -6438,7 +6110,6 @@ buckets:
               schema: 1795596239658
               description: 'main (Linux nightly): NvGlEglGetFunctions'
               id: id-134
-              last_modified: 1795596241402
             permissions: {}
           id-133:
             data:
@@ -6470,7 +6141,6 @@ buckets:
               schema: 1795596237289
               description: 'main (Windows beta): AsyncShutdownTimeout | web-workers-shutdown | Subprocess.sys.mjs: Shut down IO worker'
               id: id-133
-              last_modified: 1795596239647
             permissions: {}
           id-132:
             data:
@@ -6498,7 +6168,6 @@ buckets:
               schema: 1795596235294
               description: 'content (Linux release): mozilla::LinkedListElement<T>::asT'
               id: id-132
-              last_modified: 1795596237183
             permissions: {}
           id-131:
             data:
@@ -6536,7 +6205,6 @@ buckets:
               schema: 1795596233641
               description: 'gpu (Mac release): libsystem_c.dylib'
               id: id-131
-              last_modified: 1795596235282
             permissions: {}
           id-130:
             data:
@@ -6572,7 +6240,6 @@ buckets:
               schema: 1795596232089
               description: 'main (Windows beta): OOM | small'
               id: id-130
-              last_modified: 1795596233631
             permissions: {}
           id-129:
             data:
@@ -6606,7 +6273,6 @@ buckets:
               schema: 1795596230453
               description: 'socket (Windows release): InjUmon64.dll | UserRealizePalette'
               id: id-129
-              last_modified: 1795596232079
             permissions: {}
           id-128:
             data:
@@ -6615,7 +6281,6 @@ buckets:
               schema: 1795596228864
               description: 'content (Linux nightly): nsIFrame::HasAnyStateBits'
               id: id-128
-              last_modified: 1795596230443
             permissions: {}
           id-127:
             data:
@@ -6625,7 +6290,6 @@ buckets:
               schema: 1795596227293
               description: 'plugin (Android nightly): mozilla::gmp::GMPChild::RecvCrashPluginNow'
               id: id-127
-              last_modified: 1795596228852
             permissions: {}
           id-126:
             data:
@@ -6634,7 +6298,6 @@ buckets:
               schema: 1795596225659
               description: 'content (Linux nightly): js::gc::Arena::getAllocKind'
               id: id-126
-              last_modified: 1795596227283
             permissions: {}
           id-125:
             data:
@@ -6643,7 +6306,6 @@ buckets:
               schema: 1795596224109
               description: 'content (Linux beta): js::jit::LNode::op'
               id: id-125
-              last_modified: 1795596225649
             permissions: {}
           id-124:
             data:
@@ -6652,7 +6314,6 @@ buckets:
               schema: 1795596222511
               description: 'gpu (Mac beta): mozilla::layers::APZBridgeParent::APZBridgeParent'
               id: id-124
-              last_modified: 1795596224098
             permissions: {}
           id-123:
             data:
@@ -6668,7 +6329,6 @@ buckets:
               schema: 1795596220936
               description: 'utility (Linux release): <name omitted> | EnterChroot'
               id: id-123
-              last_modified: 1795596222501
             permissions: {}
           id-122:
             data:
@@ -6678,7 +6338,6 @@ buckets:
               schema: 1795596219239
               description: 'content (Mac beta): mozilla::ipc::PortLink::SendMessage'
               id: id-122
-              last_modified: 1795596220927
             permissions: {}
           id-121:
             data:
@@ -6706,7 +6365,6 @@ buckets:
               schema: 1795596217679
               description: 'main (Windows nightly): mozilla::dom::quota::QuotaManager::Shutdown::<T>::operator()'
               id: id-121
-              last_modified: 1795596219229
             permissions: {}
           id-120:
             data:
@@ -6715,7 +6373,6 @@ buckets:
               schema: 1795596216090
               description: 'gpu (Linux release): IPCError-content | GPUProcessKill'
               id: id-120
-              last_modified: 1795596217668
             permissions: {}
           id-119:
             data:
@@ -6753,7 +6410,6 @@ buckets:
               schema: 1795596214534
               description: 'utility (Windows release): @0x0 | SogouTSF.ime'
               id: id-119
-              last_modified: 1795596216080
             permissions: {}
           id-118:
             data:
@@ -6791,7 +6447,6 @@ buckets:
               schema: 1795596212919
               description: 'rdd (Windows release): memset | decode_frame_header'
               id: id-118
-              last_modified: 1795596214524
             permissions: {}
           id-117:
             data:
@@ -6829,7 +6484,6 @@ buckets:
               schema: 1795596211279
               description: 'socket (Windows release): RtlpWaitOnCriticalSection | RtlpEnterCriticalSectionContended | RtlEnterCriticalSection | CreateFontIndirectExW'
               id: id-117
-              last_modified: 1795596212909
             permissions: {}
           id-116:
             data:
@@ -6838,7 +6492,6 @@ buckets:
               schema: 1795596209342
               description: 'socket (Linux release): nsTArray_Impl<T>::~nsTArray_Impl | mozilla::NrIceCtx::NatSimulatorConfig::~NatSimulatorConfig'
               id: id-116
-              last_modified: 1795596211115
             permissions: {}
           id-115:
             data:
@@ -6876,7 +6529,6 @@ buckets:
               schema: 1795596207293
               description: 'rdd (Windows release): msmpeg2vdec.dll | CreateInprocInstanceHelper'
               id: id-115
-              last_modified: 1795596209332
             permissions: {}
           id-114:
             data:
@@ -6887,7 +6539,6 @@ buckets:
               schema: 1795596205392
               description: 'content (Linux nightly): IPCError-content | ShutDownKill'
               id: id-114
-              last_modified: 1795596207256
             permissions: {}
           id-113:
             data:
@@ -6899,7 +6550,6 @@ buckets:
               schema: 1795596203797
               description: 'content (Linux beta): pages_decommit'
               id: id-113
-              last_modified: 1795596205381
             permissions: {}
           id-112:
             data:
@@ -6909,7 +6559,6 @@ buckets:
               schema: 1795596202196
               description: 'rdd (Linux nightly): libvulkan.so.1'
               id: id-112
-              last_modified: 1795596203787
             permissions: {}
           id-111:
             data:
@@ -6947,7 +6596,6 @@ buckets:
               schema: 1795596200623
               description: 'utility (Windows release): RtlReportFatalFailure'
               id: id-111
-              last_modified: 1795596202187
             permissions: {}
           id-110:
             data:
@@ -6957,7 +6605,6 @@ buckets:
               schema: 1795596199059
               description: 'gpu (Mac beta): __cxxabiv1::failed_throw | objc_exception_throw | -[__NSArrayM insertObject:atIndex:]'
               id: id-110
-              last_modified: 1795596200614
             permissions: {}
           id-109:
             data:
@@ -6967,7 +6614,6 @@ buckets:
               schema: 1795596197483
               description: 'socket (Mac release): mozilla::ipc::MessagePump::Run'
               id: id-109
-              last_modified: 1795596199049
             permissions: {}
           id-108:
             data:
@@ -6976,7 +6622,6 @@ buckets:
               schema: 1795596195869
               description: 'utility (Windows beta): CDefView::CreateViewWindow3'
               id: id-108
-              last_modified: 1795596197474
             permissions: {}
           id-107:
             data:
@@ -6987,7 +6632,6 @@ buckets:
               schema: 1795596194340
               description: 'plugin (Linux release): mozilla::gmp::GMPChild::ProcessingError'
               id: id-107
-              last_modified: 1795596195857
             permissions: {}
           id-106:
             data:
@@ -6996,7 +6640,6 @@ buckets:
               schema: 1795596192727
               description: 'plugin (Linux release): firefox'
               id: id-106
-              last_modified: 1795596194330
             permissions: {}
           id-105:
             data:
@@ -7005,7 +6648,6 @@ buckets:
               schema: 1795596191163
               description: 'utility (Mac release): IPC::ChannelPosix::ProcessIncomingMessages | IPC::ChannelPosix::OnFileCanReadWithoutBlocking | base::MessagePumpKqueue::ProcessEvents'
               id: id-105
-              last_modified: 1795596192718
             permissions: {}
           id-104:
             data:
@@ -7015,7 +6657,6 @@ buckets:
               schema: 1795596189490
               description: 'content (Android nightly): nsWrapperCache::GetWrapperMaybeDead'
               id: id-104
-              last_modified: 1795596191153
             permissions: {}
           id-103:
             data:
@@ -7027,7 +6668,6 @@ buckets:
               schema: 1795596187953
               description: 'content (Linux beta): Watchdog::Init'
               id: id-103
-              last_modified: 1795596189480
             permissions: {}
           id-102:
             data:
@@ -7065,7 +6705,6 @@ buckets:
               schema: 1795596186362
               description: 'content (Linux release): JS::Heap<T>::operator bool'
               id: id-102
-              last_modified: 1795596187944
             permissions: {}
           id-101:
             data:
@@ -7080,7 +6719,6 @@ buckets:
               schema: 1795596184822
               description: 'gpu (Android release): webrender::scene_building::SceneBuilder::build_item'
               id: id-101
-              last_modified: 1795596186350
             permissions: {}
           id-100:
             data:
@@ -7092,7 +6730,6 @@ buckets:
               schema: 1795596183237
               description: 'gpu (Windows nightly): mfx_media_merit_64.dll | mfx_mft_vp9ve_64.dll | mfx_media_merit_64.dll | mfx_mft_vp9ve_64.dll | mfx_media_merit_64.dll | mfx_mft_vp9ve_64.dll | mfx_media_merit_64.dll | mfx_mft_vp9ve_64.dll | <unknown in ntdll.dll> | mfx_mft_vp9ve_64.dll | MFOpmLib::CO...'
               id: id-100
-              last_modified: 1795596184812
             permissions: {}
           id-099:
             data:
@@ -7109,7 +6746,6 @@ buckets:
               schema: 1795596181579
               description: 'main (Android nightly): libc.so | libart.so | libbase.so'
               id: id-099
-              last_modified: 1795596183227
             permissions: {}
           id-098:
             data:
@@ -7122,7 +6758,6 @@ buckets:
               schema: 1795596179626
               description: 'content (Android beta): libc.so | mozilla::MonitorAutoLockBase<T>::Wait'
               id: id-098
-              last_modified: 1795596181472
             permissions: {}
           id-097:
             data:
@@ -7132,7 +6767,6 @@ buckets:
               schema: 1795596177297
               description: 'plugin (Linux release): libopenh264.so.8'
               id: id-097
-              last_modified: 1795596179617
             permissions: {}
           id-096:
             data:
@@ -7144,7 +6778,6 @@ buckets:
               schema: 1795596175320
               description: 'gpu (Windows nightly): mfx_media_merit_64.dll | RtlpLowFragHeapAllocFromContext | <unknown in mfx_mft_h264ve_64.pdb>'
               id: id-096
-              last_modified: 1795596177286
             permissions: {}
           id-095:
             data:
@@ -7155,7 +6788,6 @@ buckets:
               schema: 1795596173660
               description: 'utility (Linux release): quant_band'
               id: id-095
-              last_modified: 1795596175310
             permissions: {}
           id-094:
             data:
@@ -7192,7 +6824,6 @@ buckets:
               schema: 1795596172093
               description: 'main (Linux nightly): HandleGLibMessage'
               id: id-094
-              last_modified: 1795596173650
             permissions: {}
           id-093:
             data:
@@ -7215,7 +6846,6 @@ buckets:
               schema: 1795596170486
               description: 'content (Windows beta): OOM | large | NS_ABORT_OOM | IPC::ParamTraits<JSStructuredCloneData>::Read | IPC::ParamTraits<mozilla::SerializedStructuredCloneBuffer>::Read | IPC::ParamTraits<mozilla::dom::indexedDB::SerializedStructuredCloneReadInfo>::Read | IPC::ParamTraits<mozill...'
               id: id-093
-              last_modified: 1795596172082
             permissions: {}
           id-092:
             data:
@@ -7252,7 +6882,6 @@ buckets:
               schema: 1795596168894
               description: 'rdd (Linux release): abort | libgallium-26.1.6-1pop0~1787580452~24.04~a5619ea.so'
               id: id-092
-              last_modified: 1795596170476
             permissions: {}
           id-091:
             data:
@@ -7261,7 +6890,6 @@ buckets:
               schema: 1795596167354
               description: 'main (Mac nightly): mozilla::net::LoadInfo::SetReservedClientInfo'
               id: id-091
-              last_modified: 1795596168882
             permissions: {}
           id-090:
             data:
@@ -7299,7 +6927,6 @@ buckets:
               schema: 1795596165683
               description: 'main (Windows release): OOM | large | js::AutoEnterOOMUnsafeRegion::crash_impl | js::AutoEnterOOMUnsafeRegion::crash_impl | js::AutoEnterOOMUnsafeRegion::crash | js::gc::AllocateTenuredCellInGC'
               id: id-090
-              last_modified: 1795596167342
             permissions: {}
           id-089:
             data:
@@ -7337,7 +6964,6 @@ buckets:
               schema: 1795596164143
               description: 'socket (Windows release): ZwUserMsgWaitForMultipleObjectsEx'
               id: id-089
-              last_modified: 1795596165674
             permissions: {}
           id-088:
             data:
@@ -7375,7 +7001,6 @@ buckets:
               schema: 1795596162536
               description: 'rdd (Windows release): f_sps.dll | LoadLibrarySystem32'
               id: id-088
-              last_modified: 1795596164133
             permissions: {}
           id-087:
             data:
@@ -7413,7 +7038,6 @@ buckets:
               schema: 1795596160948
               description: 'main (Windows release): AsyncShutdownTimeout | AddonManager: Waiting to start provider shutdown. | AddonRepository Background Updater'
               id: id-087
-              last_modified: 1795596162526
             permissions: {}
           id-086:
             data:
@@ -7422,7 +7046,6 @@ buckets:
               schema: 1795596159218
               description: 'main (Mac beta): AsyncShutdownTimeout | Places Clients shutdown | Interactions.sys.mjs:: store'
               id: id-086
-              last_modified: 1795596160939
             permissions: {}
           id-085:
             data:
@@ -7432,7 +7055,6 @@ buckets:
               schema: 1795596157681
               description: 'content (Android beta): OOM | unknown | NS_ABORT_OOM | mozilla::jni::ReportException'
               id: id-085
-              last_modified: 1795596159209
             permissions: {}
           id-084:
             data:
@@ -7470,7 +7092,6 @@ buckets:
               schema: 1795596156071
               description: 'main (Windows release): AsyncShutdownTimeout | Places Clients shutdown | Interactions.sys.mjs:: store'
               id: id-084
-              last_modified: 1795596157671
             permissions: {}
           id-083:
             data:
@@ -7488,7 +7109,6 @@ buckets:
               schema: 1795596154475
               description: 'utility (Windows beta): nsThreadPool::PutEvent'
               id: id-083
-              last_modified: 1795596156061
             permissions: {}
           id-082:
             data:
@@ -7505,7 +7125,6 @@ buckets:
               schema: 1795596152882
               description: 'content (Windows beta): OOM | unknown | js::AutoEnterOOMUnsafeRegion::crash_impl | js::AutoEnterOOMUnsafeRegion::crash | js::wasm::Init'
               id: id-082
-              last_modified: 1795596154464
             permissions: {}
           id-081:
             data:
@@ -7540,7 +7159,6 @@ buckets:
               schema: 1795596151213
               description: 'main (Windows nightly): AsyncShutdownTimeout | profile-change-teardown | ServiceWorkerShutdownBlocker: shutting down Service Workers'
               id: id-081
-              last_modified: 1795596152873
             permissions: {}
           id-080:
             data:
@@ -7578,7 +7196,6 @@ buckets:
               schema: 1795596149143
               description: 'content (Windows beta): mtx_do_lock'
               id: id-080
-              last_modified: 1795596151099
             permissions: {}
           id-079:
             data:
@@ -7589,7 +7206,6 @@ buckets:
               schema: 1795596146988
               description: 'main (Mac nightly): AsyncShutdownTimeout | profile-before-change | AddonManager: shutting down.'
               id: id-079
-              last_modified: 1795596149133
             permissions: {}
           id-078:
             data:
@@ -7599,7 +7215,6 @@ buckets:
               schema: 1795596145074
               description: 'main (Linux beta): arena_dalloc | BaseAllocator::free | MozJemalloc::free | PageFree'
               id: id-078
-              last_modified: 1795596146883
             permissions: {}
           id-077:
             data:
@@ -7608,7 +7223,6 @@ buckets:
               schema: 1795596143520
               description: 'content (Linux nightly): js::gc::InCollectedNurseryRegion'
               id: id-077
-              last_modified: 1795596145064
             permissions: {}
           id-076:
             data:
@@ -7619,7 +7233,6 @@ buckets:
               schema: 1795596141959
               description: 'socket (Linux release): mozilla::InstallSyscallFilter'
               id: id-076
-              last_modified: 1795596143510
             permissions: {}
           id-075:
             data:
@@ -7631,7 +7244,6 @@ buckets:
               schema: 1795596140393
               description: 'gpu (Windows nightly): mfx_media_merit_64.dll | RtlpLowFragHeapAllocFromContext | mfx_mft_vp9ve_64.dll | mfx_media_merit_64.dll | mfx_mft_vp9ve_64.dll | mfx_media_merit_64.dll | mfx_mft_vp9ve_64.dll | mfx_media_merit_64.dll | mfx_mft_vp9ve_64.dll | LdrControlFlowGuardEnforce...'
               id: id-075
-              last_modified: 1795596141948
             permissions: {}
           id-074:
             data:
@@ -7663,7 +7275,6 @@ buckets:
               schema: 1795596138735
               description: 'gpu (Linux release): HandleGLibMessage'
               id: id-074
-              last_modified: 1795596140381
             permissions: {}
           id-073:
             data:
@@ -7701,7 +7312,6 @@ buckets:
               schema: 1795596137139
               description: 'rdd (Linux release): firefox'
               id: id-073
-              last_modified: 1795596138726
             permissions: {}
           id-072:
             data:
@@ -7739,7 +7349,6 @@ buckets:
               schema: 1795596135536
               description: 'content (Linux release): XPCJSContext::NewXPCJSContext'
               id: id-072
-              last_modified: 1795596137130
             permissions: {}
           id-071:
             data:
@@ -7776,7 +7385,6 @@ buckets:
               schema: 1795596133992
               description: 'rdd (Linux release): amdgpu_cs_submit_ib<T>'
               id: id-071
-              last_modified: 1795596135526
             permissions: {}
           id-070:
             data:
@@ -7804,7 +7412,6 @@ buckets:
               schema: 1795596132401
               description: 'plugin (Windows release): WelsDec::CWelsDecoder::FlushFrame'
               id: id-070
-              last_modified: 1795596133982
             permissions: {}
           id-069:
             data:
@@ -7842,7 +7449,6 @@ buckets:
               schema: 1795596130802
               description: 'content (Android release): OOM | unknown | NS_ABORT_OOM'
               id: id-069
-              last_modified: 1795596132390
             permissions: {}
           id-068:
             data:
@@ -7880,7 +7486,6 @@ buckets:
               schema: 1795596129192
               description: 'rdd (Windows release): msmpeg2vdec.dll'
               id: id-068
-              last_modified: 1795596130788
             permissions: {}
           id-067:
             data:
@@ -7917,7 +7522,6 @@ buckets:
               schema: 1795596127645
               description: 'socket (Windows release): hmpalert.dll | <unknown in mswsock.dll> | BaseThreadInitThunk'
               id: id-067
-              last_modified: 1795596129182
             permissions: {}
           id-066:
             data:
@@ -7955,7 +7559,6 @@ buckets:
               schema: 1795596124263
               description: 'main (Windows release): mozilla::dom::quota::QuotaManager::Shutdown::<T>::operator()'
               id: id-066
-              last_modified: 1795596127635
             permissions: {}
           id-065:
             data:
@@ -7965,7 +7568,6 @@ buckets:
               schema: 1795596122689
               description: 'main (Linux beta): js::gc::HeaderWord::getAtomic'
               id: id-065
-              last_modified: 1795596124254
             permissions: {}
           id-064:
             data:
@@ -7975,7 +7577,6 @@ buckets:
               schema: 1795596120971
               description: 'rdd (Mac release): IPC::MessageReader::FatalError | IPC::ParamTraits<mozilla::MediaDataIPDL>::Read | IPC::ParamTraits<mozilla::ArrayOfRemoteMediaRawData::RemoteMediaRawData>::Read | _ZN3IPC9ReadParamIN7mozilla25ArrayOfRemoteMediaRawData18RemoteMediaRawDataEEENS_10ReadRes...'
               id: id-064
-              last_modified: 1795596122679
             permissions: {}
           id-063:
             data:
@@ -7984,7 +7585,6 @@ buckets:
               schema: 1795596119276
               description: 'content (Mac beta): js::GCData<T>::get'
               id: id-063
-              last_modified: 1795596120962
             permissions: {}
           id-062:
             data:
@@ -7998,7 +7598,6 @@ buckets:
               schema: 1795596116950
               description: 'utility (Linux release): IPC::MessageReader::FatalError | IPC::ParamTraits<mozilla::MediaDataIPDL>::Read | IPC::ParamTraits<mozilla::ArrayOfRemoteMediaRawData::RemoteMediaRawData>::Read | IPC::ReadSequenceParamImpl<T> | IPC::ReadSequenceParam<mozilla::ArrayOfRemoteMediaRawData...'
               id: id-062
-              last_modified: 1795596119265
             permissions: {}
           id-061:
             data:
@@ -8008,7 +7607,6 @@ buckets:
               schema: 1795596114447
               description: 'content (Android beta): libc.so | libart.so | libbase.so'
               id: id-061
-              last_modified: 1795596116491
             permissions: {}
           id-060:
             data:
@@ -8017,7 +7615,6 @@ buckets:
               schema: 1795596112860
               description: 'utility (Windows nightly): ZwUserMsgWaitForMultipleObjectsEx'
               id: id-060
-              last_modified: 1795596114436
             permissions: {}
           id-059:
             data:
@@ -8027,7 +7624,6 @@ buckets:
               schema: 1795596110161
               description: 'rdd (Mac release): mozilla::ipc::MessagePump::Run'
               id: id-059
-              last_modified: 1795596112850
             permissions: {}
           id-058:
             data:
@@ -8039,7 +7635,6 @@ buckets:
               schema: 1795596108353
               description: 'content (Windows nightly): RtlpWaitOnAddressWithTimeout | RtlpWaitOnAddress | RtlWaitOnAddress | WaitOnAddress'
               id: id-058
-              last_modified: 1795596110150
             permissions: {}
           id-057:
             data:
@@ -8048,7 +7643,6 @@ buckets:
               schema: 1795596106752
               description: 'gpu (Android nightly): mozilla::gfx::RecordedScaledFontCreation::PlayEvent'
               id: id-057
-              last_modified: 1795596108343
             permissions: {}
           id-056:
             data:
@@ -8079,7 +7673,6 @@ buckets:
               schema: 1795596105140
               description: 'content (Mac release): PtrInfo::AnnotatedReleaseAssert'
               id: id-056
-              last_modified: 1795596106742
             permissions: {}
           id-055:
             data:
@@ -8112,7 +7705,6 @@ buckets:
               schema: 1795596103590
               description: 'gpu (Mac release): abort | MetalOld.dylib'
               id: id-055
-              last_modified: 1795596105130
             permissions: {}
           id-054:
             data:
@@ -8131,7 +7723,6 @@ buckets:
               schema: 1795596101958
               description: 'plugin (Windows release): msmpeg2vdec.dll'
               id: id-054
-              last_modified: 1795596103580
             permissions: {}
           id-053:
             data:
@@ -8167,7 +7758,6 @@ buckets:
               schema: 1795596100312
               description: 'gpu (Windows beta): mozilla::layers::APZBridgeParent::APZBridgeParent'
               id: id-053
-              last_modified: 1795596101948
             permissions: {}
           id-052:
             data:
@@ -8177,7 +7767,6 @@ buckets:
               schema: 1795596098689
               description: 'content (Android beta): nsWrapperCache::GetWrapperMaybeDead'
               id: id-052
-              last_modified: 1795596100301
             permissions: {}
           id-051:
             data:
@@ -8200,7 +7789,6 @@ buckets:
               schema: 1795596097139
               description: 'content (Linux release): js::gc::TenuredCellWithNonGCPointer<T>::headerPtr'
               id: id-051
-              last_modified: 1795596098680
             permissions: {}
           id-050:
             data:
@@ -8235,7 +7823,6 @@ buckets:
               schema: 1795596095563
               description: 'rdd (Linux release): abort | libgallium-26.3.1-arch3.1.so'
               id: id-050
-              last_modified: 1795596097128
             permissions: {}
           id-049:
             data:
@@ -8244,7 +7831,6 @@ buckets:
               schema: 1795596093992
               description: 'gpu (Mac beta): _sigtramp'
               id: id-049
-              last_modified: 1795596095553
             permissions: {}
           id-048:
             data:
@@ -8253,7 +7839,6 @@ buckets:
               schema: 1795596092317
               description: 'rdd (Windows nightly): decode_b'
               id: id-048
-              last_modified: 1795596093983
             permissions: {}
           id-047:
             data:
@@ -8291,7 +7876,6 @@ buckets:
               schema: 1795596090644
               description: 'gpu (Android release): libc.so | mozilla::MonitorAutoLockBase<T>::Wait'
               id: id-047
-              last_modified: 1795596092306
             permissions: {}
           id-046:
             data:
@@ -8329,7 +7913,6 @@ buckets:
               schema: 1795596089083
               description: 'gpu (Windows release): igd10um64xe.DLL'
               id: id-046
-              last_modified: 1795596090633
             permissions: {}
           id-045:
             data:
@@ -8348,7 +7931,6 @@ buckets:
               schema: 1795596087001
               description: 'utility (Linux release): nsThreadPool::PutEvent'
               id: id-045
-              last_modified: 1795596089073
             permissions: {}
           id-044:
             data:
@@ -8358,7 +7940,6 @@ buckets:
               schema: 1795596085311
               description: 'content (Android nightly): libc.so | libart.so | libbase.so'
               id: id-044
-              last_modified: 1795596086991
             permissions: {}
           id-043:
             data:
@@ -8369,7 +7950,6 @@ buckets:
               schema: 1795596082073
               description: 'rdd (Mac release): decode_b'
               id: id-043
-              last_modified: 1795596085301
             permissions: {}
           id-042:
             data:
@@ -8403,7 +7983,6 @@ buckets:
               schema: 1795596080393
               description: 'content (Mac release): js::HeapSlot::getForTracing'
               id: id-042
-              last_modified: 1795596082061
             permissions: {}
           id-041:
             data:
@@ -8441,7 +8020,6 @@ buckets:
               schema: 1795596077946
               description: 'gpu (Windows release): IPCError-content | GPUProcessKill'
               id: id-041
-              last_modified: 1795596080280
             permissions: {}
           id-040:
             data:
@@ -8474,7 +8052,6 @@ buckets:
               schema: 1795596076357
               description: 'gpu (Windows beta): IPCError-content | GPUProcessKill'
               id: id-040
-              last_modified: 1795596077935
             permissions: {}
           id-039:
             data:
@@ -8510,7 +8087,6 @@ buckets:
               schema: 1795596074755
               description: 'content (Linux release): mozilla::ipc::IOThread::StartThread'
               id: id-039
-              last_modified: 1795596076346
             permissions: {}
           id-038:
             data:
@@ -8519,7 +8095,6 @@ buckets:
               schema: 1795596073195
               description: 'gpu (Android nightly): mozilla::BufferList<T>::AllocateBytes'
               id: id-038
-              last_modified: 1795596074744
             permissions: {}
           id-037:
             data:
@@ -8533,7 +8108,6 @@ buckets:
               schema: 1795596071588
               description: 'main (Windows nightly): AsyncShutdownTimeout | IOUtils: waiting for sendTelemetry IO to complete | TelemetryController: shutting down'
               id: id-037
-              last_modified: 1795596073184
             permissions: {}
           id-036:
             data:
@@ -8567,7 +8141,6 @@ buckets:
               schema: 1795596069903
               description: 'content (Android release): libc.so | mozilla::MonitorAutoLockBase<T>::Wait'
               id: id-036
-              last_modified: 1795596071576
             permissions: {}
           id-035:
             data:
@@ -8578,7 +8151,6 @@ buckets:
               schema: 1795596068344
               description: 'socket (Linux release): nr_turn_stun_ctx_handle_redirect'
               id: id-035
-              last_modified: 1795596069892
             permissions: {}
           id-034:
             data:
@@ -8611,7 +8183,6 @@ buckets:
               schema: 1795596066759
               description: 'gpu (Android release): egl'
               id: id-034
-              last_modified: 1795596068334
             permissions: {}
           id-033:
             data:
@@ -8644,7 +8215,6 @@ buckets:
               schema: 1795596065202
               description: 'main (Linux release): pushbuf_dump'
               id: id-033
-              last_modified: 1795596066748
             permissions: {}
           id-032:
             data:
@@ -8677,7 +8247,6 @@ buckets:
               schema: 1795596063557
               description: 'content (Android release): OOM | large | js::AutoEnterOOMUnsafeRegion::crash_impl | Mutex::Unlock'
               id: id-032
-              last_modified: 1795596065190
             permissions: {}
           id-031:
             data:
@@ -8712,7 +8281,6 @@ buckets:
               schema: 1795596061982
               description: 'main (Mac release): AsyncShutdownTimeout | Places Clients shutdown | sanitize.js: Sanitize on shutdown'
               id: id-031
-              last_modified: 1795596063546
             permissions: {}
           id-030:
             data:
@@ -8746,7 +8314,6 @@ buckets:
               schema: 1795596060343
               description: 'main (Windows beta): mozilla::gfx::GPUProcessManager::MaybeCrashIfGpuProcessOnceStable'
               id: id-030
-              last_modified: 1795596061971
             permissions: {}
           id-029:
             data:
@@ -8782,7 +8349,6 @@ buckets:
               schema: 1795596057417
               description: 'rdd (Windows release): msmpeg2vdec.dll | <unknown in combase.dll> | CoCreateInstance'
               id: id-029
-              last_modified: 1795596060332
             permissions: {}
           id-028:
             data:
@@ -8814,7 +8380,6 @@ buckets:
               schema: 1795596055781
               description: 'main (Android release): OOM | unknown | NS_ABORT_OOM | mozilla::jni::ReportException'
               id: id-028
-              last_modified: 1795596057407
             permissions: {}
           id-027:
             data:
@@ -8826,7 +8391,6 @@ buckets:
               schema: 1795596054088
               description: 'utility (Linux release): AllocInfo::GetInChunk'
               id: id-027
-              last_modified: 1795596055769
             permissions: {}
           id-026:
             data:
@@ -8864,7 +8428,6 @@ buckets:
               schema: 1795596052536
               description: 'plugin (Windows release): widevinecdm.dll | mozilla::gmp::ChromiumCDMChild::RecvInitializeVideoDecoder'
               id: id-026
-              last_modified: 1795596054078
             permissions: {}
           id-025:
             data:
@@ -8877,7 +8440,6 @@ buckets:
               schema: 1795596050910
               description: 'main (Windows nightly): mozilla::gfx::GPUProcessManager::MaybeCrashIfGpuProcessOnceStable'
               id: id-025
-              last_modified: 1795596052526
             permissions: {}
           id-024:
             data:
@@ -8893,7 +8455,6 @@ buckets:
               schema: 1795596049345
               description: 'main (Linux nightly): AsyncShutdownTimeout | profile-change-teardown | ServiceWorkerShutdownBlocker: shutting down Service Workers'
               id: id-024
-              last_modified: 1795596050900
             permissions: {}
           id-023:
             data:
@@ -8931,7 +8492,6 @@ buckets:
               schema: 1795596047763
               description: 'main (Linux release): AsyncShutdownTimeout | Places Clients shutdown | sanitize.js: Sanitize on shutdown'
               id: id-023
-              last_modified: 1795596049333
             permissions: {}
           id-022:
             data:
@@ -8940,7 +8500,6 @@ buckets:
               schema: 1795596046154
               description: 'socket (Mac release): huge_dalloc | CoreServicesStore'
               id: id-022
-              last_modified: 1795596047752
             permissions: {}
           id-021:
             data:
@@ -8978,7 +8537,6 @@ buckets:
               schema: 1795596044570
               description: 'main (Windows release): shutdownhang | mozilla::(anonymous namespace)::RunWatchdog'
               id: id-021
-              last_modified: 1795596046143
             permissions: {}
           id-020:
             data:
@@ -9016,7 +8574,6 @@ buckets:
               schema: 1795596042997
               description: 'main (Linux release): core::option::expect_failed | glean_core::core::Glean::storage'
               id: id-020
-              last_modified: 1795596044560
             permissions: {}
           id-019:
             data:
@@ -9040,7 +8597,6 @@ buckets:
               schema: 1795596041372
               description: 'main (Android beta): OOM | unknown | NS_ABORT_OOM | mozilla::jni::ReportException'
               id: id-019
-              last_modified: 1795596042986
             permissions: {}
           id-018:
             data:
@@ -9059,7 +8615,6 @@ buckets:
               schema: 1795596039682
               description: 'main (Android nightly): OOM | unknown | NS_ABORT_OOM | mozilla::jni::ReportException'
               id: id-018
-              last_modified: 1795596041359
             permissions: {}
           id-017:
             data:
@@ -9093,7 +8648,6 @@ buckets:
               schema: 1795596038100
               description: 'gpu (Mac release): pthread_kill | abort | IOGPUMetalCommandBufferStorageAllocResourceAtIndex'
               id: id-017
-              last_modified: 1795596039671
             permissions: {}
           id-016:
             data:
@@ -9102,7 +8656,6 @@ buckets:
               schema: 1795596036463
               description: 'utility (Mac release): caulk::alloc::tiered_allocator<T>::deallocate'
               id: id-016
-              last_modified: 1795596038088
             permissions: {}
           id-015:
             data:
@@ -9140,7 +8693,6 @@ buckets:
               schema: 1795596034886
               description: 'content (Mac release): mozilla::ipc::PortLink::SendMessage'
               id: id-015
-              last_modified: 1795596036452
             permissions: {}
           id-014:
             data:
@@ -9178,7 +8730,6 @@ buckets:
               schema: 1795596033269
               description: 'main (Linux release): HandleGLibMessage'
               id: id-014
-              last_modified: 1795596034876
             permissions: {}
           id-013:
             data:
@@ -9206,7 +8757,6 @@ buckets:
               schema: 1795596031666
               description: 'content (Mac release): JS::Heap<T>::exposeToActiveJS'
               id: id-013
-              last_modified: 1795596033259
             permissions: {}
           id-012:
             data:
@@ -9244,7 +8794,6 @@ buckets:
               schema: 1795596029618
               description: 'gpu (Mac release): libsystem_kernel.dylib'
               id: id-012
-              last_modified: 1795596031511
             permissions: {}
           id-011:
             data:
@@ -9278,7 +8827,6 @@ buckets:
               schema: 1795596027558
               description: 'main (Linux release): shutdownhang | mozilla::(anonymous namespace)::RunWatchdog'
               id: id-011
-              last_modified: 1795596029606
             permissions: {}
           id-010:
             data:
@@ -9314,7 +8862,6 @@ buckets:
               schema: 1795596026007
               description: 'utility (Windows release): mozilla::MFTDecoder::~MFTDecoder'
               id: id-010
-              last_modified: 1795596027548
             permissions: {}
           id-009:
             data:
@@ -9348,7 +8895,6 @@ buckets:
               schema: 1795596024337
               description: 'main (Mac release): AsyncShutdownTimeout | IOUtils: waiting for profileBeforeChange IO to complete | CrashMonitor: Writing notifications to file after receiving profile-before-change and awaiting all checkpoints written'
               id: id-009
-              last_modified: 1795596025995
             permissions: {}
           id-008:
             data:
@@ -9362,7 +8908,6 @@ buckets:
               schema: 1795596022785
               description: 'main (Mac beta): shutdownhang | mozilla::(anonymous namespace)::RunWatchdog'
               id: id-008
-              last_modified: 1795596024327
             permissions: {}
           id-007:
             data:
@@ -9390,7 +8935,6 @@ buckets:
               schema: 1795596021175
               description: 'main (Linux release): abort | libglib-2.0.so.0'
               id: id-007
-              last_modified: 1795596022773
             permissions: {}
           id-006:
             data:
@@ -9425,7 +8969,6 @@ buckets:
               schema: 1795596019597
               description: 'main (Mac release): shutdownhang | mozilla::(anonymous namespace)::RunWatchdog'
               id: id-006
-              last_modified: 1795596021164
             permissions: {}
           id-005:
             data:
@@ -9463,7 +9006,6 @@ buckets:
               schema: 1795596017975
               description: 'content (Mac release): OOM | small'
               id: id-005
-              last_modified: 1795596019587
             permissions: {}
           id-004:
             data:
@@ -9501,7 +9043,6 @@ buckets:
               schema: 1795596016357
               description: 'content (Windows release): xul.dll'
               id: id-004
-              last_modified: 1795596017963
             permissions: {}
           id-003:
             data:
@@ -9535,7 +9076,6 @@ buckets:
               schema: 1795596014739
               description: 'rdd (Linux release): __std_4U4S4U_X04'
               id: id-003
-              last_modified: 1795596016345
             permissions: {}
           id-002:
             data:
@@ -9570,7 +9110,6 @@ buckets:
               schema: 1795596013136
               description: 'main (Mac release): VAD3ConfigurationInterface_DecodeFull'
               id: id-002
-              last_modified: 1795596014728
             permissions: {}
           id-001:
             data:
@@ -9602,7 +9141,6 @@ buckets:
               schema: 1795596011429
               description: 'main (Mac release): mozilla::dom::quota::QuotaManager::Shutdown::$::operator()'
               id: id-001
-              last_modified: 1795596013126
             permissions: {}
           id-000:
             data:
@@ -9639,7 +9177,6 @@ buckets:
               schema: 1795424725759
               description: 'main (Android release): libc.so | libart.so | libbase.so'
               id: id-000
-              last_modified: 1795596011419
             permissions: {}
     groups:
       crash-reports-ondemand-reviewers:

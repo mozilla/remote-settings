@@ -28,7 +28,6 @@ buckets:
                   category: animals
                   category_code: 1
               id: Animals-00-17
-              last_modified: 1726170519383
             permissions: {}
           Career-00-27:
             data:
@@ -45,7 +44,6 @@ buckets:
                   category: career
                   category_code: 5
               id: Career-00-27
-              last_modified: 1726170518794
             permissions: {}
           Autos-00-65:
             data:
@@ -62,7 +60,6 @@ buckets:
                   category: autos
                   category_code: 3
               id: Autos-00-65
-              last_modified: 1726170516836
             permissions: {}
           Business-000-190:
             data:
@@ -79,7 +76,6 @@ buckets:
                   category: business
                   category_code: 4
               id: Business-000-190
-              last_modified: 1726170510762
             permissions: {}
           Arts-000-172:
             data:
@@ -96,7 +92,6 @@ buckets:
                   category: arts
                   category_code: 2
               id: Arts-000-172
-              last_modified: 1726170508940
             permissions: {}
     groups:
       content-relevance-reviewers:
