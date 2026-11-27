@@ -69,7 +69,8 @@ target/
 # misc
 autograph-certs/chains
 mail/*.eml
-attachments/
+/attachments/
+browser-tests/test-results/
 .DS_Store
 
 # Visual Studio Code

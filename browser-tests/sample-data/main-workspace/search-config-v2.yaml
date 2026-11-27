@@ -1,0 +1,1519 @@
+buckets:
+  main-workspace:
+    collections:
+      search-config-v2:
+        permissions: {}
+        data:
+          sort: -last_modified
+          schema:
+            type: object
+            allOf:
+            - if:
+                properties:
+                  recordType:
+                    const: engine
+              then:
+                required:
+                - recordType
+                - identifier
+                - base
+                - variants
+                properties:
+                  base:
+                    type: object
+                    title: Base Details
+                    required:
+                    - name
+                    - urls
+                    - classification
+                    properties:
+                      name:
+                        type: string
+                        title: Name
+                        maxLength: 100
+                        description: The user visible name for the search engine.
+                      urls:
+                        $ref: '#/definitions/urls'
+                      aliases:
+                        type: array
+                        items:
+                          type: string
+                          pattern: ^[a-z\xa1-\uffff]*$
+                        title: Aliases
+                        description: "An array of aliases that the user can use to search with this engine. The\naliases will be prefix by '@' on desktop and potentially other platforms."
+                        uniqueItems: true
+                      charset:
+                        type: string
+                        title: Character Set
+                        pattern: ^[a-zA-Z0-9-]*$
+                        description: The character set this engine uses for queries. Defaults to 'UTF=8' if not set.
+                      partnerCode:
+                        $ref: '#/definitions/partnerCode'
+                      classification:
+                        enum:
+                        - general
+                        - unknown
+                        type: string
+                        title: Classification
+                        description: "The classification of search engine according to the main search types (e.g.\ngeneral, shopping, travel, dictionary). Currently, only marking as a general\nsearch engine is supported."
+                    description: Base details for the engine.
+                  notes:
+                    type: string
+                    title: Notes
+                    pattern: ^[a-zA-Z0-9-_.() ]*$
+                    description: "A short notes section used to potentially aid identification of this section for\nhumans. Not intended for to be read by the application."
+                  variants:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - environment
+                      properties:
+                        urls:
+                          $ref: '#/definitions/urls'
+                        optional:
+                          type: boolean
+                          title: Optional
+                          description: "This search engine is presented as an option that the user may enable. It is not\nincluded in the initial list of search engines. If not specified, defaults to\nfalse."
+                        isNewUntil:
+                          $ref: '#/definitions/isNewUntil'
+                        environment:
+                          $ref: '#/definitions/environment'
+                        partnerCode:
+                          $ref: '#/definitions/partnerCode'
+                        subVariants:
+                          type: array
+                          items:
+                            type: object
+                            required:
+                            - environment
+                            properties:
+                              urls:
+                                $ref: '#/definitions/urls'
+                              optional:
+                                type: boolean
+                                title: Optional
+                                description: "This search engine is presented as an option that the user may enable. It is not\nincluded in the initial list of search engines. If not specified, defaults to\nfalse."
+                              isNewUntil:
+                                $ref: '#/definitions/isNewUntil'
+                              environment:
+                                $ref: '#/definitions/environment'
+                              partnerCode:
+                                $ref: '#/definitions/partnerCode'
+                              telemetrySuffix:
+                                type: string
+                                title: Telemetry Suffix
+                                pattern: ^[a-zA-Z0-9-]*$
+                                description: "Suffix that is appended to the search engine identifier following a dash, i.e.\n`<identifier>-<suffix>`. There should always be a suffix supplied if the partner\ncode is different for a reason other than being on a different platform."
+                          title: Subvariants
+                          description: "This section describes subvariations of this search engine that may occur\ndepending on the user's environment. The last subvariant that matches the user's\nenvironment will be applied to the engine."
+                        telemetrySuffix:
+                          type: string
+                          title: Telemetry Suffix
+                          pattern: ^[a-zA-Z0-9-]*$
+                          description: "Suffix that is appended to the search engine identifier following a dash, i.e.\n`<identifier>-<suffix>`. There should always be a suffix supplied if the partner\ncode is different for a reason other than being on a different platform."
+                    title: Variants
+                    description: "This section describes variations of this search engine that may occur depending\non the user's environment. The last variant that matches the user's environment\nwill be applied to the engine, subvariants may also be applied."
+                  identifier:
+                    type: string
+                    title: Identifier
+                    pattern: ^[a-zA-Z0-9-_]*$
+                    description: "The identifier of the search engine. This is used as an internal identifier,\ne.g. for saving the user's settings for the engine. It is also used to form the\nbase telemetry id and may be extended by telemetrySuffix."
+                  recordType:
+                    $ref: '#/definitions/recordType'
+            - if:
+                properties:
+                  recordType:
+                    const: defaultEngines
+              then:
+                required:
+                - recordType
+                - globalDefault
+                properties:
+                  recordType:
+                    $ref: '#/definitions/recordType'
+                  globalDefault:
+                    type: string
+                    title: Global Default
+                    pattern: ^[a-zA-Z0-9-_]*$
+                    description: "The identifier of the engine that will be used as the application default if no\nother engines are specified as default."
+                  specificDefaults:
+                    type: array
+                    items:
+                      type: object
+                      oneOf:
+                      - required:
+                        - environment
+                        - default
+                      - required:
+                        - environment
+                        - defaultPrivate
+                      - required:
+                        - environment
+                        - default
+                        - defaultPrivate
+                      properties:
+                        default:
+                          type: string
+                          title: Default
+                          pattern: ^[a-zA-Z0-9-_]*\*?$
+                          description: "The identifier of the engine that will be used as the application default for\nthe associated environment. If the entry is suffixed with a star, matching is\napplied on a \"starts with\" basis."
+                        environment:
+                          $ref: '#/definitions/environment'
+                        defaultPrivate:
+                          type: string
+                          title: Default - Private Mode
+                          pattern: ^[a-zA-Z0-9-_]*\*?$
+                          description: "The identifier of the engine that will be used as the application default in\nprivate mode for the associated environment. If the entry is suffixed with a\nstar, matching is applied on a \"starts with\" basis."
+                    title: Filters
+                    description: "The specific environment filters to set a different default engine. The array is\nordered, when multiple entries match on environments, the later entry will\noverride earlier entries."
+                  globalDefaultPrivate:
+                    type: string
+                    title: Global Default - Private Mode
+                    pattern: ^[a-zA-Z0-9-_]*$
+                    description: "The identifier of the engine that will be used as the application default in\nprivate mode if no other engines are specified as default."
+            - if:
+                properties:
+                  recordType:
+                    const: engineOrders
+              then:
+                required:
+                - recordType
+                - orders
+                properties:
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - environment
+                      properties:
+                        order:
+                          type: array
+                          items:
+                            type: string
+                            pattern: ^[a-zA-Z0-9-_]*\*?$
+                          title: Engine Order
+                          description: "The order of the engines for the associated environment. If engines are present\nfor the user but not included in this list, they will follow after the ones in\nthis list in alphabetical order. If an individual entry is suffixed with a star,\nmatching is applied on a \"starts with\" basis."
+                        environment:
+                          $ref: '#/definitions/environment'
+                    title: Orders
+                    description: "When a user's instance matches the defined environments, the associated engine\norder will be applied. The array is ordered, when multiple entries match on\nenvironments, the later entry will override earlier entries."
+                  recordType:
+                    $ref: '#/definitions/recordType'
+            - if:
+                properties:
+                  recordType:
+                    const: availableLocales
+              then:
+                required:
+                - recordType
+                - locales
+                properties:
+                  locales:
+                    type: array
+                    items:
+                      type: string
+                      pattern: ^(?:[a-z]{2,3}(-[a-zA-Z]{2,})?(?:-macos)?|default)$
+                      minLength: 2
+                    title: Locales
+                    description: "All locales listed in the 'locales' field of each engine record. This is used so\nthat we can choose the correct fallback locales on mobile which generally\nsupplies locales of the form ab-CD. This record is an optimisation so that we\ncan avoid parsing the configuration each time for all the locales."
+                    uniqueItems: true
+                  recordType:
+                    $ref: '#/definitions/recordType'
+            title: Application Provided Search Engines Schema
+            properties:
+              recordType:
+                $ref: '#/definitions/recordType'
+            definitions:
+              url:
+                type: object
+                properties:
+                  base:
+                    type: string
+                    title: Base
+                    description: "The PrePath and FilePath of the URL. May include variables for engines which\nhave a variable FilePath, e.g. {searchTerm} for when a search term is within the\npath of the url."
+                  method:
+                    enum:
+                    - GET
+                    - POST
+                    type: string
+                    title: Method
+                    pattern: ^(GET|POST)$
+                    description: The HTTP method to use to send the request. If not specified, defaults to GET.
+                  params:
+                    type: array
+                    items:
+                      type: object
+                      oneOf:
+                      - required:
+                        - name
+                        - value
+                      - required:
+                        - name
+                        - enterpriseValue
+                      - required:
+                        - name
+                        - experimentConfig
+                      title: Parameter
+                      properties:
+                        name:
+                          type: string
+                          title: Name
+                          pattern: ^[a-zA-Z0-9-_]*$
+                          description: The parameter name
+                        value:
+                          type: string
+                          title: Value
+                          pattern: ^[a-zA-Z0-9-_{}]*$
+                          description: "The parameter value, this may be a static value, or additionally contain a\nparameter replacement, e.g. {inputEncoding}. For the partner code parameter,\nthis field should be {partnerCode}."
+                        enterpriseValue:
+                          type: string
+                          title: Value
+                          pattern: ^[a-zA-Z0-9-_{}]*$
+                          description: "Same as value but only used if Services.polices.isEnterprise is true. Overrides\nother parameters of the same name."
+                        experimentConfig:
+                          type: string
+                          title: Experiment Configuration
+                          pattern: ^[a-zA-Z0-9-_]*$
+                          description: "The value for the parameter will be derived from the equivalent experiment\nconfiguration value. If not experiment is present, this parameter will not be\nincluded in the final url."
+                    title: Parameters
+                    description: The parameters for this URL.
+                  isNewUntil:
+                    $ref: '#/definitions/isNewUntil'
+                  displayNameMap:
+                    type: object
+                    title: Name
+                    description: "A map from locale codes to display names of the URL. This is useful if the URL\ncorresponds to a brand name distinct from the engine's brand name. Since brand\nnames can be localized, this is a map rather than a URL. The client will fall\nback to the special locale code 'default' when its locale is not present in the\nmap."
+                  searchTermParamName:
+                    type: string
+                    title: Search Term Parameter Name
+                    pattern: ^[a-zA-Z0-9-_]*$
+                    description: "The name of the query parameter for the search term. Automatically appended to\nthe end of the query. This may be skipped if `{searchTerm}` is included in the\nbase."
+                  acceptedContentTypes:
+                    type: array
+                    items:
+                      type: string
+                    title: Accepted content types
+                    description: "If this URL performs searches only for certain MIME types, they should be listed\nhere. If `None`, it's assumed the content type is text or not relevant. This\nfield is intended to be used for URLs like visual search, which might support\ncertain image types and not others. Consumers can use it to determine whether\nsearch UI corresponding to the URL should be shown to the user in a given\ncontext."
+                    uniqueItems: true
+                  excludePartnerCodeFromTelemetry:
+                    type: boolean
+                    title: Exclude partner code from telemetry
+                    description: "Whether the engine's partner code should be excluded from telemetry when this\nURL is visited."
+              urls:
+                type: object
+                title: URLs
+                properties:
+                  search:
+                    $ref: '#/definitions/url'
+                    title: Search URL
+                    description: The URL to use for searches
+                  trending:
+                    $ref: '#/definitions/url'
+                    title: Trending Suggestions URL
+                    description: The URL to use for tending suggestions
+                  searchForm:
+                    $ref: '#/definitions/url'
+                    title: SearchForm URL
+                    description: The URL of the search engine homepage
+                  suggestions:
+                    $ref: '#/definitions/url'
+                    title: Suggestions URL
+                    description: The URL to use for suggestions
+                  visualSearch:
+                    $ref: '#/definitions/url'
+                    title: Visual search URL
+                    description: The URL to use for visual searches
+                description: The URLs associated with the search engine.
+              isNewUntil:
+                type: string
+                title: Is New Until
+                format: date
+                description: "Indicates the date until which the engine variant, subvariant, or URL is\nconsidered new (format: YYYY-MM-DD)."
+              recordType:
+                enum:
+                - engine
+                - defaultEngines
+                - engineOrders
+                - availableLocales
+                title: Record Type
+                description: The type of details that this record contains.
+              environment:
+                type: object
+                title: Environment
+                properties:
+                  locales:
+                    type: array
+                    items:
+                      type: string
+                      pattern: ^([a-z]{2,3}(-[a-zA-Z]{2,})?(-macos)?|default)$
+                      minLength: 2
+                    title: Locales
+                    description: "An array of locales that this section applies to. 'default' will apply to\nsituations where we have not been able to detect the user's locale."
+                    uniqueItems: true
+                  regions:
+                    type: array
+                    items:
+                      type: string
+                      pattern: ^([a-z][a-z]|default)$
+                      maxLength: 7
+                      minLength: 2
+                    title: Regions
+                    description: "An array of regions that this section applies to. 'default' will apply to\nsituations where we have not been able to detect the user's region."
+                    uniqueItems: true
+                  channels:
+                    type: array
+                    items:
+                      enum:
+                      - default
+                      - nightly
+                      - aurora
+                      - beta
+                      - release
+                      - esr
+                      type: string
+                      pattern: ^[a-z]{0,100}$
+                    title: Release Channels
+                    description: "An array of release channels that this section applies to (not set =\neverywhere)."
+                    uniqueItems: true
+                  deviceType:
+                    type: array
+                    items:
+                      enum:
+                      - smartphone
+                      - tablet
+                      type: string
+                      pattern: ^[a-z-]{0,100}$
+                    title: Device Type
+                    description: "The device type(s) this section applies to. On desktop when this property is\nspecified and non-empty, the associated section will be ignored."
+                    uniqueItems: true
+                  experiment:
+                    type: string
+                    title: Experiment
+                    pattern: ^[a-zA-Z0-9-]{0,100}$
+                    description: The experiment that this section applies to.
+                  maxVersion:
+                    type: string
+                    title: Maximum Version
+                    pattern: ^[0-9a-z.]{0,20}$
+                    description: The maximum application version this section applies to (less-than comparison).
+                  minVersion:
+                    type: string
+                    title: Minimum Version
+                    pattern: ^[0-9a-z.]{0,20}$
+                    description: The minimum application version this section applies to.
+                  applications:
+                    type: array
+                    items:
+                      enum:
+                      - firefox
+                      - firefox-android
+                      - firefox-ios
+                      - focus-android
+                      - focus-ios
+                      type: string
+                      pattern: ^[a-z-]{0,100}$
+                    title: Application Identifiers
+                    description: "The application(s) this section applies to (default/not specified is\neverywhere). `firefox` relates to Firefox Desktop."
+                    uniqueItems: true
+                  distributions:
+                    type: array
+                    items:
+                      type: string
+                      pattern: ^[a-zA-Z0-9.-]{0,100}$
+                    title: Distributions
+                    description: An array of distribution identifiers that this applies to.
+                    uniqueItems: true
+                  excludedLocales:
+                    type: array
+                    items:
+                      type: string
+                      pattern: ^([a-z]{2,3}(-[a-zA-Z]{2,})?(-macos)?|default)$
+                      minLength: 2
+                    title: Excluded Locales
+                    description: "An array of locales that this section should be excluded from. 'default' will\napply to situations where we have not been able to detect the user's locale."
+                    uniqueItems: true
+                  excludedRegions:
+                    type: array
+                    items:
+                      type: string
+                      pattern: ^([a-z]{2,3}|default)$
+                      maxLength: 7
+                      minLength: 2
+                    title: Excluded Regions
+                    description: "An array of regions that this section should be excluded from. 'default' will\napply to situations where we have not been able to detect the user's region."
+                    uniqueItems: true
+                  allRegionsAndLocales:
+                    type: boolean
+                    title: All Regions and Locales
+                    description: "Indicates that this section applies to all regions and locales. May be modified\nby excludedRegions/excludedLocales."
+                  excludedDistributions:
+                    type: array
+                    items:
+                      type: string
+                      pattern: ^[a-zA-Z0-9.-]{0,100}$
+                    title: Excluded Distributions
+                    description: An array of distribution identifiers that this does not apply to.
+                    uniqueItems: true
+                description: "Specifies details of possible user environments that the engine or variant\napplies to"
+              partnerCode:
+                type: string
+                title: Partner Code
+                pattern: ^[a-zA-Z0-9-_.]*$
+                description: "The partner code for the engine or variant. This will be inserted into\nparameters which include '{partnerCode}'"
+            description: "This schema contains the details to build application provided search engines\nshipped in some Mozilla products. The associated remote settings collection is\nsearch-config-v2. Note: the top-level properties section is only required to\nsatisfy remoteSettings. The allOf section provides the full details of the\ndifferent record types."
+          created: '2023-12-15'
+          tickets:
+          - https://bugzilla.mozilla.org/show_bug.cgi?id=1870244
+          uiSchema:
+            ui:order:
+            - recordType
+          attachment:
+            enabled: false
+            required: false
+          description: Search engine configuration v2 (cross-platform)
+          cache_expires: 0
+          displayFields:
+          - recordType
+          - identifier
+          id: search-config-v2
+        records:
+          9bf5b93a-2403-4926-92a0-5312936eda21:
+            data:
+              base:
+                name: Startpage
+                urls:
+                  search:
+                    base: https://www.startpage.com/sp/search
+                    params:
+                    - name: segment
+                      value: '{partnerCode}'
+                    searchTermParamName: q
+                  suggestions:
+                    base: https://www.startpage.com/suggestions?partner=apex&format=opensearch
+                    params:
+                    - name: segment
+                      value: '{partnerCode}'
+                    searchTermParamName: q
+                aliases:
+                - startpage
+                partnerCode: startpage.apex.desktop
+                classification: general
+              schema: 1791458221852
+              variants:
+              - environment:
+                  regions:
+                  - at
+                  - ch
+                  - de
+                  - fr
+                  - nl
+                subVariants:
+                - environment:
+                    applications:
+                    - firefox-android
+                    - focus-android
+                  partnerCode: startpage.apex.android
+                - environment:
+                    applications:
+                    - firefox-ios
+                    - focus-ios
+                  partnerCode: startpage.apex.ios
+              - isNewUntil: '2026-09-15'
+                environment:
+                  experiment: startpage-message
+              - environment:
+                  experiment: startpage
+              identifier: startpage
+              recordType: engine
+              id: 9bf5b93a-2403-4926-92a0-5312936eda21
+            permissions: {}
+          c3b226db-185f-43cf-84dc-ecf84f419396:
+            data:
+              base:
+                name: Perplexity
+                urls:
+                  search:
+                    base: https://www.perplexity.ai/search
+                    params:
+                    - name: pc
+                      value: '{partnerCode}'
+                    searchTermParamName: q
+                  suggestions:
+                    base: https://suggest.perplexity.ai/suggest
+                    searchTermParamName: q
+                aliases:
+                - perplexity
+                partnerCode: firefox
+                classification: unknown
+              schema: 1791458220567
+              variants:
+              - environment:
+                  applications:
+                  - firefox
+                  - firefox-ios
+                  allRegionsAndLocales: true
+              - environment:
+                  minVersion: 145.0.1
+                  applications:
+                  - firefox-android
+                  allRegionsAndLocales: true
+              identifier: perplexity
+              recordType: engine
+              id: c3b226db-185f-43cf-84dc-ecf84f419396
+            permissions: {}
+          172b915e-1843-4ed9-b373-f77eb18cb45a:
+            data:
+              base:
+                name: Ecosia
+                urls:
+                  search:
+                    base: https://www.ecosia.org/search
+                    params:
+                    - name: tt
+                      value: '{partnerCode}'
+                    searchTermParamName: q
+                  suggestions:
+                    base: https://ac.ecosia.org/autocomplete
+                    params:
+                    - name: type
+                      value: list
+                    searchTermParamName: q
+                aliases:
+                - ecosia
+                partnerCode: mzl
+                classification: general
+              schema: 1791331222022
+              variants:
+              - environment:
+                  locales:
+                  - de
+                subVariants:
+                - environment:
+                    applications:
+                    - firefox-android
+                    - focus-android
+                  partnerCode: 813cf1dd
+                - environment:
+                    applications:
+                    - firefox-ios
+                    - focus-ios
+                  partnerCode: 16eeffc4
+              - environment:
+                  regions:
+                  - at
+                  - be
+                  - ch
+                  - de
+                  - es
+                  - it
+                  - nl
+                  - se
+                subVariants:
+                - environment:
+                    applications:
+                    - firefox-android
+                    - focus-android
+                  partnerCode: 813cf1dd
+                - environment:
+                    applications:
+                    - firefox-ios
+                    - focus-ios
+                  partnerCode: 16eeffc4
+              identifier: ecosia
+              recordType: engine
+              id: 172b915e-1843-4ed9-b373-f77eb18cb45a
+            permissions: {}
+          71cf4866-b2d1-47b0-b409-342c803846d8:
+            data:
+              base:
+                name: Google
+                urls:
+                  search:
+                    base: https://www.google.com/search
+                    searchTermParamName: q
+                  trending:
+                    base: https://www.google.com/complete/search
+                    method: GET
+                    params:
+                    - name: client
+                      value: firefox
+                    - name: channel
+                      value: ftr
+                    searchTermParamName: q
+                  suggestions:
+                    base: https://www.google.com/complete/search
+                    params:
+                    - name: client
+                      value: firefox
+                    - name: channel
+                      value: fen
+                    searchTermParamName: q
+                  visualSearch:
+                    base: https://lens.google.com/upload
+                    params:
+                    - name: ep
+                      value: fcm
+                    displayNameMap:
+                      default: Google Lens
+                    searchTermParamName: url
+                    acceptedContentTypes:
+                    - image/jpeg
+                    - image/gif
+                    - image/png
+                    - image/avif
+                    - image/webp
+                    excludePartnerCodeFromTelemetry: true
+                aliases:
+                - google
+                classification: general
+              schema: 1776816022123
+              variants:
+              - urls:
+                  search:
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    - name: channel
+                      experimentConfig: google_channel_row
+                    - name: channel
+                      enterpriseValue: entpr
+                environment:
+                  allRegionsAndLocales: true
+                partnerCode: firefox-b-d
+                subVariants:
+                - environment:
+                    channels:
+                    - esr
+                  partnerCode: firefox-b-e
+                  telemetrySuffix: b-e
+                - environment:
+                    applications:
+                    - firefox-android
+                    - focus-android
+                    - firefox-ios
+                    - focus-ios
+                  partnerCode: firefox-b-m
+                  telemetrySuffix: b-m
+                telemetrySuffix: b-d
+              - environment:
+                  regions:
+                  - ru
+                  - by
+                telemetrySuffix: com-nocodes
+              - urls:
+                  search:
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    - name: channel
+                      experimentConfig: google_channel_us
+                    - name: channel
+                      enterpriseValue: entpr
+                environment:
+                  regions:
+                  - us
+                partnerCode: firefox-b-1-d
+                subVariants:
+                - environment:
+                    regions:
+                    - us
+                    channels:
+                    - esr
+                  partnerCode: firefox-b-1-e
+                  telemetrySuffix: b-1-e
+                - environment:
+                    applications:
+                    - firefox-android
+                    - focus-android
+                    - firefox-ios
+                    - focus-ios
+                  partnerCode: firefox-b-1-m
+                  telemetrySuffix: b-1-m
+                - environment:
+                    applications:
+                    - firefox-android
+                    distributions:
+                    - aura-001
+                  partnerCode: firefox-b-1-ar
+                  telemetrySuffix: b-1-ar
+                - environment:
+                    applications:
+                    - firefox-android
+                    distributions:
+                    - dt-002
+                    - dt-003
+                    - xiaomi-001
+                  partnerCode: firefox-b-1-dt
+                  telemetrySuffix: b-1-dt
+                telemetrySuffix: b-1-d
+              - urls:
+                  search:
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    - name: channel
+                      value: fs
+                environment:
+                  distributions:
+                  - canonical
+                  - canonical-001
+                partnerCode: ubuntu
+                telemetrySuffix: canonical
+              - urls:
+                  search:
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    - name: channel
+                      value: fs
+                environment:
+                  distributions:
+                  - canonical-002
+                partnerCode: ubuntu-sn
+                telemetrySuffix: ubuntu-sn
+              - urls:
+                  search:
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    - name: channel
+                      experimentConfig: google_channel_row
+                    - name: channel
+                      enterpriseValue: entpr
+                environment:
+                  distributions:
+                  - mint-001
+                  excludedRegions:
+                  - ru
+                  - by
+                partnerCode: firefox-b-lm
+                telemetrySuffix: b-lm
+              - urls:
+                  search:
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    - name: channel
+                      experimentConfig: google_channel_row
+                    - name: channel
+                      enterpriseValue: entpr
+                environment:
+                  regions:
+                  - us
+                  distributions:
+                  - mint-001
+                partnerCode: firefox-b-1-lm
+                telemetrySuffix: b-1-lm
+              - urls:
+                  search:
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    - name: channel
+                      experimentConfig: google_channel_row
+                environment:
+                  applications:
+                  - firefox-android
+                  distributions:
+                  - vivo-001
+                  excludedRegions:
+                  - ru
+                  - by
+                partnerCode: firefox-b-vv
+                telemetrySuffix: b-vv
+              - urls:
+                  search:
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    - name: channel
+                      experimentConfig: google_channel_row
+                environment:
+                  applications:
+                  - firefox-android
+                  distributions:
+                  - dt-001
+                  excludedRegions:
+                  - ru
+                  - by
+                partnerCode: firefox-b-tf
+                telemetrySuffix: b-tf
+              - urls:
+                  search:
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    - name: channel
+                      experimentConfig: google_channel_row
+                environment:
+                  applications:
+                  - firefox-android
+                  distributions:
+                  - aura-001
+                  excludedRegions:
+                  - us
+                  - ru
+                  - by
+                partnerCode: firefox-b-ar
+                telemetrySuffix: b-ar
+              - urls:
+                  search:
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    - name: channel
+                      experimentConfig: google_channel_row
+                environment:
+                  applications:
+                  - firefox-android
+                  distributions:
+                  - dt-002
+                  - dt-003
+                  - xiaomi-001
+                  excludedRegions:
+                  - us
+                  - ru
+                  - by
+                partnerCode: firefox-b-dt
+                telemetrySuffix: b-dt
+              identifier: google
+              recordType: engine
+              id: 71cf4866-b2d1-47b0-b409-342c803846d8
+            permissions: {}
+          8c4db826-302a-4770-8343-965aabf08902:
+            data:
+              base:
+                name: Bing
+                urls:
+                  search:
+                    base: https://www.bing.com/search
+                    params:
+                    - name: pc
+                      value: '{partnerCode}'
+                    - name: form
+                      value: MOZLBR
+                    searchTermParamName: q
+                  trending:
+                    base: https://www.bing.com/osjson.aspx
+                  suggestions:
+                    base: https://www.bing.com/osjson.aspx
+                    params:
+                    - name: form
+                      value: OSDJAS
+                    searchTermParamName: query
+                aliases:
+                - bing
+                partnerCode: MOZI
+                classification: general
+              schema: 1753980879612
+              variants:
+              - environment:
+                  applications:
+                  - firefox
+                  - firefox-android
+                  - firefox-ios
+                  allRegionsAndLocales: true
+                subVariants:
+                - environment:
+                    channels:
+                    - esr
+                  partnerCode: MOZR
+                  telemetrySuffix: esr
+                - urls:
+                    search:
+                      params:
+                      - name: pc
+                        value: '{partnerCode}'
+                      - name: form
+                        value: MOZMBA
+                      searchTermParamName: q
+                  environment:
+                    applications:
+                    - firefox-android
+                  partnerCode: MOZB
+                - urls:
+                    search:
+                      params:
+                      - name: pc
+                        value: '{partnerCode}'
+                      - name: form
+                        value: MOZWSB
+                      searchTermParamName: q
+                  environment:
+                    applications:
+                    - firefox-ios
+                  partnerCode: MOZW
+                - urls:
+                    search:
+                      params:
+                      - name: pc
+                        value: '{partnerCode}'
+                      - name: form
+                        value: MZTOFO
+                      searchTermParamName: q
+                  environment:
+                    applications:
+                    - firefox-android
+                    distributions:
+                    - dt-001
+                  partnerCode: MZTOF
+                  telemetrySuffix: MZTOF
+                - urls:
+                    search:
+                      params:
+                      - name: pc
+                        value: '{partnerCode}'
+                      - name: form
+                        value: MZVIVO
+                      searchTermParamName: q
+                  environment:
+                    applications:
+                    - firefox-android
+                    distributions:
+                    - vivo-001
+                  partnerCode: MZCP
+                  telemetrySuffix: MZCP
+                - urls:
+                    search:
+                      params:
+                      - name: pc
+                        value: '{partnerCode}'
+                      - name: form
+                        value: ABT
+                      searchTermParamName: q
+                  environment:
+                    experiment: adblockers
+                  partnerCode: MZABT
+              identifier: bing
+              recordType: engine
+              id: 8c4db826-302a-4770-8343-965aabf08902
+            permissions: {}
+          e7e9921c-e61c-4ef8-8710-34e427115981:
+            data:
+              schema: 1753928139838
+              locales:
+              - af
+              - an
+              - ar
+              - ast
+              - az
+              - be
+              - bg
+              - bn
+              - bn-BD
+              - bn-IN
+              - br
+              - bs
+              - ca
+              - ca-valencia
+              - cak
+              - cs
+              - cy
+              - da
+              - de
+              - dsb
+              - el
+              - en-CA
+              - en-GB
+              - en-US
+              - eo
+              - es-AR
+              - es-CL
+              - es-ES
+              - es-MX
+              - et
+              - eu
+              - fa
+              - ff
+              - fi
+              - fr
+              - fur
+              - fy-NL
+              - ga-IE
+              - gd
+              - gl
+              - gn
+              - gu-IN
+              - he
+              - hi-IN
+              - hr
+              - hsb
+              - hu
+              - hy-AM
+              - ia
+              - id
+              - is
+              - it
+              - ja
+              - ja-JP-macos
+              - ka
+              - kab
+              - kk
+              - km
+              - kn
+              - ko
+              - lij
+              - lo
+              - lt
+              - ltg
+              - lv
+              - mk
+              - mr
+              - ms
+              - my
+              - nb-NO
+              - ne-NP
+              - nl
+              - nn-NO
+              - oc
+              - pa-IN
+              - pl
+              - pt-BR
+              - pt-PT
+              - rm
+              - ro
+              - ru
+              - sc
+              - sco
+              - si
+              - sk
+              - sl
+              - son
+              - sq
+              - sr
+              - sv-SE
+              - szl
+              - ta
+              - te
+              - th
+              - tl
+              - tr
+              - trs
+              - uk
+              - ur
+              - uz
+              - vi
+              - wo
+              - zh-CN
+              - zh-TW
+              recordType: availableLocales
+              id: e7e9921c-e61c-4ef8-8710-34e427115981
+            permissions: {}
+          20a2afd8-55a8-437a-879d-60b7939db784:
+            data:
+              orders:
+              - order:
+                - baidu
+                - bing
+                - google
+                - wikipedia*
+                environment:
+                  distributions:
+                  - MozillaOnline
+              - order:
+                - qwant
+                - qwantjr
+                environment:
+                  distributions:
+                  - qwant-001
+                  - qwant-002
+              schema: 1744015051994
+              recordType: engineOrders
+              id: 20a2afd8-55a8-437a-879d-60b7939db784
+            permissions: {}
+          a37f6b89-2c2a-4a49-9be1-c957bf6691c5:
+            data:
+              base:
+                name: Wikipedia (en)
+                urls:
+                  search:
+                    base: https://en.wikipedia.org/wiki/Special:Search
+                    params:
+                    - name: sourceid
+                      value: Mozilla-search
+                    searchTermParamName: search
+                  suggestions:
+                    base: https://en.wikipedia.org/w/api.php
+                    params:
+                    - name: action
+                      value: opensearch
+                    searchTermParamName: search
+                aliases:
+                - wikipedia
+                classification: unknown
+              schema: 1744015024223
+              variants:
+              - environment:
+                  excludedLocales:
+                  - af
+                  - an
+                  - ar
+                  - ast
+                  - az
+                  - be
+                  - bg
+                  - bn
+                  - br
+                  - bs
+                  - ca
+                  - ca-valencia
+                  - cs
+                  - cy
+                  - da
+                  - de
+                  - dsb
+                  - el
+                  - eo
+                  - cak
+                  - es-AR
+                  - es-CL
+                  - es-ES
+                  - es-MX
+                  - trs
+                  - et
+                  - eu
+                  - fa
+                  - fi
+                  - fr
+                  - ff
+                  - son
+                  - fy-NL
+                  - ga-IE
+                  - gd
+                  - gl
+                  - gn
+                  - gu-IN
+                  - hi-IN
+                  - he
+                  - hr
+                  - hsb
+                  - hu
+                  - hy-AM
+                  - ia
+                  - id
+                  - is
+                  - ja
+                  - ja-JP-macos
+                  - ka
+                  - kab
+                  - kk
+                  - km
+                  - kn
+                  - ko
+                  - it
+                  - fur
+                  - sc
+                  - lij
+                  - lo
+                  - lt
+                  - ltg
+                  - lv
+                  - mk
+                  - mr
+                  - ms
+                  - my
+                  - nb-NO
+                  - ne-NP
+                  - nl
+                  - nn-NO
+                  - oc
+                  - pa-IN
+                  - pl
+                  - szl
+                  - pt-BR
+                  - pt-PT
+                  - rm
+                  - ro
+                  - ru
+                  - si
+                  - sk
+                  - sl
+                  - sq
+                  - sr
+                  - sv-SE
+                  - ta
+                  - te
+                  - th
+                  - tl
+                  - tr
+                  - uk
+                  - ur
+                  - uz
+                  - vi
+                  - wo
+                  - zh-CN
+                  - zh-TW
+                  allRegionsAndLocales: true
+              identifier: wikipedia
+              recordType: engine
+              id: a37f6b89-2c2a-4a49-9be1-c957bf6691c5
+            permissions: {}
+          7de0af80-e810-4909-913b-60f831e69145:
+            data:
+              base:
+                name: Qwant
+                urls:
+                  search:
+                    base: https://www.qwant.com/
+                    params:
+                    - name: client
+                      value: '{partnerCode}'
+                    searchTermParamName: q
+                  suggestions:
+                    base: https://api.qwant.com/api/suggest/
+                    params:
+                    - name: client
+                      value: opensearch
+                    searchTermParamName: q
+                aliases:
+                - qwant
+                partnerCode: brz-moz
+                classification: general
+              schema: 1744015021565
+              variants:
+              - environment:
+                  locales:
+                  - fr
+                subVariants:
+                - environment:
+                    applications:
+                    - firefox-android
+                    - focus-android
+                  partnerCode: ff_android
+                - environment:
+                    applications:
+                    - firefox-ios
+                    - focus-ios
+                  partnerCode: ff_ios
+              - environment:
+                  regions:
+                  - be
+                  - ch
+                  - es
+                  - fr
+                  - it
+                  - nl
+                subVariants:
+                - environment:
+                    applications:
+                    - firefox-android
+                    - focus-android
+                  partnerCode: ff_android
+                - environment:
+                    applications:
+                    - firefox-ios
+                    - focus-ios
+                  partnerCode: ff_ios
+              - environment:
+                  distributions:
+                  - qwant-001
+                  - qwant-002
+                partnerCode: firefoxqwant
+                telemetrySuffix: qwant
+              identifier: qwant
+              recordType: engine
+              id: 7de0af80-e810-4909-913b-60f831e69145
+            permissions: {}
+          baac2612-11eb-41ff-a55e-f30db3b2032b:
+            data:
+              base:
+                name: eBay
+                urls:
+                  search:
+                    base: https://www.ebay.com/sch/
+                    params:
+                    - name: toolid
+                      value: '20004'
+                    - name: campid
+                      value: '{partnerCode}'
+                    - name: mkevt
+                      value: '1'
+                    - name: mkcid
+                      value: '1'
+                    - name: mkrid
+                      value: 711-53200-19255-0
+                    searchTermParamName: kw
+                  suggestions:
+                    base: https://autosug.ebay.com/autosug
+                    params:
+                    - name: sId
+                      value: '0'
+                    - name: fmt
+                      value: osr
+                    searchTermParamName: kwd
+                aliases:
+                - ebay
+                partnerCode: '5338192028'
+                classification: unknown
+              schema: 1744015011567
+              variants:
+              - environment:
+                  locales:
+                  - en-US
+                  regions:
+                  - us
+                subVariants:
+                - environment:
+                    applications:
+                    - firefox-android
+                    - focus-android
+                  partnerCode: '5338791379'
+              identifier: ebay
+              recordType: engine
+              id: baac2612-11eb-41ff-a55e-f30db3b2032b
+            permissions: {}
+          7c707b52-3da9-4a20-885f-44b4d81c96a9:
+            data:
+              base:
+                name: DuckDuckGo
+                urls:
+                  search:
+                    base: https://duckduckgo.com/
+                    params:
+                    - name: t
+                      value: '{partnerCode}'
+                    searchTermParamName: q
+                  suggestions:
+                    base: https://ac.duckduckgo.com/ac/
+                    params:
+                    - name: type
+                      value: list
+                    searchTermParamName: q
+                aliases:
+                - duckduckgo
+                - ddg
+                partnerCode: ffab
+                classification: general
+              schema: 1744015011303
+              variants:
+              - environment:
+                  allRegionsAndLocales: true
+                subVariants:
+                - environment:
+                    channels:
+                    - esr
+                  partnerCode: ftsa
+                  telemetrySuffix: esr
+              - environment:
+                  applications:
+                  - firefox-android
+                  - focus-android
+                  allRegionsAndLocales: true
+                partnerCode: fpas
+              - environment:
+                  applications:
+                  - firefox-ios
+                  - focus-ios
+                  allRegionsAndLocales: true
+                partnerCode: ffip
+              - environment:
+                  distributions:
+                  - mint-001
+                partnerCode: lm
+                telemetrySuffix: lm
+              identifier: ddg
+              recordType: engine
+              id: 7c707b52-3da9-4a20-885f-44b4d81c96a9
+            permissions: {}
+          47698159-94e5-442e-ad78-4998ffd11e3d:
+            data:
+              base:
+                name: 百度
+                urls:
+                  search:
+                    base: https://www.baidu.com/baidu
+                    params:
+                    - name: ie
+                      value: utf-8
+                    searchTermParamName: wd
+                  suggestions:
+                    base: https://www.baidu.com/su
+                    params:
+                    - name: ie
+                      value: utf-8
+                    - name: action
+                      value: opensearch
+                    searchTermParamName: wd
+                aliases:
+                - 百度
+                - baidu
+                classification: general
+              schema: 1744015009702
+              variants:
+              - environment:
+                  locales:
+                  - zh-CN
+                subVariants:
+                - urls:
+                    search:
+                      base: https://m.baidu.com/s
+                      params: []
+                      searchTermParamName: word
+                  environment:
+                    applications:
+                    - firefox-android
+                    - focus-android
+                    - firefox-ios
+                    - focus-ios
+              identifier: baidu
+              recordType: engine
+              id: 47698159-94e5-442e-ad78-4998ffd11e3d
+            permissions: {}
+          50942227-78cf-4ad1-babd-688bf71c6c16:
+            data:
+              schema: 1744015000059
+              recordType: defaultEngines
+              globalDefault: google
+              specificDefaults:
+              - default: baidu
+                environment:
+                  locales:
+                  - zh-CN
+                  regions:
+                  - cn
+              - default: baidu
+                environment:
+                  distributions:
+                  - MozillaOnline
+              - default: 1und1
+                environment:
+                  distributions:
+                  - 1und1
+              - default: webde
+                environment:
+                  distributions:
+                  - webde
+              - default: mailcom
+                environment:
+                  distributions:
+                  - mail.com
+              - default: qwant
+                environment:
+                  distributions:
+                  - qwant-001
+                  - qwant-002
+              - default: gmx-de
+                environment:
+                  distributions:
+                  - gmx
+              - default: gmx-en-GB
+                environment:
+                  distributions:
+                  - gmxcouk
+              - default: gmx-es
+                environment:
+                  distributions:
+                  - gmxes
+              - default: gmx-fr
+                environment:
+                  distributions:
+                  - gmxfr
+              id: 50942227-78cf-4ad1-babd-688bf71c6c16
+            permissions: {}
+    groups:
+      search-config-v2-reviewers:
+        data:
+          members:
+          - account:sample-data-reviewer

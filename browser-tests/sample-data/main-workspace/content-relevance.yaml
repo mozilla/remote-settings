@@ -1,0 +1,100 @@
+buckets:
+  main-workspace:
+    collections:
+      content-relevance:
+        permissions: {}
+        data:
+          created: '2024-03-07'
+          tickets:
+          - https://bugzilla.mozilla.org/show_bug.cgi?id=1884151
+          attachment:
+            enabled: true
+            required: false
+          description: "This is to support the \"Interest-based Content Relevance Ranking and\nPersonalization\" project. See project proposal\nhttps://docs.google.com/document/d/1F8yzO0QK-PFhm3YLymcx2IGGw08ZGer0z3pUXvLi1Vs/edit?usp=sharing"
+          id: content-relevance
+        records:
+          Animals-00-17:
+            data:
+              type: category_to_domains
+              attachment:
+                hash: e86509bda9344624a68842b39f0d022d654b3bd15877af655a8dba27d83379f5
+                size: 680
+                filename: Animals-00-17.json
+                location: main-workspace/content-relevance/8254371b-59c0-4066-a77d-260ff3151a12.json
+                mimetype: application/json
+              record_custom_details:
+                category_to_domains:
+                  version: 1
+                  category: animals
+                  category_code: 1
+              id: Animals-00-17
+            permissions: {}
+          Career-00-27:
+            data:
+              type: category_to_domains
+              attachment:
+                hash: ea7657693adab5abfa2071fcebf0cd2bc778300fc1b3ff3d432a598ec730e135
+                size: 1080
+                filename: Career-00-27.json
+                location: main-workspace/content-relevance/4fe852b3-4fea-4789-9c2a-caf7c13baf1e.json
+                mimetype: application/json
+              record_custom_details:
+                category_to_domains:
+                  version: 1
+                  category: career
+                  category_code: 5
+              id: Career-00-27
+            permissions: {}
+          Autos-00-65:
+            data:
+              type: category_to_domains
+              attachment:
+                hash: edf324e41ab2e0dfce2535e2fe530c9c7a213650e47a4dbcbc20cfe1ed036cc0
+                size: 2600
+                filename: Autos-00-65.json
+                location: main-workspace/content-relevance/996f8f77-712f-43b2-8de9-a571cf85d68c.json
+                mimetype: application/json
+              record_custom_details:
+                category_to_domains:
+                  version: 1
+                  category: autos
+                  category_code: 3
+              id: Autos-00-65
+            permissions: {}
+          Business-000-190:
+            data:
+              type: category_to_domains
+              attachment:
+                hash: ed0652394255d8ea9debcb7ce9c50dd6ecca912e9cb87b7098887a61e777249d
+                size: 7600
+                filename: Business-000-190.json
+                location: main-workspace/content-relevance/6bc7c1f5-ef4a-404e-af76-cdb9bd364802.json
+                mimetype: application/json
+              record_custom_details:
+                category_to_domains:
+                  version: 1
+                  category: business
+                  category_code: 4
+              id: Business-000-190
+            permissions: {}
+          Arts-000-172:
+            data:
+              type: category_to_domains
+              attachment:
+                hash: 6574d676b31cf7592e593501c4b1288f22adc3071d8fb6b672e98ae521f67442
+                size: 6880
+                filename: Arts-000-172.json
+                location: main-workspace/content-relevance/8d958c36-0a81-4919-a998-0aa14af0b7d9.json
+                mimetype: application/json
+              record_custom_details:
+                category_to_domains:
+                  version: 1
+                  category: arts
+                  category_code: 2
+              id: Arts-000-172
+            permissions: {}
+    groups:
+      content-relevance-reviewers:
+        data:
+          members:
+          - account:sample-data-reviewer

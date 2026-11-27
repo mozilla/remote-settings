@@ -1,0 +1,153 @@
+buckets:
+  main-workspace:
+    collections:
+      newtab-frecency-boosted-sponsors:
+        permissions: {}
+        data:
+          sort: -last_modified
+          schema:
+            type: object
+            title: Add domain
+            required:
+            - region
+            - title
+            - domain
+            - redirect_url
+            properties:
+              title:
+                type: string
+                title: Title
+                description: Display name of the domain.
+              domain:
+                type: string
+                title: Domain URL
+                format: uri
+                description: URL of the domain.
+              region:
+                type: string
+                title: Region code
+                description: Two-letter country code.
+              attachment:
+                type: object
+                title: The attachment itself
+                properties:
+                  hash:
+                    type: string
+                    title: Hash
+                  size:
+                    type: number
+                    title: Size (bytes)
+                  filename:
+                    type: string
+                    title: Filename
+                  location:
+                    type: string
+                    title: URL
+                  mimetype:
+                    type: string
+                    title: MIME type
+                  original:
+                    type: object
+                    title: Pre-gzipped file
+                    properties:
+                      hash:
+                        type: string
+                        title: Hash
+                      size:
+                        type: number
+                        title: Size (bytes)
+                      filename:
+                        type: string
+                        title: Filename
+                      mimetype:
+                        type: string
+                        title: MIME type
+                    additionalProperties: false
+                description: Information about the attached file.
+                additionalProperties: false
+              redirect_url:
+                type: string
+                title: Redirect URL
+                format: uri
+                description: URL where clicks are sent.
+          created: '2025-11-24'
+          tickets:
+          - https://bugzilla.mozilla.org/show_bug.cgi?id=2001732
+          uiSchema: {}
+          attachment:
+            bundle: true
+            enabled: true
+            required: true
+          description: A collection of top site domains eligible for frecency boosting
+          cache_expires: 0
+          displayFields:
+          - title
+          - domain
+          - region
+          id: newtab-frecency-boosted-sponsors
+        records:
+          8a87fad9-e702-4685-8f40-f10402b9137f:
+            data:
+              title: Expedia
+              domain: https://www.expedia.com/
+              region: US
+              schema: 1765997883006
+              attachment:
+                hash: 9e4e0fbc49c8f36c6c2709670af323c3382ae3e1ba967d778f7868f9f57ee6ad
+                size: 4441
+                filename: expedia.png
+                location: main-workspace/newtab-frecency-boosted-sponsors/54d2ab8f-1850-44e1-bcd3-c1c4db254dd2.png
+                mimetype: image/png
+              redirect_url: https://www.expedia.com/
+              id: 8a87fad9-e702-4685-8f40-f10402b9137f
+            permissions: {}
+          f2532896-a9dc-4ab2-980c-b461e61c4194:
+            data:
+              title: Temu
+              domain: https://www.temu.com/
+              region: US
+              schema: 1765909694122
+              attachment:
+                hash: 3dee6033d474b3e3824b60df29e7081bbd8ffdfc1f07c2360526c2d686e0d283
+                size: 5716
+                filename: temu.jpg
+                location: main-workspace/newtab-frecency-boosted-sponsors/a602b111-55f8-4abc-ba2e-4b05ab8aec4b.jpg
+                mimetype: image/jpeg
+              redirect_url: https://www.temu.com/
+              id: f2532896-a9dc-4ab2-980c-b461e61c4194
+            permissions: {}
+          98d74e64-b577-45a1-bf65-833a9c32110a:
+            data:
+              title: MDN
+              domain: https://developer.mozilla.org
+              region: CA
+              schema: 1764871445865
+              attachment:
+                hash: 8661e90b544623a4f23dd3ce1596cad448236fb9dab70a129cb7c76f7a21aad7
+                size: 1139
+                filename: mdn.png
+                location: main-workspace/newtab-frecency-boosted-sponsors/f4324285-a314-47b4-9761-80a2b7ab0550.png
+                mimetype: image/png
+              redirect_url: https://developer.mozilla.org/en-US/
+              id: 98d74e64-b577-45a1-bf65-833a9c32110a
+            permissions: {}
+          0b0a87ef-5875-44d0-aa3f-3953221a19cb:
+            data:
+              title: Mozilla Foundation
+              domain: https://www.mozillafoundation.org
+              region: US
+              schema: 1764871403876
+              attachment:
+                hash: ece7e174cf061f8f54bd930a9f90168ed74b40053deb107fb4d032fc344548cf
+                size: 353
+                filename: mozilla_foundation.png
+                location: main-workspace/newtab-frecency-boosted-sponsors/c2ff33a2-17e7-46fc-b3e6-092c1992e8a1.png
+                mimetype: image/png
+              redirect_url: https://www.mozillafoundation.org/en/
+              id: 0b0a87ef-5875-44d0-aa3f-3953221a19cb
+            permissions: {}
+    groups:
+      newtab-frecency-boosted-sponsors-reviewers:
+        data:
+          members:
+          - account:sample-data-reviewer

@@ -1,0 +1,12 @@
+buckets:
+  staging:
+    collections:
+      gfx:
+        permissions: {}
+        data: {}
+        records: {}
+    groups:
+      gfx-reviewers:
+        data:
+          members:
+          - account:sample-data-reviewer

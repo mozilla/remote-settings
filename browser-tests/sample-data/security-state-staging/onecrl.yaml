@@ -1,0 +1,12 @@
+buckets:
+  security-state-staging:
+    collections:
+      onecrl:
+        permissions: {}
+        data: {}
+        records: {}
+    groups:
+      onecrl-reviewers:
+        data:
+          members:
+          - account:sample-data-reviewer
