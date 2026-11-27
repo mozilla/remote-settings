@@ -36,6 +36,14 @@ Auth = Tuple[str, str]
 ClientFactory = Callable[[Auth], RemoteSettingsClient]
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "readonly: test only reads from the server, and does not require "
+        "editor/reviewer credentials.",
+    )
+
+
 def pytest_addoption(parser):
     parser.addoption(
         "--server",
@@ -212,11 +220,13 @@ def anonymous_client(make_client) -> RemoteSettingsClient:
 def _setup_server(
     request,
     setup_client,
-    editor_client,
-    reviewer_client,
 ):
     if not setup_client:
         return
+
+    # Requested lazily, since creating them can create users on the server.
+    editor_client = request.getfixturevalue("editor_client")
+    reviewer_client = request.getfixturevalue("reviewer_client")
 
     setup_client.create_bucket(
         permissions={
@@ -288,9 +298,13 @@ def _setup_server(
 
 @pytest.fixture(autouse=True)
 def _flush_default_collection(
-    editor_client: RemoteSettingsClient,
+    request,
     editor_auth: Auth,
 ):
+    if request.node.get_closest_marker("readonly"):
+        return
+
+    editor_client = request.getfixturevalue("editor_client")
     try:
         editor_client.delete_records()
     except KintoException as e:
