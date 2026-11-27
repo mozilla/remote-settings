@@ -70,6 +70,7 @@ target/
 autograph-certs/chains
 mail/*.eml
 /attachments/
+browser-tests/test-results/
 .DS_Store
 
 # Visual Studio Code

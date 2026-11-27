@@ -138,6 +138,7 @@ services:
     volumes:
       - debug-mail:/var/debug-mail/
       - debug-slack:/var/debug-slack/
+      - ./browser-tests/test-results:/app/test-results
     shm_size: 2gb
   sample-data:
     image: remotesettings/browser-tests

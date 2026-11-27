@@ -113,4 +113,17 @@ jobs:
           context: browser-tests/
 
       - name: Run browser tests
-        run: make browser-test
+        run: |
+          mkdir -m 777 browser-tests/test-results
+          make browser-test
+
+      - name: Collect server logs
+        if: failure()
+        run: docker compose logs --no-color > browser-tests/test-results/docker-compose.log
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-tests-results
+          path: browser-tests/test-results/
