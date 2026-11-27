@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import json
 import os
+import tempfile
 import traceback
 import urllib
 import urllib.parse
@@ -19,7 +20,7 @@ from pygit2 import (
 from . import ts2dt
 from ._git_export_git_tools import (
     clone_or_fetch,
-    list_lfs_pointers,
+    list_repo_attachments,
     make_lfs_pointer,
     push_mirror,
     reset_repo,
@@ -69,6 +70,10 @@ SSH_PUBKEY_PATH: str = os.path.expanduser(
 # history will remove objects that are no longer referenced by any commit from
 # LFS storage.
 COMMON_BRANCH_KEEP_DAYS: int = config("COMMON_BRANCH_KEEP_DAYS", default=90, cast=int)
+# With a `file://` remote URL, export into a local bare repository (eg. for integration
+# tests). No SSH key nor GitHub credentials are needed, and attachments are stored as
+# regular files instead of LFS pointers.
+LOCAL_EXPORT: bool = GIT_REMOTE_URL.startswith("file://")
 
 _now = datetime.datetime.now(datetime.timezone.utc)
 
@@ -99,31 +104,47 @@ def git_export() -> None:
     Export Remote Settings data to a Git repository.
     """
     print(f"Git remote URL {GIT_REMOTE_URL}")
-    print(
-        f"Use SSH key {SSH_PUBKEY_PATH} with {'*' * len(SSH_KEY_PASSPHRASE) if SSH_KEY_PASSPHRASE else 'empty'} passphrase"
-    )
-    for key in (SSH_PUBKEY_PATH, SSH_PRIVKEY_PATH):
-        open(key, "rb").read()
-    credentials = Keypair(
-        GIT_SSH_USERNAME,
-        SSH_PUBKEY_PATH,
-        SSH_PRIVKEY_PATH,
-        SSH_KEY_PASSPHRASE,
-    )
-    callbacks = RemoteCallbacks(credentials=credentials)
-    # TODO: use PGP key to sign commits
+    if LOCAL_EXPORT:
+        local_path = urllib.parse.urlparse(GIT_REMOTE_URL).path
+        if not os.path.exists(local_path):
+            print(f"Initialize bare repository {local_path}")
+            # Cloning it will check out the common branch, like on GitHub.
+            pygit2.init_repository(
+                local_path,
+                bare=True,
+                initial_head=f"{GIT_REF_PREFIX}{COMMON_BRANCH}",
+            )
+        callbacks = RemoteCallbacks()
 
-    print(
-        f"Testing GitHub Token for {GITHUB_USERNAME or GITHUB_APP_ID} on {REPO_OWNER}/{REPO_NAME}..."
-    )
-    auth_header_provider = github_lfs_validate_credentials(
-        repo_owner=REPO_OWNER,
-        repo_name=REPO_NAME,
-        github_username=GITHUB_USERNAME,
-        github_token=GITHUB_TOKEN,
-        github_app_id=GITHUB_APP_ID,
-        github_app_private_key_path=GITHUB_APP_PRIVATE_KEY_PATH,
-    )
+        def auth_header_provider() -> str:  # pragma: no cover
+            raise RuntimeError("Nothing is uploaded to LFS on local exports")
+
+    else:
+        print(
+            f"Use SSH key {SSH_PUBKEY_PATH} with {'*' * len(SSH_KEY_PASSPHRASE) if SSH_KEY_PASSPHRASE else 'empty'} passphrase"
+        )
+        for key in (SSH_PUBKEY_PATH, SSH_PRIVKEY_PATH):
+            open(key, "rb").read()
+        credentials = Keypair(
+            GIT_SSH_USERNAME,
+            SSH_PUBKEY_PATH,
+            SSH_PRIVKEY_PATH,
+            SSH_KEY_PASSPHRASE,
+        )
+        callbacks = RemoteCallbacks(credentials=credentials)
+        # TODO: use PGP key to sign commits
+
+        print(
+            f"Testing GitHub Token for {GITHUB_USERNAME or GITHUB_APP_ID} on {REPO_OWNER}/{REPO_NAME}..."
+        )
+        auth_header_provider = github_lfs_validate_credentials(
+            repo_owner=REPO_OWNER,
+            repo_name=REPO_NAME,
+            github_username=GITHUB_USERNAME,
+            github_token=GITHUB_TOKEN,
+            github_app_id=GITHUB_APP_ID,
+            github_app_private_key_path=GITHUB_APP_PRIVATE_KEY_PATH,
+        )
 
     repo = clone_or_fetch(GIT_REMOTE_URL, WORK_DIR, callbacks=callbacks)
     if not repo.raw_listall_references():
@@ -143,7 +164,7 @@ def git_export() -> None:
             changed_branches.remove(f"refs/heads/{common_branch_name}")
             changed_branches.add(f"+refs/heads/{common_branch_name}")
 
-        print(f"{len(changed_attachments)} attachments to upload.")
+        print(f"{len(changed_attachments)} attachments to upload via LFS.")
         github_lfs_batch_upload_many(
             objects=changed_attachments,
             repo_owner=REPO_OWNER,
@@ -293,8 +314,8 @@ async def repo_sync_content(
         "base_url"
     ].rstrip("/")
 
-    # Scan the existing LFS pointers in the repository, in order to detect changed attachments.
-    existing_attachments = list_lfs_pointers(repo, common_base_tree)
+    # Scan the existing attachments in the repository, in order to detect changed ones.
+    existing_attachments = list_repo_attachments(repo, common_base_tree)
     print(f"Found {len(existing_attachments)} attachments in tree")
     # Compare attachments in the changesets with existing ones, fetch the ones that
     # have changed, and return the content of the 'common' branch.
@@ -303,6 +324,7 @@ async def repo_sync_content(
         existing_attachments=existing_attachments,
         attachments_base_url=attachments_base_url,
         delete_orphan_attachments=FORCE,
+        store_inline=LOCAL_EXPORT,
     )
     common_content += attachments_branch_common_content or []
 
@@ -412,6 +434,7 @@ def process_attachments(
     changesets: list[dict[str, Any]],
     existing_attachments: dict[str, tuple[str, int]],
     delete_orphan_attachments: bool,
+    store_inline: bool = False,
 ) -> tuple[list[tuple[str, int, str]], list[tuple[str, bytes | None]]]:
     """
     Process attachments from the given changesets.
@@ -420,6 +443,9 @@ def process_attachments(
 
     When `delete_orphan_attachments` is True (full sync), we drop the pointers
     that are no longer referenced by any record of the specified `changesets`.
+
+    When `store_inline` is True, the content of the attachments is stored in the
+    tree instead of LFS pointers, and nothing is returned for upload.
     """
     changed_attachments: list[tuple[str, int, str]] = []
     common_content: list[tuple[str, bytes | None]] = []
@@ -501,7 +527,32 @@ def process_attachments(
                 print(f"Attachment {path} is no longer referenced, deleting from tree")
                 common_content.append((f"attachments/{path}", None))
 
+    if store_inline:
+        # Replace the LFS pointers by the attachments content.
+        common_content = [
+            (
+                path,
+                blob
+                if blob is None
+                else fetch_content(
+                    f"{attachments_base_url}/{path.removeprefix('attachments/')}"
+                ),
+            )
+            for path, blob in common_content
+            if path != ".gitattributes"
+        ]
+        changed_attachments = []
+
     return changed_attachments, common_content
+
+
+def fetch_content(url: str) -> bytes:
+    """
+    Fetch from the given URL and return its content.
+    """
+    with tempfile.NamedTemporaryFile() as tmp:
+        fetch_and_hash(url, dest_file=tmp.name)
+        return tmp.read()
 
 
 def tombstones_to_ledger_files(

@@ -3,6 +3,7 @@ volumes:
   debug-mail:
   debug-slack:
   attachments:
+  git-export:
 services:
   db:
     image: postgres:15
@@ -114,11 +115,17 @@ services:
       args:
         UID: 1000
         GID: 1000
+    # root so the process can write to the volumes mounted below, and own the same
+    # files as `git-export` (Git refuses to clone a repository owned by another user).
+    user: root
     environment:
       - GIT_REPO_PATH=/mnt/data/latest
       - SELF_CONTAINED=true
+      # Repository exported by `git-export`, cloned with the `gitupdate` command.
+      - GIT_REPO_URL=file:///mnt/git-export/remote-settings-data.git
     volumes:
       - ./git-reader/data:/mnt/data
+      - git-export:/mnt/git-export:ro
 
   browser-tests:
     build:
@@ -144,6 +151,22 @@ services:
       context: cronjobs/
     image: remotesettings/cronjobs
     profiles: [cronjobs]
+
+  # Export the server content into a local bare Git repository (no GitHub, no LFS).
+  git-export:
+    build:
+      context: cronjobs/
+    image: remotesettings/cronjobs
+    profiles: [cronjobs]
+    command: git_export
+    # root so the process can write to the named volume mounted below
+    user: root
+    network_mode: service:web-proxy
+    environment:
+      - SERVER=http://localhost:8888/v1
+      - GIT_REMOTE_URL=file:///mnt/git-export/remote-settings-data.git
+    volumes:
+      - git-export:/mnt/git-export
 
   web-proxy:
     image: openresty/openresty

@@ -1,3 +1,4 @@
+import hashlib
 import os
 import time
 from typing import Any, Generator, Iterable, Optional, cast
@@ -129,11 +130,11 @@ def parse_lfs_pointer(data: bytes) -> tuple[str, int]:
     return sha256_hex, size
 
 
-def list_lfs_pointers(
+def list_repo_attachments(
     repo: pygit2.Repository, tree: pygit2.Tree | None
 ) -> dict[str, tuple[str, int]]:
     """
-    List all LFS pointers in the given tree.
+    List all attachments in the given tree, stored as LFS pointers or regular files.
     Return a mapping of attachment path to (sha256, size).
     """
     if tree is None:
@@ -147,13 +148,12 @@ def list_lfs_pointers(
         # No attachments/ folder yet.
         objs = []
     for path, oid in objs:
-        blob = repo[oid]
+        data = cast(pygit2.Blob, repo[oid]).data
         try:
-            sha256_hex, size = parse_lfs_pointer(blob.data)  # ty: ignore[unresolved-attribute]
-        except ValueError as exc:
-            print(f"Failed to parse LFS pointer for {path}: {exc}")
-            continue
-        existing_attachments[path] = (sha256_hex, size)
+            existing_attachments[path] = parse_lfs_pointer(data)
+        except ValueError:
+            # Not an LFS pointer, the attachment content is stored in the repo.
+            existing_attachments[path] = (hashlib.sha256(data).hexdigest(), len(data))
     return existing_attachments
 
 

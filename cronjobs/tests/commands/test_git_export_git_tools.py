@@ -1,3 +1,4 @@
+import hashlib
 import time
 from typing import cast
 from unittest import mock
@@ -7,6 +8,8 @@ import pytest
 from commands import git_export
 from commands._git_export_git_tools import (
     iter_tree,
+    list_repo_attachments,
+    make_lfs_pointer,
     parse_lfs_pointer,
     push_mirror,
     reset_repo,
@@ -55,6 +58,25 @@ size 42
     sha, size = parse_lfs_pointer(data)
     assert sha == "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
     assert size == 42
+
+
+def test_list_repo_attachments_reads_lfs_pointers_and_regular_files(tmp_repo):
+    repo = tmp_repo
+    tree_oid = tree_upsert_blobs(
+        repo,
+        [
+            ("attachments/a/pointer.bin", make_lfs_pointer("abcdef", 42)),
+            ("attachments/a/text.json", b'{"hello": "world"}'),
+            ("attachments/b/binary.bin", b"\xff\x00\x01"),
+        ],
+        base_tree=None,
+    )
+
+    assert list_repo_attachments(repo, cast(pygit2.Tree, repo[tree_oid])) == {
+        "a/pointer.bin": ("abcdef", 42),
+        "a/text.json": (hashlib.sha256(b'{"hello": "world"}').hexdigest(), 18),
+        "b/binary.bin": (hashlib.sha256(b"\xff\x00\x01").hexdigest(), 3),
+    }
 
 
 def test_tree_upsert_blobs_prunes_emptied_folders(tmp_repo):
