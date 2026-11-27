@@ -17,7 +17,7 @@ log_sizes() {
     local file_count
     file_count=$(git -C "$repo_path" ls-files | wc -l)
     lfs_total_count=$(git -C "$repo_path" lfs ls-files | wc -l)
-    lfs_pulled_count=$(git -C "$repo_path" lfs ls-files | grep ' \* ' | wc -l)
+    lfs_pulled_count=$(git -C "$repo_path" lfs ls-files | grep -c ' \* ' || true)
     log "Number of files: ${file_count} (LFS: ${lfs_pulled_count}/${lfs_total_count} pulled)"
 
     log "Number of attachments per collection (top 15):"
@@ -137,6 +137,8 @@ cmd_gitupdate() {
     start_replicate=$(date +%s)
     log "Syncing updates back to previously active directory $active_dir..."
     # Keep attributes, preserve hardlinks where possible; avoid copying .git objects redundantly
+    # The LFS folder does not exist if the repository has no LFS objects (integration tests).
+    mkdir -p "$inactive_dir/.git/lfs/objects"
     rsync -a --delete "$inactive_dir/.git/lfs/objects/". "$active_dir/.git/lfs/objects/"
     log "Replicate of LFS objects took $(fmt_duration $(($(date +%s) - start_replicate)))."
 

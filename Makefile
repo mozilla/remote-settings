@@ -67,8 +67,9 @@ test: $(INSTALL_STAMP)  ## Run unit tests
 browser-test:  ## Run browser tests using Docker
 	docker compose --profile=browser-tests build browser-tests -q
 	docker compose run --rm web migrate
-	docker compose run --rm browser-tests
 	docker compose --profile cronjobs run --rm git-export
+	docker compose run --rm git-reader gitupdate
+	docker compose run --rm browser-tests
 
 build:  ## Build containers
 	docker build --file RemoteSettings.Dockerfile --target production --tag remotesettings/server .
