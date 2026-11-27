@@ -157,11 +157,13 @@ services:
         for user in admin sample-data-reviewer; do
           http --ignore-stdin --check-status -q -a $$user:s3cr3t PUT $$SERVER/accounts/$$user data:='{"password": "s3cr3t"}'
         done
-        for f in sample-data/*.yaml; do
+        # Files are organized as `sample-data/{bucket}/{collection}.yaml`.
+        for f in sample-data/*/*.yaml; do
+          bid=$$(basename "$$(dirname "$$f")")
           cid=$$(basename "$$f" .yaml)
-          kinto-wizard load -q --server $$SERVER --auth admin:s3cr3t --full -b main-workspace -c "$$cid" --attachments sample-data/attachments "$$f"
-          http --ignore-stdin --check-status -q -a admin:s3cr3t PATCH $$SERVER/buckets/main-workspace/collections/$$cid data:='{"status": "to-review"}'
-          http --ignore-stdin --check-status -q -a sample-data-reviewer:s3cr3t PATCH $$SERVER/buckets/main-workspace/collections/$$cid data:='{"status": "to-sign"}'
+          kinto-wizard load -q --server $$SERVER --auth admin:s3cr3t --full -b "$$bid" -c "$$cid" --attachments sample-data/attachments "$$f"
+          http --ignore-stdin --check-status -q -a admin:s3cr3t PATCH $$SERVER/buckets/$$bid/collections/$$cid data:='{"status": "to-review"}'
+          http --ignore-stdin --check-status -q -a sample-data-reviewer:s3cr3t PATCH $$SERVER/buckets/$$bid/collections/$$cid data:='{"status": "to-sign"}'
         done
   cronjobs:
     build:
